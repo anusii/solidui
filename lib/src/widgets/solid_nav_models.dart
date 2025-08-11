@@ -26,6 +26,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:solidui/solidui.dart';
 
 /// Configuration for a navigation tab.
 
@@ -276,8 +277,9 @@ class SolidAppBarConfig {
     this.overflowItems = const [],
     this.versionConfig,
     this.themeConfig,
-    this.narrowScreenThreshold = 800.0,
-    this.veryNarrowScreenThreshold = 600.0,
+    this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
+    this.veryNarrowScreenThreshold =
+        NavigationConstants.veryNarrowScreenThreshold,
   });
 }
 
