@@ -26,6 +26,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -214,7 +215,7 @@ class SolidNavDrawer extends StatelessWidget {
                 color: theme.colorScheme.onPrimaryContainer,
               ),
 
-          SizedBox(height: NavigationConstants.userInfoSpacing),
+          Gap(NavigationConstants.userInfoSpacing),
 
           // User name.
 
@@ -232,7 +233,7 @@ class SolidNavDrawer extends StatelessWidget {
           if (user.showWebId &&
               user.webId != null &&
               user.webId!.isNotEmpty) ...[
-            SizedBox(height: NavigationConstants.webIdSpacing),
+            Gap(NavigationConstants.webIdSpacing),
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: NavigationConstants.webIdHorizontalPadding,

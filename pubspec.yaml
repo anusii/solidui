@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.6.1
+  gap: ^3.0.1
   markdown_tooltip: ^0.0.7
   version_widget: ^1.0.4
 

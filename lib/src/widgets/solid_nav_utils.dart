@@ -28,6 +28,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
 
@@ -70,7 +71,7 @@ class SolidNavUtils {
           _buildVersionWidget(config.versionConfig!, isNarrow),
 
         if (config.versionConfig != null && !isVeryNarrow)
-          const SizedBox(width: 8),
+          Gap(8),
 
         // Regular action buttons.
 
@@ -222,7 +223,7 @@ class SolidNavUtils {
                 child: Row(
                   children: [
                     Icon(item.icon),
-                    const SizedBox(width: 8),
+                    Gap(8),
                     Text(item.label),
                   ],
                 ),
