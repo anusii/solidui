@@ -28,7 +28,9 @@
 
 library;
 
+export 'src/constants/navigation.dart';
 export 'src/widgets/solid_nav_bar.dart';
 export 'src/widgets/solid_nav_drawer.dart';
 export 'src/widgets/solid_nav_manager.dart';
 export 'src/widgets/solid_nav_models.dart';
+export 'src/widgets/solid_nav_utils.dart';
