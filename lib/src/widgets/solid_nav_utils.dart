@@ -1,6 +1,6 @@
 /// Solid Navigation Utilities.
 ///
-// Time-stamp: <Tuesday 2025-08-06 16:30:00 +1000 Tony Chen>
+// Time-stamp: <Wednesday 2025-08-06 16:30:00 +1000 Tony Chen>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///

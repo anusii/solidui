@@ -1,6 +1,6 @@
 /// Solid Navigation Manager for automatic layout switching.
 ///
-// Time-stamp: <Tuesday 2025-08-06 16:30:00 +1000 Tony Chen>
+// Time-stamp: <Wednesday 2025-08-06 16:30:00 +1000 Tony Chen>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -31,6 +31,8 @@ import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_status_bar.dart';
+import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
 /// Configuration for the solid navigation manager.
 
@@ -126,6 +128,10 @@ class SolidNavigationManager extends StatelessWidget {
   final String? logoutText;
   final bool showLogout;
 
+  /// Optional status bar configuration.
+
+  final SolidStatusBarConfig? statusBarConfig;
+
   const SolidNavigationManager({
     super.key,
     this.config = const SolidNavigationConfig(),
@@ -148,6 +154,7 @@ class SolidNavigationManager extends StatelessWidget {
     this.logoutIcon,
     this.logoutText,
     this.showLogout = true,
+    this.statusBarConfig,
   });
 
   @override
@@ -196,6 +203,9 @@ class SolidNavigationManager extends StatelessWidget {
       backgroundColor: backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: floatingActionButton,
       body: _buildBody(context, theme, isWideScreen),
+      bottomNavigationBar: statusBarConfig != null
+          ? SolidStatusBar(config: statusBarConfig!)
+          : null,
     );
   }
 
@@ -281,6 +291,7 @@ class SolidNavigationManager extends StatelessWidget {
     Color? backgroundColor,
     Widget? floatingActionButton,
     List<Widget>? additionalDrawerItems,
+    SolidStatusBarConfig? statusBarConfig,
   }) {
     return SolidNavigationManager(
       key: key,
@@ -296,6 +307,7 @@ class SolidNavigationManager extends StatelessWidget {
       backgroundColor: backgroundColor,
       floatingActionButton: floatingActionButton,
       additionalDrawerItems: additionalDrawerItems,
+      statusBarConfig: statusBarConfig,
     );
   }
 }
