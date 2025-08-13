@@ -39,7 +39,8 @@ import 'package:solidpod/solidpod.dart'
         deleteFile,
         getEncKeyPath,
         getWebId,
-        readPod;
+        readPod,
+        writePod;
 
 import 'solid_security_key_view.dart';
 
@@ -52,6 +53,57 @@ Future<String> getCorrectEncKeyPath() async {
   } catch (e) {
     // Fallback to original function if AppInfo fails
     return await getEncKeyPath();
+  }
+}
+
+/// Saves the encryption key to the correct path.
+
+Future<void> saveEncryptionKeyToCorrectPath(
+    String key, BuildContext context) async {
+  // Set the key in memory using the standard method.
+
+  await KeyManager.initPodKeys(key);
+
+  // Check if the key was saved to the wrong path.
+
+  final originalPath = await getEncKeyPath();
+  final correctPath = await getCorrectEncKeyPath();
+
+  if (originalPath != correctPath) {
+    try {
+      // Read the key content from the wrong path.
+
+      final keyContent = await readPod(
+        originalPath,
+        context,
+        const Text('Reading encryption key'),
+      );
+
+      if (keyContent.isNotEmpty &&
+          keyContent != SolidFunctionCallStatus.fail.toString() &&
+          keyContent != SolidFunctionCallStatus.notLoggedIn.toString()) {
+        // Write the key to the correct path.
+
+        await writePod(
+          correctPath,
+          keyContent,
+          context,
+          const Text('Saving encryption key'),
+          encrypted: false,
+        );
+
+        // Delete the file from the wrong path
+        try {
+          await deleteFile(originalPath);
+        } catch (e) {
+          // If deletion fails, just log it but don't fail the whole operation.
+
+          debugPrint('Warning: Could not delete key from wrong path: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('Warning: Could not move key to correct path: $e');
+    }
   }
 }
 
@@ -453,9 +505,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     try {
       setState(() => _isLoading = true);
 
-      // Attempt to initialise POD keys.
+      // Attempt to initialise POD keys and save to correct path.
 
-      await KeyManager.initPodKeys(key);
+      await saveEncryptionKeyToCorrectPath(key, context);
 
       // Verify the key was actually set by checking the file.
 
@@ -773,9 +825,34 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                                 late String msg;
                                 try {
                                   await KeyManager.forgetSecurityKey();
-                                  final encKeyPath =
+
+                                  // Delete from both possible paths to
+                                  // ensure cleanup.
+
+                                  final correctPath =
                                       await getCorrectEncKeyPath();
-                                  await deleteFile(encKeyPath);
+                                  final originalPath = await getEncKeyPath();
+
+                                  // Delete from correct path.
+
+                                  try {
+                                    await deleteFile(correctPath);
+                                  } catch (e) {
+                                    debugPrint(
+                                        'Could not delete from correct path: $e');
+                                  }
+
+                                  // Delete from original path if different.
+
+                                  if (originalPath != correctPath) {
+                                    try {
+                                      await deleteFile(originalPath);
+                                    } catch (e) {
+                                      debugPrint(
+                                          'Could not delete from original path: $e');
+                                    }
+                                  }
+
                                   widget.onKeyStatusChanged(false);
                                   await _checkKeyStatus();
                                   msg =
