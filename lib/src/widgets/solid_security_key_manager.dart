@@ -43,6 +43,18 @@ import 'package:solidpod/solidpod.dart'
 
 import 'solid_security_key_view.dart';
 
+/// Gets the correct encryption key path.
+
+Future<String> getCorrectEncKeyPath() async {
+  try {
+    final appName = await AppInfo.name;
+    return '$appName/encryption/enc-key.ttl';
+  } catch (e) {
+    // Fallback to original function if AppInfo fails
+    return await getEncKeyPath();
+  }
+}
+
 /// Configuration for the Security Key Manager.
 
 class SolidSecurityKeyManagerConfig {
@@ -134,8 +146,6 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       final hasKeyInMemory = await KeyManager.hasSecurityKey();
 
       if (!hasKeyInMemory) {
-        // No key in memory.
-
         widget.onKeyStatusChanged(false);
         setState(() {
           _hasExistingKey = false;
@@ -145,7 +155,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       // If KeyManager says there's a key, verify the file actually exists.
       try {
-        final filePath = await getEncKeyPath();
+        final filePath = await getCorrectEncKeyPath();
         final fileContent = await readPod(
           filePath,
           context,
@@ -274,7 +284,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     });
 
     try {
-      final filePath = await getEncKeyPath();
+      final filePath = await getCorrectEncKeyPath();
       if (!context.mounted) return;
 
       final fileContent = await readPod(
@@ -442,27 +452,96 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     try {
       setState(() => _isLoading = true);
-      await KeyManager.initPodKeys(key);
-      widget.onKeyStatusChanged(true);
-      await _checkKeyStatus();
 
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        final theme = Theme.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Security key set successfully'),
-            backgroundColor: theme.colorScheme.tertiary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+      // Attempt to initialise POD keys.
+
+      await KeyManager.initPodKeys(key);
+
+      // Verify the key was actually set by checking the file.
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      bool keySetSuccessfully = false;
+      try {
+        final filePath = await getCorrectEncKeyPath();
+        final fileContent = await readPod(
+          filePath,
+          context,
+          SolidSecurityKeyManager(
+            config: widget.config,
+            onKeyStatusChanged: widget.onKeyStatusChanged,
           ),
         );
+
+        keySetSuccessfully = fileContent.isNotEmpty &&
+            fileContent != SolidFunctionCallStatus.notLoggedIn.toString() &&
+            fileContent != SolidFunctionCallStatus.fail.toString();
+      } catch (verifyError) {
+        debugPrint('Key verification failed: $verifyError');
+        keySetSuccessfully = false;
+      }
+
+      if (keySetSuccessfully) {
+        // Success - update status and show success message.
+
+        widget.onKeyStatusChanged(true);
+        await _checkKeyStatus();
+
+        if (context.mounted) {
+          Navigator.of(context).pop();
+          final theme = Theme.of(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Security key set and verified successfully'),
+              backgroundColor: theme.colorScheme.tertiary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }
+      } else {
+        // Key was set in memory but file verification failed.
+
+        if (context.mounted) {
+          await _showErrorDialog(
+              context,
+              'Key Set But Not Verified',
+              'The security key was set in memory but could not be verified in '
+                  'your POD storage. '
+                  'This may be due to:\n\n'
+                  '• Network connectivity issues\n'
+                  '• POD storage permissions\n'
+                  '• Temporary server problems\n\n'
+                  'The key is active for this session, but you may need to set it '
+                  'again later.');
+          Navigator.of(context).pop();
+        }
+
+        // Still update the status as the key is at least in memory
+        widget.onKeyStatusChanged(true);
+        await _checkKeyStatus();
       }
     } catch (e) {
+      debugPrint('Error setting security key: $e');
+
       if (context.mounted) {
-        _showErrorSnackBar(context, e.toString());
+        String errorMessage = 'Failed to set security key.';
+
+        if (e.toString().contains('not logged in') ||
+            e.toString().contains('authentication')) {
+          errorMessage = 'You must be logged in to set a security key.';
+        } else if (e.toString().contains('network') ||
+            e.toString().contains('connection')) {
+          errorMessage =
+              'Network error. Please check your connection and try again.';
+        } else if (e.toString().contains('permission')) {
+          errorMessage =
+              'Permission denied. Please check your POD access rights.';
+        }
+
+        _showErrorSnackBar(context, errorMessage);
       }
     } finally {
       if (mounted) {
@@ -694,7 +773,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                                 late String msg;
                                 try {
                                   await KeyManager.forgetSecurityKey();
-                                  final encKeyPath = await getEncKeyPath();
+                                  final encKeyPath =
+                                      await getCorrectEncKeyPath();
                                   await deleteFile(encKeyPath);
                                   widget.onKeyStatusChanged(false);
                                   await _checkKeyStatus();

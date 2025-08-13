@@ -74,7 +74,7 @@ class SolidSecurityKeyService extends ChangeNotifier {
   
   Future<bool> fetchKeySavedStatus([Function(bool)? onKeyStatusChanged]) async {
     try {
-      // Simply check if the security key exists in memory.
+      // Check if the security key exists in memory.
 
       final hasKey = await KeyManager.hasSecurityKey();
       
@@ -94,6 +94,17 @@ class SolidSecurityKeyService extends ChangeNotifier {
       return hasKey;
     } catch (e) {
       debugPrint('Error fetching security key status: $e');
+      
+      // On error, assume no key and notify if needed.
+
+      if (_lastKnownKeyStatus != false) {
+        _lastKnownKeyStatus = false;
+        if (onKeyStatusChanged != null) {
+          onKeyStatusChanged(false);
+        }
+        notifyListeners();
+      }
+      
       return false;
     }
   }
