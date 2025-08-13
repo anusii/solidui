@@ -39,73 +39,9 @@ import 'package:solidpod/solidpod.dart'
         deleteFile,
         getEncKeyPath,
         getWebId,
-        readPod,
-        writePod;
+        readPod;
 
 import 'solid_security_key_view.dart';
-
-/// Gets the correct encryption key path.
-
-Future<String> getCorrectEncKeyPath() async {
-  try {
-    final appName = await AppInfo.name;
-    return '$appName/encryption/enc-key.ttl';
-  } catch (e) {
-    // Fallback to original function if AppInfo fails
-    return await getEncKeyPath();
-  }
-}
-
-/// Saves the encryption key to the correct path.
-
-Future<void> saveEncryptionKeyToCorrectPath(
-    String key, BuildContext context) async {
-  // Set the key in memory using the standard method.
-
-  await KeyManager.initPodKeys(key);
-
-  // Check if the key was saved to the wrong path.
-
-  final originalPath = await getEncKeyPath();
-  final correctPath = await getCorrectEncKeyPath();
-
-  if (originalPath != correctPath) {
-    try {
-      // Read the key content from the wrong path.
-
-      final keyContent = await readPod(
-        originalPath,
-        context,
-        const Text('Reading encryption key'),
-      );
-
-      if (keyContent.isNotEmpty &&
-          keyContent != SolidFunctionCallStatus.fail.toString() &&
-          keyContent != SolidFunctionCallStatus.notLoggedIn.toString()) {
-        // Write the key to the correct path.
-
-        await writePod(
-          correctPath,
-          keyContent,
-          context,
-          const Text('Saving encryption key'),
-          encrypted: false,
-        );
-
-        // Delete the file from the wrong path
-        try {
-          await deleteFile(originalPath);
-        } catch (e) {
-          // If deletion fails, just log it but don't fail the whole operation.
-
-          debugPrint('Warning: Could not delete key from wrong path: $e');
-        }
-      }
-    } catch (e) {
-      debugPrint('Warning: Could not move key to correct path: $e');
-    }
-  }
-}
 
 /// Configuration for the Security Key Manager.
 
@@ -195,6 +131,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   Future<void> _checkKeyStatus() async {
     try {
+      final encKeyPath = await getEncKeyPath();
+
       final hasKeyInMemory = await KeyManager.hasSecurityKey();
 
       if (!hasKeyInMemory) {
@@ -205,9 +143,10 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         return;
       }
 
-      // If KeyManager says there's a key, verify the file actually exists.
+      // Verify the file actually exists.
+
       try {
-        final filePath = await getCorrectEncKeyPath();
+        final filePath = await getEncKeyPath();
         final fileContent = await readPod(
           filePath,
           context,
@@ -336,7 +275,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     });
 
     try {
-      final filePath = await getCorrectEncKeyPath();
+      final filePath = await getEncKeyPath();
       if (!context.mounted) return;
 
       final fileContent = await readPod(
@@ -505,9 +444,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     try {
       setState(() => _isLoading = true);
 
-      // Attempt to initialise POD keys and save to correct path.
+      // Attempt to initialise POD keys.
 
-      await saveEncryptionKeyToCorrectPath(key, context);
+      await KeyManager.initPodKeys(key);
 
       // Verify the key was actually set by checking the file.
 
@@ -515,7 +454,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       bool keySetSuccessfully = false;
       try {
-        final filePath = await getCorrectEncKeyPath();
+        final filePath = await getEncKeyPath();
         final fileContent = await readPod(
           filePath,
           context,
@@ -825,33 +764,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                                 late String msg;
                                 try {
                                   await KeyManager.forgetSecurityKey();
-
-                                  // Delete from both possible paths to
-                                  // ensure cleanup.
-
-                                  final correctPath =
-                                      await getCorrectEncKeyPath();
-                                  final originalPath = await getEncKeyPath();
-
-                                  // Delete from correct path.
-
-                                  try {
-                                    await deleteFile(correctPath);
-                                  } catch (e) {
-                                    debugPrint(
-                                        'Could not delete from correct path: $e');
-                                  }
-
-                                  // Delete from original path if different.
-
-                                  if (originalPath != correctPath) {
-                                    try {
-                                      await deleteFile(originalPath);
-                                    } catch (e) {
-                                      debugPrint(
-                                          'Could not delete from original path: $e');
-                                    }
-                                  }
+                                  final encKeyPath = await getEncKeyPath();
+                                  await deleteFile(encKeyPath);
 
                                   widget.onKeyStatusChanged(false);
                                   await _checkKeyStatus();
