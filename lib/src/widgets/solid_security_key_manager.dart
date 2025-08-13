@@ -133,9 +133,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     try {
       final hasKey = await KeyManager.hasSecurityKey();
 
-      if (widget.onKeyStatusChanged != null) {
-        widget.onKeyStatusChanged(hasKey);
-      }
+      widget.onKeyStatusChanged(hasKey);
 
       setState(() {
         _hasExistingKey = hasKey;
