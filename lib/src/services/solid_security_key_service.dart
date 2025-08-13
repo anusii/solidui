@@ -43,6 +43,10 @@ import 'package:solidpod/solidpod.dart' show KeyManager;
 class SolidSecurityKeyService extends ChangeNotifier {
   SolidSecurityKeyService();
 
+  // Track the last known key status to prevent unnecessary notifications.
+
+  bool? _lastKnownKeyStatus;
+
   /// Checks if a security key is currently saved.
   ///
   /// Returns true if a security key exists in memory, false otherwise.
@@ -80,9 +84,12 @@ class SolidSecurityKeyService extends ChangeNotifier {
         onKeyStatusChanged(hasKey);
       }
       
-      // Notify listeners of status change.
+      // Only notify listeners if the status has actually changed.
 
-      notifyListeners();
+      if (_lastKnownKeyStatus != hasKey) {
+        _lastKnownKeyStatus = hasKey;
+        notifyListeners();
+      }
       
       return hasKey;
     } catch (e) {
@@ -97,6 +104,9 @@ class SolidSecurityKeyService extends ChangeNotifier {
   /// and notifies all listeners of any changes.
   
   Future<void> refreshKeyStatus() async {
+    // Reset the last known status to force notification.
+
+    _lastKnownKeyStatus = null;
     await fetchKeySavedStatus();
   }
 
@@ -118,6 +128,20 @@ class SolidSecurityKeyService extends ChangeNotifier {
       return verificationKey.isNotEmpty;
     } catch (e) {
       debugPrint('Error checking if security key is needed: $e');
+      return false;
+    }
+  }
+
+  /// Validates that a security key is properly set up.
+  ///
+  /// This method performs a comprehensive validation by checking
+  /// the KeyManager state. File validation is handled by UI components.
+  
+  Future<bool> validateSecurityKeySetup() async {
+    try {
+      return await KeyManager.hasSecurityKey();
+    } catch (e) {
+      debugPrint('Error validating security key setup: $e');
       return false;
     }
   }

@@ -131,14 +131,71 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   Future<void> _checkKeyStatus() async {
     try {
-      final hasKey = await KeyManager.hasSecurityKey();
+      final hasKeyInMemory = await KeyManager.hasSecurityKey();
 
-      widget.onKeyStatusChanged(hasKey);
+      if (!hasKeyInMemory) {
+        // No key in memory.
 
-      setState(() {
-        _hasExistingKey = hasKey;
-      });
+        widget.onKeyStatusChanged(false);
+        setState(() {
+          _hasExistingKey = false;
+        });
+        return;
+      }
+
+      // If KeyManager says there's a key, verify the file actually exists.
+      try {
+        final filePath = await getEncKeyPath();
+        final fileContent = await readPod(
+          filePath,
+          context,
+          SolidSecurityKeyManager(
+            config: widget.config,
+            onKeyStatusChanged: widget.onKeyStatusChanged,
+          ),
+        );
+
+        // Check if we got valid content.
+
+        final hasValidKeyFile = fileContent.isNotEmpty &&
+            fileContent != SolidFunctionCallStatus.notLoggedIn.toString() &&
+            fileContent != SolidFunctionCallStatus.fail.toString();
+
+        widget.onKeyStatusChanged(hasValidKeyFile);
+        setState(() {
+          _hasExistingKey = hasValidKeyFile;
+        });
+
+        // If KeyManager thinks there's a key but file doesn't exist,
+        // clear the KeyManager state.
+
+        if (!hasValidKeyFile && hasKeyInMemory) {
+          debugPrint(
+              'KeyManager has key but file missing, clearing KeyManager state');
+          await KeyManager.forgetSecurityKey();
+        }
+      } catch (e) {
+        // File check failed, assume no valid key.
+
+        debugPrint('Key file verification failed: $e');
+        widget.onKeyStatusChanged(false);
+        setState(() {
+          _hasExistingKey = false;
+        });
+
+        // Clear KeyManager state if file is missing.
+
+        if (hasKeyInMemory) {
+          try {
+            await KeyManager.forgetSecurityKey();
+          } catch (clearError) {
+            debugPrint('Failed to clear KeyManager state: $clearError');
+          }
+        }
+      }
     } catch (e) {
+      debugPrint('Error checking key status: $e');
+      widget.onKeyStatusChanged(false);
       setState(() {
         _hasExistingKey = false;
       });
@@ -230,12 +287,22 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       );
       if (!context.mounted) return;
 
-      // If key retrieval is successful, navigate to key display screen.
+      // Check for specific error conditions.
 
-      if (![
-        SolidFunctionCallStatus.notLoggedIn.toString(),
-        SolidFunctionCallStatus.fail.toString()
-      ].contains(fileContent)) {
+      if (fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
+        await _showErrorDialog(context, 'Not Logged In',
+            'You must be logged in to view security keys.');
+        return;
+      }
+
+      if (fileContent == SolidFunctionCallStatus.fail.toString()) {
+        await _showKeyFileNotFoundDialog(context);
+        return;
+      }
+
+      // If there is valid content, show the key view.
+
+      if (fileContent.isNotEmpty) {
         await Navigator.push(
           context,
           MaterialPageRoute(
@@ -245,9 +312,30 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
             ),
           ),
         );
+      } else {
+        await _showErrorDialog(context, 'Empty Key File',
+            'The security key file exists but appears to be empty.');
       }
     } on Exception catch (e) {
-      debugPrint('Exception: $e');
+      debugPrint('Exception reading security key: $e');
+
+      // Handle specific exceptions.
+
+      String errorMessage =
+          'An unexpected error occurred while reading the security key.';
+
+      if (e.toString().contains('does not exist')) {
+        errorMessage = 'The security key file does not exist. '
+            'You may need to set a new security key.';
+      } else if (e.toString().contains('permission')) {
+        errorMessage =
+            'Permission denied when accessing the security key file.';
+      } else if (e.toString().contains('network')) {
+        errorMessage = 'Network error when accessing the security key file. '
+            'Please check your connection.';
+      }
+
+      await _showErrorDialog(context, 'Error Reading Key', errorMessage);
     } finally {
       if (mounted) {
         setState(() {
@@ -381,6 +469,74 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  /// Shows a specific dialogue for when the key file is not found.
+
+  Future<void> _showKeyFileNotFoundDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: const Text('Security Key File Not Found'),
+        content: const Text(
+            'The security key file could not be found. This may indicate:\n\n'
+            '• The key file has been deleted\n'
+            '• The key was set on a different device\n'
+            '• There was an issue with file storage\n\n'
+            'Would you like to set a new security key?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: _getButtonStyle(),
+            onPressed: () async {
+              Navigator.of(context).pop();
+
+              // Clear the invalid key state and show key input dialog.
+
+              await KeyManager.forgetSecurityKey();
+              await _checkKeyStatus();
+              if (context.mounted) {
+                await _showKeyInputDialog(context);
+              }
+            },
+            child: const Text('Set New Key'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Shows an error dialogue with detailed message.
+
+  Future<void> _showErrorDialog(
+      BuildContext context, String title, String message) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Shows a snack bar with an error message.
