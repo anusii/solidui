@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../utils/solid_security_key_utils.dart';
+import 'package:solidui/src/widgets/solid_security_key_utils.dart';
 
 /// A widget to show the user all the encryption keys stored in their Solid Pod.
 
