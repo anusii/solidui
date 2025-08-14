@@ -13,7 +13,7 @@ dependencies:
   gap: ^3.0.1
   markdown_tooltip: ^0.0.7
   rdflib: ^0.2.12
-  solidpod: ^0.6.12
+  solidpod: ^0.7.8
   url_launcher: ^6.3.1
   version_widget: ^1.0.4
 
