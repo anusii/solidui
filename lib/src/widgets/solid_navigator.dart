@@ -40,7 +40,7 @@ import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 ///
 /// Shows navigation rail on wide screens and drawer menu on narrow screens.
 /// Supports optional AppBar and status bar.
-/// 
+///
 /// Usage example:
 /// ```dart
 /// SolidNavigator(
@@ -153,7 +153,7 @@ class _SolidNavigatorState extends State<SolidNavigator> {
         _selectedIndex = index;
       });
     }
-    
+
     // Execute menu item action.
 
     final menuItem = widget.menu[index];
@@ -171,16 +171,18 @@ class _SolidNavigatorState extends State<SolidNavigator> {
   /// Converts SolidMenuItem to SolidNavTab.
 
   List<SolidNavTab> _convertToNavTabs() {
-    return widget.menu.map((item) => SolidNavTab(
-      title: item.title,
-      icon: item.icon,
-      color: item.color,
-      content: item.content,
-      tooltip: item.tooltip,
-      message: item.message,
-      dialogTitle: item.dialogTitle,
-      action: item.onTap,
-    )).toList();
+    return widget.menu
+        .map((item) => SolidNavTab(
+              title: item.title,
+              icon: item.icon,
+              color: item.color,
+              content: item.content,
+              tooltip: item.tooltip,
+              message: item.message,
+              dialogTitle: item.dialogTitle,
+              action: item.onTap,
+            ))
+        .toList();
   }
 
   /// Builds the AppBar.
@@ -195,14 +197,16 @@ class _SolidNavigatorState extends State<SolidNavigator> {
     // Build action buttons.
 
     List<Widget> actions = [];
-    
+
     for (final action in config.actions) {
       // Determine whether to show button based on screen width.
 
       bool shouldShow = true;
-      if (action.hideOnVeryNarrowScreen && screenWidth < config.veryNarrowScreenThreshold) {
+      if (action.hideOnVeryNarrowScreen &&
+          screenWidth < config.veryNarrowScreenThreshold) {
         shouldShow = false;
-      } else if (action.hideOnNarrowScreen && screenWidth < config.narrowScreenThreshold) {
+      } else if (action.hideOnNarrowScreen &&
+          screenWidth < config.narrowScreenThreshold) {
         shouldShow = false;
       }
 
@@ -224,7 +228,8 @@ class _SolidNavigatorState extends State<SolidNavigator> {
       actions.add(
         PopupMenuButton<String>(
           onSelected: (String id) {
-            final item = config.overflowItems.firstWhere((item) => item.id == id);
+            final item =
+                config.overflowItems.firstWhere((item) => item.id == id);
             item.onSelected();
           },
           itemBuilder: (BuildContext context) {
@@ -249,7 +254,8 @@ class _SolidNavigatorState extends State<SolidNavigator> {
     return AppBar(
       title: Text(config.title),
       backgroundColor: config.backgroundColor,
-      automaticallyImplyLeading: !isWideScreen, // Show hamburger menu only on narrow screens.
+      automaticallyImplyLeading: !isWideScreen,
+      // Show hamburger menu only on narrow screens.
       actions: actions.isEmpty ? null : actions,
     );
   }
