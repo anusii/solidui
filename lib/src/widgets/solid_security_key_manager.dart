@@ -43,33 +43,6 @@ import 'package:solidpod/solidpod.dart'
 
 import 'solid_security_key_view.dart';
 
-/// Trims the app data directory prefix from the path if present.
-
-Future<String> _trimAppDataPrefix(String path) async {
-  try {
-    final appName = await AppInfo.name;
-    final prefix = '$appName/data/';
-    
-    if (path.startsWith(prefix)) {
-      final trimmedPath = path.substring(prefix.length);
-      debugPrint('Path trimmed from: $path to: $trimmedPath');
-      return trimmedPath;
-    }
-    
-    return path;
-  } catch (e) {
-    debugPrint('Error trimming path prefix: $e');
-    return path;
-  }
-}
-
-/// Gets the processed encryption key path with prefix trimming.
-
-Future<String> _getProcessedEncKeyPath() async {
-  final originalPath = await getEncKeyPath();
-  return await _trimAppDataPrefix(originalPath);
-}
-
 /// Configuration for the Security Key Manager.
 
 class SolidSecurityKeyManagerConfig {
@@ -171,7 +144,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       // Verify the file actually exists.
 
       try {
-        final filePath = await _getProcessedEncKeyPath();
+        final filePath = await getEncKeyPath();
         final fileContent = await readPod(
           filePath,
           context,
@@ -300,7 +273,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     });
 
     try {
-      final filePath = await _getProcessedEncKeyPath();
+      final filePath = await getEncKeyPath();
       if (!context.mounted) return;
 
       final fileContent = await readPod(
@@ -479,7 +452,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       bool keySetSuccessfully = false;
       try {
-        final filePath = await _getProcessedEncKeyPath();
+        final filePath = await getEncKeyPath();
         final fileContent = await readPod(
           filePath,
           context,
@@ -789,7 +762,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                                 late String msg;
                                 try {
                                   await KeyManager.forgetSecurityKey();
-                                  final encKeyPath = await _getProcessedEncKeyPath();
+                                  final encKeyPath = await getEncKeyPath();
                                   await deleteFile(encKeyPath);
 
                                   widget.onKeyStatusChanged(false);
