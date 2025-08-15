@@ -34,6 +34,8 @@ export 'src/widgets/solid_nav_drawer.dart';
 export 'src/widgets/solid_nav_manager.dart';
 export 'src/widgets/solid_nav_models.dart';
 export 'src/widgets/solid_nav_utils.dart';
+export 'src/widgets/solid_navigator.dart';
+export 'src/widgets/solid_navigator_models.dart';
 export 'src/widgets/solid_status_bar.dart';
 export 'src/widgets/solid_status_bar_models.dart';
 export 'src/widgets/solid_security_key_utils.dart';
