@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   solidui:
     path: ../
+  window_manager: ^0.4.3
 
 dev_dependencies:
   flutter_test:
