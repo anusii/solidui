@@ -106,4 +106,16 @@ class NavigationConstants {
   /// Horizontal padding for WebID container.
 
   static const double webIdHorizontalPadding = 16.0;
+
+  /// Size of the hamburger button (when no AppBar is present).
+
+  static const double hamburgerButtonSize = 48.0;
+
+  /// Border radius for the hamburger button.
+
+  static const double hamburgerButtonRadius = 12.0;
+
+  /// Icon size for the hamburger button.
+
+  static const double hamburgerIconSize = 24.0;
 }

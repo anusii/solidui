@@ -435,11 +435,11 @@ Tap here to open the navigation drawer and access all available pages and option
 
 ''',
         child: Container(
-          width: 48,
-          height: 48,
+          width: NavigationConstants.hamburgerButtonSize,
+          height: NavigationConstants.hamburgerButtonSize,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(NavigationConstants.hamburgerButtonRadius),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.3),
               width: 1,
@@ -455,14 +455,14 @@ Tap here to open the navigation drawer and access all available pages and option
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(NavigationConstants.hamburgerButtonRadius),
               onTap: () {
                 _scaffoldKey.currentState?.openDrawer();
               },
               child: Icon(
                 Icons.menu,
                 color: theme.colorScheme.onSurface,
-                size: 24,
+                size: NavigationConstants.hamburgerIconSize,
               ),
             ),
           ),
