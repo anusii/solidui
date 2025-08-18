@@ -150,11 +150,39 @@ class _HomePageState extends State<HomePage> {
       menu: menuItems,
       appBar: SolidAppBarConfig(
         title: menuItems[_selectedIndex].title,
+        versionConfig: const SolidVersionConfig(
+          version: '0.0.1',
+          changelogUrl: 'https://github.com/anusii/solidui/blob/README.md',
+          showDate: true,
+          tooltip: '''
+**SolidUI Example**
+
+Version: 0.0.1
+
+This is a demonstration of the SolidScaffold component with all its features.
+
+Click to view the README file.
+
+''',
+        ),
         actions: [
           SolidAppBarAction(
             icon: Icons.refresh,
             onPressed: () => _showMessage('Refreshed'),
-            tooltip: 'Refresh content',
+            tooltip: '''
+
+**Refresh:** Tap here to refresh all data and reload the latest information.
+
+''',
+          ),
+          SolidAppBarAction(
+            icon: Icons.search,
+            onPressed: () => _showMessage('Search functionality'),
+            tooltip: '''
+
+**Search:** Tap here to search for content.
+
+''',
           ),
         ],
         overflowItems: [

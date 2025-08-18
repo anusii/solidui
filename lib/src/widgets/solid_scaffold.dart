@@ -27,6 +27,10 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:gap/gap.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:version_widget/version_widget.dart';
+
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
@@ -200,6 +204,24 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     List<Widget> actions = [];
 
+    // Add version widget if configured and screen is not too narrow.
+
+    if (config.versionConfig != null && screenWidth >= config.veryNarrowScreenThreshold) {
+      actions.add(
+        MarkdownTooltip(
+          message: config.versionConfig!.tooltip ?? 
+                  'Version: ${config.versionConfig!.version}\n\n'
+                  'Tap to view changelog if available.',
+          child: VersionWidget(
+            version: config.versionConfig!.version,
+            changelogUrl: config.versionConfig!.changelogUrl,
+            showDate: config.versionConfig!.showDate,
+          ),
+        ),
+      );
+      actions.add(const Gap(8));
+    }
+
     for (final action in config.actions) {
       // Determine whether to show button based on screen width.
 
@@ -224,9 +246,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       }
     }
 
-    // Add overflow menu.
-
-    if (config.overflowItems.isNotEmpty) {
+    // Add overflow menu only if screen is very narrow.
+    // On wider screens, show overflow items as regular buttons.
+    
+    if (screenWidth < config.veryNarrowScreenThreshold && config.overflowItems.isNotEmpty) {
       actions.add(
         PopupMenuButton<String>(
           onSelected: (String id) {
@@ -251,6 +274,18 @@ class _SolidScaffoldState extends State<SolidScaffold> {
           },
         ),
       );
+    } else if (screenWidth >= config.veryNarrowScreenThreshold) {
+      // On wider screens, show overflow items as regular icon buttons.
+
+      for (final item in config.overflowItems) {
+        actions.add(
+          IconButton(
+            icon: Icon(item.icon),
+            onPressed: item.onSelected,
+            tooltip: item.label,
+          ),
+        );
+      }
     }
 
     return AppBar(
