@@ -99,61 +99,62 @@ class SolidNavBar extends StatelessWidget {
             ),
             child: IntrinsicHeight(
               child: NavigationRail(
-          backgroundColor: theme.colorScheme.surface,
-          selectedIndex: selectedIndex,
-          onDestinationSelected: (index) => _handleTabSelection(index, context),
-          labelType: NavigationRailLabelType.all,
-          minWidth: minWidth ?? NavigationConstants.navRailMinWidth,
-          groupAlignment:
-              groupAlignment ?? NavigationConstants.navRailGroupAlignment,
-          destinations: tabs.map((tab) {
-            final tooltipMessage = tab.tooltip ?? tab.message;
+                backgroundColor: theme.colorScheme.surface,
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (index) => _handleTabSelection(index, context),
+                labelType: NavigationRailLabelType.all,
+                minWidth: minWidth ?? NavigationConstants.navRailMinWidth,
+                groupAlignment:
+                    groupAlignment ?? NavigationConstants.navRailGroupAlignment,
+                destinations: tabs.map((tab) {
+                  final tooltipMessage = tab.tooltip ?? tab.message;
 
-            Widget iconWidget = Icon(
-              tab.icon,
-              size: iconSize ?? NavigationConstants.navIconSize,
-              color: tab.color ?? theme.colorScheme.primary,
-            );
+                  Widget iconWidget = Icon(
+                    tab.icon,
+                    size: iconSize ?? NavigationConstants.navIconSize,
+                    color: tab.color ?? theme.colorScheme.primary,
+                  );
 
-            // Wrap with tooltip if available.
+                  // Wrap with tooltip if available.
 
-            if (tooltipMessage != null) {
-              iconWidget = MarkdownTooltip(
-                message: tooltipMessage,
-                child: iconWidget,
-              );
-            }
+                  if (tooltipMessage != null) {
+                    iconWidget = MarkdownTooltip(
+                      message: tooltipMessage,
+                      child: iconWidget,
+                    );
+                  }
 
-            return NavigationRailDestination(
-              icon: iconWidget,
-              label: Text(
-                tab.title,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontSize:
-                      labelFontSize ?? NavigationConstants.navLabelFontSize,
-                  fontWeight: FontWeight.w500,
+                  return NavigationRailDestination(
+                    icon: iconWidget,
+                    label: Text(
+                      tab.title,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize:
+                            labelFontSize ?? NavigationConstants.navLabelFontSize,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: NavigationConstants.navLabelLetterSpacing,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: NavigationConstants.navLabelMaxLines,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: NavigationConstants.navDestinationVerticalPadding,
+                    ),
+                  );
+                }).toList(),
+                selectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: labelFontSize ?? NavigationConstants.navLabelFontSize,
+                  fontWeight: FontWeight.w600,
                   letterSpacing: NavigationConstants.navLabelLetterSpacing,
+                  color: theme.colorScheme.primary,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: NavigationConstants.navLabelMaxLines,
-                overflow: TextOverflow.ellipsis,
-              ),
-              padding: const EdgeInsets.symmetric(
-                vertical: NavigationConstants.navDestinationVerticalPadding,
-              ),
-            );
-          }).toList(),
-          selectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
-            fontSize: labelFontSize ?? NavigationConstants.navLabelFontSize,
-            fontWeight: FontWeight.w600,
-            letterSpacing: NavigationConstants.navLabelLetterSpacing,
-            color: theme.colorScheme.primary,
-          ),
-          unselectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
-            fontSize: labelFontSize ?? NavigationConstants.navLabelFontSize,
-            fontWeight: FontWeight.w400,
-            letterSpacing: NavigationConstants.navLabelLetterSpacing,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                unselectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: labelFontSize ?? NavigationConstants.navLabelFontSize,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: NavigationConstants.navLabelLetterSpacing,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               ),
             ),
           ),

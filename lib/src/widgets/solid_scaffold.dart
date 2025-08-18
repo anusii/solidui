@@ -200,6 +200,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     final config = widget.appBar!;
     final isWideScreen = _isWideScreen(context);
     final screenWidth = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
 
     // Build action buttons.
 
