@@ -38,6 +38,7 @@ export 'src/widgets/solid_scaffold.dart';
 export 'src/widgets/solid_scaffold_models.dart';
 export 'src/widgets/solid_status_bar.dart';
 export 'src/widgets/solid_status_bar_models.dart';
+export 'src/widgets/solid_theme_models.dart';
 export 'src/widgets/solid_security_key_utils.dart';
 export 'src/widgets/solid_security_key_manager.dart';
 export 'src/widgets/solid_security_key_view.dart';

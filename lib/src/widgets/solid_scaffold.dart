@@ -36,6 +36,7 @@ import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
+import 'package:solidui/src/widgets/solid_theme_models.dart';
 
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
@@ -115,6 +116,10 @@ class SolidScaffold extends StatefulWidget {
 
   final int? selectedIndex;
 
+  /// Optional theme toggle configuration.
+
+  final SolidThemeToggleConfig? themeToggle;
+
   const SolidScaffold({
     super.key,
     required this.menu,
@@ -130,6 +135,7 @@ class SolidScaffold extends StatefulWidget {
     this.initialIndex = 0,
     this.onMenuSelected,
     this.selectedIndex,
+    this.themeToggle,
   });
 
   @override
@@ -272,33 +278,98 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       }
     }
 
+    // Add theme toggle if configured.
+
+    if (widget.themeToggle != null && widget.themeToggle!.enabled) {
+      final themeConfig = widget.themeToggle!;
+      
+      // Determine whether to show theme toggle based on screen width.
+
+      bool shouldShowThemeToggle = true;
+      if (themeConfig.hideOnVeryNarrowScreen &&
+          screenWidth < config.veryNarrowScreenThreshold) {
+        shouldShowThemeToggle = false;
+      } else if (themeConfig.hideOnNarrowScreen &&
+          screenWidth < config.narrowScreenThreshold) {
+        shouldShowThemeToggle = false;
+      }
+
+      if (shouldShowThemeToggle && themeConfig.showInAppBarActions) {
+        Widget themeButton = IconButton(
+          icon: Icon(themeConfig.currentIcon),
+          onPressed: themeConfig.onToggleTheme,
+        );
+
+        // Wrap with MarkdownTooltip.
+
+        themeButton = MarkdownTooltip(
+          message: themeConfig.currentTooltip,
+          child: themeButton,
+        );
+
+        actions.add(themeButton);
+      }
+    }
+
     // Add overflow menu only if screen is very narrow.
     // On wider screens, show overflow items as regular buttons.
 
+    final hasOverflowItems = config.overflowItems.isNotEmpty;
+    final hasThemeToggleInOverflow = widget.themeToggle != null && 
+        widget.themeToggle!.enabled && 
+        !widget.themeToggle!.showInAppBarActions;
+
     if (screenWidth < config.veryNarrowScreenThreshold &&
-        config.overflowItems.isNotEmpty) {
+        (hasOverflowItems || hasThemeToggleInOverflow)) {
+      
+      // Build overflow menu items list
+      List<PopupMenuItem<String>> overflowMenuItems = [];
+      
+      // Add regular overflow items
+      overflowMenuItems.addAll(
+        config.overflowItems
+            .where((item) => item.showInOverflow)
+            .map((item) => PopupMenuItem<String>(
+                  value: item.id,
+                  child: Row(
+                    children: [
+                      Icon(item.icon),
+                      const SizedBox(width: 8),
+                      Text(item.label),
+                    ],
+                  ),
+                )),
+      );
+      
+      // Add theme toggle to overflow menu if configured
+      if (hasThemeToggleInOverflow) {
+        final themeConfig = widget.themeToggle!;
+        overflowMenuItems.add(
+          PopupMenuItem<String>(
+            value: 'theme_toggle',
+            child: Row(
+              children: [
+                Icon(themeConfig.currentIcon),
+                const SizedBox(width: 8),
+                Text(themeConfig.currentOverflowLabel),
+              ],
+            ),
+          ),
+        );
+      }
+      
       actions.add(
         PopupMenuButton<String>(
           onSelected: (String id) {
-            final item =
-                config.overflowItems.firstWhere((item) => item.id == id);
-            item.onSelected();
+            if (id == 'theme_toggle') {
+              widget.themeToggle?.onToggleTheme?.call();
+            } else {
+              final item =
+                  config.overflowItems.firstWhere((item) => item.id == id);
+              item.onSelected();
+            }
           },
-          itemBuilder: (BuildContext context) {
-            return config.overflowItems
-                .where((item) => item.showInOverflow)
-                .map((item) => PopupMenuItem<String>(
-                      value: item.id,
-                      child: Row(
-                        children: [
-                          Icon(item.icon),
-                          const SizedBox(width: 8),
-                          Text(item.label),
-                        ],
-                      ),
-                    ))
-                .toList();
-          },
+          itemBuilder: (BuildContext context) => overflowMenuItems,
         ),
       );
     } else if (screenWidth >= config.veryNarrowScreenThreshold) {
