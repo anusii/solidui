@@ -213,10 +213,25 @@ class _SolidScaffoldState extends State<SolidScaffold> {
           message: config.versionConfig!.tooltip ?? 
                   'Version: ${config.versionConfig!.version}\n\n'
                   'Tap to view changelog if available.',
-          child: VersionWidget(
-            version: config.versionConfig!.version,
-            changelogUrl: config.versionConfig!.changelogUrl,
-            showDate: config.versionConfig!.showDate,
+          child: Theme(
+            data: theme.copyWith(
+              textTheme: theme.textTheme.copyWith(
+                bodyMedium: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+                bodySmall: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              colorScheme: theme.colorScheme.copyWith(
+                error: theme.colorScheme.error.withValues(alpha: 0.6),
+              ),
+            ),
+            child: VersionWidget(
+              version: config.versionConfig!.version,
+              changelogUrl: config.versionConfig!.changelogUrl,
+              showDate: config.versionConfig!.showDate,
+            ),
           ),
         ),
       );
