@@ -108,7 +108,6 @@ class MyApp extends StatelessWidget {
           enabled: true,
           currentThemeMode: ThemeMode.system,
           onToggleTheme: () {
-            // Handle theme toggle logic
             print('Theme toggled');
           },
         ),
@@ -453,7 +452,8 @@ class _FullExampleAppState extends State<FullExampleApp> {
 
 Switch between light and dark modes for optimal viewing experience.
 
-🌙 **Dark Mode**: Better for low-light environments  
+🌙 **Dark Mode**: Better for low-light environments
+
 ☀️ **Light Mode**: Better for bright environments
 
 ''',
@@ -596,7 +596,7 @@ Switch between light and dark modes for optimal viewing experience.
 ### Theme Toggle Integration
 - Built-in light/dark mode switching
 - Responsive placement (AppBar actions or overflow menu)
-- Customizable icons, tooltips, and behavior
+- Customisable icons, tooltips, and behaviour
 - Automatic theme state indication
 
 ## Parameter Reference
