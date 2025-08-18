@@ -34,7 +34,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set minimum window size for desktop platforms
+  // Set minimum window size for desktop platforms.
+
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     await windowManager.ensureInitialized();
 
@@ -152,7 +153,7 @@ class _HomePageState extends State<HomePage> {
         title: menuItems[_selectedIndex].title,
         versionConfig: const SolidVersionConfig(
           version: '0.0.1',
-          changelogUrl: 'https://github.com/anusii/solidui/blob/README.md',
+          changelogUrl: 'https://github.com/anusii/solidui/blob/main/README.md',
           showDate: true,
           tooltip: '''
 **SolidUI Example**
@@ -232,7 +233,7 @@ Click to view the README file.
   /// Build the main content area.
 
   Widget _buildPageContent() {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Center(
         child: Card(

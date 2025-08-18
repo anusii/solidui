@@ -257,8 +257,10 @@ class SolidNavDrawer extends StatelessWidget {
   /// Determines if logout functionality is available.
 
   bool _canLogout() {
-    if (userInfo == null) return false;
-    return userInfo!.webId != null && userInfo!.webId!.isNotEmpty;
+    // Logout is available if onLogout callback is provided and showLogout is
+    // true.
+
+    return showLogout && onLogout != null;
   }
 
   /// Simplifies the WebID URL for display purposes.

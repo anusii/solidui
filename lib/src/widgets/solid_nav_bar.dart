@@ -92,13 +92,7 @@ class SolidNavBar extends StatelessWidget {
       behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
       child: Container(
         color: theme.colorScheme.surface,
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height,
-            ),
-            child: IntrinsicHeight(
-              child: NavigationRail(
+        child: NavigationRail(
           backgroundColor: theme.colorScheme.surface,
           selectedIndex: selectedIndex,
           onDestinationSelected: (index) => _handleTabSelection(index, context),
@@ -154,9 +148,6 @@ class SolidNavBar extends StatelessWidget {
             fontWeight: FontWeight.w400,
             letterSpacing: NavigationConstants.navLabelLetterSpacing,
             color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-              ),
-            ),
           ),
         ),
       ),

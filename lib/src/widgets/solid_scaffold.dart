@@ -321,12 +321,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     
     // Always show drawer on narrow screens, even without AppBar
     if (isWideScreen) {
-      print('Wide screen detected, no drawer needed');
       return null;
     }
     
-    print('Building drawer for narrow screen');
-    final drawer = SolidNavDrawer(
+    return SolidNavDrawer(
       userInfo: widget.userInfo,
       tabs: _convertToNavTabs(),
       selectedIndex: _currentSelectedIndex,
@@ -334,8 +332,6 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       onLogout: widget.onLogout,
       showLogout: widget.onLogout != null,
     );
-    print('Drawer built successfully');
-    return drawer;
   }
 
   /// Gets the current selected index.
@@ -444,19 +440,7 @@ Tap here to open the navigation drawer and access all available pages and option
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                print('Hamburger button clicked');
-                
-                try {
-                  final scaffoldState = _scaffoldKey.currentState;
-                  if (scaffoldState != null) {
-                    print('Opening drawer using GlobalKey...');
-                    scaffoldState.openDrawer();
-                  } else {
-                    print('ScaffoldState not found via GlobalKey');
-                  }
-                } catch (e) {
-                  print('Error in hamburger click: $e');
-                }
+                _scaffoldKey.currentState?.openDrawer();
               },
               child: Icon(
                 Icons.menu,
@@ -469,15 +453,10 @@ Tap here to open the navigation drawer and access all available pages and option
       );
     }
 
-    final drawer = _buildDrawer();
-    print('Final drawer widget: ${drawer != null}');
-    print('AppBar widget: ${_buildAppBar(context) != null}');
-    print('Is wide screen: $isWideScreen');
-    
     return Scaffold(
       key: _scaffoldKey,
       appBar: _buildAppBar(context),
-      drawer: drawer,
+      drawer: _buildDrawer(),
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: fab,
       floatingActionButtonLocation: (widget.appBar == null && !isWideScreen) 
