@@ -319,7 +319,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   Widget? _buildDrawer() {
     final isWideScreen = _isWideScreen(context);
     
-    // Always show drawer on narrow screens, even without AppBar
+    // Always show drawer on narrow screens, even without AppBar.
+    
     if (isWideScreen) {
       return null;
     }
@@ -460,7 +461,7 @@ Tap here to open the navigation drawer and access all available pages and option
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: fab,
       floatingActionButtonLocation: (widget.appBar == null && !isWideScreen) 
-          ? const _CustomStartTopLocation()
+          ? const _SolidNavButtonStartTopLocation()
           : FloatingActionButtonLocation.endFloat,
       body: _buildBody(context),
       bottomNavigationBar: _buildStatusBar(),
@@ -469,15 +470,14 @@ Tap here to open the navigation drawer and access all available pages and option
 }
 
 /// Custom FloatingActionButtonLocation for hamburger button in top-left corner.
-class _CustomStartTopLocation extends FloatingActionButtonLocation {
-  const _CustomStartTopLocation();
+
+class _SolidNavButtonStartTopLocation extends FloatingActionButtonLocation {
+  const _SolidNavButtonStartTopLocation();
 
   @override
   Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-    // Standard AppBar leading icon padding: 16.0 left + 4.0 right = 20.0 total
-    // We want same padding as AppBar leading icon
     const double leftPadding = 16.0;
-    const double topPadding = 16.0; // Same as AppBar height padding
+    const double topPadding = 16.0;
     
     return Offset(leftPadding, topPadding);
   }
