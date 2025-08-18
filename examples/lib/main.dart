@@ -153,7 +153,8 @@ class _HomePageState extends State<HomePage> {
         title: menuItems[_selectedIndex].title,
         versionConfig: const SolidVersionConfig(
           version: '0.0.1',
-          changelogUrl: 'https://github.com/anusii/solidui/blob/main/README.md',
+          changelogUrl: 'https://github.com/anusii/solidui/blob/main/'
+              'CHANGELOG.md',
           showDate: true,
           tooltip: '''
 **SolidUI Example**
