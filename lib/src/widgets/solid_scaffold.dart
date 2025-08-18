@@ -322,10 +322,12 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     if (screenWidth < config.veryNarrowScreenThreshold &&
         (hasOverflowItems || hasThemeToggleInOverflow)) {
       
-      // Build overflow menu items list
+      // Build overflow menu items list.
+
       List<PopupMenuItem<String>> overflowMenuItems = [];
       
-      // Add regular overflow items
+      // Add regular overflow items.
+
       overflowMenuItems.addAll(
         config.overflowItems
             .where((item) => item.showInOverflow)
@@ -341,7 +343,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
                 )),
       );
       
-      // Add theme toggle to overflow menu if configured
+      // Add theme toggle to overflow menu if configured.
+      
       if (hasThemeToggleInOverflow) {
         final themeConfig = widget.themeToggle!;
         overflowMenuItems.add(

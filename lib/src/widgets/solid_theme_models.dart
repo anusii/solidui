@@ -1,6 +1,6 @@
 /// Models for theme toggle functionality in Solid applications.
 ///
-// Time-stamp: <Monday 2025-01-06 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Monday 2025-08-18 15:30:00 +1000 Tony Chen>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
