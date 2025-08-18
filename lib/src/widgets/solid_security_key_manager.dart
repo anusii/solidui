@@ -145,6 +145,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       try {
         final filePath = await getEncKeyPath();
+        if (!mounted) return;
         final fileContent = await readPod(
           filePath,
           context,
@@ -334,7 +335,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
             'Please check your connection.';
       }
 
-      await _showErrorDialog(context, 'Error Reading Key', errorMessage);
+      if (context.mounted) {
+        await _showErrorDialog(context, 'Error Reading Key', errorMessage);
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -453,6 +456,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       bool keySetSuccessfully = false;
       try {
         final filePath = await getEncKeyPath();
+        if (!context.mounted) return;
         final fileContent = await readPod(
           filePath,
           context,
@@ -505,7 +509,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                   '• Temporary server problems\n\n'
                   'The key is active for this session, but you may need to set it '
                   'again later.');
-          Navigator.of(context).pop();
+          if (context.mounted) Navigator.of(context).pop();
         }
 
         // Still update the status as the key is at least in memory
