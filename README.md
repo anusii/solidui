@@ -21,12 +21,11 @@ infrastructure.
 
 ### 🧭 Navigation Components
 
-- **SolidNavigator** - Simplified unified navigation component with automatic
+- **SolidScaffold** - Simplified unified scaffold component with automatic
   responsive layout switching
 - **SolidNavBar** - Navigation rail for wide screens
 - **SolidNavDrawer** - Navigation drawer for narrow screens
-- **SolidNavManager** - Advanced navigation manager with configurable layout
-  switching
+
 
 ### 🔐 Security Management
 
@@ -45,7 +44,7 @@ infrastructure.
 
 - **NavigationConstants** - Predefined constants for consistent navigation
   behaviour
-- **SolidNavUtils** - Utility functions for navigation setup and configuration
+
 
 ## Quick Start
 
@@ -71,7 +70,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SolidNavigator(
+      home: SolidScaffold(
         menu: [
           SolidMenuItem(
             title: 'Home',
@@ -111,7 +110,7 @@ class MyApp extends StatelessWidget {
 
 ## Components Reference
 
-### SolidNavigator
+### SolidScaffold
 
 The main navigation component that automatically switches between navigation
 rail and drawer based on screen width.
@@ -224,7 +223,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SolidNavigator(
+      home: SolidScaffold(
         menu: [
           SolidMenuItem(
             title: 'Home',
@@ -261,7 +260,7 @@ class _MyAppState extends State<MyApp> {
 #### With AppBar Configuration
 
 ```dart
-SolidNavigator(
+SolidScaffold(
   menu: [
     SolidMenuItem(title: 'Home', icon: Icons.home),
     SolidMenuItem(title: 'Settings', icon: Icons.settings),
@@ -299,7 +298,7 @@ SolidNavigator(
 #### With Status Bar
 
 ```dart
-SolidNavigator(
+SolidScaffold(
   menu: [
     SolidMenuItem(title: 'Home', icon: Icons.home),
   ],
@@ -333,7 +332,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
 
   @override
   Widget build(BuildContext context) {
-    return SolidNavigator(
+    return SolidScaffold(
       menu: [
         SolidMenuItem(
           title: 'Dashboard',
@@ -358,7 +357,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
           title: 'About',
           icon: Icons.info,
           tooltip: 'About us',
-          message: 'This is a sample application built using SolidNavigator',
+          message: 'This is a sample application built using SolidScaffold',
           dialogTitle: 'About',
         ),
       ],
@@ -565,7 +564,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
 
 ## Parameter Reference
 
-### SolidNavigator Main Parameters
+### SolidScaffold Main Parameters
 
 - `menu`: List of menu items (required)
 - `child`: Main content area (required)
@@ -590,7 +589,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
 - `dialogTitle`: Dialogue title (optional)
 - `onTap`: Tap callback (optional)
 
-The new `SolidNavigator` component greatly simplifies navigation usage, allowing you to create feature-rich responsive navigation interfaces with minimal code.
+The new `SolidScaffold` component greatly simplifies navigation usage, allowing you to create feature-rich responsive navigation interfaces with minimal code.
 
 ## Development Status
 

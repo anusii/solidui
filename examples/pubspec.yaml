@@ -1,5 +1,5 @@
 name: solidui_simple_example
-description: A simple example demonstrating SolidNavigator usage.
+description: A simple example demonstrating SolidScaffold usage.
 publish_to: 'none'
 
 version: 1.0.0+1

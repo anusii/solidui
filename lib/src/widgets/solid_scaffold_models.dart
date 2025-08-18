@@ -1,6 +1,6 @@
-/// Solid Navigator Models - Simplified navigation component data models.
+/// Solid Scaffold Models - Simplified scaffold component data models.
 ///
-// Time-stamp: <Monday 2025-01-27 14:30:00 +1000 Tony Chen>
+// Time-stamp: <Monday 2025-08-18 14:30:00 +1000 Tony Chen>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///

@@ -33,28 +33,28 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Set minimum window size for desktop platforms
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     await windowManager.ensureInitialized();
-    
+
     const windowOptions = WindowOptions(
       minimumSize: Size(500, 800),
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.normal,
     );
-    
+
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
     });
   }
-  
+
   runApp(const SimpleExampleApp());
 }
 
-/// Simple example app demonstrating SolidNavigator basic usage.
+/// Simple example app demonstrating SolidScaffold basic usage.
 
 class SimpleExampleApp extends StatelessWidget {
   const SimpleExampleApp({super.key});
@@ -80,7 +80,7 @@ class SimpleExampleApp extends StatelessWidget {
   }
 }
 
-/// Main home page demonstrating basic SolidNavigator usage.
+/// Main home page demonstrating basic SolidScaffold usage.
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -96,15 +96,23 @@ class _HomePageState extends State<HomePage> {
   // Simple content for each page.
 
   final List<String> _pageContent = [
-    'Welcome to the Home page!\n\nThis is a simple demonstration of SolidNavigator.'
-        '\n\nThe navigation automatically switches between a side rail (on wide screens) '
-        'and a drawer menu (on narrow screens).',
-    'About page\n\nThis example shows how easy it is to use SolidNavigator:'
-        '\n\n1. Define your menu items\n2. Set up your content\n3. Let SolidNavigator handle the rest!'
-        '\n\nThe navigation is fully responsive and includes POD server integration.',
-    'Settings page\n\nHere you would typically include:'
-        '\n\n• User preferences\n• Application settings\n• Account management\n• Data synchronisation options'
-        '\n\nThe status bar below shows your connection status and server information.',
+    'Welcome to the Home page!\n\n'
+        'This is a simple demonstration of SolidScaffold.'
+        '\n\nThe navigation automatically switches between a side rail '
+        '(on wide screens) and a drawer menu (on narrow screens).',
+    'About page\n\nThis example shows how easy it is to use SolidScaffold:\n\n'
+        '1. Define your menu items\n'
+        '2. Set up your content\n'
+        '3. Let SolidScaffold handle the rest!\n\n'
+        'The navigation is fully responsive and includes POD server '
+        'integration.',
+    'Settings page\n\nHere you would typically include:\n\n'
+        '• User preferences\n'
+        '• Application settings\n'
+        '• Account management\n'
+        '• Data synchronisation options\n\n'
+        'The status bar below shows your connection status and server '
+        'information.',
   ];
 
   @override
@@ -138,7 +146,7 @@ class _HomePageState extends State<HomePage> {
       avatarIcon: Icons.account_circle,
     );
 
-    return SolidNavigator(
+    return SolidScaffold(
       menu: menuItems,
       appBar: SolidAppBarConfig(
         title: menuItems[_selectedIndex].title,

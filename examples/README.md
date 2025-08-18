@@ -1,12 +1,13 @@
 # SolidUI Simple Example
 
-A minimal example demonstrating how to use SolidNavigator from the SolidUI library.
+A minimal example demonstrating how to use SolidScaffold from the SolidUI 
+library.
 
 ## What This Example Shows
 
 This simple application demonstrates:
 
-- **Basic SolidNavigator setup** with 3 menu items
+- **Basic SolidScaffold setup** with 3 menu items
 - **Responsive navigation** that switches between rail and drawer
 - **AppBar integration** with action buttons and overflow menu
 - **Status bar functionality** with POD server connection simulation
@@ -42,10 +43,10 @@ This simple application demonstrates:
 
 ### Key Implementation
 
-The main implementation shows how simple it is to use SolidNavigator:
+The main implementation shows how simple it is to use SolidScaffold:
 
 ```dart
-SolidNavigator(
+SolidScaffold(
   menu: [
     SolidMenuItem(title: 'Home', icon: Icons.home),
     SolidMenuItem(title: 'About', icon: Icons.info),

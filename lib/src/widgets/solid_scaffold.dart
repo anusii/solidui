@@ -1,6 +1,6 @@
-/// Solid Navigator - Simplified unified navigation component.
+/// Solid Scaffold - Simplified unified scaffold component.
 ///
-// Time-stamp: <Monday 2025-01-27 14:30:00 +1000 Tony Chen>
+// Time-stamp: <Monday 2025-08-18 14:30:00 +1000 Tony Chen>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -31,19 +31,21 @@ import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
-import 'package:solidui/src/widgets/solid_navigator_models.dart';
+import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
-/// Simplified unified navigation component that automatically handles responsive layout switching.
+/// Simplified unified scaffold component that automatically handles responsive
+/// layout switching.
 ///
 /// Shows navigation rail on wide screens and drawer menu on narrow screens.
-/// Supports optional AppBar and status bar.
+/// Supports optional AppBar and status bar. Similar to Flutter's Scaffold but
+/// with integrated navigation and responsive design.
 ///
 /// Usage example:
 /// ```dart
-/// SolidNavigator(
+/// SolidScaffold(
 ///   menu: [
 ///     SolidMenuItem(title: 'Home', icon: Icons.home, content: HomeWidget()),
 ///     SolidMenuItem(title: 'Settings', icon: Icons.settings, content: SettingsWidget()),
@@ -56,7 +58,7 @@ import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 /// )
 /// ```
 
-class SolidNavigator extends StatefulWidget {
+class SolidScaffold extends StatefulWidget {
   /// List of menu items.
 
   final List<SolidMenuItem> menu;
@@ -109,7 +111,7 @@ class SolidNavigator extends StatefulWidget {
 
   final int? selectedIndex;
 
-  const SolidNavigator({
+  const SolidScaffold({
     super.key,
     required this.menu,
     required this.child,
@@ -127,10 +129,10 @@ class SolidNavigator extends StatefulWidget {
   });
 
   @override
-  State<SolidNavigator> createState() => _SolidNavigatorState();
+  State<SolidScaffold> createState() => _SolidScaffoldState();
 }
 
-class _SolidNavigatorState extends State<SolidNavigator> {
+class _SolidScaffoldState extends State<SolidScaffold> {
   late int _selectedIndex;
 
   @override
@@ -255,7 +257,9 @@ class _SolidNavigatorState extends State<SolidNavigator> {
       title: Text(config.title),
       backgroundColor: config.backgroundColor,
       automaticallyImplyLeading: !isWideScreen,
+
       // Show hamburger menu only on narrow screens.
+
       actions: actions.isEmpty ? null : actions,
     );
   }
