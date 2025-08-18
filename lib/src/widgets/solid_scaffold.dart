@@ -208,11 +208,12 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     // Add version widget if configured and screen is not too narrow.
 
-    if (config.versionConfig != null && screenWidth >= config.veryNarrowScreenThreshold) {
+    if (config.versionConfig != null &&
+        screenWidth >= config.veryNarrowScreenThreshold) {
       actions.add(
         MarkdownTooltip(
-          message: config.versionConfig!.tooltip ?? 
-                  'Version: ${config.versionConfig!.version}\n\n'
+          message: config.versionConfig!.tooltip ??
+              'Version: ${config.versionConfig!.version}\n\n'
                   'Tap to view changelog if available.',
           child: Theme(
             data: theme.copyWith(
@@ -273,8 +274,9 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     // Add overflow menu only if screen is very narrow.
     // On wider screens, show overflow items as regular buttons.
-    
-    if (screenWidth < config.veryNarrowScreenThreshold && config.overflowItems.isNotEmpty) {
+
+    if (screenWidth < config.veryNarrowScreenThreshold &&
+        config.overflowItems.isNotEmpty) {
       actions.add(
         PopupMenuButton<String>(
           onSelected: (String id) {
@@ -334,13 +336,13 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
   Widget? _buildDrawer() {
     final isWideScreen = _isWideScreen(context);
-    
+
     // Always show drawer on narrow screens, even without AppBar.
-    
+
     if (isWideScreen) {
       return null;
     }
-    
+
     return SolidNavDrawer(
       userInfo: widget.userInfo,
       tabs: _convertToNavTabs(),
@@ -395,13 +397,13 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       // Narrow screen: show content only (drawer menu handled by Scaffold).
 
       List<Widget> columnChildren = [];
-      
+
       // Add divider if AppBar is present.
 
       if (widget.appBar != null) {
         columnChildren.add(Divider(height: 1, color: theme.dividerColor));
       }
-      
+
       columnChildren.add(Expanded(child: widget.child));
 
       return Column(children: columnChildren);
@@ -423,7 +425,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     // Determine which floating action button to show.
 
     Widget? fab = widget.floatingActionButton;
-    
+
     // If no AppBar and narrow screen, show hamburger FAB.
 
     if (widget.appBar == null && !isWideScreen) {
@@ -439,7 +441,8 @@ Tap here to open the navigation drawer and access all available pages and option
           height: NavigationConstants.hamburgerButtonSize,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(NavigationConstants.hamburgerButtonRadius),
+            borderRadius: BorderRadius.circular(
+                NavigationConstants.hamburgerButtonRadius),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.3),
               width: 1,
@@ -455,7 +458,8 @@ Tap here to open the navigation drawer and access all available pages and option
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(NavigationConstants.hamburgerButtonRadius),
+              borderRadius: BorderRadius.circular(
+                  NavigationConstants.hamburgerButtonRadius),
               onTap: () {
                 _scaffoldKey.currentState?.openDrawer();
               },
@@ -476,7 +480,7 @@ Tap here to open the navigation drawer and access all available pages and option
       drawer: _buildDrawer(),
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: fab,
-      floatingActionButtonLocation: (widget.appBar == null && !isWideScreen) 
+      floatingActionButtonLocation: (widget.appBar == null && !isWideScreen)
           ? const _SolidNavButtonStartTopLocation()
           : FloatingActionButtonLocation.endFloat,
       body: _buildBody(context),
@@ -494,7 +498,7 @@ class _SolidNavButtonStartTopLocation extends FloatingActionButtonLocation {
   Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
     const double leftPadding = 16.0;
     const double topPadding = 16.0;
-    
+
     return Offset(leftPadding, topPadding);
   }
 }
