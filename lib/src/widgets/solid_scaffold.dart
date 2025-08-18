@@ -138,6 +138,7 @@ class SolidScaffold extends StatefulWidget {
 
 class _SolidScaffoldState extends State<SolidScaffold> {
   late int _selectedIndex;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -235,14 +236,22 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       }
 
       if (shouldShow) {
-        actions.add(
-          IconButton(
-            icon: Icon(action.icon),
-            onPressed: action.onPressed,
-            tooltip: action.tooltip,
-            color: action.color,
-          ),
+        Widget iconButton = IconButton(
+          icon: Icon(action.icon),
+          onPressed: action.onPressed,
+          color: action.color,
         );
+
+        // Wrap with MarkdownTooltip if tooltip is provided.
+
+        if (action.tooltip != null) {
+          iconButton = MarkdownTooltip(
+            message: action.tooltip!,
+            child: iconButton,
+          );
+        }
+
+        actions.add(iconButton);
       }
     }
 
@@ -278,13 +287,19 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       // On wider screens, show overflow items as regular icon buttons.
 
       for (final item in config.overflowItems) {
-        actions.add(
-          IconButton(
-            icon: Icon(item.icon),
-            onPressed: item.onSelected,
-            tooltip: item.label,
-          ),
+        Widget iconButton = IconButton(
+          icon: Icon(item.icon),
+          onPressed: item.onSelected,
         );
+
+        // Wrap with MarkdownTooltip.
+
+        iconButton = MarkdownTooltip(
+          message: item.label,
+          child: iconButton,
+        );
+
+        actions.add(iconButton);
       }
     }
 
@@ -303,9 +318,15 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
   Widget? _buildDrawer() {
     final isWideScreen = _isWideScreen(context);
-    if (isWideScreen) return null;
-
-    return SolidNavDrawer(
+    
+    // Always show drawer on narrow screens, even without AppBar
+    if (isWideScreen) {
+      print('Wide screen detected, no drawer needed');
+      return null;
+    }
+    
+    print('Building drawer for narrow screen');
+    final drawer = SolidNavDrawer(
       userInfo: widget.userInfo,
       tabs: _convertToNavTabs(),
       selectedIndex: _currentSelectedIndex,
@@ -313,6 +334,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       onLogout: widget.onLogout,
       showLogout: widget.onLogout != null,
     );
+    print('Drawer built successfully');
+    return drawer;
   }
 
   /// Gets the current selected index.
@@ -358,12 +381,17 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     } else {
       // Narrow screen: show content only (drawer menu handled by Scaffold).
 
-      return Column(
-        children: [
-          Divider(height: 1, color: theme.dividerColor),
-          Expanded(child: widget.child),
-        ],
-      );
+      List<Widget> columnChildren = [];
+      
+      // Add divider if AppBar is present.
+
+      if (widget.appBar != null) {
+        columnChildren.add(Divider(height: 1, color: theme.dividerColor));
+      }
+      
+      columnChildren.add(Expanded(child: widget.child));
+
+      return Column(children: columnChildren);
     }
   }
 
@@ -377,14 +405,101 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isWideScreen = _isWideScreen(context);
 
+    // Determine which floating action button to show.
+
+    Widget? fab = widget.floatingActionButton;
+    
+    // If no AppBar and narrow screen, show hamburger FAB.
+
+    if (widget.appBar == null && !isWideScreen) {
+      fab = MarkdownTooltip(
+        message: '''
+**Navigation Menu**
+
+Tap here to open the navigation drawer and access all available pages and options.
+
+''',
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.shadowColor.withValues(alpha: 0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                print('Hamburger button clicked');
+                
+                try {
+                  final scaffoldState = _scaffoldKey.currentState;
+                  if (scaffoldState != null) {
+                    print('Opening drawer using GlobalKey...');
+                    scaffoldState.openDrawer();
+                  } else {
+                    print('ScaffoldState not found via GlobalKey');
+                  }
+                } catch (e) {
+                  print('Error in hamburger click: $e');
+                }
+              },
+              child: Icon(
+                Icons.menu,
+                color: theme.colorScheme.onSurface,
+                size: 24,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final drawer = _buildDrawer();
+    print('Final drawer widget: ${drawer != null}');
+    print('AppBar widget: ${_buildAppBar(context) != null}');
+    print('Is wide screen: $isWideScreen');
+    
     return Scaffold(
+      key: _scaffoldKey,
       appBar: _buildAppBar(context),
-      drawer: _buildDrawer(),
+      drawer: drawer,
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
-      floatingActionButton: widget.floatingActionButton,
+      floatingActionButton: fab,
+      floatingActionButtonLocation: (widget.appBar == null && !isWideScreen) 
+          ? const _CustomStartTopLocation()
+          : FloatingActionButtonLocation.endFloat,
       body: _buildBody(context),
       bottomNavigationBar: _buildStatusBar(),
     );
+  }
+}
+
+/// Custom FloatingActionButtonLocation for hamburger button in top-left corner.
+class _CustomStartTopLocation extends FloatingActionButtonLocation {
+  const _CustomStartTopLocation();
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    // Standard AppBar leading icon padding: 16.0 left + 4.0 right = 20.0 total
+    // We want same padding as AppBar leading icon
+    const double leftPadding = 16.0;
+    const double topPadding = 16.0; // Same as AppBar height padding
+    
+    return Offset(leftPadding, topPadding);
   }
 }
