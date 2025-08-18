@@ -40,10 +40,15 @@ infrastructure.
   status, and custom items
 - **SolidStatusBarModels** - Data models for status bar configuration
 
-### 🎨 Utilities & Constants
+### 🎨 Theme & Styling
 
-- **NavigationConstants** - Predefined constants for consistent navigation
-  behaviour
+- **SolidThemeToggleConfig** - Configurable theme switching with light/dark mode support
+- Integrated theme toggle in SolidScaffold with responsive behavior
+
+### 🛠️ Utilities & Constants
+
+- **NavigationConstants** - Predefined constants for consistent navigation, 
+  status bar heights, and UI component sizing
 
 
 ## Quick Start
@@ -99,6 +104,14 @@ class MyApp extends StatelessWidget {
             tooltip: 'Your Solid POD server',
           ),
         ),
+        themeToggle: SolidThemeToggleConfig(
+          enabled: true,
+          currentThemeMode: ThemeMode.system,
+          onToggleTheme: () {
+            // Handle theme toggle logic
+            print('Theme toggled');
+          },
+        ),
         child: Center(
           child: Text('Welcome to your Solid application'),
         ),
@@ -118,10 +131,11 @@ rail and drawer based on screen width.
 **Key Features:**
 
 - Responsive design (rail on wide screens, drawer on narrow screens)
-- Integrated AppBar support
+- Integrated AppBar support with theme toggle
 - Status bar integration
 - User information display
 - Logout functionality
+- Built-in light/dark theme switching
 
 **Parameters:**
 
@@ -131,8 +145,9 @@ rail and drawer based on screen width.
 - `statusBar` - Optional status bar configuration
 - `userInfo` - Optional user information
 - `onLogout` - Optional logout callback
+- `themeToggle` - Optional theme toggle configuration
 - `narrowScreenThreshold` - Width threshold for layout switching (default:
-  800 px)
+  NavigationConstants.narrowScreenThreshold)
 
 ### SolidAppBarConfig
 
@@ -427,6 +442,22 @@ class _FullExampleAppState extends State<FullExampleApp> {
       ),
       onLogout: _webId != null ? _logout : null,
       onShowAlert: _showAlert,
+      themeToggle: SolidThemeToggleConfig(
+        enabled: true,
+        currentThemeMode: _currentThemeMode,
+        onToggleTheme: _toggleTheme,
+        showInAppBarActions: true,
+        hideOnVeryNarrowScreen: true,
+        tooltip: '''
+**Theme Toggle**
+
+Switch between light and dark modes for optimal viewing experience.
+
+🌙 **Dark Mode**: Better for low-light environments  
+☀️ **Light Mode**: Better for bright environments
+
+''',
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewItem,
         tooltip: 'Add new project',
@@ -562,6 +593,12 @@ class _FullExampleAppState extends State<FullExampleApp> {
 - Displays user information in drawer
 - Supports logout functionality
 
+### Theme Toggle Integration
+- Built-in light/dark mode switching
+- Responsive placement (AppBar actions or overflow menu)
+- Customizable icons, tooltips, and behavior
+- Automatic theme state indication
+
 ## Parameter Reference
 
 ### SolidScaffold Main Parameters
@@ -577,6 +614,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
 - `backgroundColor`: Background colour (optional)
 - `floatingActionButton`: Floating action button (optional)
 - `initialIndex`: Initial selected menu index (default 0)
+- `themeToggle`: Theme toggle configuration (optional)
 
 ### SolidMenuItem Parameters
 
@@ -589,7 +627,20 @@ class _FullExampleAppState extends State<FullExampleApp> {
 - `dialogTitle`: Dialogue title (optional)
 - `onTap`: Tap callback (optional)
 
-The new `SolidScaffold` component greatly simplifies navigation usage, allowing you to create feature-rich responsive navigation interfaces with minimal code.
+### SolidThemeToggleConfig Parameters
+
+- `enabled`: Whether theme toggle is enabled (default true)
+- `currentThemeMode`: Current theme mode for state indication (required)
+- `onToggleTheme`: Theme toggle callback (optional)
+- `showInAppBarActions`: Show in AppBar actions vs overflow menu (default true)
+- `lightModeIcon`: Custom light mode icon (optional, defaults to Icons.light_mode)
+- `darkModeIcon`: Custom dark mode icon (optional, defaults to Icons.dark_mode)
+- `tooltip`: Custom tooltip text (optional, auto-generated if not provided)
+- `label`: Label for overflow menu (default 'Toggle Theme')
+- `hideOnNarrowScreen`: Hide on narrow screens (default false)
+- `hideOnVeryNarrowScreen`: Hide on very narrow screens (default true)
+
+The new `SolidScaffold` component greatly simplifies navigation usage, allowing you to create feature-rich responsive navigation interfaces with built-in theme switching and minimal code.
 
 ## Development Status
 

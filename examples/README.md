@@ -10,6 +10,7 @@ This simple application demonstrates:
 - **Basic SolidScaffold setup** with 3 menu items
 - **Responsive navigation** that switches between rail and drawer
 - **AppBar integration** with action buttons and overflow menu
+- **Built-in theme toggle** with light/dark mode switching
 - **Status bar functionality** with POD server connection simulation
 
 ## Running the Example
@@ -60,6 +61,11 @@ SolidScaffold(
     serverInfo: SolidServerInfo(/* server info */),
     loginStatus: SolidLoginStatus(/* login status */),
   ),
+  themeToggle: SolidThemeToggleConfig(
+    enabled: true,
+    currentThemeMode: currentTheme,
+    onToggleTheme: () => toggleTheme(),
+  ),
   child: YourContent(),
 )
 ```
@@ -104,5 +110,24 @@ SolidStatusBarConfig(
     webId: userWebId,
     onTap: handleLogin,
   ),
+)
+```
+
+### Theme Toggle Configuration
+```dart
+SolidThemeToggleConfig(
+  enabled: true,
+  currentThemeMode: ThemeMode.system,
+  onToggleTheme: () {
+    // Handle theme switching logic
+    setState(() {
+      currentTheme = currentTheme == ThemeMode.light 
+          ? ThemeMode.dark 
+          : ThemeMode.light;
+    });
+  },
+  showInAppBarActions: true,
+  hideOnVeryNarrowScreen: true,
+  tooltip: 'Switch between light and dark modes',
 )
 ```
