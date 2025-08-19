@@ -149,53 +149,53 @@ class _HomePageState extends State<HomePage> {
 
     return SolidScaffold(
       menu: menuItems,
-      appBar: SolidAppBarConfig(
-        title: menuItems[_selectedIndex].title,
-        versionConfig: const SolidVersionConfig(
-          version: '0.0.1',
-          changelogUrl: 'https://github.com/anusii/solidui/blob/main/'
-              'CHANGELOG.md',
-          showDate: true,
-          tooltip: '''
-**SolidUI Example**
-
-Version: 0.0.1
-
-This is a demonstration of the SolidScaffold component with all its features.
-
-Click to view the README file.
-
-''',
-        ),
-        actions: [
-          SolidAppBarAction(
-            icon: Icons.refresh,
-            onPressed: () => _showMessage('Refreshed'),
-            tooltip: '''
-
-**Refresh:** Tap here to refresh all data and reload the latest information.
-
-''',
-          ),
-          SolidAppBarAction(
-            icon: Icons.search,
-            onPressed: () => _showMessage('Search functionality'),
-            tooltip: '''
-
-**Search:** Tap here to search for content.
-
-''',
-          ),
-        ],
-        overflowItems: [
-          SolidOverflowMenuItem(
-            id: 'login',
-            icon: _webId != null ? Icons.logout : Icons.login,
-            label: _webId != null ? 'Logout' : 'Login',
-            onSelected: _toggleLogin,
-          ),
-        ],
-      ),
+//       appBar: SolidAppBarConfig(
+//         title: menuItems[_selectedIndex].title,
+//         versionConfig: const SolidVersionConfig(
+//           version: '0.0.1',
+//           changelogUrl: 'https://github.com/anusii/solidui/blob/main/'
+//               'CHANGELOG.md',
+//           showDate: true,
+//           tooltip: '''
+// **SolidUI Example**
+//
+// Version: 0.0.1
+//
+// This is a demonstration of the SolidScaffold component with all its features.
+//
+// Click to view the README file.
+//
+// ''',
+//         ),
+//         actions: [
+//           SolidAppBarAction(
+//             icon: Icons.refresh,
+//             onPressed: () => _showMessage('Refreshed'),
+//             tooltip: '''
+//
+// **Refresh:** Tap here to refresh all data and reload the latest information.
+//
+// ''',
+//           ),
+//           SolidAppBarAction(
+//             icon: Icons.search,
+//             onPressed: () => _showMessage('Search functionality'),
+//             tooltip: '''
+//
+// **Search:** Tap here to search for content.
+//
+// ''',
+//           ),
+//         ],
+//         overflowItems: [
+//           SolidOverflowMenuItem(
+//             id: 'login',
+//             icon: _webId != null ? Icons.logout : Icons.login,
+//             label: _webId != null ? 'Logout' : 'Login',
+//             onSelected: _toggleLogin,
+//           ),
+//         ],
+//       ),
       statusBar: SolidStatusBarConfig(
         serverInfo: const SolidServerInfo(
           serverUri: 'https://demo-pod-server.example.com',
