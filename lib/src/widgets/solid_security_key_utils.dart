@@ -29,6 +29,7 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:rdflib/rdflib.dart';
 import 'package:solidpod/solidpod.dart' show KeyManager;
 
@@ -48,7 +49,7 @@ Map<dynamic, dynamic> parseEncKeyContent(String fileInfo) {
   g.parseTurtle(fileInfo);
   final fileContentMap = {};
   final fileContentList = [];
-  
+
   for (final t in g.triples) {
     final predicate = t.pre.value as String;
     if (predicate.contains('#')) {
@@ -75,7 +76,7 @@ class SolidSecurityKeyUtils {
   ///
   /// This is a convenience method that wraps the KeyManager.hasSecurityKey()
   /// call with proper error handling.
-  
+
   static Future<bool> isKeySaved() async {
     try {
       return await KeyManager.hasSecurityKey();
@@ -95,19 +96,20 @@ class SolidSecurityKeyUtils {
   /// - [onKeyStatusChanged]: Optional callback that receives the key status
   ///
   /// Returns true if a security key exists, false otherwise.
-  
-  static Future<bool> fetchKeySavedStatus([Function(bool)? onKeyStatusChanged]) async {
+
+  static Future<bool> fetchKeySavedStatus(
+      [Function(bool)? onKeyStatusChanged]) async {
     try {
       // Simply check if the security key exists in memory.
 
       final hasKey = await KeyManager.hasSecurityKey();
-      
+
       // Call the callback if provided.
-      
+
       if (onKeyStatusChanged != null) {
         onKeyStatusChanged(hasKey);
       }
-      
+
       return hasKey;
     } catch (e) {
       debugPrint('Error fetching security key status: $e');
@@ -119,7 +121,7 @@ class SolidSecurityKeyUtils {
   ///
   /// This method determines if a security key needs to be set up
   /// by checking both the current key status and verification key.
-  
+
   static Future<bool> isSecurityKeyNeeded() async {
     try {
       // If key already exists, it's not needed to be set.
@@ -141,7 +143,7 @@ class SolidSecurityKeyUtils {
   ///
   /// Returns a string describing the current security key status
   /// that can be displayed to users.
-  
+
   static Future<String> getSecurityKeyStatusMessage() async {
     try {
       final hasKey = await KeyManager.hasSecurityKey();

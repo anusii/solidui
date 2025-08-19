@@ -36,10 +36,9 @@ import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
-import 'package:solidui/src/widgets/solid_theme_models.dart';
-
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
+import 'package:solidui/src/widgets/solid_theme_models.dart';
 
 /// Simplified unified scaffold component that automatically handles responsive
 /// layout switching.
@@ -282,7 +281,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     if (widget.themeToggle != null && widget.themeToggle!.enabled) {
       final themeConfig = widget.themeToggle!;
-      
+
       // Determine whether to show theme toggle based on screen width.
 
       bool shouldShowThemeToggle = true;
@@ -315,17 +314,16 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     // On wider screens, show overflow items as regular buttons.
 
     final hasOverflowItems = config.overflowItems.isNotEmpty;
-    final hasThemeToggleInOverflow = widget.themeToggle != null && 
-        widget.themeToggle!.enabled && 
+    final hasThemeToggleInOverflow = widget.themeToggle != null &&
+        widget.themeToggle!.enabled &&
         !widget.themeToggle!.showInAppBarActions;
 
     if (screenWidth < config.veryNarrowScreenThreshold &&
         (hasOverflowItems || hasThemeToggleInOverflow)) {
-      
       // Build overflow menu items list.
 
       List<PopupMenuItem<String>> overflowMenuItems = [];
-      
+
       // Add regular overflow items.
 
       overflowMenuItems.addAll(
@@ -342,9 +340,9 @@ class _SolidScaffoldState extends State<SolidScaffold> {
                   ),
                 )),
       );
-      
+
       // Add theme toggle to overflow menu if configured.
-      
+
       if (hasThemeToggleInOverflow) {
         final themeConfig = widget.themeToggle!;
         overflowMenuItems.add(
@@ -360,7 +358,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
           ),
         );
       }
-      
+
       actions.add(
         PopupMenuButton<String>(
           onSelected: (String id) {

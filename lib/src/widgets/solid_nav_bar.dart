@@ -101,7 +101,8 @@ class SolidNavBar extends StatelessWidget {
               child: NavigationRail(
                 backgroundColor: theme.colorScheme.surface,
                 selectedIndex: selectedIndex,
-                onDestinationSelected: (index) => _handleTabSelection(index, context),
+                onDestinationSelected: (index) =>
+                    _handleTabSelection(index, context),
                 labelType: NavigationRailLabelType.all,
                 minWidth: minWidth ?? NavigationConstants.navRailMinWidth,
                 groupAlignment:
@@ -129,28 +130,32 @@ class SolidNavBar extends StatelessWidget {
                     label: Text(
                       tab.title,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize:
-                            labelFontSize ?? NavigationConstants.navLabelFontSize,
+                        fontSize: labelFontSize ??
+                            NavigationConstants.navLabelFontSize,
                         fontWeight: FontWeight.w500,
-                        letterSpacing: NavigationConstants.navLabelLetterSpacing,
+                        letterSpacing:
+                            NavigationConstants.navLabelLetterSpacing,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: NavigationConstants.navLabelMaxLines,
                       overflow: TextOverflow.ellipsis,
                     ),
                     padding: const EdgeInsets.symmetric(
-                      vertical: NavigationConstants.navDestinationVerticalPadding,
+                      vertical:
+                          NavigationConstants.navDestinationVerticalPadding,
                     ),
                   );
                 }).toList(),
                 selectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
-                  fontSize: labelFontSize ?? NavigationConstants.navLabelFontSize,
+                  fontSize:
+                      labelFontSize ?? NavigationConstants.navLabelFontSize,
                   fontWeight: FontWeight.w600,
                   letterSpacing: NavigationConstants.navLabelLetterSpacing,
                   color: theme.colorScheme.primary,
                 ),
                 unselectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
-                  fontSize: labelFontSize ?? NavigationConstants.navLabelFontSize,
+                  fontSize:
+                      labelFontSize ?? NavigationConstants.navLabelFontSize,
                   fontWeight: FontWeight.w400,
                   letterSpacing: NavigationConstants.navLabelLetterSpacing,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),

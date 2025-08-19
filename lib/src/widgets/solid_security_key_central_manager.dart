@@ -42,7 +42,7 @@ import 'package:solidpod/solidpod.dart';
 class SolidSecurityKeyCentralManager {
   // Singleton instance.
 
-  static final SolidSecurityKeyCentralManager _instance = 
+  static final SolidSecurityKeyCentralManager _instance =
       SolidSecurityKeyCentralManager._internal();
 
   // Factory constructor.

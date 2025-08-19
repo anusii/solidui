@@ -51,7 +51,7 @@ class SolidSecurityKeyService extends ChangeNotifier {
   ///
   /// Returns true if a security key exists in memory, false otherwise.
   /// This method handles exceptions gracefully and logs errors for debugging.
-  
+
   Future<bool> isKeySaved() async {
     try {
       return await KeyManager.hasSecurityKey();
@@ -71,30 +71,30 @@ class SolidSecurityKeyService extends ChangeNotifier {
   /// - [onKeyStatusChanged]: Optional callback function that receives the key status
   ///
   /// Returns true if a security key exists, false otherwise.
-  
+
   Future<bool> fetchKeySavedStatus([Function(bool)? onKeyStatusChanged]) async {
     try {
       // Check if the security key exists in memory.
 
       final hasKey = await KeyManager.hasSecurityKey();
-      
+
       // Call the callback if provided.
-      
+
       if (onKeyStatusChanged != null) {
         onKeyStatusChanged(hasKey);
       }
-      
+
       // Only notify listeners if the status has actually changed.
 
       if (_lastKnownKeyStatus != hasKey) {
         _lastKnownKeyStatus = hasKey;
         notifyListeners();
       }
-      
+
       return hasKey;
     } catch (e) {
       debugPrint('Error fetching security key status: $e');
-      
+
       // On error, assume no key and notify if needed.
 
       if (_lastKnownKeyStatus != false) {
@@ -104,7 +104,7 @@ class SolidSecurityKeyService extends ChangeNotifier {
         }
         notifyListeners();
       }
-      
+
       return false;
     }
   }
@@ -113,7 +113,7 @@ class SolidSecurityKeyService extends ChangeNotifier {
   ///
   /// This method triggers a fresh check of the security key status
   /// and notifies all listeners of any changes.
-  
+
   Future<void> refreshKeyStatus() async {
     // Reset the last known status to force notification.
 
@@ -125,7 +125,7 @@ class SolidSecurityKeyService extends ChangeNotifier {
   ///
   /// This method not only checks if a key exists but also determines
   /// if one is actually needed based on the verification key.
-  
+
   Future<bool> isSecurityKeyNeeded() async {
     try {
       // If key already exists, it's not needed to be set.
@@ -147,7 +147,7 @@ class SolidSecurityKeyService extends ChangeNotifier {
   ///
   /// This method performs a comprehensive validation by checking
   /// the KeyManager state. File validation is handled by UI components.
-  
+
   Future<bool> validateSecurityKeySetup() async {
     try {
       return await KeyManager.hasSecurityKey();

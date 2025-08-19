@@ -26,6 +26,7 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,10 +62,10 @@ class SolidStatusBar extends StatelessWidget {
 
   bool _shouldShowStatusBar(double screenWidth) {
     if (config.showOnNarrowScreens) return true;
-    
-    final threshold = config.narrowScreenThreshold ?? 
+
+    final threshold = config.narrowScreenThreshold ??
         NavigationConstants.narrowScreenThreshold;
-    
+
     return screenWidth > threshold;
   }
 
@@ -87,8 +88,9 @@ class SolidStatusBar extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final defaultStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: theme.colorScheme.primary,
-    ) ?? const TextStyle(fontSize: 14, color: Colors.blue);
+          color: theme.colorScheme.primary,
+        ) ??
+        const TextStyle(fontSize: 14, color: Colors.blue);
 
     return GestureDetector(
       onTap: onTap,
@@ -113,7 +115,7 @@ class SolidStatusBar extends StatelessWidget {
       child: _createInteractiveText(
         context: context,
         text: displayText,
-        onTap: serverInfo.isClickable 
+        onTap: serverInfo.isClickable
             ? () => _launchUrl(serverInfo.serverUri)
             : null,
         style: theme.textTheme.bodyMedium?.copyWith(

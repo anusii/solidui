@@ -26,6 +26,7 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:solidui/solidui.dart';
 
 /// Configuration for a navigation tab.
