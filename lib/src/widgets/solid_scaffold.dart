@@ -1,0 +1,578 @@
+/// Solid Scaffold - Simplified unified scaffold component.
+///
+// Time-stamp: <Monday 2025-08-18 14:30:00 +1000 Tony Chen>
+///
+/// Copyright (C) 2025, Software Innovation Institute, ANU.
+///
+/// Licensed under the GNU General Public License, Version 3 (the "License").
+///
+/// License: https://www.gnu.org/licenses/gpl-3.0.en.html.
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program.  If not, see <https://www.gnu.org/licenses/>.
+///
+/// Authors: Tony Chen
+
+library;
+
+import 'package:flutter/material.dart';
+
+import 'package:gap/gap.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:version_widget/version_widget.dart';
+
+import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/widgets/solid_nav_bar.dart';
+import 'package:solidui/src/widgets/solid_nav_drawer.dart';
+import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_scaffold_models.dart';
+import 'package:solidui/src/widgets/solid_theme_models.dart';
+
+import 'package:solidui/src/widgets/solid_status_bar.dart';
+import 'package:solidui/src/widgets/solid_status_bar_models.dart';
+
+/// Simplified unified scaffold component that automatically handles responsive
+/// layout switching.
+///
+/// Shows navigation rail on wide screens and drawer menu on narrow screens.
+/// Supports optional AppBar and status bar. Similar to Flutter's Scaffold but
+/// with integrated navigation and responsive design.
+///
+/// Usage example:
+/// ```dart
+/// SolidScaffold(
+///   menu: [
+///     SolidMenuItem(title: 'Home', icon: Icons.home, content: HomeWidget()),
+///     SolidMenuItem(title: 'Settings', icon: Icons.settings, content: SettingsWidget()),
+///   ],
+///   child: Column(
+///     children: [
+///       Text('Main content'),
+///     ],
+///   ),
+/// )
+/// ```
+
+class SolidScaffold extends StatefulWidget {
+  /// List of menu items.
+
+  final List<SolidMenuItem> menu;
+
+  /// Main content area.
+
+  final Widget child;
+
+  /// Optional AppBar configuration.
+
+  final SolidAppBarConfig? appBar;
+
+  /// Optional status bar configuration.
+
+  final SolidStatusBarConfig? statusBar;
+
+  /// Optional user information configuration.
+
+  final SolidNavUserInfo? userInfo;
+
+  /// Optional logout callback.
+
+  final void Function(BuildContext)? onLogout;
+
+  /// Optional alert dialog callback.
+
+  final void Function(BuildContext, String, String?)? onShowAlert;
+
+  /// Narrow screen threshold.
+
+  final double narrowScreenThreshold;
+
+  /// Background colour.
+
+  final Color? backgroundColor;
+
+  /// Floating action button.
+
+  final Widget? floatingActionButton;
+
+  /// Initial selected menu index.
+
+  final int initialIndex;
+
+  /// Optional menu selection callback (for external state management).
+
+  final void Function(int)? onMenuSelected;
+
+  /// Optional current selected index (for external state management).
+
+  final int? selectedIndex;
+
+  /// Optional theme toggle configuration.
+
+  final SolidThemeToggleConfig? themeToggle;
+
+  const SolidScaffold({
+    super.key,
+    required this.menu,
+    required this.child,
+    this.appBar,
+    this.statusBar,
+    this.userInfo,
+    this.onLogout,
+    this.onShowAlert,
+    this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
+    this.backgroundColor,
+    this.floatingActionButton,
+    this.initialIndex = 0,
+    this.onMenuSelected,
+    this.selectedIndex,
+    this.themeToggle,
+  });
+
+  @override
+  State<SolidScaffold> createState() => _SolidScaffoldState();
+}
+
+class _SolidScaffoldState extends State<SolidScaffold> {
+  late int _selectedIndex;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
+
+  /// Handles menu selection.
+
+  void _onMenuSelected(int index) {
+    // If external callback exists, use external state management.
+
+    if (widget.onMenuSelected != null) {
+      widget.onMenuSelected!(index);
+    } else {
+      // Otherwise use internal state management.
+
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+
+    // Execute menu item action.
+
+    final menuItem = widget.menu[index];
+    if (menuItem.onTap != null) {
+      menuItem.onTap!(context);
+    }
+  }
+
+  /// Determines if the screen is wide.
+
+  bool _isWideScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width > widget.narrowScreenThreshold;
+  }
+
+  /// Converts SolidMenuItem to SolidNavTab.
+
+  List<SolidNavTab> _convertToNavTabs() {
+    return widget.menu
+        .map((item) => SolidNavTab(
+              title: item.title,
+              icon: item.icon,
+              color: item.color,
+              content: item.content,
+              tooltip: item.tooltip,
+              message: item.message,
+              dialogTitle: item.dialogTitle,
+              action: item.onTap,
+            ))
+        .toList();
+  }
+
+  /// Builds the AppBar.
+
+  PreferredSizeWidget? _buildAppBar(BuildContext context) {
+    if (widget.appBar == null) return null;
+
+    final config = widget.appBar!;
+    final isWideScreen = _isWideScreen(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
+
+    // Build action buttons.
+
+    List<Widget> actions = [];
+
+    // Add version widget if configured and screen is not too narrow.
+
+    if (config.versionConfig != null &&
+        screenWidth >= config.veryNarrowScreenThreshold) {
+      actions.add(
+        MarkdownTooltip(
+          message: config.versionConfig!.tooltip ??
+              'Version: ${config.versionConfig!.version}\n\n'
+                  'Tap to view changelog if available.',
+          child: Theme(
+            data: theme.copyWith(
+              textTheme: theme.textTheme.copyWith(
+                bodyMedium: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+                bodySmall: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              colorScheme: theme.colorScheme.copyWith(
+                error: theme.colorScheme.error.withValues(alpha: 0.6),
+              ),
+            ),
+            child: VersionWidget(
+              version: config.versionConfig!.version,
+              changelogUrl: config.versionConfig!.changelogUrl,
+              showDate: config.versionConfig!.showDate,
+            ),
+          ),
+        ),
+      );
+      actions.add(const Gap(8));
+    }
+
+    for (final action in config.actions) {
+      // Determine whether to show button based on screen width.
+
+      bool shouldShow = true;
+      if (action.hideOnVeryNarrowScreen &&
+          screenWidth < config.veryNarrowScreenThreshold) {
+        shouldShow = false;
+      } else if (action.hideOnNarrowScreen &&
+          screenWidth < config.narrowScreenThreshold) {
+        shouldShow = false;
+      }
+
+      if (shouldShow) {
+        Widget iconButton = IconButton(
+          icon: Icon(action.icon),
+          onPressed: action.onPressed,
+          color: action.color,
+        );
+
+        // Wrap with MarkdownTooltip if tooltip is provided.
+
+        if (action.tooltip != null) {
+          iconButton = MarkdownTooltip(
+            message: action.tooltip!,
+            child: iconButton,
+          );
+        }
+
+        actions.add(iconButton);
+      }
+    }
+
+    // Add theme toggle if configured.
+
+    if (widget.themeToggle != null && widget.themeToggle!.enabled) {
+      final themeConfig = widget.themeToggle!;
+      
+      // Determine whether to show theme toggle based on screen width.
+
+      bool shouldShowThemeToggle = true;
+      if (themeConfig.hideOnVeryNarrowScreen &&
+          screenWidth < config.veryNarrowScreenThreshold) {
+        shouldShowThemeToggle = false;
+      } else if (themeConfig.hideOnNarrowScreen &&
+          screenWidth < config.narrowScreenThreshold) {
+        shouldShowThemeToggle = false;
+      }
+
+      if (shouldShowThemeToggle && themeConfig.showInAppBarActions) {
+        Widget themeButton = IconButton(
+          icon: Icon(themeConfig.currentIcon),
+          onPressed: themeConfig.onToggleTheme,
+        );
+
+        // Wrap with MarkdownTooltip.
+
+        themeButton = MarkdownTooltip(
+          message: themeConfig.currentTooltip,
+          child: themeButton,
+        );
+
+        actions.add(themeButton);
+      }
+    }
+
+    // Add overflow menu only if screen is very narrow.
+    // On wider screens, show overflow items as regular buttons.
+
+    final hasOverflowItems = config.overflowItems.isNotEmpty;
+    final hasThemeToggleInOverflow = widget.themeToggle != null && 
+        widget.themeToggle!.enabled && 
+        !widget.themeToggle!.showInAppBarActions;
+
+    if (screenWidth < config.veryNarrowScreenThreshold &&
+        (hasOverflowItems || hasThemeToggleInOverflow)) {
+      
+      // Build overflow menu items list.
+
+      List<PopupMenuItem<String>> overflowMenuItems = [];
+      
+      // Add regular overflow items.
+
+      overflowMenuItems.addAll(
+        config.overflowItems
+            .where((item) => item.showInOverflow)
+            .map((item) => PopupMenuItem<String>(
+                  value: item.id,
+                  child: Row(
+                    children: [
+                      Icon(item.icon),
+                      const SizedBox(width: 8),
+                      Text(item.label),
+                    ],
+                  ),
+                )),
+      );
+      
+      // Add theme toggle to overflow menu if configured.
+      
+      if (hasThemeToggleInOverflow) {
+        final themeConfig = widget.themeToggle!;
+        overflowMenuItems.add(
+          PopupMenuItem<String>(
+            value: 'theme_toggle',
+            child: Row(
+              children: [
+                Icon(themeConfig.currentIcon),
+                const SizedBox(width: 8),
+                Text(themeConfig.currentOverflowLabel),
+              ],
+            ),
+          ),
+        );
+      }
+      
+      actions.add(
+        PopupMenuButton<String>(
+          onSelected: (String id) {
+            if (id == 'theme_toggle') {
+              widget.themeToggle?.onToggleTheme?.call();
+            } else {
+              final item =
+                  config.overflowItems.firstWhere((item) => item.id == id);
+              item.onSelected();
+            }
+          },
+          itemBuilder: (BuildContext context) => overflowMenuItems,
+        ),
+      );
+    } else if (screenWidth >= config.veryNarrowScreenThreshold) {
+      // On wider screens, show overflow items as regular icon buttons.
+
+      for (final item in config.overflowItems) {
+        Widget iconButton = IconButton(
+          icon: Icon(item.icon),
+          onPressed: item.onSelected,
+        );
+
+        // Wrap with MarkdownTooltip.
+
+        iconButton = MarkdownTooltip(
+          message: item.label,
+          child: iconButton,
+        );
+
+        actions.add(iconButton);
+      }
+    }
+
+    return AppBar(
+      title: Text(config.title),
+      backgroundColor: config.backgroundColor,
+      automaticallyImplyLeading: !isWideScreen,
+
+      // Show hamburger menu only on narrow screens.
+
+      actions: actions.isEmpty ? null : actions,
+    );
+  }
+
+  /// Builds the navigation drawer.
+
+  Widget? _buildDrawer() {
+    final isWideScreen = _isWideScreen(context);
+
+    // Always show drawer on narrow screens, even without AppBar.
+
+    if (isWideScreen) {
+      return null;
+    }
+
+    return SolidNavDrawer(
+      userInfo: widget.userInfo,
+      tabs: _convertToNavTabs(),
+      selectedIndex: _currentSelectedIndex,
+      onTabSelected: _onMenuSelected,
+      onLogout: widget.onLogout,
+      showLogout: widget.onLogout != null,
+    );
+  }
+
+  /// Gets the current selected index.
+
+  int get _currentSelectedIndex {
+    return widget.selectedIndex ?? _selectedIndex;
+  }
+
+  /// Builds the navigation bar.
+
+  Widget _buildNavBar() {
+    return SolidNavBar(
+      tabs: _convertToNavTabs(),
+      selectedIndex: _currentSelectedIndex,
+      onTabSelected: _onMenuSelected,
+      onShowAlert: widget.onShowAlert,
+    );
+  }
+
+  /// Builds the main body content.
+
+  Widget _buildBody(BuildContext context) {
+    final theme = Theme.of(context);
+    final isWideScreen = _isWideScreen(context);
+
+    if (isWideScreen) {
+      // Wide screen: show navigation bar + content.
+
+      return Column(
+        children: [
+          Divider(height: 1, color: theme.dividerColor),
+          Expanded(
+            child: Row(
+              children: [
+                _buildNavBar(),
+                VerticalDivider(width: 1, color: theme.dividerColor),
+                Expanded(child: widget.child),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      // Narrow screen: show content only (drawer menu handled by Scaffold).
+
+      List<Widget> columnChildren = [];
+
+      // Add divider if AppBar is present.
+
+      if (widget.appBar != null) {
+        columnChildren.add(Divider(height: 1, color: theme.dividerColor));
+      }
+
+      columnChildren.add(Expanded(child: widget.child));
+
+      return Column(children: columnChildren);
+    }
+  }
+
+  /// Builds the status bar.
+
+  Widget? _buildStatusBar() {
+    if (widget.statusBar == null) return null;
+    return SolidStatusBar(config: widget.statusBar!);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isWideScreen = _isWideScreen(context);
+
+    // Determine which floating action button to show.
+
+    Widget? fab = widget.floatingActionButton;
+
+    // If no AppBar and narrow screen, show hamburger FAB.
+
+    if (widget.appBar == null && !isWideScreen) {
+      fab = MarkdownTooltip(
+        message: '''
+**Navigation Menu**
+
+Tap here to open the navigation drawer and access all available pages and options.
+
+''',
+        child: Container(
+          width: NavigationConstants.hamburgerButtonSize,
+          height: NavigationConstants.hamburgerButtonSize,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(
+                NavigationConstants.hamburgerButtonRadius),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.shadowColor.withValues(alpha: 0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(
+                  NavigationConstants.hamburgerButtonRadius),
+              onTap: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
+              child: Icon(
+                Icons.menu,
+                color: theme.colorScheme.onSurface,
+                size: NavigationConstants.hamburgerIconSize,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: _buildAppBar(context),
+      drawer: _buildDrawer(),
+      backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
+      floatingActionButton: fab,
+      floatingActionButtonLocation: (widget.appBar == null && !isWideScreen)
+          ? const _SolidNavButtonStartTopLocation()
+          : FloatingActionButtonLocation.endFloat,
+      body: _buildBody(context),
+      bottomNavigationBar: _buildStatusBar(),
+    );
+  }
+}
+
+/// Custom FloatingActionButtonLocation for hamburger button in top-left corner.
+
+class _SolidNavButtonStartTopLocation extends FloatingActionButtonLocation {
+  const _SolidNavButtonStartTopLocation();
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    const double leftPadding = 16.0;
+    const double topPadding = 16.0;
+
+    return Offset(leftPadding, topPadding);
+  }
+}
