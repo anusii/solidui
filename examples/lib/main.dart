@@ -25,13 +25,14 @@
 
 library;
 
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
