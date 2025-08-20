@@ -67,6 +67,7 @@ class SimpleExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // Turn off debug banner for now.
+
       debugShowCheckedModeBanner: false,
       title: 'SolidUI Simple Example',
       theme: ThemeData(
@@ -232,8 +233,7 @@ Click to view the README file.
         serverInfo: const SolidServerInfo(
           serverUri: 'https://pods.solidcommunity.au',
           displayText: 'Demo POD Server: pods.solidcommunity.au',
-          tooltip:
-              'Demo server for testing - Click to learn more about POD servers.',
+          tooltip: 'Demo server for testing.',
           isClickable: true,
         ),
         loginStatus: SolidLoginStatus(
@@ -246,8 +246,12 @@ Click to view the README file.
         ),
         securityKeyStatus: SolidSecurityKeyStatus(
           isKeySaved: _webId != null,
-          onTap: () => _showMessage('Security key management'),
-          tooltip: 'Manage your security keys for data encryption',
+          title: 'SolidUI Example Security Keys',
+          onKeyStatusChanged: (bool hasKey) {
+            _showMessage(
+                'Security key status changed: ${hasKey ? 'Saved' : 'Not saved'}');
+          },
+          tooltip: 'Manage your security keys for data encryption.',
         ),
         showOnNarrowScreens: false,
       ),

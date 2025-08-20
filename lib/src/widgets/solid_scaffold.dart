@@ -32,6 +32,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -87,7 +88,7 @@ class SolidScaffold extends StatefulWidget {
 
   final void Function(BuildContext)? onLogout;
 
-  /// Optional alert dialog callback.
+  /// Optional alert dialogue callback.
 
   final void Function(BuildContext, String, String?)? onShowAlert;
 
@@ -145,10 +146,120 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   late int _selectedIndex;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  SolidSecurityKeyService? _securityKeyService;
+  bool _isKeySaved = false;
+  bool _isUpdatingSecurityKeyStatus = false;
+
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+
+    if (_hasSecurityKeyConfig()) {
+      _initializeSecurityKeyService();
+    }
+  }
+
+  @override
+  void dispose() {
+    _securityKeyService?.removeListener(_onSecurityKeyChanged);
+    super.dispose();
+  }
+
+  /// Checks if security key configuration is present.
+
+  bool _hasSecurityKeyConfig() {
+    return widget.statusBar?.securityKeyStatus != null;
+  }
+
+  /// Initializes the security key service and sets up listeners.
+
+  void _initializeSecurityKeyService() {
+    _securityKeyService = SolidSecurityKeyService();
+    _securityKeyService!.addListener(_onSecurityKeyChanged);
+    _loadSecurityKeyStatus();
+  }
+
+  /// Handles security key status changes.
+
+  void _onSecurityKeyChanged() {
+    if (_isUpdatingSecurityKeyStatus) return;
+    _updateSecurityKeyStatusFromService();
+  }
+
+  /// Updates security key status from service.
+
+  Future<void> _updateSecurityKeyStatusFromService() async {
+    if (_isUpdatingSecurityKeyStatus || _securityKeyService == null) return;
+
+    _isUpdatingSecurityKeyStatus = true;
+    try {
+      final isKeySaved = await _securityKeyService!.isKeySaved();
+      if (mounted) {
+        setState(() {
+          _isKeySaved = isKeySaved;
+        });
+
+        // Notify callback if provided.
+
+        final onKeyStatusChanged =
+            widget.statusBar?.securityKeyStatus?.onKeyStatusChanged;
+        if (onKeyStatusChanged != null) {
+          onKeyStatusChanged(isKeySaved);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error updating security key status: $e');
+    } finally {
+      _isUpdatingSecurityKeyStatus = false;
+    }
+  }
+
+  /// Loads the current security key status.
+
+  Future<void> _loadSecurityKeyStatus() async {
+    if (_isUpdatingSecurityKeyStatus || _securityKeyService == null) return;
+
+    _isUpdatingSecurityKeyStatus = true;
+    try {
+      bool hasValidKey = false;
+      final hasKeyInMemory = await _securityKeyService!.isKeySaved();
+
+      if (hasKeyInMemory) {
+        hasValidKey = true;
+      }
+
+      if (mounted) {
+        setState(() {
+          _isKeySaved = hasValidKey;
+        });
+      }
+
+      await _securityKeyService!.fetchKeySavedStatus((bool hasKey) {
+        if (mounted && hasKey != _isKeySaved) {
+          setState(() {
+            _isKeySaved = hasKey;
+          });
+
+          // Notify callback if provided.
+
+          final onKeyStatusChanged =
+              widget.statusBar?.securityKeyStatus?.onKeyStatusChanged;
+          if (onKeyStatusChanged != null) {
+            onKeyStatusChanged(hasKey);
+          }
+        }
+      });
+    } catch (e) {
+      debugPrint('Error loading security key status: $e');
+      if (mounted) {
+        setState(() {
+          _isKeySaved = false;
+        });
+      }
+    } finally {
+      _isUpdatingSecurityKeyStatus = false;
+    }
   }
 
   /// Handles menu selection.
@@ -486,7 +597,38 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
   Widget? _buildStatusBar() {
     if (widget.statusBar == null) return null;
-    return SolidStatusBar(config: widget.statusBar!);
+
+    // Create a modified config with updated security key status.
+
+    SolidStatusBarConfig modifiedConfig = widget.statusBar!;
+
+    if (widget.statusBar!.securityKeyStatus != null &&
+        _securityKeyService != null) {
+      // Use the built-in security key status.
+
+      final originalStatus = widget.statusBar!.securityKeyStatus!;
+      final updatedStatus = SolidSecurityKeyStatus(
+        isKeySaved: _isKeySaved, // Use SolidScaffold's internal status.
+        onTap: originalStatus.onTap,
+        onKeyStatusChanged: originalStatus.onKeyStatusChanged,
+        title: originalStatus.title,
+        appWidget: originalStatus.appWidget,
+        keySavedText: originalStatus.keySavedText,
+        keyNotSavedText: originalStatus.keyNotSavedText,
+        tooltip: originalStatus.tooltip,
+        autoManage: originalStatus.autoManage,
+      );
+
+      modifiedConfig = SolidStatusBarConfig(
+        serverInfo: widget.statusBar!.serverInfo,
+        loginStatus: widget.statusBar!.loginStatus,
+        securityKeyStatus: updatedStatus,
+        customItems: widget.statusBar!.customItems,
+        showOnNarrowScreens: widget.statusBar!.showOnNarrowScreens,
+      );
+    }
+
+    return SolidStatusBar(config: modifiedConfig);
   }
 
   @override

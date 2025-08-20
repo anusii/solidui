@@ -153,9 +153,24 @@ class SolidSecurityKeyStatus {
 
   final bool isKeySaved;
 
-  /// Callback when security key management is tapped.
+  /// Optional callback when security key management is tapped.
+  /// If null, SolidScaffold will handle security key management automatically.
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+
+  /// Optional callback for key status changes.
+  /// Called when the security key status changes.
+
+  final Function(bool)? onKeyStatusChanged;
+
+  /// Custom title for the security key manager dialogue.
+
+  final String? title;
+
+  /// Optional custom app widget to display in the security key manager.
+  /// If null, a default widget will be used.
+
+  final Widget? appWidget;
 
   /// Custom text for key saved state (if null, uses default).
 
@@ -169,12 +184,21 @@ class SolidSecurityKeyStatus {
 
   final String tooltip;
 
+  /// Whether to enable automatic security key management.
+  /// When true, SolidScaffold will automatically handle the security key dialogue.
+
+  final bool autoManage;
+
   const SolidSecurityKeyStatus({
     required this.isKeySaved,
-    required this.onTap,
+    this.onTap,
+    this.onKeyStatusChanged,
+    this.title,
+    this.appWidget,
     this.keySavedText,
     this.keyNotSavedText,
     required this.tooltip,
+    this.autoManage = true,
   });
 
   /// Get the display text based on key status.

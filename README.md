@@ -29,9 +29,9 @@ infrastructure.
 
 ### 🔐 Security Management
 
-- **SolidSecurityKeyManager** - Comprehensive security key management interface
+- **SolidSecurityKeyStatus** - Simple configuration for security key display and management
+- **SolidSecurityKeyManager** - Advanced component for custom implementations
 - **SolidSecurityKeyService** - Service layer for security key operations
-- **SolidSecurityKeyView** - Display component for security key information
 - **SolidSecurityKeyCentralManager** - Centralised security key coordination
 
 ### 📊 Status Components
@@ -103,6 +103,10 @@ class MyApp extends StatelessWidget {
             serverUri: 'https://your-pod-server.com',
             tooltip: 'Your Solid POD server',
           ),
+          securityKeyStatus: SolidSecurityKeyStatus(
+            isKeySaved: false,
+            tooltip: 'Manage security keys',
+          ),
         ),
         themeToggle: SolidThemeToggleConfig(
           enabled: true,
@@ -173,15 +177,58 @@ Configuration for the bottom status bar showing server and user information.
 
 ### Security Key Management
 
-Comprehensive security key management for Solid applications:
+**Automatic security key management** integrated directly into SolidScaffold.
+No need for separate components or custom dialogues.
 
+#### Simple Usage (Recommended)
+```dart
+SolidScaffold(
+  // ... other configuration.
+
+  statusBar: SolidStatusBarConfig(
+    securityKeyStatus: SolidSecurityKeyStatus(
+      isKeySaved: _isKeySaved,
+
+      // SolidScaffold automatically handles the security key dialogue.
+
+      tooltip: 'Manage security keys',
+    ),
+  ),
+)
+```
+
+#### Advanced Usage with Custom Configuration
+```dart
+SolidScaffold(
+  // ... other configuration.
+
+  statusBar: SolidStatusBarConfig(
+    securityKeyStatus: SolidSecurityKeyStatus(
+      isKeySaved: _isKeySaved,
+      customTitle: 'My App Security Keys',
+      appWidget: MyAppWidget(), // Optional: custom app widget for the dialogue
+      onKeyStatusChanged: (bool hasKey) {
+        // Optional: handle key status changes.
+        
+        print('Security key status: ${hasKey ? "saved" : "not saved"}');
+      },
+      tooltip: 'Manage your security keys for data encryption',
+    ),
+  ),
+)
+```
+
+#### Manual Management (Advanced)
+For custom implementations, you can still use the components directly:
 ```dart
 SolidSecurityKeyManager(
   config: SolidSecurityKeyManagerConfig(
-    onKeyStatusChanged: (hasKey) {
-      // Handle key status changes
-    },
+    customTitle: 'Security Keys',
+    appWidget: MyAppWidget(),
   ),
+  onKeyStatusChanged: (hasKey) {
+    // Handle key status changes.
+  },
 )
 ```
 
@@ -672,6 +719,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Authors
 
+- Graham Williams
 - Tony Chen
 
 ---

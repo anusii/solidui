@@ -31,8 +31,9 @@ import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../constants/navigation.dart';
-import 'solid_status_bar_models.dart';
+import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/widgets/solid_security_key_manager.dart';
+import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
 /// A responsive status bar component for Solid applications.
 
@@ -156,17 +157,51 @@ class SolidStatusBar extends StatelessWidget {
 
     final theme = Theme.of(context);
 
+    // Determine the onTap handler.
+
+    VoidCallback? onTap = securityKeyStatus.onTap;
+
+    // If auto-manage is enabled and no custom onTap is provided,
+    // use built-in management.
+
+    if (securityKeyStatus.autoManage && onTap == null) {
+      onTap = () => _showSecurityKeyManager(context, securityKeyStatus);
+    }
+
     return MarkdownTooltip(
       message: securityKeyStatus.tooltip,
       child: _createInteractiveText(
         context: context,
         text: securityKeyStatus.displayText,
-        onTap: securityKeyStatus.onTap,
+        onTap: onTap,
         style: theme.textTheme.bodyMedium?.copyWith(
           color: securityKeyStatus.isKeySaved
               ? theme.colorScheme.tertiary
               : theme.colorScheme.error,
         ),
+      ),
+    );
+  }
+
+  /// Shows the built-in security key manager dialogue.
+
+  void _showSecurityKeyManager(
+      BuildContext context, SolidSecurityKeyStatus config) {
+    showDialog(
+      context: context,
+      barrierColor: Theme.of(context).colorScheme.onSurface,
+      builder: (BuildContext context) => SolidSecurityKeyManager(
+        config: SolidSecurityKeyManagerConfig(
+          appWidget: config.appWidget ??
+              const SizedBox(), // Provide default empty widget
+          title: config.title ?? 'Security Key Management',
+        ),
+        onKeyStatusChanged: config.onKeyStatusChanged ??
+            (bool hasKey) {
+              // Default empty callback if none provided.
+
+              debugPrint('Security key status changed: $hasKey');
+            },
       ),
     );
   }

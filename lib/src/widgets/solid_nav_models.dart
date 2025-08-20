@@ -52,11 +52,11 @@ class SolidNavTab {
 
   final String? tooltip;
 
-  /// Optional dialog message to show when tab is selected.
+  /// Optional dialogue message to show when tab is selected.
 
   final String? message;
 
-  /// Optional dialog title when showing a message.
+  /// Optional dialogue title when showing a message.
 
   final String? dialogTitle;
 
