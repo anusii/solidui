@@ -181,8 +181,7 @@ class _HomePageState extends State<HomePage> {
       menu: menuItems,
       appBar: SolidAppBarConfig(
         title: menuItems[_selectedIndex].title,
-        versionConfig: SolidVersionConfig(
-          version: version,
+        versionConfig: const SolidVersionConfig(
           // Compare this version with that of solidui's CHANGELOG for
           // illustration purposes. Normally it should be this app's
           // CHANGELOG. 20250820 gjw
@@ -223,25 +222,19 @@ class _HomePageState extends State<HomePage> {
         serverInfo: const SolidServerInfo(
           serverUri: 'https://pods.solidcommunity.au',
           displayText: 'Demo POD Server: pods.solidcommunity.au',
-          tooltip: 'Demo server for testing.',
-          isClickable: true,
         ),
         loginStatus: SolidLoginStatus(
           webId: _webId,
           onTap: _toggleLogin,
           loggedInText: 'Logged in',
           loggedOutText: 'Not logged in',
-          loggedInTooltip: 'Click to log out from POD',
-          loggedOutTooltip: 'Click to log in to your POD',
         ),
         securityKeyStatus: SolidSecurityKeyStatus(
-          isKeySaved: _webId != null,
           title: 'SolidUI Example Security Keys',
           onKeyStatusChanged: (bool hasKey) {
             _showMessage(
                 'Security key status changed: ${hasKey ? 'Saved' : 'Not saved'}');
           },
-          tooltip: 'Manage your security keys for data encryption.',
         ),
         showOnNarrowScreens: false,
       ),

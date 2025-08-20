@@ -9,18 +9,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_riverpod: ^2.6.1
   gap: ^3.0.1
   markdown_tooltip: ^0.0.7
+  package_info_plus: ^8.3.1
   rdflib: ^0.2.12
   solidpod: ^0.7.8
   url_launcher: ^6.3.1
   version_widget: ^1.0.4
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_lints: ^5.0.0
+  window_manager: ^0.5.1
 
 flutter:
   uses-material-design: true

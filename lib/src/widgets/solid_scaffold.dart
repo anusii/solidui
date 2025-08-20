@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
@@ -146,9 +147,16 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   late int _selectedIndex;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  // Security key management.
+
   SolidSecurityKeyService? _securityKeyService;
   bool _isKeySaved = false;
   bool _isUpdatingSecurityKeyStatus = false;
+
+  // Version management.
+
+  String? _appVersion;
+  bool _isVersionLoaded = false;
 
   @override
   void initState() {
@@ -157,6 +165,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     if (_hasSecurityKeyConfig()) {
       _initializeSecurityKeyService();
+    }
+
+    if (_hasVersionConfig()) {
+      _initializeVersionLoading();
     }
   }
 
@@ -262,6 +274,70 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     }
   }
 
+  // Version management methods
+
+  /// Checks if version configuration is available and requires auto-loading.
+
+  bool _hasVersionConfig() {
+    return widget.appBar?.versionConfig != null;
+  }
+
+  /// Initialises version loading from pubspec.yaml.
+
+  void _initializeVersionLoading() {
+    _loadAppVersion();
+  }
+
+  /// Loads application version from pubspec.yaml.
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final version = '${packageInfo.version}+${packageInfo.buildNumber}';
+
+      if (mounted) {
+        setState(() {
+          _appVersion = version;
+          _isVersionLoaded = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading app version: $e');
+      if (mounted) {
+        setState(() {
+          _appVersion = '0.0.0+0';
+          _isVersionLoaded = true;
+        });
+      }
+    }
+  }
+
+  /// Gets the version to display.
+
+  String _getVersionToDisplay() {
+    final versionConfig = widget.appBar?.versionConfig;
+    if (versionConfig?.version != null) {
+      return versionConfig!.version!;
+    }
+
+    if (_isVersionLoaded && _appVersion != null) {
+      return _appVersion!;
+    }
+
+    return '0.0.0+0';
+  }
+
+  /// Determines whether to show the version widget.
+
+  bool _shouldShowVersion() {
+    final versionConfig = widget.appBar?.versionConfig;
+    if (versionConfig?.version != null) {
+      return true; // Show immediately if version is provided
+    }
+
+    return _isVersionLoaded; // Only show after auto-load is complete
+  }
+
   /// Handles menu selection.
 
   void _onMenuSelected(int index) {
@@ -325,11 +401,13 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     // Add version widget if configured and screen is not too narrow.
 
     if (config.versionConfig != null &&
-        screenWidth >= config.veryNarrowScreenThreshold) {
+        screenWidth >= config.veryNarrowScreenThreshold &&
+        _shouldShowVersion()) {
+      final versionToDisplay = _getVersionToDisplay();
       actions.add(
         MarkdownTooltip(
           message: config.versionConfig!.tooltip ??
-              'Version: ${config.versionConfig!.version}\n\n'
+              'Version: $versionToDisplay\n\n'
                   'Tap to view changelog if available.',
           child: Theme(
             data: theme.copyWith(
@@ -346,7 +424,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
               ),
             ),
             child: VersionWidget(
-              version: config.versionConfig!.version,
+              version: versionToDisplay,
               changelogUrl: config.versionConfig!.changelogUrl,
               showDate: config.versionConfig!.showDate,
             ),
@@ -602,13 +680,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     SolidStatusBarConfig modifiedConfig = widget.statusBar!;
 
-    if (widget.statusBar!.securityKeyStatus != null &&
-        _securityKeyService != null) {
-      // Use the built-in security key status.
-
+    if (widget.statusBar!.securityKeyStatus != null) {
       final originalStatus = widget.statusBar!.securityKeyStatus!;
       final updatedStatus = SolidSecurityKeyStatus(
-        isKeySaved: _isKeySaved, // Use SolidScaffold's internal status.
+        isKeySaved: originalStatus.isKeySaved ?? _isKeySaved,
         onTap: originalStatus.onTap,
         onKeyStatusChanged: originalStatus.onKeyStatusChanged,
         title: originalStatus.title,
@@ -616,7 +691,6 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         keySavedText: originalStatus.keySavedText,
         keyNotSavedText: originalStatus.keyNotSavedText,
         tooltip: originalStatus.tooltip,
-        autoManage: originalStatus.autoManage,
       );
 
       modifiedConfig = SolidStatusBarConfig(

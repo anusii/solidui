@@ -29,10 +29,16 @@ infrastructure.
 
 ### 🔐 Security Management
 
-- **SolidSecurityKeyStatus** - Simple configuration for security key display and management
+- **SolidSecurityKeyStatus** - Simple configuration with intelligent defaults
 - **SolidSecurityKeyManager** - Advanced component for custom implementations
 - **SolidSecurityKeyService** - Service layer for security key operations
 - **SolidSecurityKeyCentralManager** - Centralised security key coordination
+
+### 📱 Version Management
+
+- **Automatic Version Loading** - Zero-config version display from pubspec.yaml
+- **SolidVersionConfig** - Simple version configuration with smart defaults
+- **VersionWidget Integration** - Seamless version display with changelog support
 
 ### 📊 Status Components
 
@@ -101,13 +107,10 @@ class MyApp extends StatelessWidget {
         statusBar: SolidStatusBarConfig(
           serverInfo: SolidServerInfo(
             serverUri: 'https://your-pod-server.com',
-            tooltip: 'Your Solid POD server',
           ),
-          securityKeyStatus: SolidSecurityKeyStatus(
-            isKeySaved: false,
-            tooltip: 'Manage security keys',
-          ),
+          securityKeyStatus: SolidSecurityKeyStatus(),
         ),
+        versionConfig: SolidVersionConfig(),
         themeToggle: SolidThemeToggleConfig(
           enabled: true,
           currentThemeMode: ThemeMode.system,
@@ -253,6 +256,50 @@ MaterialApp(
   home:
     YourSolidApp(),
 )
+```
+
+## Version Management
+
+SolidUI provides automatic version management that loads version information directly from your app's `pubspec.yaml`.
+
+### Zero-Config Usage (Recommended)
+
+```dart
+appBar: SolidAppBarConfig(
+  title: 'My App',
+  versionConfig: SolidVersionConfig(),
+),
+```
+
+This will:
+- Automatically read version from `pubspec.yaml`
+- Display version in the format `1.0.0+1` 
+- Show loading state until version is loaded
+- Provide default tooltip with version information
+
+### Advanced Configuration
+
+```dart
+appBar: SolidAppBarConfig(
+  title: 'My App',
+  versionConfig: SolidVersionConfig(
+    changelogUrl: 'https://github.com/user/repo/blob/main/CHANGELOG.md',
+    showDate: true,
+    tooltip: 'Custom version tooltip',
+  ),
+),
+```
+
+### Manual Version Override
+
+```dart
+appBar: SolidAppBarConfig(
+  title: 'My App',
+  versionConfig: SolidVersionConfig(
+    version: '2.0.0-beta.1', // Manual override
+    changelogUrl: 'https://github.com/user/repo/blob/main/CHANGELOG.md',
+  ),
+),
 ```
 
 ## Advanced Usage

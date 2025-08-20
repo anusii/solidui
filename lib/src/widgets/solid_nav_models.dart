@@ -187,7 +187,7 @@ class SolidOverflowMenuItem {
 class SolidVersionConfig {
   /// The version string to display.
 
-  final String version;
+  final String? version;
 
   /// The URL to the changelog.
 
@@ -201,8 +201,10 @@ class SolidVersionConfig {
 
   final String? tooltip;
 
+  /// Creates version configuration.
+
   const SolidVersionConfig({
-    required this.version,
+    this.version,
     this.changelogUrl,
     this.showDate = true,
     this.tooltip,

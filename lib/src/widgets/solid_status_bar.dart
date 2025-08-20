@@ -112,7 +112,7 @@ class SolidStatusBar extends StatelessWidget {
     final displayText = serverInfo.displayText ?? serverInfo.serverUri;
 
     return MarkdownTooltip(
-      message: serverInfo.tooltip,
+      message: serverInfo.tooltipText,
       child: _createInteractiveText(
         context: context,
         text: displayText,
@@ -135,7 +135,7 @@ class SolidStatusBar extends StatelessWidget {
     final theme = Theme.of(context);
 
     return MarkdownTooltip(
-      message: loginStatus.tooltip,
+      message: loginStatus.tooltipText,
       child: _createInteractiveText(
         context: context,
         text: 'Login Status: ${loginStatus.displayText}',
@@ -161,21 +161,18 @@ class SolidStatusBar extends StatelessWidget {
 
     VoidCallback? onTap = securityKeyStatus.onTap;
 
-    // If auto-manage is enabled and no custom onTap is provided,
-    // use built-in management.
+    // If no custom tap handler is provided, use built-in security key management
 
-    if (securityKeyStatus.autoManage && onTap == null) {
-      onTap = () => _showSecurityKeyManager(context, securityKeyStatus);
-    }
+    onTap ??= () => _showSecurityKeyManager(context, securityKeyStatus);
 
     return MarkdownTooltip(
-      message: securityKeyStatus.tooltip,
+      message: securityKeyStatus.tooltipText,
       child: _createInteractiveText(
         context: context,
         text: securityKeyStatus.displayText,
         onTap: onTap,
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: securityKeyStatus.isKeySaved
+          color: securityKeyStatus.isKeySaved == true
               ? theme.colorScheme.tertiary
               : theme.colorScheme.error,
         ),
