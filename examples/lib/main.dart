@@ -189,16 +189,6 @@ class _HomePageState extends State<HomePage> {
           changelogUrl: 'https://github.com/anusii/solidui/blob/main/'
               'CHANGELOG.md',
           showDate: true,
-          tooltip: '''
-**SolidUI Example**
-
-Version: $version
-
-This is a demonstration of the SolidScaffold component with all its features.
-
-Click to view the README file.
-
-''',
         ),
         actions: [
           SolidAppBarAction(
