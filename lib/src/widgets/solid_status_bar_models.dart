@@ -245,11 +245,11 @@ class SolidSecurityKeyStatus {
 
     return '''
 
-**Security Key Manager**: Tap here to manage your security key settings.
+**Security Key Manager**
 
-View your current security key status, save a new security key, or remove 
-an existing security key. Your security key is essential for encrypting 
-and protecting your data.
+Tap here to manage your security key settings, view your current security key 
+status, save a new security key, or remove an existing security key. Your 
+security key is essential for encrypting and protecting your data.
 
 ''';
   }
