@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Monday 2025-01-27 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Wednesday 2025-08-20 10:14:23 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -63,6 +63,8 @@ class SimpleExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // Turn off debug banner for now.
+      debugShowCheckedModeBanner: false,
       title: 'SolidUI Simple Example',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -198,10 +200,10 @@ Click to view the README file.
       ),
       statusBar: SolidStatusBarConfig(
         serverInfo: const SolidServerInfo(
-          serverUri: 'https://demo-pod-server.example.com',
-          displayText: 'Demo POD Server',
+          serverUri: 'https://pods.solidcommunity.au',
+          displayText: 'Demo POD Server: pods.solidcommunity.au',
           tooltip:
-              'Demo server for testing - Click to learn more about POD servers',
+              'Demo server for testing - Click to learn more about POD servers.',
           isClickable: true,
         ),
         loginStatus: SolidLoginStatus(
