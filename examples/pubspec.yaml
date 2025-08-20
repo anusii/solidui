@@ -1,8 +1,7 @@
 name: solidui_simple_example
 description: A simple example demonstrating SolidScaffold usage.
 publish_to: 'none'
-
-version: 1.0.0+1
+version: 0.0.0+0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -11,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  package_info_plus: ^8.3.0
   solidui:
     path: ../
   window_manager: ^0.4.3
