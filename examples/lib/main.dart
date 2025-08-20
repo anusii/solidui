@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Wednesday 2025-08-20 10:14:23 +1000 Graham Williams>
+// Time-stamp: <Wednesday 2025-08-20 15:57:10 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -21,15 +21,18 @@
 // You should have received a copy of the GNU General Public License along with
 // this program.  If not, see <https://www.gnu.org/licenses/>.
 ///
-/// Authors: Tony Chen
+/// Authors: Tony Chen, Graham Williams
 
 library;
 
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -118,8 +121,32 @@ class _HomePageState extends State<HomePage> {
         'information.',
   ];
 
+  // Obtain the version from our pubspec Note that later we will compare it to
+  // the solidui package version (from its CHANGELOG.md) as a
+  // demosntration. Normally it should be compared to this app's CHANGELOG.md
+  // from github. 20250820 gjw
+
+  late final String version;
+  bool isLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initVersion();
+  }
+
+  _initVersion() async {
+    PackageInfo info = await PackageInfo.fromPlatform();
+    version = info.version; // This assigns to the late final
+    setState(() => isLoaded = true);
+  }
+
+  // Buld the widget.
+
   @override
   Widget build(BuildContext context) {
+    if (!isLoaded) return const CircularProgressIndicator();
+
     // Create simple menu items.
 
     final menuItems = [
@@ -153,15 +180,18 @@ class _HomePageState extends State<HomePage> {
       menu: menuItems,
       appBar: SolidAppBarConfig(
         title: menuItems[_selectedIndex].title,
-        versionConfig: const SolidVersionConfig(
-          version: '0.0.1',
+        versionConfig: SolidVersionConfig(
+          version: version,
+          // Compare this version with that of solidui's CHANGELOG for
+          // illustration purposes. Normally it should be this app's
+          // CHANGELOG. 20250820 gjw
           changelogUrl: 'https://github.com/anusii/solidui/blob/main/'
               'CHANGELOG.md',
           showDate: true,
           tooltip: '''
 **SolidUI Example**
 
-Version: 0.0.1
+Version: $version
 
 This is a demonstration of the SolidScaffold component with all its features.
 
