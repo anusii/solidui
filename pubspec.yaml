@@ -1,7 +1,7 @@
 name: solidui
 description: "A UI library for building Solid applications with Flutter."
 publish_to: "none"
-version: 0.0.1
+version: 0.0.2
 
 environment:
   sdk: ">=3.2.3 <4.0.0"

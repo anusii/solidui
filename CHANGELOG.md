@@ -8,4 +8,5 @@ toward a 0.1 release.
 
 ## 0.0.1 First stable release
 
++ EXAMPLE: Add demo of getting version [0.0.2 20250820 gjw]
 + CHANGELOG: Initialise [0.0.1 20250819 tchen]
