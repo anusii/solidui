@@ -29,10 +29,14 @@ infrastructure.
 
 ### 🔐 Security Management
 
-- **SolidSecurityKeyManager** - Comprehensive security key management interface
+- **SolidSecurityKeyStatus** - Simple configuration with intelligent defaults
+- **SolidSecurityKeyManager** - Advanced component for custom implementations
 - **SolidSecurityKeyService** - Service layer for security key operations
-- **SolidSecurityKeyView** - Display component for security key information
 - **SolidSecurityKeyCentralManager** - Centralised security key coordination
+
+### 📱 Version Management
+
+- **SolidVersionConfig** - Version configuration with smart defaults
 
 ### 📊 Status Components
 
@@ -101,9 +105,10 @@ class MyApp extends StatelessWidget {
         statusBar: SolidStatusBarConfig(
           serverInfo: SolidServerInfo(
             serverUri: 'https://your-pod-server.com',
-            tooltip: 'Your Solid POD server',
           ),
+          securityKeyStatus: SolidSecurityKeyStatus(),
         ),
+        versionConfig: SolidVersionConfig(),
         themeToggle: SolidThemeToggleConfig(
           enabled: true,
           currentThemeMode: ThemeMode.system,
@@ -173,15 +178,58 @@ Configuration for the bottom status bar showing server and user information.
 
 ### Security Key Management
 
-Comprehensive security key management for Solid applications:
+**Automatic security key management** integrated directly into SolidScaffold.
+No need for separate components or custom dialogues.
 
+#### Simple Usage
+```dart
+SolidScaffold(
+  // ... other configuration.
+
+  statusBar: SolidStatusBarConfig(
+    securityKeyStatus: SolidSecurityKeyStatus(
+      isKeySaved: _isKeySaved,
+
+      // SolidScaffold automatically handles the security key dialogue.
+
+      tooltip: 'Manage security keys',
+    ),
+  ),
+)
+```
+
+#### Advanced Usage with Custom Configuration
+```dart
+SolidScaffold(
+  // ... other configuration.
+
+  statusBar: SolidStatusBarConfig(
+    securityKeyStatus: SolidSecurityKeyStatus(
+      isKeySaved: _isKeySaved,
+      customTitle: 'My App Security Keys',
+      appWidget: MyAppWidget(), // Optional: custom app widget for the dialogue
+      onKeyStatusChanged: (bool hasKey) {
+        // Optional: handle key status changes.
+        
+        print('Security key status: ${hasKey ? "saved" : "not saved"}');
+      },
+      tooltip: 'Manage your security keys for data encryption',
+    ),
+  ),
+)
+```
+
+#### Manual Management (Advanced)
+For custom implementations, you can still use the components directly:
 ```dart
 SolidSecurityKeyManager(
   config: SolidSecurityKeyManagerConfig(
-    onKeyStatusChanged: (hasKey) {
-      // Handle key status changes
-    },
+    customTitle: 'Security Keys',
+    appWidget: MyAppWidget(),
   ),
+  onKeyStatusChanged: (hasKey) {
+    // Handle key status changes.
+  },
 )
 ```
 
@@ -206,6 +254,50 @@ MaterialApp(
   home:
     YourSolidApp(),
 )
+```
+
+## Version Management
+
+SolidUI provides automatic version management that loads version information directly from your app's `pubspec.yaml`.
+
+### Zero-Config Usage
+
+```dart
+appBar: SolidAppBarConfig(
+  title: 'My App',
+  versionConfig: SolidVersionConfig(),
+),
+```
+
+This will:
+- Automatically read version from `pubspec.yaml`
+- Display version in the format `1.0.0+1` 
+- Show loading state until version is loaded
+- Provide default tooltip with version information
+
+### Advanced Configuration
+
+```dart
+appBar: SolidAppBarConfig(
+  title: 'My App',
+  versionConfig: SolidVersionConfig(
+    changelogUrl: 'https://github.com/user/repo/blob/main/CHANGELOG.md',
+    showDate: true,
+    tooltip: 'Custom version tooltip',
+  ),
+),
+```
+
+### Manual Version Override
+
+```dart
+appBar: SolidAppBarConfig(
+  title: 'My App',
+  versionConfig: SolidVersionConfig(
+    version: '2.0.0-beta.1', // Manual override
+    changelogUrl: 'https://github.com/user/repo/blob/main/CHANGELOG.md',
+  ),
+),
 ```
 
 ## Advanced Usage
@@ -672,6 +764,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Authors
 
+- Graham Williams
 - Tony Chen
 
 ---

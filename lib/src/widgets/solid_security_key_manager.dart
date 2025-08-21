@@ -52,7 +52,7 @@ class SolidSecurityKeyManagerConfig {
 
   /// Custom title for the security key manager.
 
-  final String? customTitle;
+  final String? title;
 
   /// Whether to show the 'Show Security Key' button.
 
@@ -64,7 +64,7 @@ class SolidSecurityKeyManagerConfig {
 
   const SolidSecurityKeyManagerConfig({
     required this.appWidget,
-    this.customTitle,
+    this.title,
     this.showViewKeyButton = true,
     this.showForgetKeyButton = true,
   });
@@ -569,7 +569,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
             onPressed: () async {
               Navigator.of(context).pop();
 
-              // Clear the invalid key state and show key input dialog.
+              // Clear the invalid key state and show key input dialogue.
 
               await KeyManager.forgetSecurityKey();
               await _checkKeyStatus();
@@ -665,7 +665,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                 children: [
                   Expanded(
                     child: Text(
-                      widget.config.customTitle ?? 'Security Key Management',
+                      widget.config.title ?? 'Security Key Management',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,

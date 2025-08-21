@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Wednesday 2025-08-20 15:57:10 +1000 Graham Williams>
+// Time-stamp: <Thursday 2025-08-21 13:16:28 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -67,6 +67,7 @@ class SimpleExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // Turn off debug banner for now.
+
       debugShowCheckedModeBanner: false,
       title: 'SolidUI Simple Example',
       theme: ThemeData(
@@ -121,32 +122,10 @@ class _HomePageState extends State<HomePage> {
         'information.',
   ];
 
-  // Obtain the version from our pubspec Note that later we will compare it to
-  // the solidui package version (from its CHANGELOG.md) as a
-  // demosntration. Normally it should be compared to this app's CHANGELOG.md
-  // from github. 20250820 gjw
-
-  late final String version;
-  bool isLoaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initVersion();
-  }
-
-  _initVersion() async {
-    PackageInfo info = await PackageInfo.fromPlatform();
-    version = info.version; // This assigns to the late final
-    setState(() => isLoaded = true);
-  }
-
   // Buld the widget.
 
   @override
   Widget build(BuildContext context) {
-    if (!isLoaded) return const CircularProgressIndicator();
-
     // Create simple menu items.
 
     final menuItems = [
@@ -180,24 +159,13 @@ class _HomePageState extends State<HomePage> {
       menu: menuItems,
       appBar: SolidAppBarConfig(
         title: menuItems[_selectedIndex].title,
-        versionConfig: SolidVersionConfig(
-          version: version,
+        versionConfig: const SolidVersionConfig(
           // Compare this version with that of solidui's CHANGELOG for
           // illustration purposes. Normally it should be this app's
           // CHANGELOG. 20250820 gjw
           changelogUrl: 'https://github.com/anusii/solidui/blob/main/'
               'CHANGELOG.md',
           showDate: true,
-          tooltip: '''
-**SolidUI Example**
-
-Version: $version
-
-This is a demonstration of the SolidScaffold component with all its features.
-
-Click to view the README file.
-
-''',
         ),
         actions: [
           SolidAppBarAction(
@@ -232,22 +200,19 @@ Click to view the README file.
         serverInfo: const SolidServerInfo(
           serverUri: 'https://pods.solidcommunity.au',
           displayText: 'Demo POD Server: pods.solidcommunity.au',
-          tooltip:
-              'Demo server for testing - Click to learn more about POD servers.',
-          isClickable: true,
         ),
         loginStatus: SolidLoginStatus(
           webId: _webId,
           onTap: _toggleLogin,
           loggedInText: 'Logged in',
           loggedOutText: 'Not logged in',
-          loggedInTooltip: 'Click to log out from POD',
-          loggedOutTooltip: 'Click to log in to your POD',
         ),
         securityKeyStatus: SolidSecurityKeyStatus(
-          isKeySaved: _webId != null,
-          onTap: () => _showMessage('Security key management'),
-          tooltip: 'Manage your security keys for data encryption',
+          title: 'SolidUI Example Security Keys',
+          onKeyStatusChanged: (bool hasKey) {
+            _showMessage(
+                'Security key status changed: ${hasKey ? 'Saved' : 'Not saved'}');
+          },
         ),
         showOnNarrowScreens: false,
       ),

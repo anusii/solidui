@@ -77,7 +77,7 @@ class SolidServerInfo {
 
   /// Tooltip message for the server info.
 
-  final String tooltip;
+  final String? tooltip;
 
   /// Whether the server link is clickable.
 
@@ -86,9 +86,22 @@ class SolidServerInfo {
   const SolidServerInfo({
     required this.serverUri,
     this.displayText,
-    required this.tooltip,
+    this.tooltip,
     this.isClickable = true,
   });
+
+  /// Gets the tooltip for server info.
+
+  String get tooltipText {
+    if (tooltip != null) return tooltip!;
+
+    if (isClickable) {
+      return 'Server: $serverUri\n\nClick to open server in browser.\n\n'
+          'Manages your personal data POD where your data is stored securely.';
+    } else {
+      return 'Server: $serverUri.\n\nYour personal data POD server.';
+    }
+  }
 }
 
 /// Configuration for login status in the status bar.
@@ -112,19 +125,19 @@ class SolidLoginStatus {
 
   /// Tooltip message for logged in state.
 
-  final String loggedInTooltip;
+  final String? loggedInTooltip;
 
   /// Tooltip message for logged out state.
 
-  final String loggedOutTooltip;
+  final String? loggedOutTooltip;
 
   const SolidLoginStatus({
     this.webId,
     required this.onTap,
     this.loggedInText,
     this.loggedOutText,
-    required this.loggedInTooltip,
-    required this.loggedOutTooltip,
+    this.loggedInTooltip,
+    this.loggedOutTooltip,
   });
 
   /// Whether the user is currently logged in.
@@ -143,7 +156,27 @@ class SolidLoginStatus {
 
   /// Get the tooltip based on login status.
 
-  String get tooltip => isLoggedIn ? loggedInTooltip : loggedOutTooltip;
+  String get tooltipText =>
+      isLoggedIn ? loggedInTooltipContent : loggedOutTooltipContent;
+
+  /// Gets the logged-in tooltip.
+
+  String get loggedInTooltipContent {
+    if (loggedInTooltip != null) return loggedInTooltip!;
+
+    return 'Currently Logged In (WebID: $webId). Click to log out.\n\n'
+        'Your data is secure and stored in your personal POD.';
+  }
+
+  /// Gets the logged-out tooltip.
+
+  String get loggedOutTooltipContent {
+    if (loggedOutTooltip != null) return loggedOutTooltip!;
+
+    return 'Login Required.\n\nCurrent status: Not logged in. '
+        'Click to log in to your pod.\n\n'
+        'Access your personal data by connecting to your Solid POD.';
+  }
 }
 
 /// Configuration for security key status in the status bar.
@@ -151,11 +184,26 @@ class SolidLoginStatus {
 class SolidSecurityKeyStatus {
   /// Whether the security key is saved.
 
-  final bool isKeySaved;
+  final bool? isKeySaved;
 
-  /// Callback when security key management is tapped.
+  /// Optional callback when security key management is tapped.
+  /// If null, SolidScaffold will handle security key management automatically.
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+
+  /// Optional callback for key status changes.
+  /// Called when the security key status changes.
+
+  final Function(bool)? onKeyStatusChanged;
+
+  /// Custom title for the security key manager dialogue.
+
+  final String? title;
+
+  /// Optional custom app widget to display in the security key manager.
+  /// If null, a default widget will be used.
+
+  final Widget? appWidget;
 
   /// Custom text for key saved state (if null, uses default).
 
@@ -167,24 +215,43 @@ class SolidSecurityKeyStatus {
 
   /// Tooltip message for the security key status.
 
-  final String tooltip;
+  final String? tooltip;
 
   const SolidSecurityKeyStatus({
-    required this.isKeySaved,
-    required this.onTap,
+    this.isKeySaved,
+    this.onTap,
+    this.onKeyStatusChanged,
+    this.title,
+    this.appWidget,
     this.keySavedText,
     this.keyNotSavedText,
-    required this.tooltip,
+    this.tooltip,
   });
 
   /// Get the display text based on key status.
 
   String get displayText {
-    if (isKeySaved) {
+    if (isKeySaved == true) {
       return keySavedText ?? 'Security Key: Saved';
     } else {
       return keyNotSavedText ?? 'Security Key: Not Saved';
     }
+  }
+
+  /// Gets the tooltip for the security key status.
+
+  String get tooltipText {
+    if (tooltip != null) return tooltip!;
+
+    return '''
+
+**Security Key Manager**
+
+Tap here to manage your security key settings, view your current security key 
+status, save a new security key, or remove an existing security key. Your 
+security key is essential for encrypting and protecting your data.
+
+''';
   }
 }
 

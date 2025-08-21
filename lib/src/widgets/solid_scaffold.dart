@@ -1,6 +1,6 @@
 /// Solid Scaffold - Simplified unified scaffold component.
 ///
-// Time-stamp: <Monday 2025-08-18 14:30:00 +1000 Tony Chen>
+// Time-stamp: <Thursday 2025-08-21 13:20:34 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -29,9 +29,11 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -87,7 +89,7 @@ class SolidScaffold extends StatefulWidget {
 
   final void Function(BuildContext)? onLogout;
 
-  /// Optional alert dialog callback.
+  /// Optional alert dialogue callback.
 
   final void Function(BuildContext, String, String?)? onShowAlert;
 
@@ -145,10 +147,195 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   late int _selectedIndex;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  // Security key management.
+
+  SolidSecurityKeyService? _securityKeyService;
+  bool _isKeySaved = false;
+  bool _isUpdatingSecurityKeyStatus = false;
+
+  // Version management.
+
+  String? _appVersion;
+  bool _isVersionLoaded = false;
+
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+
+    if (_hasSecurityKeyConfig()) {
+      _initializeSecurityKeyService();
+    }
+
+    if (_hasVersionConfig()) {
+      _initializeVersionLoading();
+    }
+  }
+
+  @override
+  void dispose() {
+    _securityKeyService?.removeListener(_onSecurityKeyChanged);
+    super.dispose();
+  }
+
+  /// Checks if security key configuration is present.
+
+  bool _hasSecurityKeyConfig() {
+    return widget.statusBar?.securityKeyStatus != null;
+  }
+
+  /// Initializes the security key service and sets up listeners.
+
+  void _initializeSecurityKeyService() {
+    _securityKeyService = SolidSecurityKeyService();
+    _securityKeyService!.addListener(_onSecurityKeyChanged);
+    _loadSecurityKeyStatus();
+  }
+
+  /// Handles security key status changes.
+
+  void _onSecurityKeyChanged() {
+    if (_isUpdatingSecurityKeyStatus) return;
+    _updateSecurityKeyStatusFromService();
+  }
+
+  /// Updates security key status from service.
+
+  Future<void> _updateSecurityKeyStatusFromService() async {
+    if (_isUpdatingSecurityKeyStatus || _securityKeyService == null) return;
+
+    _isUpdatingSecurityKeyStatus = true;
+    try {
+      final isKeySaved = await _securityKeyService!.isKeySaved();
+      if (mounted) {
+        setState(() {
+          _isKeySaved = isKeySaved;
+        });
+
+        // Notify callback if provided.
+
+        final onKeyStatusChanged =
+            widget.statusBar?.securityKeyStatus?.onKeyStatusChanged;
+        if (onKeyStatusChanged != null) {
+          onKeyStatusChanged(isKeySaved);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error updating security key status: $e');
+    } finally {
+      _isUpdatingSecurityKeyStatus = false;
+    }
+  }
+
+  /// Loads the current security key status.
+
+  Future<void> _loadSecurityKeyStatus() async {
+    if (_isUpdatingSecurityKeyStatus || _securityKeyService == null) return;
+
+    _isUpdatingSecurityKeyStatus = true;
+    try {
+      bool hasValidKey = false;
+      final hasKeyInMemory = await _securityKeyService!.isKeySaved();
+
+      if (hasKeyInMemory) {
+        hasValidKey = true;
+      }
+
+      if (mounted) {
+        setState(() {
+          _isKeySaved = hasValidKey;
+        });
+      }
+
+      await _securityKeyService!.fetchKeySavedStatus((bool hasKey) {
+        if (mounted && hasKey != _isKeySaved) {
+          setState(() {
+            _isKeySaved = hasKey;
+          });
+
+          // Notify callback if provided.
+
+          final onKeyStatusChanged =
+              widget.statusBar?.securityKeyStatus?.onKeyStatusChanged;
+          if (onKeyStatusChanged != null) {
+            onKeyStatusChanged(hasKey);
+          }
+        }
+      });
+    } catch (e) {
+      debugPrint('Error loading security key status: $e');
+      if (mounted) {
+        setState(() {
+          _isKeySaved = false;
+        });
+      }
+    } finally {
+      _isUpdatingSecurityKeyStatus = false;
+    }
+  }
+
+  // Version management methods
+
+  // Check if version configuration is available and requires auto-loading.
+
+  bool _hasVersionConfig() {
+    return widget.appBar?.versionConfig != null;
+  }
+
+  // Initialise the version loading from pubspec.yaml.
+
+  void _initializeVersionLoading() {
+    _loadAppVersion();
+  }
+
+  // Load the application version from pubspec.yaml.
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final version = packageInfo.version;
+
+      if (mounted) {
+        setState(() {
+          _appVersion = version;
+          _isVersionLoaded = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading app version: $e');
+      if (mounted) {
+        setState(() {
+          _appVersion = '';
+          _isVersionLoaded = true;
+        });
+      }
+    }
+  }
+
+  /// Gets the version to display.
+
+  String _getVersionToDisplay() {
+    final versionConfig = widget.appBar?.versionConfig;
+    if (versionConfig?.version != null) {
+      return versionConfig!.version!;
+    }
+
+    if (_isVersionLoaded && _appVersion != null) {
+      return _appVersion!;
+    }
+
+    return '0.0.0+0';
+  }
+
+  /// Determines whether to show the version widget.
+
+  bool _shouldShowVersion() {
+    final versionConfig = widget.appBar?.versionConfig;
+    if (versionConfig?.version != null) {
+      return true; // Show immediately if version is provided
+    }
+
+    return _isVersionLoaded; // Only show after auto-load is complete
   }
 
   /// Handles menu selection.
@@ -214,11 +401,13 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     // Add version widget if configured and screen is not too narrow.
 
     if (config.versionConfig != null &&
-        screenWidth >= config.veryNarrowScreenThreshold) {
+        screenWidth >= config.veryNarrowScreenThreshold &&
+        _shouldShowVersion()) {
+      final versionToDisplay = _getVersionToDisplay();
       actions.add(
         MarkdownTooltip(
           message: config.versionConfig!.tooltip ??
-              'Version: ${config.versionConfig!.version}\n\n'
+              'Version: $versionToDisplay\n\n'
                   'Tap to view changelog if available.',
           child: Theme(
             data: theme.copyWith(
@@ -235,7 +424,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
               ),
             ),
             child: VersionWidget(
-              version: config.versionConfig!.version,
+              version: versionToDisplay,
               changelogUrl: config.versionConfig!.changelogUrl,
               showDate: config.versionConfig!.showDate,
             ),
@@ -486,7 +675,34 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
   Widget? _buildStatusBar() {
     if (widget.statusBar == null) return null;
-    return SolidStatusBar(config: widget.statusBar!);
+
+    // Create a modified config with updated security key status.
+
+    SolidStatusBarConfig modifiedConfig = widget.statusBar!;
+
+    if (widget.statusBar!.securityKeyStatus != null) {
+      final originalStatus = widget.statusBar!.securityKeyStatus!;
+      final updatedStatus = SolidSecurityKeyStatus(
+        isKeySaved: originalStatus.isKeySaved ?? _isKeySaved,
+        onTap: originalStatus.onTap,
+        onKeyStatusChanged: originalStatus.onKeyStatusChanged,
+        title: originalStatus.title,
+        appWidget: originalStatus.appWidget,
+        keySavedText: originalStatus.keySavedText,
+        keyNotSavedText: originalStatus.keyNotSavedText,
+        tooltip: originalStatus.tooltip,
+      );
+
+      modifiedConfig = SolidStatusBarConfig(
+        serverInfo: widget.statusBar!.serverInfo,
+        loginStatus: widget.statusBar!.loginStatus,
+        securityKeyStatus: updatedStatus,
+        customItems: widget.statusBar!.customItems,
+        showOnNarrowScreens: widget.statusBar!.showOnNarrowScreens,
+      );
+    }
+
+    return SolidStatusBar(config: modifiedConfig);
   }
 
   @override
