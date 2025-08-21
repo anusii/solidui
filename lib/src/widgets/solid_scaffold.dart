@@ -48,13 +48,49 @@ import 'package:solidui/src/widgets/solid_theme_models.dart';
 /// layout switching.
 
 class SolidScaffold extends StatefulWidget {
-  /// List of menu items.
+  /// List of menu items for SolidUI navigation.
+  /// If null, SolidScaffold behaves like a standard Scaffold.
 
-  final List<SolidMenuItem> menu;
+  final List<SolidMenuItem>? menu;
 
-  /// Main content area.
+  /// Main content area for SolidUI layout.
+  /// If null, will use the `body` parameter (Scaffold compatibility).
 
-  final Widget child;
+  final Widget? child;
+
+  /// Standard Scaffold body parameter for compatibility.
+  /// Used when `child` is null.
+
+  final Widget? body;
+
+  /// Standard Scaffold appBar for compatibility.
+  /// Used when SolidUI `appBar` config is null.
+
+  final PreferredSizeWidget? scaffoldAppBar;
+
+  /// Standard Scaffold drawer for compatibility.
+
+  final Widget? drawer;
+
+  /// Standard Scaffold endDrawer for compatibility.
+
+  final Widget? endDrawer;
+
+  /// Standard Scaffold bottomNavigationBar for compatibility.
+
+  final Widget? bottomNavigationBar;
+
+  /// Standard Scaffold bottomSheet for compatibility.
+
+  final Widget? bottomSheet;
+
+  /// Standard Scaffold persistentFooterButtons for compatibility.
+
+  final List<Widget>? persistentFooterButtons;
+
+  /// Standard Scaffold resizeToAvoidBottomInset for compatibility.
+
+  final bool? resizeToAvoidBottomInset;
 
   /// Optional AppBar configuration.
 
@@ -110,21 +146,35 @@ class SolidScaffold extends StatefulWidget {
 
   const SolidScaffold({
     super.key,
-    required this.menu,
-    required this.child,
+
+    // SolidUI-specific parameters.
+
+    this.menu,
+    this.child,
     this.appBar,
     this.statusBar,
     this.userInfo,
     this.onLogout,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
-    this.backgroundColor,
-    this.floatingActionButton,
     this.initialIndex = 0,
     this.onMenuSelected,
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+
+    // Standard Scaffold compatibility parameters.
+
+    this.body,
+    this.scaffoldAppBar,
+    this.drawer,
+    this.endDrawer,
+    this.bottomNavigationBar,
+    this.bottomSheet,
+    this.persistentFooterButtons,
+    this.resizeToAvoidBottomInset,
+    this.backgroundColor,
+    this.floatingActionButton,
   });
 
   @override
@@ -343,9 +393,11 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     // Execute menu item action.
 
-    final menuItem = widget.menu[index];
-    if (menuItem.onTap != null) {
-      menuItem.onTap!(context);
+    if (widget.menu != null && index < widget.menu!.length) {
+      final menuItem = widget.menu![index];
+      if (menuItem.onTap != null) {
+        menuItem.onTap!(context);
+      }
     }
   }
 
@@ -358,7 +410,11 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   /// Converts SolidMenuItem to SolidNavTab.
 
   List<SolidNavTab> _convertToNavTabs() {
-    return widget.menu
+    if (widget.menu == null) {
+      return [];
+    }
+    
+    return widget.menu!
         .map((item) => SolidNavTab(
               title: item.title,
               icon: item.icon,
@@ -601,8 +657,9 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     final isWideScreen = _isWideScreen(context);
 
     // Always show drawer on narrow screens, even without AppBar.
+    // But only if we have menu items (not in compatibility mode).
 
-    if (isWideScreen) {
+    if (isWideScreen || widget.menu == null) {
       return null;
     }
 
@@ -639,6 +696,16 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     final theme = Theme.of(context);
     final isWideScreen = _isWideScreen(context);
 
+    // Get the effective child content.
+
+    final Widget? effectiveChild = widget.child ?? widget.body;
+    
+    // If no content provided, return empty container.
+
+    if (effectiveChild == null) {
+      return const SizedBox.shrink();
+    }
+
     if (isWideScreen) {
       // Wide screen: show navigation bar + content.
 
@@ -650,7 +717,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
               children: [
                 _buildNavBar(),
                 VerticalDivider(width: 1, color: theme.dividerColor),
-                Expanded(child: widget.child),
+                Expanded(child: effectiveChild),
               ],
             ),
           ),
@@ -667,7 +734,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         columnChildren.add(Divider(height: 1, color: theme.dividerColor));
       }
 
-      columnChildren.add(Expanded(child: widget.child));
+      columnChildren.add(Expanded(child: effectiveChild));
 
       return Column(children: columnChildren);
     }
@@ -712,13 +779,17 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     final theme = Theme.of(context);
     final isWideScreen = _isWideScreen(context);
 
+    // Check if this is compatibility mode (standard Scaffold behavior).
+
+    final bool isCompatibilityMode = widget.menu == null;
+
     // Determine which floating action button to show.
 
     Widget? fab = widget.floatingActionButton;
 
-    // If no AppBar and narrow screen, show hamburger FAB.
+    // If no AppBar and narrow screen, show hamburger FAB (only in SolidUI mode).
 
-    if (widget.appBar == null && !isWideScreen) {
+    if (!isCompatibilityMode && widget.appBar == null && !isWideScreen) {
       fab = MarkdownTooltip(
         message: '''
 **Navigation Menu**
@@ -766,15 +837,27 @@ Tap here to open the navigation drawer and access all available pages and option
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: _buildAppBar(context),
-      drawer: _buildDrawer(),
+      appBar: isCompatibilityMode 
+          ? widget.scaffoldAppBar 
+          : _buildAppBar(context),
+      drawer: isCompatibilityMode 
+          ? widget.drawer 
+          : _buildDrawer(),
+      endDrawer: widget.endDrawer,
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: fab,
-      floatingActionButtonLocation: (widget.appBar == null && !isWideScreen)
+      floatingActionButtonLocation: (!isCompatibilityMode && widget.appBar == null && !isWideScreen)
           ? const _SolidNavButtonStartTopLocation()
           : FloatingActionButtonLocation.endFloat,
-      body: _buildBody(context),
-      bottomNavigationBar: _buildStatusBar(),
+      body: isCompatibilityMode 
+          ? widget.body 
+          : _buildBody(context),
+      bottomNavigationBar: isCompatibilityMode 
+          ? widget.bottomNavigationBar 
+          : _buildStatusBar(),
+      bottomSheet: widget.bottomSheet,
+      persistentFooterButtons: widget.persistentFooterButtons,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
     );
   }
 }
