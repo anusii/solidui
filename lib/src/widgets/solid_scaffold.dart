@@ -41,28 +41,11 @@ import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
+import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_about_button.dart';
 
 /// Simplified unified scaffold component that automatically handles responsive
 /// layout switching.
-///
-/// Shows navigation rail on wide screens and drawer menu on narrow screens.
-/// Supports optional AppBar and status bar. Similar to Flutter's Scaffold but
-/// with integrated navigation and responsive design.
-///
-/// Usage example:
-/// ```dart
-/// SolidScaffold(
-///   menu: [
-///     SolidMenuItem(title: 'Home', icon: Icons.home, content: HomeWidget()),
-///     SolidMenuItem(title: 'Settings', icon: Icons.settings, content: SettingsWidget()),
-///   ],
-///   child: Column(
-///     children: [
-///       Text('Main content'),
-///     ],
-///   ),
-/// )
-/// ```
 
 class SolidScaffold extends StatefulWidget {
   /// List of menu items.
@@ -121,6 +104,10 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidThemeToggleConfig? themeToggle;
 
+  /// Optional About dialogue configuration.
+
+  final SolidAboutConfig? aboutConfig;
+
   const SolidScaffold({
     super.key,
     required this.menu,
@@ -137,6 +124,7 @@ class SolidScaffold extends StatefulWidget {
     this.onMenuSelected,
     this.selectedIndex,
     this.themeToggle,
+    this.aboutConfig,
   });
 
   @override
@@ -497,6 +485,20 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
         actions.add(themeButton);
       }
+    }
+
+    // Add About button (default enabled if not explicitly configured).
+
+    final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
+
+    if (aboutConfig.enabled &&
+        aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
+            config.veryNarrowScreenThreshold)) {
+      actions.add(
+        SolidAboutButton(
+          config: aboutConfig,
+        ),
+      );
     }
 
     // Add overflow menu only if screen is very narrow.

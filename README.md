@@ -49,6 +49,12 @@ infrastructure.
 - **SolidThemeToggleConfig** - Configurable theme switching with light/dark mode support
 - Integrated theme toggle in SolidScaffold with responsive behavior
 
+### ℹ️ About Dialogue
+
+- **SolidAboutConfig** - Configurable About dialogue with application information
+- **SolidAboutButton** - About button component with customisable content
+- Integrated About button in SolidScaffold with automatic application info detection
+
 ### 🛠️ Utilities & Constants
 
 - **NavigationConstants** - Predefined constants for consistent navigation, 
@@ -116,6 +122,18 @@ class MyApp extends StatelessWidget {
             print('Theme toggled');
           },
         ),
+        aboutConfig: SolidAboutConfig(
+          applicationName: 'My Solid App',
+          applicationIcon: Icon(Icons.apps, size: 64),
+          children: [
+            Text('A sample Solid application built with SolidUI'),
+            SizedBox(height: 16),
+            Text('Features:'),
+            Text('• Responsive navigation'),
+            Text('• Theme switching'),
+            Text('• Solid POD integration'),
+          ],
+        ),
         child: Center(
           child: Text('Welcome to your Solid application'),
         ),
@@ -150,6 +168,7 @@ rail and drawer based on screen width.
 - `userInfo` - Optional user information
 - `onLogout` - Optional logout callback
 - `themeToggle` - Optional theme toggle configuration
+- `aboutConfig` - Optional About dialogue configuration
 - `narrowScreenThreshold` - Width threshold for layout switching (default:
   NavigationConstants.narrowScreenThreshold)
 
@@ -243,8 +262,7 @@ SolidUI components automatically adapt to different screen sizes:
 
 ## Theming
 
-SolidUI components integrate with Flutter's theme system and support both light
-and dark themes:
+SolidUI components integrate with Flutter's theme system and support light, dark, and system themes with intelligent icon switching:
 
 ```dart
 MaterialApp(
@@ -298,6 +316,137 @@ appBar: SolidAppBarConfig(
     changelogUrl: 'https://github.com/user/repo/blob/main/CHANGELOG.md',
   ),
 ),
+```
+
+## About Dialog Configuration
+
+SolidUI provides an integrated About dialogue system that automatically displays application information with sensible defaults.
+
+### Automatic About Button
+
+By default, SolidScaffold automatically adds an About button (ℹ️ icon) to the AppBar. The button will:
+
+- **Auto-detect application name and version** from `pubspec.yaml`
+- **Show default copyright notice** with current year
+- **Display in AppBar actions** with responsive behaviour
+- **Provide standard About dialogue** with application information
+
+### Zero-Config Usage (Default Behavior)
+
+```dart
+SolidScaffold(
+  menu: menuItems,
+  appBar: SolidAppBarConfig(title: 'My App'),
+  child: content,
+  // About button automatically appears with default content
+)
+```
+
+### Basic Customisation
+
+```dart
+SolidScaffold(
+  menu: menuItems,
+  appBar: SolidAppBarConfig(title: 'My App'),
+  aboutConfig: SolidAboutConfig(
+    applicationName: 'My Custom App',
+    applicationVersion: '2.0.0',
+    applicationIcon: Icon(Icons.star, size: 64, color: Colors.blue),
+    children: [
+      Text('A powerful application for managing your workflow'),
+      SizedBox(height: 16),
+      Text('Features:', style: TextStyle(fontWeight: FontWeight.bold)),
+      Text('• Feature 1'),
+      Text('• Feature 2'),
+      Text('• Feature 3'),
+    ],
+  ),
+  child: content,
+)
+```
+
+### Advanced Customisation
+
+```dart
+SolidScaffold(
+  aboutConfig: SolidAboutConfig(
+    applicationName: 'Enterprise App',
+    applicationIcon: Image.asset('assets/app_icon.png', width: 64, height: 64),
+    applicationLegalese: '''© 2025 My Company Ltd.
+    
+Licensed under MIT License.
+
+This software includes third-party libraries.
+See NOTICE file for attribution details.
+
+Visit https://mycompany.com for support.''',
+    children: [
+      Text('Enterprise-grade application for business workflows'),
+      SizedBox(height: 16),
+      Divider(),
+      ListTile(
+        leading: Icon(Icons.web),
+        title: Text('Website'),
+        subtitle: Text('https://mycompany.com'),
+        onTap: () => launchUrl(Uri.parse('https://mycompany.com')),
+      ),
+      ListTile(
+        leading: Icon(Icons.email),
+        title: Text('Support'),
+        subtitle: Text('support@mycompany.com'),
+        onTap: () => launchUrl(Uri.parse('mailto:support@mycompany.com')),
+      ),
+    ],
+    showOnVeryNarrowScreen: true, // Show even on very narrow screens
+    tooltip: 'Learn more about this application',
+  ),
+  child: content,
+)
+```
+
+### Custom About Action
+
+```dart
+SolidScaffold(
+  aboutConfig: SolidAboutConfig(
+    onPressed: () {
+      // Custom action instead of showing standard dialogue
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) => CustomAboutPage(),
+      ));
+    },
+  ),
+  child: content,
+)
+```
+
+### Disabling About Button
+
+```dart
+SolidScaffold(
+  aboutConfig: SolidAboutConfig(
+    enabled: false, // Completely disable About button
+  ),
+  child: content,
+)
+```
+
+### Programmatic About Dialogue
+
+You can also show About dialogues programmatically:
+
+```dart
+// Show with custom configuration
+SolidAbout.show(context, SolidAboutConfig(
+  applicationName: 'My App',
+  children: [Text('Custom about content')],
+));
+
+// Show with minimal configuration
+SolidAbout.showDefault(context,
+  applicationName: 'Quick App',
+  children: [Text('Simple about dialogue')],
+);
 ```
 
 ## Advanced Usage
@@ -548,7 +697,45 @@ Switch between light and dark modes for optimal viewing experience.
 
 ☀️ **Light Mode**: Better for bright environments
 
-''',
+        ''',
+      ),
+      aboutConfig: SolidAboutConfig(
+        applicationName: 'Project Management System',
+        applicationIcon: Icon(Icons.work, size: 64, color: Colors.blue),
+        applicationLegalese: '''© 2025 Example Company
+
+A comprehensive project management solution built with Flutter and SolidUI.
+
+Licensed under MIT License.
+
+For support and documentation, visit our website.''',
+        children: [
+          Text(
+            'Manage your projects efficiently with our comprehensive project management system.',
+            style: TextStyle(fontSize: 14),
+          ),
+          SizedBox(height: 16),
+          Text('Key Features:', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('• Project tracking and management'),
+          Text('• Team collaboration tools'),
+          Text('• Real-time notifications'),
+          Text('• Responsive design for all devices'),
+          Text('• Secure data storage'),
+          SizedBox(height: 16),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.web),
+            title: Text('Documentation'),
+            subtitle: Text('Visit our online documentation'),
+            dense: true,
+          ),
+          ListTile(
+            leading: Icon(Icons.support),
+            title: Text('Support'),
+            subtitle: Text('Get help from our support team'),
+            dense: true,
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewItem,
@@ -707,6 +894,7 @@ Switch between light and dark modes for optimal viewing experience.
 - `floatingActionButton`: Floating action button (optional)
 - `initialIndex`: Initial selected menu index (default 0)
 - `themeToggle`: Theme toggle configuration (optional)
+- `aboutConfig`: About dialogue configuration (optional)
 
 ### SolidMenuItem Parameters
 
@@ -727,12 +915,29 @@ Switch between light and dark modes for optimal viewing experience.
 - `showInAppBarActions`: Show in AppBar actions vs overflow menu (default true)
 - `lightModeIcon`: Custom light mode icon (optional, defaults to Icons.light_mode)
 - `darkModeIcon`: Custom dark mode icon (optional, defaults to Icons.dark_mode)
-- `tooltip`: Custom tooltip text (optional, auto-generated if not provided)
+- `systemModeIcon`: Custom system mode icon (optional, defaults to Icons.computer)
+- `tooltip`: Custom tooltip text (optional, auto-generated with mode cycle info)
 - `label`: Label for overflow menu (default 'Toggle Theme')
 - `hideOnNarrowScreen`: Hide on narrow screens (default false)
 - `hideOnVeryNarrowScreen`: Hide on very narrow screens (default true)
 
-The new `SolidScaffold` component greatly simplifies navigation usage, allowing you to create feature-rich responsive navigation interfaces with built-in theme switching and minimal code.
+### SolidAboutConfig Parameters
+
+- `enabled`: Whether the About button is enabled (default true)
+- `icon`: Custom icon for the About button (default Icons.info_outline)
+- `applicationName`: Application name displayed in dialogue (auto-detected if not provided)
+- `applicationVersion`: Application version displayed in dialogue (auto-detected if not provided)
+- `applicationIcon`: Application icon displayed in dialogue (optional)
+- `applicationLegalese`: Application legal notice/copyright information (optional)
+- `customContent`: Custom dialogue content widget (replaces default dialogue if provided)
+- `children`: Additional widgets to show in the About dialogue (optional)
+- `showOnNarrowScreen`: Show About button on narrow screens (default true)
+- `showOnVeryNarrowScreen`: Show About button on very narrow screens (default false)
+- `priority`: Priority for ordering in AppBar actions (default 999)
+- `tooltip`: Custom tooltip text (auto-generated if not provided)
+- `onPressed`: Custom callback when About button is pressed (optional)
+
+The new `SolidScaffold` component greatly simplifies navigation usage, allowing you to create feature-rich responsive navigation interfaces with built-in theme switching, About dialogues, and minimal code.
 
 ## Development Status
 
