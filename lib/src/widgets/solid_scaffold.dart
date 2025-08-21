@@ -1,6 +1,6 @@
 /// Solid Scaffold - Simplified unified scaffold component.
 ///
-// Time-stamp: <Thursday 2025-08-21 13:19:21 +1000 Graham Williams>
+// Time-stamp: <Thursday 2025-08-21 13:20:34 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -276,19 +276,19 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
   // Version management methods
 
-  /// Checks if version configuration is available and requires auto-loading.
+  // Check if version configuration is available and requires auto-loading.
 
   bool _hasVersionConfig() {
     return widget.appBar?.versionConfig != null;
   }
 
-  /// Initialises version loading from pubspec.yaml.
+  // Initialise the version loading from pubspec.yaml.
 
   void _initializeVersionLoading() {
     _loadAppVersion();
   }
 
-  /// Loads application version from pubspec.yaml.
+  // Load the application version from pubspec.yaml.
 
   Future<void> _loadAppVersion() async {
     try {
