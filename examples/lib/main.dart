@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Wednesday 2025-08-20 15:57:10 +1000 Graham Williams>
+// Time-stamp: <Thursday 2025-08-21 13:16:28 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -122,32 +122,10 @@ class _HomePageState extends State<HomePage> {
         'information.',
   ];
 
-  // Obtain the version from our pubspec Note that later we will compare it to
-  // the solidui package version (from its CHANGELOG.md) as a
-  // demosntration. Normally it should be compared to this app's CHANGELOG.md
-  // from github. 20250820 gjw
-
-  late final String version;
-  bool isLoaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initVersion();
-  }
-
-  _initVersion() async {
-    PackageInfo info = await PackageInfo.fromPlatform();
-    version = info.version; // This assigns to the late final
-    setState(() => isLoaded = true);
-  }
-
   // Buld the widget.
 
   @override
   Widget build(BuildContext context) {
-    if (!isLoaded) return const CircularProgressIndicator();
-
     // Create simple menu items.
 
     final menuItems = [
