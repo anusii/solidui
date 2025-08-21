@@ -34,6 +34,8 @@ import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
+import 'package:solidui/src/widgets/solid_about_button.dart';
+import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -41,8 +43,6 @@ import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
-import 'package:solidui/src/widgets/solid_about_models.dart';
-import 'package:solidui/src/widgets/solid_about_button.dart';
 
 /// Simplified unified scaffold component that automatically handles responsive
 /// layout switching.

@@ -271,25 +271,25 @@ class _HomePageState extends State<HomePage> {
       ),
       aboutConfig: const SolidAboutConfig(
         applicationName: 'SolidUI Example',
-        applicationIcon: const Icon(
+        applicationIcon: Icon(
           Icons.widgets,
           size: 64,
           color: Colors.blue,
         ),
         children: [
-          const Text(
+          Text(
             'This example demonstrates key SolidUI features:',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 12),
-          const Text('🧭 Responsive navigation (rail ↔ drawer)'),
-          const Text('🎨 Theme switching (light/dark/system)'),
-          const Text('ℹ️ Customisable About dialogues'),
-          const Text('📋 Version information display'),
-          const Text('🔐 Security key management'),
-          const Text('📊 Status bar integration'),
-          const Text('👤 User information display'),
-          const SizedBox(height: 16),
+          SizedBox(height: 12),
+          Text('🧭 Responsive navigation (rail ↔ drawer)'),
+          Text('🎨 Theme switching (light/dark/system)'),
+          Text('ℹ️ Customisable About dialogues'),
+          Text('📋 Version information display'),
+          Text('🔐 Security key management'),
+          Text('📊 Status bar integration'),
+          Text('👤 User information display'),
+          SizedBox(height: 16),
         ],
       ),
       child: _buildPageContent(),
