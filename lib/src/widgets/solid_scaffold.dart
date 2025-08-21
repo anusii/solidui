@@ -1,6 +1,6 @@
 /// Solid Scaffold - Simplified unified scaffold component.
 ///
-// Time-stamp: <Monday 2025-08-18 14:30:00 +1000 Tony Chen>
+// Time-stamp: <Thursday 2025-08-21 13:19:21 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -293,7 +293,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   Future<void> _loadAppVersion() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      final version = '${packageInfo.version}+${packageInfo.buildNumber}';
+      final version = packageInfo.version;
 
       if (mounted) {
         setState(() {
@@ -305,7 +305,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       debugPrint('Error loading app version: $e');
       if (mounted) {
         setState(() {
-          _appVersion = '0.0.0+0';
+          _appVersion = '';
           _isVersionLoaded = true;
         });
       }
