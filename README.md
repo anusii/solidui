@@ -36,9 +36,7 @@ infrastructure.
 
 ### 📱 Version Management
 
-- **Automatic Version Loading** - Zero-config version display from pubspec.yaml
-- **SolidVersionConfig** - Simple version configuration with smart defaults
-- **VersionWidget Integration** - Seamless version display with changelog support
+- **SolidVersionConfig** - Version configuration with smart defaults
 
 ### 📊 Status Components
 
@@ -183,7 +181,7 @@ Configuration for the bottom status bar showing server and user information.
 **Automatic security key management** integrated directly into SolidScaffold.
 No need for separate components or custom dialogues.
 
-#### Simple Usage (Recommended)
+#### Simple Usage
 ```dart
 SolidScaffold(
   // ... other configuration.
@@ -262,7 +260,7 @@ MaterialApp(
 
 SolidUI provides automatic version management that loads version information directly from your app's `pubspec.yaml`.
 
-### Zero-Config Usage (Recommended)
+### Zero-Config Usage
 
 ```dart
 appBar: SolidAppBarConfig(
