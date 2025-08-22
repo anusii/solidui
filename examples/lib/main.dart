@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Thursday 2025-08-21 13:16:28 +1000 Graham Williams>
+// Time-stamp: <Thursday 2025-08-21 16:10:42 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
