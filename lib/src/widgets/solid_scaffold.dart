@@ -25,6 +25,7 @@
 
 library;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
@@ -94,7 +95,7 @@ class SolidScaffold extends StatefulWidget {
 
   /// Optional AppBar configuration.
 
-  final SolidAppBarConfig? appBar;
+  final dynamic appBar;
 
   /// Optional status bar configuration.
 
@@ -123,6 +124,58 @@ class SolidScaffold extends StatefulWidget {
   /// Floating action button.
 
   final Widget? floatingActionButton;
+
+  /// Location of the floating action button.
+
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
+
+  /// Animator for the floating action button.
+
+  final FloatingActionButtonAnimator? floatingActionButtonAnimator;
+
+  /// Callback when drawer is opened or closed.
+
+  final DrawerCallback? onDrawerChanged;
+
+  /// Callback when end drawer is opened or closed.
+
+  final DrawerCallback? onEndDrawerChanged;
+
+  /// Whether this scaffold is being displayed at the top of the widget hierarchy.
+
+  final bool primary;
+
+  /// Determines the way that drag start behaviour is handled for drawer.
+
+  final DragStartBehavior drawerDragStartBehavior;
+
+  /// Whether the body should extend to the bottom of the scaffold.
+
+  final bool extendBody;
+
+  /// Whether the body should extend behind the app bar.
+
+  final bool extendBodyBehindAppBar;
+
+  /// Colour to use for the scrim that obscures primary content while drawer is open.
+
+  final Color? drawerScrimColor;
+
+  /// Width of the area within which a horizontal swipe will open the drawer.
+
+  final double? drawerEdgeDragWidth;
+
+  /// Whether the drawer can be opened with a drag gesture.
+
+  final bool drawerEnableOpenDragGesture;
+
+  /// Whether the end drawer can be opened with a drag gesture.
+
+  final bool endDrawerEnableOpenDragGesture;
+
+  /// Restoration ID to save and restore the state of the scaffold.
+
+  final String? restorationId;
 
   /// Initial selected menu index.
 
@@ -175,6 +228,19 @@ class SolidScaffold extends StatefulWidget {
     this.resizeToAvoidBottomInset,
     this.backgroundColor,
     this.floatingActionButton,
+    this.floatingActionButtonLocation,
+    this.floatingActionButtonAnimator,
+    this.onDrawerChanged,
+    this.onEndDrawerChanged,
+    this.primary = true,
+    this.drawerDragStartBehavior = DragStartBehavior.start,
+    this.extendBody = false,
+    this.extendBodyBehindAppBar = false,
+    this.drawerScrimColor,
+    this.drawerEdgeDragWidth,
+    this.drawerEnableOpenDragGesture = true,
+    this.endDrawerEnableOpenDragGesture = true,
+    this.restorationId,
   });
 
   @override
@@ -314,10 +380,19 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
   // Version management methods
 
+  /// Safely get SolidAppBarConfig if appBar is of that type, null otherwise.
+
+  SolidAppBarConfig? _getSolidAppBarConfig() {
+    return widget.appBar is SolidAppBarConfig
+        ? widget.appBar as SolidAppBarConfig
+        : null;
+  }
+
   // Check if version configuration is available and requires auto-loading.
 
   bool _hasVersionConfig() {
-    return widget.appBar?.versionConfig != null;
+    final config = _getSolidAppBarConfig();
+    return config?.versionConfig != null;
   }
 
   // Initialise the version loading from pubspec.yaml.
@@ -353,7 +428,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   /// Gets the version to display.
 
   String _getVersionToDisplay() {
-    final versionConfig = widget.appBar?.versionConfig;
+    final config = _getSolidAppBarConfig();
+    final versionConfig = config?.versionConfig;
     if (versionConfig?.version != null) {
       return versionConfig!.version!;
     }
@@ -368,7 +444,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   /// Determines whether to show the version widget.
 
   bool _shouldShowVersion() {
-    final versionConfig = widget.appBar?.versionConfig;
+    final config = _getSolidAppBarConfig();
+    final versionConfig = config?.versionConfig;
     if (versionConfig?.version != null) {
       return true; // Show immediately if version is provided
     }
@@ -433,7 +510,11 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   PreferredSizeWidget? _buildAppBar(BuildContext context) {
     if (widget.appBar == null) return null;
 
-    final config = widget.appBar!;
+    // Ensure we're working with a SolidAppBarConfig.
+
+    if (widget.appBar is! SolidAppBarConfig) return null;
+
+    final config = widget.appBar as SolidAppBarConfig;
     final isWideScreen = _isWideScreen(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
@@ -482,10 +563,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       // Determine whether to show button based on screen width.
 
       bool shouldShow = true;
-      if (action.hideOnVeryNarrowScreen &&
+      if (!action.showOnVeryNarrowScreen &&
           screenWidth < config.veryNarrowScreenThreshold) {
         shouldShow = false;
-      } else if (action.hideOnNarrowScreen &&
+      } else if (!action.showOnNarrowScreen &&
           screenWidth < config.narrowScreenThreshold) {
         shouldShow = false;
       }
@@ -518,15 +599,16 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       // Determine whether to show theme toggle based on screen width.
 
       bool shouldShowThemeToggle = true;
-      if (themeConfig.hideOnVeryNarrowScreen &&
+      if (!themeConfig.showOnVeryNarrowScreen &&
           screenWidth < config.veryNarrowScreenThreshold) {
         shouldShowThemeToggle = false;
-      } else if (themeConfig.hideOnNarrowScreen &&
+      } else if (!themeConfig.showOnNarrowScreen &&
           screenWidth < config.narrowScreenThreshold) {
         shouldShowThemeToggle = false;
       }
 
-      if (shouldShowThemeToggle && themeConfig.showInAppBarActions) {
+      if (shouldShowThemeToggle && themeConfig.showInAppBarActions && 
+          screenWidth >= config.veryNarrowScreenThreshold) {
         Widget themeButton = IconButton(
           icon: Icon(themeConfig.currentIcon),
           onPressed: themeConfig.onToggleTheme,
@@ -543,30 +625,21 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       }
     }
 
-    // Add About button (default enabled if not explicitly configured).
-
-    final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
-
-    if (aboutConfig.enabled &&
-        aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
-            config.veryNarrowScreenThreshold)) {
-      actions.add(
-        SolidAboutButton(
-          config: aboutConfig,
-        ),
-      );
-    }
-
     // Add overflow menu only if screen is very narrow.
     // On wider screens, show overflow items as regular buttons.
 
     final hasOverflowItems = config.overflowItems.isNotEmpty;
     final hasThemeToggleInOverflow = widget.themeToggle != null &&
         widget.themeToggle!.enabled &&
-        !widget.themeToggle!.showInAppBarActions;
+        (!widget.themeToggle!.showInAppBarActions || 
+         screenWidth < config.veryNarrowScreenThreshold);
+    
+    final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
+    final hasAboutInOverflow = aboutConfig.enabled &&
+        screenWidth < config.veryNarrowScreenThreshold;
 
     if (screenWidth < config.veryNarrowScreenThreshold &&
-        (hasOverflowItems || hasThemeToggleInOverflow)) {
+        (hasOverflowItems || hasThemeToggleInOverflow || hasAboutInOverflow)) {
       // Build overflow menu items list.
 
       List<PopupMenuItem<String>> overflowMenuItems = [];
@@ -606,11 +679,35 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         );
       }
 
+      // Add About button to overflow menu if configured.
+
+      if (hasAboutInOverflow) {
+        overflowMenuItems.add(
+          PopupMenuItem<String>(
+            value: 'about',
+            child: Row(
+              children: [
+                Icon(aboutConfig.effectiveIcon),
+                const SizedBox(width: 8),
+                Text('About'),
+              ],
+            ),
+          ),
+        );
+      }
+
       actions.add(
         PopupMenuButton<String>(
           onSelected: (String id) {
             if (id == 'theme_toggle') {
               widget.themeToggle?.onToggleTheme?.call();
+            } else if (id == 'about') {
+              if (aboutConfig.onPressed != null) {
+                aboutConfig.onPressed!();
+              } else {
+                // Show default About dialogue
+                SolidAbout.show(context, aboutConfig);
+              }
             } else {
               final item =
                   config.overflowItems.firstWhere((item) => item.id == id);
@@ -640,6 +737,27 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       }
     }
 
+    // Store About button to add at the very end.
+
+    Widget? aboutButton;
+
+    // Prepare About button if it should be shown.
+
+    if (aboutConfig.enabled &&
+        aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
+            config.veryNarrowScreenThreshold) &&
+        screenWidth >= config.veryNarrowScreenThreshold) {
+      aboutButton = SolidAboutButton(
+        config: aboutConfig,
+      );
+    }
+
+    // Add About button at the very end if it was prepared.
+
+    if (aboutButton != null) {
+      actions.add(aboutButton);
+    }
+
     return AppBar(
       title: Text(config.title),
       backgroundColor: config.backgroundColor,
@@ -649,6 +767,39 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
       actions: actions.isEmpty ? null : actions,
     );
+  }
+
+  /// Determine the appropriate AppBar based on the appBar parameter type.
+
+  PreferredSizeWidget? _resolveAppBar(
+      BuildContext context, bool isCompatibilityMode) {
+    // Handle different appBar parameter types.
+
+    if (widget.appBar is PreferredSizeWidget) {
+      // Standard AppBar provided - use directly.
+
+      return widget.appBar as PreferredSizeWidget;
+    } else if (widget.appBar is SolidAppBarConfig) {
+      // SolidAppBarConfig provided - build using SolidUI.
+
+      return _buildAppBar(context);
+    } else if (widget.appBar == null) {
+      // No appBar specified.
+
+      if (isCompatibilityMode) {
+        // Use scaffoldAppBar in compatibility mode.
+
+        return widget.scaffoldAppBar;
+      } else {
+        // Build default SolidUI AppBar if we have a menu.
+
+        return widget.menu != null ? _buildAppBar(context) : null;
+      }
+    }
+
+    // Fallback: treat as compatibility mode.
+
+    return widget.scaffoldAppBar;
   }
 
   /// Builds the navigation drawer.
@@ -837,8 +988,7 @@ Tap here to open the navigation drawer and access all available pages and option
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar:
-          isCompatibilityMode ? widget.scaffoldAppBar : _buildAppBar(context),
+      appBar: _resolveAppBar(context, isCompatibilityMode),
       drawer: isCompatibilityMode ? widget.drawer : _buildDrawer(),
       endDrawer: widget.endDrawer,
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
@@ -846,13 +996,26 @@ Tap here to open the navigation drawer and access all available pages and option
       floatingActionButtonLocation:
           (!isCompatibilityMode && widget.appBar == null && !isWideScreen)
               ? const _SolidNavButtonStartTopLocation()
-              : FloatingActionButtonLocation.endFloat,
+              : (widget.floatingActionButtonLocation ??
+                  FloatingActionButtonLocation.endFloat),
+      floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
       body: isCompatibilityMode ? widget.body : _buildBody(context),
       bottomNavigationBar:
           isCompatibilityMode ? widget.bottomNavigationBar : _buildStatusBar(),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      onDrawerChanged: widget.onDrawerChanged,
+      onEndDrawerChanged: widget.onEndDrawerChanged,
+      primary: widget.primary,
+      drawerDragStartBehavior: widget.drawerDragStartBehavior,
+      extendBody: widget.extendBody,
+      extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
+      drawerScrimColor: widget.drawerScrimColor,
+      drawerEdgeDragWidth: widget.drawerEdgeDragWidth,
+      drawerEnableOpenDragGesture: widget.drawerEnableOpenDragGesture,
+      endDrawerEnableOpenDragGesture: widget.endDrawerEnableOpenDragGesture,
+      restorationId: widget.restorationId,
     );
   }
 }

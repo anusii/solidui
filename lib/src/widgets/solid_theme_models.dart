@@ -70,13 +70,13 @@ class SolidThemeToggleConfig {
 
   final int priority;
 
-  /// Whether to hide the theme toggle on narrow screens.
+  /// Whether to show the theme toggle on narrow screens.
 
-  final bool hideOnNarrowScreen;
+  final bool showOnNarrowScreen;
 
-  /// Whether to hide the theme toggle on very narrow screens.
+  /// Whether to show the theme toggle on very narrow screens.
 
-  final bool hideOnVeryNarrowScreen;
+  final bool showOnVeryNarrowScreen;
 
   const SolidThemeToggleConfig({
     this.enabled = true,
@@ -89,8 +89,8 @@ class SolidThemeToggleConfig {
     this.tooltip,
     this.label = 'Toggle Theme',
     this.priority = 1,
-    this.hideOnNarrowScreen = false,
-    this.hideOnVeryNarrowScreen = true,
+    this.showOnNarrowScreen = true,
+    this.showOnVeryNarrowScreen = true,
   });
 
   /// Returns the appropriate icon based on current theme mode.

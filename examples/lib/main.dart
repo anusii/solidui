@@ -268,7 +268,7 @@ class _HomePageState extends State<HomePage> {
         currentThemeMode: widget.currentThemeMode,
         onToggleTheme: widget.onToggleTheme,
         showInAppBarActions: true,
-        hideOnVeryNarrowScreen: false,
+        showOnVeryNarrowScreen: false,
       ),
       aboutConfig: const SolidAboutConfig(
         applicationName: 'SolidUI Example',

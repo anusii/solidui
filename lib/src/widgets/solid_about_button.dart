@@ -227,7 +227,7 @@ class SolidAbout {
             Text(
               legalText,
               style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
             ),
           ],
         ),

@@ -1,7 +1,5 @@
 # SolidUI
 
------
-
 This package provides a UI library for building Solid applications
 with Flutter.
 
@@ -382,7 +380,7 @@ appBar: SolidAppBarConfig(
 ),
 ```
 
-## About Dialog Configuration
+## About Dialogue Configuration
 
 SolidUI provides an integrated About dialogue system that automatically displays application information with sensible defaults.
 
@@ -596,7 +594,7 @@ SolidScaffold(
         icon: Icons.notifications,
         onPressed: () => print('Notifications'),
         tooltip: 'Notifications',
-        hideOnNarrowScreen: true, // Hide on narrow screens
+        showOnNarrowScreen: false,
       ),
     ],
     overflowItems: [
@@ -693,13 +691,13 @@ class _FullExampleAppState extends State<FullExampleApp> {
             icon: Icons.notifications,
             onPressed: () => _showNotifications(context),
             tooltip: 'Notifications',
-            hideOnNarrowScreen: true,
+            showOnNarrowScreen: false,
           ),
           SolidAppBarAction(
             icon: Icons.account_circle,
             onPressed: () => _showProfile(context),
             tooltip: 'User profile',
-            hideOnVeryNarrowScreen: true,
+            showOnVeryNarrowScreen: false,
           ),
         ],
         overflowItems: [
@@ -751,7 +749,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
         currentThemeMode: _currentThemeMode,
         onToggleTheme: _toggleTheme,
         showInAppBarActions: true,
-        hideOnVeryNarrowScreen: true,
+        showOnVeryNarrowScreen: false,
         tooltip: '''
 **Theme Toggle**
 
@@ -982,8 +980,8 @@ For support and documentation, visit our website.''',
 - `systemModeIcon`: Custom system mode icon (optional, defaults to Icons.computer)
 - `tooltip`: Custom tooltip text (optional, auto-generated with mode cycle info)
 - `label`: Label for overflow menu (default 'Toggle Theme')
-- `hideOnNarrowScreen`: Hide on narrow screens (default false)
-- `hideOnVeryNarrowScreen`: Hide on very narrow screens (default true)
+- `showOnNarrowScreen`: Show on narrow screens (default true)
+- `showOnVeryNarrowScreen`: Show on very narrow screens (default true)
 
 ### SolidAboutConfig Parameters
 
