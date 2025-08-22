@@ -25,6 +25,7 @@
 
 library;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
@@ -94,7 +95,7 @@ class SolidScaffold extends StatefulWidget {
 
   /// Optional AppBar configuration.
 
-  final SolidAppBarConfig? appBar;
+  final dynamic appBar;
 
   /// Optional status bar configuration.
 
@@ -123,6 +124,58 @@ class SolidScaffold extends StatefulWidget {
   /// Floating action button.
 
   final Widget? floatingActionButton;
+
+  /// Location of the floating action button.
+
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
+
+  /// Animator for the floating action button.
+
+  final FloatingActionButtonAnimator? floatingActionButtonAnimator;
+
+  /// Callback when drawer is opened or closed.
+
+  final DrawerCallback? onDrawerChanged;
+
+  /// Callback when end drawer is opened or closed.
+
+  final DrawerCallback? onEndDrawerChanged;
+
+  /// Whether this scaffold is being displayed at the top of the widget hierarchy.
+
+  final bool primary;
+
+  /// Determines the way that drag start behaviour is handled for drawer.
+
+  final DragStartBehavior drawerDragStartBehavior;
+
+  /// Whether the body should extend to the bottom of the scaffold.
+
+  final bool extendBody;
+
+  /// Whether the body should extend behind the app bar.
+
+  final bool extendBodyBehindAppBar;
+
+  /// Colour to use for the scrim that obscures primary content while drawer is open.
+
+  final Color? drawerScrimColor;
+
+  /// Width of the area within which a horizontal swipe will open the drawer.
+
+  final double? drawerEdgeDragWidth;
+
+  /// Whether the drawer can be opened with a drag gesture.
+
+  final bool drawerEnableOpenDragGesture;
+
+  /// Whether the end drawer can be opened with a drag gesture.
+
+  final bool endDrawerEnableOpenDragGesture;
+
+  /// Restoration ID to save and restore the state of the scaffold.
+
+  final String? restorationId;
 
   /// Initial selected menu index.
 
@@ -175,6 +228,19 @@ class SolidScaffold extends StatefulWidget {
     this.resizeToAvoidBottomInset,
     this.backgroundColor,
     this.floatingActionButton,
+    this.floatingActionButtonLocation,
+    this.floatingActionButtonAnimator,
+    this.onDrawerChanged,
+    this.onEndDrawerChanged,
+    this.primary = true,
+    this.drawerDragStartBehavior = DragStartBehavior.start,
+    this.extendBody = false,
+    this.extendBodyBehindAppBar = false,
+    this.drawerScrimColor,
+    this.drawerEdgeDragWidth,
+    this.drawerEnableOpenDragGesture = true,
+    this.endDrawerEnableOpenDragGesture = true,
+    this.restorationId,
   });
 
   @override
@@ -314,10 +380,19 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
   // Version management methods
 
+  /// Safely get SolidAppBarConfig if appBar is of that type, null otherwise.
+
+  SolidAppBarConfig? _getSolidAppBarConfig() {
+    return widget.appBar is SolidAppBarConfig
+        ? widget.appBar as SolidAppBarConfig
+        : null;
+  }
+
   // Check if version configuration is available and requires auto-loading.
 
   bool _hasVersionConfig() {
-    return widget.appBar?.versionConfig != null;
+    final config = _getSolidAppBarConfig();
+    return config?.versionConfig != null;
   }
 
   // Initialise the version loading from pubspec.yaml.
@@ -353,7 +428,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   /// Gets the version to display.
 
   String _getVersionToDisplay() {
-    final versionConfig = widget.appBar?.versionConfig;
+    final config = _getSolidAppBarConfig();
+    final versionConfig = config?.versionConfig;
     if (versionConfig?.version != null) {
       return versionConfig!.version!;
     }
@@ -368,7 +444,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   /// Determines whether to show the version widget.
 
   bool _shouldShowVersion() {
-    final versionConfig = widget.appBar?.versionConfig;
+    final config = _getSolidAppBarConfig();
+    final versionConfig = config?.versionConfig;
     if (versionConfig?.version != null) {
       return true; // Show immediately if version is provided
     }
@@ -413,7 +490,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     if (widget.menu == null) {
       return [];
     }
-    
+
     return widget.menu!
         .map((item) => SolidNavTab(
               title: item.title,
@@ -433,7 +510,11 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   PreferredSizeWidget? _buildAppBar(BuildContext context) {
     if (widget.appBar == null) return null;
 
-    final config = widget.appBar!;
+    // Ensure we're working with a SolidAppBarConfig.
+
+    if (widget.appBar is! SolidAppBarConfig) return null;
+
+    final config = widget.appBar as SolidAppBarConfig;
     final isWideScreen = _isWideScreen(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
@@ -651,6 +732,39 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     );
   }
 
+  /// Determine the appropriate AppBar based on the appBar parameter type.
+
+  PreferredSizeWidget? _resolveAppBar(
+      BuildContext context, bool isCompatibilityMode) {
+    // Handle different appBar parameter types.
+
+    if (widget.appBar is PreferredSizeWidget) {
+      // Standard AppBar provided - use directly.
+
+      return widget.appBar as PreferredSizeWidget;
+    } else if (widget.appBar is SolidAppBarConfig) {
+      // SolidAppBarConfig provided - build using SolidUI.
+
+      return _buildAppBar(context);
+    } else if (widget.appBar == null) {
+      // No appBar specified.
+
+      if (isCompatibilityMode) {
+        // Use scaffoldAppBar in compatibility mode.
+
+        return widget.scaffoldAppBar;
+      } else {
+        // Build default SolidUI AppBar if we have a menu.
+
+        return widget.menu != null ? _buildAppBar(context) : null;
+      }
+    }
+
+    // Fallback: treat as compatibility mode.
+
+    return widget.scaffoldAppBar;
+  }
+
   /// Builds the navigation drawer.
 
   Widget? _buildDrawer() {
@@ -699,7 +813,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     // Get the effective child content.
 
     final Widget? effectiveChild = widget.child ?? widget.body;
-    
+
     // If no content provided, return empty container.
 
     if (effectiveChild == null) {
@@ -837,27 +951,34 @@ Tap here to open the navigation drawer and access all available pages and option
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: isCompatibilityMode 
-          ? widget.scaffoldAppBar 
-          : _buildAppBar(context),
-      drawer: isCompatibilityMode 
-          ? widget.drawer 
-          : _buildDrawer(),
+      appBar: _resolveAppBar(context, isCompatibilityMode),
+      drawer: isCompatibilityMode ? widget.drawer : _buildDrawer(),
       endDrawer: widget.endDrawer,
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: fab,
-      floatingActionButtonLocation: (!isCompatibilityMode && widget.appBar == null && !isWideScreen)
-          ? const _SolidNavButtonStartTopLocation()
-          : FloatingActionButtonLocation.endFloat,
-      body: isCompatibilityMode 
-          ? widget.body 
-          : _buildBody(context),
-      bottomNavigationBar: isCompatibilityMode 
-          ? widget.bottomNavigationBar 
-          : _buildStatusBar(),
+      floatingActionButtonLocation:
+          (!isCompatibilityMode && widget.appBar == null && !isWideScreen)
+              ? const _SolidNavButtonStartTopLocation()
+              : (widget.floatingActionButtonLocation ??
+                  FloatingActionButtonLocation.endFloat),
+      floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
+      body: isCompatibilityMode ? widget.body : _buildBody(context),
+      bottomNavigationBar:
+          isCompatibilityMode ? widget.bottomNavigationBar : _buildStatusBar(),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      onDrawerChanged: widget.onDrawerChanged,
+      onEndDrawerChanged: widget.onEndDrawerChanged,
+      primary: widget.primary,
+      drawerDragStartBehavior: widget.drawerDragStartBehavior,
+      extendBody: widget.extendBody,
+      extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
+      drawerScrimColor: widget.drawerScrimColor,
+      drawerEdgeDragWidth: widget.drawerEdgeDragWidth,
+      drawerEnableOpenDragGesture: widget.drawerEnableOpenDragGesture,
+      endDrawerEnableOpenDragGesture: widget.endDrawerEnableOpenDragGesture,
+      restorationId: widget.restorationId,
     );
   }
 }
