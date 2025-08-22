@@ -624,20 +624,6 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       }
     }
 
-    // Add About button (default enabled if not explicitly configured).
-
-    final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
-
-    if (aboutConfig.enabled &&
-        aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
-            config.veryNarrowScreenThreshold)) {
-      actions.add(
-        SolidAboutButton(
-          config: aboutConfig,
-        ),
-      );
-    }
-
     // Add overflow menu only if screen is very narrow.
     // On wider screens, show overflow items as regular buttons.
 
@@ -719,6 +705,20 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
         actions.add(iconButton);
       }
+    }
+
+    // Add About button at the rightmost.
+
+    final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
+
+    if (aboutConfig.enabled &&
+        aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
+            config.veryNarrowScreenThreshold)) {
+      actions.add(
+        SolidAboutButton(
+          config: aboutConfig,
+        ),
+      );
     }
 
     return AppBar(
