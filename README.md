@@ -2,13 +2,8 @@
 
 -----
 
-This is a **temporary** scratch repo for developing new UI for solidpod.
-
-The widgets here will migrate to solidpod once fully tested.
-
------
-
-A UI library for building Solid applications with Flutter.
+This package provides a UI library for building Solid applications
+with Flutter.
 
 ## Overview
 
@@ -58,7 +53,7 @@ Scaffold
 
 ### 🛠️ Utilities & Constants
 
-- **NavigationConstants** - Predefined constants for consistent navigation, 
+- **NavigationConstants** - Predefined constants for consistent navigation,
   status bar heights, and UI component sizing
 
 
@@ -298,7 +293,7 @@ SolidScaffold(
       appWidget: MyAppWidget(), // Optional: custom app widget for the dialogue
       onKeyStatusChanged: (bool hasKey) {
         // Optional: handle key status changes.
-        
+
         print('Security key status: ${hasKey ? "saved" : "not saved"}');
       },
       tooltip: 'Manage your security keys for data encryption',
@@ -358,7 +353,7 @@ appBar: SolidAppBarConfig(
 
 This will:
 - Automatically read version from `pubspec.yaml`
-- Display version in the format `1.0.0+1` 
+- Display version in the format `1.0.0+1`
 - Show loading state until version is loaded
 - Provide default tooltip with version information
 
@@ -1010,7 +1005,7 @@ The new `SolidScaffold` component greatly simplifies navigation usage, allowing 
 
 ## Development Status
 
-SolidUI is currently in active development as part of the Solid ecosystem 
+SolidUI is currently in active development as part of the Solid ecosystem
 projects.
 
 ## Licence
