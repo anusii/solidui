@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Thursday 2025-08-21 13:16:28 +1000 Graham Williams>
+// Time-stamp: <Thursday 2025-08-21 16:10:42 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -30,6 +30,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import 'package:gap/gap.dart';
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -277,6 +278,7 @@ class _HomePageState extends State<HomePage> {
           color: Colors.blue,
         ),
         children: [
+          Gap(16),
           Text(
             'This example demonstrates key SolidUI features:',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
