@@ -601,7 +601,7 @@ SolidScaffold(
         icon: Icons.notifications,
         onPressed: () => print('Notifications'),
         tooltip: 'Notifications',
-        hideOnNarrowScreen: true, // Hide on narrow screens
+        showOnNarrowScreen: false,
       ),
     ],
     overflowItems: [
@@ -698,13 +698,13 @@ class _FullExampleAppState extends State<FullExampleApp> {
             icon: Icons.notifications,
             onPressed: () => _showNotifications(context),
             tooltip: 'Notifications',
-            hideOnNarrowScreen: true,
+            showOnNarrowScreen: false,
           ),
           SolidAppBarAction(
             icon: Icons.account_circle,
             onPressed: () => _showProfile(context),
             tooltip: 'User profile',
-            hideOnVeryNarrowScreen: true,
+            showOnVeryNarrowScreen: false,
           ),
         ],
         overflowItems: [
@@ -756,7 +756,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
         currentThemeMode: _currentThemeMode,
         onToggleTheme: _toggleTheme,
         showInAppBarActions: true,
-        hideOnVeryNarrowScreen: true,
+        showOnVeryNarrowScreen: false,
         tooltip: '''
 **Theme Toggle**
 
@@ -987,8 +987,8 @@ For support and documentation, visit our website.''',
 - `systemModeIcon`: Custom system mode icon (optional, defaults to Icons.computer)
 - `tooltip`: Custom tooltip text (optional, auto-generated with mode cycle info)
 - `label`: Label for overflow menu (default 'Toggle Theme')
-- `hideOnNarrowScreen`: Hide on narrow screens (default false)
-- `hideOnVeryNarrowScreen`: Hide on very narrow screens (default true)
+- `showOnNarrowScreen`: Show on narrow screens (default true)
+- `showOnVeryNarrowScreen`: Show on very narrow screens (default true)
 
 ### SolidAboutConfig Parameters
 
@@ -1001,7 +1001,7 @@ For support and documentation, visit our website.''',
 - `customContent`: Custom dialogue content widget (replaces default dialogue if provided)
 - `children`: Additional widgets to show in the About dialogue (optional)
 - `showOnNarrowScreen`: Show About button on narrow screens (default true)
-- `showOnVeryNarrowScreen`: Show About button on very narrow screens (default false)
+- `showOnVeryNarrowScreen`: Show About button on very narrow screens (default true)
 - `priority`: Priority for ordering in AppBar actions (default 999)
 - `tooltip`: Custom tooltip text (auto-generated if not provided)
 - `onPressed`: Custom callback when About button is pressed (optional)

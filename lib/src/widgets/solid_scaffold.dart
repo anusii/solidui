@@ -563,10 +563,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       // Determine whether to show button based on screen width.
 
       bool shouldShow = true;
-      if (action.hideOnVeryNarrowScreen &&
+      if (!action.showOnVeryNarrowScreen &&
           screenWidth < config.veryNarrowScreenThreshold) {
         shouldShow = false;
-      } else if (action.hideOnNarrowScreen &&
+      } else if (!action.showOnNarrowScreen &&
           screenWidth < config.narrowScreenThreshold) {
         shouldShow = false;
       }
@@ -599,10 +599,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       // Determine whether to show theme toggle based on screen width.
 
       bool shouldShowThemeToggle = true;
-      if (themeConfig.hideOnVeryNarrowScreen &&
+      if (!themeConfig.showOnVeryNarrowScreen &&
           screenWidth < config.veryNarrowScreenThreshold) {
         shouldShowThemeToggle = false;
-      } else if (themeConfig.hideOnNarrowScreen &&
+      } else if (!themeConfig.showOnNarrowScreen &&
           screenWidth < config.narrowScreenThreshold) {
         shouldShowThemeToggle = false;
       }
@@ -707,18 +707,26 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       }
     }
 
-    // Add About button at the rightmost.
+    // Store About button to add at the very end.
+
+    Widget? aboutButton;
+
+    // Prepare About button if it should be shown.
 
     final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
 
     if (aboutConfig.enabled &&
         aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
             config.veryNarrowScreenThreshold)) {
-      actions.add(
-        SolidAboutButton(
-          config: aboutConfig,
-        ),
+      aboutButton = SolidAboutButton(
+        config: aboutConfig,
       );
+    }
+
+    // Add About button at the very end if it was prepared.
+
+    if (aboutButton != null) {
+      actions.add(aboutButton);
     }
 
     return AppBar(

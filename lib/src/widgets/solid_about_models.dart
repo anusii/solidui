@@ -94,7 +94,7 @@ class SolidAboutConfig {
     this.customContent,
     this.children,
     this.showOnNarrowScreen = true,
-    this.showOnVeryNarrowScreen = false,
+    this.showOnVeryNarrowScreen = true,
     this.priority = 999,
     this.tooltip,
     this.onPressed,

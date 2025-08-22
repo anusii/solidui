@@ -132,21 +132,21 @@ class SolidAppBarAction {
 
   final Color? color;
 
-  /// Whether this action should be hidden on narrow screens.
+  /// Whether this action should be shown on narrow screens.
 
-  final bool hideOnNarrowScreen;
+  final bool showOnNarrowScreen;
 
-  /// Whether this action should be hidden on very narrow screens.
+  /// Whether this action should be shown on very narrow screens.
 
-  final bool hideOnVeryNarrowScreen;
+  final bool showOnVeryNarrowScreen;
 
   const SolidAppBarAction({
     required this.icon,
     required this.onPressed,
     this.tooltip,
     this.color,
-    this.hideOnNarrowScreen = false,
-    this.hideOnVeryNarrowScreen = false,
+    this.showOnNarrowScreen = true,
+    this.showOnVeryNarrowScreen = true,
   });
 }
 
