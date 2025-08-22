@@ -1,7 +1,5 @@
 # SolidUI
 
------
-
 This package provides a UI library for building Solid applications
 with Flutter.
 
@@ -382,7 +380,7 @@ appBar: SolidAppBarConfig(
 ),
 ```
 
-## About Dialog Configuration
+## About Dialogue Configuration
 
 SolidUI provides an integrated About dialogue system that automatically displays application information with sensible defaults.
 
@@ -996,7 +994,7 @@ For support and documentation, visit our website.''',
 - `customContent`: Custom dialogue content widget (replaces default dialogue if provided)
 - `children`: Additional widgets to show in the About dialogue (optional)
 - `showOnNarrowScreen`: Show About button on narrow screens (default true)
-- `showOnVeryNarrowScreen`: Show About button on very narrow screens (default true)
+- `showOnVeryNarrowScreen`: Show About button on very narrow screens (default false)
 - `priority`: Priority for ordering in AppBar actions (default 999)
 - `tooltip`: Custom tooltip text (auto-generated if not provided)
 - `onPressed`: Custom callback when About button is pressed (optional)

@@ -607,7 +607,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         shouldShowThemeToggle = false;
       }
 
-      if (shouldShowThemeToggle && themeConfig.showInAppBarActions) {
+      if (shouldShowThemeToggle && themeConfig.showInAppBarActions && 
+          screenWidth >= config.veryNarrowScreenThreshold) {
         Widget themeButton = IconButton(
           icon: Icon(themeConfig.currentIcon),
           onPressed: themeConfig.onToggleTheme,
@@ -630,10 +631,15 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     final hasOverflowItems = config.overflowItems.isNotEmpty;
     final hasThemeToggleInOverflow = widget.themeToggle != null &&
         widget.themeToggle!.enabled &&
-        !widget.themeToggle!.showInAppBarActions;
+        (!widget.themeToggle!.showInAppBarActions || 
+         screenWidth < config.veryNarrowScreenThreshold);
+    
+    final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
+    final hasAboutInOverflow = aboutConfig.enabled &&
+        screenWidth < config.veryNarrowScreenThreshold;
 
     if (screenWidth < config.veryNarrowScreenThreshold &&
-        (hasOverflowItems || hasThemeToggleInOverflow)) {
+        (hasOverflowItems || hasThemeToggleInOverflow || hasAboutInOverflow)) {
       // Build overflow menu items list.
 
       List<PopupMenuItem<String>> overflowMenuItems = [];
@@ -673,11 +679,35 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         );
       }
 
+      // Add About button to overflow menu if configured.
+
+      if (hasAboutInOverflow) {
+        overflowMenuItems.add(
+          PopupMenuItem<String>(
+            value: 'about',
+            child: Row(
+              children: [
+                Icon(aboutConfig.effectiveIcon),
+                const SizedBox(width: 8),
+                Text('About'),
+              ],
+            ),
+          ),
+        );
+      }
+
       actions.add(
         PopupMenuButton<String>(
           onSelected: (String id) {
             if (id == 'theme_toggle') {
               widget.themeToggle?.onToggleTheme?.call();
+            } else if (id == 'about') {
+              if (aboutConfig.onPressed != null) {
+                aboutConfig.onPressed!();
+              } else {
+                // Show default About dialogue
+                SolidAbout.show(context, aboutConfig);
+              }
             } else {
               final item =
                   config.overflowItems.firstWhere((item) => item.id == id);
@@ -713,11 +743,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     // Prepare About button if it should be shown.
 
-    final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
-
     if (aboutConfig.enabled &&
         aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
-            config.veryNarrowScreenThreshold)) {
+            config.veryNarrowScreenThreshold) &&
+        screenWidth >= config.veryNarrowScreenThreshold) {
       aboutButton = SolidAboutButton(
         config: aboutConfig,
       );
