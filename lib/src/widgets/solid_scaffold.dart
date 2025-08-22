@@ -413,7 +413,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     if (widget.menu == null) {
       return [];
     }
-    
+
     return widget.menu!
         .map((item) => SolidNavTab(
               title: item.title,
@@ -699,7 +699,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     // Get the effective child content.
 
     final Widget? effectiveChild = widget.child ?? widget.body;
-    
+
     // If no content provided, return empty container.
 
     if (effectiveChild == null) {
@@ -837,24 +837,19 @@ Tap here to open the navigation drawer and access all available pages and option
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: isCompatibilityMode 
-          ? widget.scaffoldAppBar 
-          : _buildAppBar(context),
-      drawer: isCompatibilityMode 
-          ? widget.drawer 
-          : _buildDrawer(),
+      appBar:
+          isCompatibilityMode ? widget.scaffoldAppBar : _buildAppBar(context),
+      drawer: isCompatibilityMode ? widget.drawer : _buildDrawer(),
       endDrawer: widget.endDrawer,
       backgroundColor: widget.backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: fab,
-      floatingActionButtonLocation: (!isCompatibilityMode && widget.appBar == null && !isWideScreen)
-          ? const _SolidNavButtonStartTopLocation()
-          : FloatingActionButtonLocation.endFloat,
-      body: isCompatibilityMode 
-          ? widget.body 
-          : _buildBody(context),
-      bottomNavigationBar: isCompatibilityMode 
-          ? widget.bottomNavigationBar 
-          : _buildStatusBar(),
+      floatingActionButtonLocation:
+          (!isCompatibilityMode && widget.appBar == null && !isWideScreen)
+              ? const _SolidNavButtonStartTopLocation()
+              : FloatingActionButtonLocation.endFloat,
+      body: isCompatibilityMode ? widget.body : _buildBody(context),
+      bottomNavigationBar:
+          isCompatibilityMode ? widget.bottomNavigationBar : _buildStatusBar(),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,

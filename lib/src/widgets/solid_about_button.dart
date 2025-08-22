@@ -94,20 +94,7 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
   }
 
   void _showCustomAboutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: widget.config.customContent,
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
+    SolidAbout._showCustomAboutDialog(context, widget.config);
   }
 
   void _showDefaultAboutDialog() {
@@ -120,14 +107,11 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
             : _version) ??
         '1.0.0';
 
-    showAboutDialog(
+    SolidAbout._showAboutDialogShared(
       context: context,
+      config: widget.config,
       applicationName: applicationName,
       applicationVersion: applicationVersion,
-      applicationIcon: widget.config.applicationIcon,
-      applicationLegalese: widget.config.applicationLegalese ??
-          '© ${DateTime.now().year} $applicationName\n\n',
-      children: widget.config.children ?? [],
     );
   }
 
@@ -210,36 +194,45 @@ class SolidAbout {
         '1.0.0';
 
     if (context.mounted) {
-      showAboutDialog(
+      _showAboutDialogShared(
         context: context,
+        config: config,
         applicationName: applicationName,
         applicationVersion: applicationVersion,
-        applicationIcon: config.applicationIcon,
-        applicationLegalese: config.applicationLegalese ??
-            '© ${DateTime.now().year} $applicationName\n\n',
-        children: config.children ?? [],
       );
     }
   }
 
-  /// Shows a default About dialogue with minimal configuration.
+  /// Shared internal method to show About dialogue.
 
-  static void showDefault(
-    BuildContext context, {
-    String? applicationName,
-    String? applicationVersion,
-    Widget? applicationIcon,
-    String? applicationLegalese,
-    List<Widget>? children,
+  static void _showAboutDialogShared({
+    required BuildContext context,
+    required SolidAboutConfig config,
+    required String applicationName,
+    required String applicationVersion,
   }) {
-    final config = SolidAboutConfig(
+    final legalText = config.applicationLegalese ??
+        '© ${DateTime.now().year} $applicationName';
+
+    showAboutDialog(
+      context: context,
       applicationName: applicationName,
       applicationVersion: applicationVersion,
-      applicationIcon: applicationIcon,
-      applicationLegalese: applicationLegalese,
-      children: children,
-    );
+      applicationIcon: config.applicationIcon,
+      children: [
+        // Wrap the legal text for better formatting.
 
-    show(context, config);
+        Wrap(
+          children: [
+            Text(
+              legalText,
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        if (config.children != null) ...config.children!,
+      ],
+    );
   }
 }

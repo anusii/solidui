@@ -30,6 +30,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import 'package:gap/gap.dart';
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -277,6 +278,7 @@ class _HomePageState extends State<HomePage> {
           color: Colors.blue,
         ),
         children: [
+          Gap(16),
           Text(
             'This example demonstrates key SolidUI features:',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
