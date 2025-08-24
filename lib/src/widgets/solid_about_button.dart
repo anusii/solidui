@@ -120,14 +120,11 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
             : _version) ??
         '1.0.0';
 
-    showAboutDialog(
+    SolidAbout._showAboutDialogHelper(
       context: context,
       applicationName: applicationName,
       applicationVersion: applicationVersion,
-      applicationIcon: widget.config.applicationIcon,
-      applicationLegalese: wordWrap(widget.config.applicationLegalese ??
-          '© ${DateTime.now().year} $applicationName\n\n'),
-      children: widget.config.children ?? [],
+      config: widget.config,
     );
   }
 
@@ -146,6 +143,7 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
       child: iconButton,
     );
   }
+
 }
 
 /// A static helper for showing About dialogues programmatically.
@@ -210,14 +208,11 @@ class SolidAbout {
         '1.0.0';
 
     if (context.mounted) {
-      showAboutDialog(
+      _showAboutDialogHelper(
         context: context,
         applicationName: applicationName,
         applicationVersion: applicationVersion,
-        applicationIcon: config.applicationIcon,
-        applicationLegalese: wordWrap(config.applicationLegalese ??
-            '© ${DateTime.now().year} $applicationName\n\n'),
-        children: config.children ?? [],
+        config: config,
       );
     }
   }
@@ -241,5 +236,24 @@ class SolidAbout {
     );
 
     show(context, config);
+  }
+
+  /// Helper method to show About dialogue with consistent formatting.
+
+  static void _showAboutDialogHelper({
+    required BuildContext context,
+    required String applicationName,
+    required String applicationVersion,
+    required SolidAboutConfig config,
+  }) {
+    showAboutDialog(
+      context: context,
+      applicationName: applicationName,
+      applicationVersion: applicationVersion,
+      applicationIcon: config.applicationIcon,
+      applicationLegalese: wordWrap(config.applicationLegalese ??
+          '© ${DateTime.now().year} $applicationName\n\n'),
+      children: config.children ?? [],
+    );
   }
 }
