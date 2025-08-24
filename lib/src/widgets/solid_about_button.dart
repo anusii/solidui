@@ -1,6 +1,6 @@
 /// Solid About Button.
 ///
-// Time-stamp: <Monday 2025-08-25 08:32:06 +1000 Graham Williams>
+// Time-stamp: <Monday 2025-08-25 09:43:05 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -278,24 +278,6 @@ class SolidAbout {
         listBullet: bodySmallStyle,
         blockSpacing: AboutConstants.markdownBlockSpacing, // Consistent spacing
       );
-
-      // Calculate left padding based on icon size + iconTextSpacing.
-
-      double leftPadding = AboutConstants.iconTextSpacing; // Default padding
-      if (config.applicationIcon != null) {
-        // Try to extract size from Icon widget.
-
-        if (config.applicationIcon is Icon) {
-          final icon = config.applicationIcon as Icon;
-          leftPadding = (icon.size ?? AboutConstants.defaultIconSize) +
-              AboutConstants.iconTextSpacing;
-        } else {
-          // For other widgets, assume default icon size + iconTextSpacing.
-
-          leftPadding =
-              AboutConstants.defaultIconSize + AboutConstants.iconTextSpacing;
-        }
-      }
 
       children.add(
         MarkdownBody(
