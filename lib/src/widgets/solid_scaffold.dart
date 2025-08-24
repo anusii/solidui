@@ -607,7 +607,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         shouldShowThemeToggle = false;
       }
 
-      if (shouldShowThemeToggle && themeConfig.showInAppBarActions && 
+      if (shouldShowThemeToggle &&
+          themeConfig.showInAppBarActions &&
           screenWidth >= config.veryNarrowScreenThreshold) {
         Widget themeButton = IconButton(
           icon: Icon(themeConfig.currentIcon),
@@ -631,12 +632,12 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     final hasOverflowItems = config.overflowItems.isNotEmpty;
     final hasThemeToggleInOverflow = widget.themeToggle != null &&
         widget.themeToggle!.enabled &&
-        (!widget.themeToggle!.showInAppBarActions || 
-         screenWidth < config.veryNarrowScreenThreshold);
-    
+        (!widget.themeToggle!.showInAppBarActions ||
+            screenWidth < config.veryNarrowScreenThreshold);
+
     final aboutConfig = widget.aboutConfig ?? const SolidAboutConfig();
-    final hasAboutInOverflow = aboutConfig.enabled &&
-        screenWidth < config.veryNarrowScreenThreshold;
+    final hasAboutInOverflow =
+        aboutConfig.enabled && screenWidth < config.veryNarrowScreenThreshold;
 
     if (screenWidth < config.veryNarrowScreenThreshold &&
         (hasOverflowItems || hasThemeToggleInOverflow || hasAboutInOverflow)) {

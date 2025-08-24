@@ -27,8 +27,11 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/widgets/solid_about_models.dart';
 
@@ -143,7 +146,6 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
       child: iconButton,
     );
   }
-
 }
 
 /// A static helper for showing About dialogues programmatically.
@@ -220,13 +222,13 @@ class SolidAbout {
   /// Shows a default About dialogue with minimal configuration.
 
   static void showDefault(
-      BuildContext context, {
-        String? applicationName,
-        String? applicationVersion,
-        Widget? applicationIcon,
-        String? applicationLegalese,
-        List<Widget>? children,
-      }) {
+    BuildContext context, {
+    String? applicationName,
+    String? applicationVersion,
+    Widget? applicationIcon,
+    String? applicationLegalese,
+    List<Widget>? children,
+  }) {
     final config = SolidAboutConfig(
       applicationName: applicationName,
       applicationVersion: applicationVersion,
@@ -246,6 +248,59 @@ class SolidAbout {
     required String applicationVersion,
     required SolidAboutConfig config,
   }) {
+    // Build children based on provided configuration.
+
+    List<Widget> children = [];
+
+    // If text is provided, use it with MarkdownBody.
+
+    if (config.text != null && config.text!.isNotEmpty) {
+      children.add(const Gap(16));
+
+      // Get the same text style as applicationLegalese.
+
+      final textTheme = Theme.of(context).textTheme;
+      final bodySmallStyle = textTheme.bodySmall;
+
+      // Create MarkdownStyleSheet to match legalese formatting.
+
+      final markdownStyleSheet = MarkdownStyleSheet(
+        p: bodySmallStyle,
+        h1: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h2: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h3: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h4: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h5: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h6: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        strong: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        em: bodySmallStyle?.copyWith(fontStyle: FontStyle.italic),
+        listBullet: bodySmallStyle,
+        blockSpacing: 8.0, // Consistent spacing
+      );
+
+      children.add(
+        Padding(
+          padding: const EdgeInsets.only(left: 88.0, right: 24.0),
+          child: MarkdownBody(
+            data: wordWrap(config.text!),
+            styleSheet: markdownStyleSheet,
+            selectable: true,
+            softLineBreak: true,
+            onTapLink: (text, href, about) {
+              if (href != null) {
+                final Uri url = Uri.parse(href);
+                launchUrl(url);
+              }
+            },
+          ),
+        ),
+      );
+    } else {
+      // Fall back to children if text is not provided.
+
+      children.addAll(config.children ?? []);
+    }
+
     showAboutDialog(
       context: context,
       applicationName: applicationName,
@@ -253,7 +308,7 @@ class SolidAbout {
       applicationIcon: config.applicationIcon,
       applicationLegalese: wordWrap(config.applicationLegalese ??
           '© ${DateTime.now().year} $applicationName\n\n'),
-      children: config.children ?? [],
+      children: children,
     );
   }
 }
