@@ -1,6 +1,6 @@
 /// Solid About Button.
 ///
-// Time-stamp: <Thursday 2025-08-21 15:20:34 +1000 Tony Chen>
+// Time-stamp: <Monday 2025-08-25 08:32:06 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -298,21 +298,17 @@ class SolidAbout {
       }
 
       children.add(
-        Padding(
-          padding: EdgeInsets.only(
-              left: leftPadding, right: AboutConstants.textRightPadding),
-          child: MarkdownBody(
-            data: wordWrap(config.text!),
-            styleSheet: markdownStyleSheet,
-            selectable: true,
-            softLineBreak: true,
-            onTapLink: (text, href, about) {
-              if (href != null) {
-                final Uri url = Uri.parse(href);
-                launchUrl(url);
-              }
-            },
-          ),
+        MarkdownBody(
+          data: wordWrap(config.text!),
+          styleSheet: markdownStyleSheet,
+          selectable: true,
+          softLineBreak: true,
+          onTapLink: (text, href, about) {
+            if (href != null) {
+              final Uri url = Uri.parse(href);
+              launchUrl(url);
+            }
+          },
         ),
       );
     } else {
