@@ -496,7 +496,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
               title: item.title,
               icon: item.icon,
               color: item.color,
-              content: item.content,
+              child: item.child,
               tooltip: item.tooltip,
               message: item.message,
               dialogTitle: item.dialogTitle,
@@ -849,7 +849,19 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     // Get the effective child content.
 
-    final Widget? effectiveChild = widget.child ?? widget.body;
+    Widget? effectiveChild;
+
+    // Get child from selected menu item.
+
+    if (widget.menu != null && 
+        _currentSelectedIndex < widget.menu!.length && 
+        widget.menu![_currentSelectedIndex].child != null) {
+      effectiveChild = widget.menu![_currentSelectedIndex].child;
+    } else {
+      // Fallback to widget.child or widget.body for compatibility.
+
+      effectiveChild = widget.child ?? widget.body;
+    }
 
     // If no content provided, return empty container.
 

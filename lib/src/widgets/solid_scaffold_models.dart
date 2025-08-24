@@ -42,9 +42,9 @@ class SolidMenuItem {
 
   final Color? color;
 
-  /// Optional content component (displayed when menu is selected).
+  /// Optional child widget (displayed when menu is selected).
 
-  final Widget? content;
+  final Widget? child;
 
   /// Optional tooltip.
 
@@ -66,7 +66,7 @@ class SolidMenuItem {
     required this.title,
     required this.icon,
     this.color,
-    this.content,
+    this.child,
     this.tooltip,
     this.message,
     this.dialogTitle,

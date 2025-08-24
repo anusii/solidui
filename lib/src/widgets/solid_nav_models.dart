@@ -44,9 +44,9 @@ class SolidNavTab {
 
   final Color? color;
 
-  /// The content widget to display when this tab is selected.
+  /// The child widget to display when this tab is selected.
 
-  final Widget? content;
+  final Widget? child;
 
   /// Optional tooltip message for the tab (supports Markdown).
 
@@ -68,7 +68,7 @@ class SolidNavTab {
     required this.title,
     required this.icon,
     this.color,
-    this.content,
+    this.child,
     this.tooltip,
     this.message,
     this.dialogTitle,
