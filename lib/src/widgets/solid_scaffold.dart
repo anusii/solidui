@@ -854,8 +854,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     // Get child from selected menu item.
 
-    if (widget.menu != null && 
-        _currentSelectedIndex < widget.menu!.length && 
+    if (widget.menu != null &&
+        _currentSelectedIndex < widget.menu!.length &&
         widget.menu![_currentSelectedIndex].child != null) {
       effectiveChild = widget.menu![_currentSelectedIndex].child;
     } else {

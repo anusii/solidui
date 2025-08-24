@@ -129,36 +129,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
   String? _webId;
-
-  // Simple content for each page.
-
-  List<String> get _pageContent => [
-        'Welcome to the SolidUI Example!\n\n'
-            'This demonstrates SolidScaffold with theme toggle and About features:\n\n'
-            '• Responsive navigation (rail ↔ drawer)\n'
-            '• Theme switching (🌙/☀️ button)\n'
-            '• Custom About dialogue (ℹ️ button)\n'
-            '• Version information display\n'
-            '• Status bar integration\n'
-            '• Security key management\n\n'
-            'Try clicking the theme toggle button in the top-right!\n'
-            'Current theme: ${_getThemeModeText()}',
-        'About page\n\nThis example shows how easy it is to use SolidScaffold:\n\n'
-            '1. Define your menu items\n'
-            '2. Set up your content\n'
-            '3. Let SolidScaffold handle the rest!\n\n'
-            'The navigation is fully responsive and includes POD server '
-            'integration.',
-        'Settings page\n\nHere you would typically include:\n\n'
-            '• User preferences\n'
-            '• Application settings\n'
-            '• Account management\n'
-            '• Data synchronisation options\n\n'
-            'The status bar below shows your connection status and server '
-            'information.',
-      ];
 
   // Build the widget.
 
@@ -167,19 +138,22 @@ class _HomePageState extends State<HomePage> {
     // Create simple menu items.
 
     final menuItems = [
-      const SolidMenuItem(
+      SolidMenuItem(
         title: 'Home',
         icon: Icons.home,
+        child: _buildHomePage(),
         tooltip: 'Home page',
       ),
-      const SolidMenuItem(
+      SolidMenuItem(
         title: 'About',
         icon: Icons.info,
+        child: _buildAboutPage(),
         tooltip: 'About this application',
       ),
-      const SolidMenuItem(
+      SolidMenuItem(
         title: 'Settings',
         icon: Icons.settings,
+        child: _buildSettingsPage(),
         tooltip: 'Application settings',
       ),
     ];
@@ -196,7 +170,7 @@ class _HomePageState extends State<HomePage> {
     return SolidScaffold(
       menu: menuItems,
       appBar: SolidAppBarConfig(
-        title: menuItems[_selectedIndex].title,
+        title: 'SolidUI Example',
         versionConfig: const SolidVersionConfig(
           // Compare this version with that of solidui's CHANGELOG for
           // illustration purposes. Normally it should be this app's
@@ -256,12 +230,6 @@ class _HomePageState extends State<HomePage> {
       ),
       userInfo: userInfo,
       onLogout: _webId != null ? (context) => _logout() : null,
-      selectedIndex: _selectedIndex,
-      onMenuSelected: (index) {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
       themeToggle: SolidThemeToggleConfig(
         enabled: true,
         currentThemeMode: widget.currentThemeMode,
@@ -301,13 +269,12 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
 
 ''',
       ),
-      child: _buildPageContent(),
     );
   }
 
-  /// Build the main content area.
+  /// Build the home page content.
 
-  Widget _buildPageContent() {
+  Widget _buildHomePage() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Center(
@@ -319,46 +286,54 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  _getPageIcon(),
+                  Icons.home,
                   size: 64,
                   color: Theme.of(context).primaryColor,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  _pageContent[_selectedIndex],
+                  'Welcome to the SolidUI Example!\n\n'
+                  'This demonstrates SolidScaffold with child parameter features:\n\n'
+                  '• Responsive navigation (rail ↔ drawer)\n'
+                  '• Theme switching (🌙/☀️ button)\n'
+                  '• Custom About dialogue (ℹ️ button)\n'
+                  '• Version information display\n'
+                  '• Status bar integration\n'
+                  '• Security key management\n\n'
+                  'Try clicking the theme toggle button in the top-right!\n'
+                  'Current theme: ${_getThemeModeText()}',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
-                if (_selectedIndex == 0) // Show additional info on home page.
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Quick Start:',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          '• Try resizing your window to see responsive navigation\n'
-                          '• Click menu items to switch between pages\n'
-                          '• Use the login button to simulate POD connection\n'
-                          '• Check the version widget for changelog access\n'
-                          '• View the status bar for server and connection info'
-                          '• Click the theme toggle button (🌙/☀️) in the top-right\n'
-                          '• Click the About button (ℹ️) to see custom app info\n',
-                        ),
-                      ],
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Quick Start:',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '• Try resizing your window to see responsive navigation\n'
+                        '• Click menu items to switch between pages\n'
+                        '• Use the login button to simulate POD connection\n'
+                        '• Check the version widget for changelog access\n'
+                        '• View the status bar for server and connection info\n'
+                        '• Click the theme toggle button (🌙/☀️) in the top-right\n'
+                        '• Click the About button (ℹ️) to see custom app info\n',
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -367,19 +342,81 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
     );
   }
 
-  /// Get icon for current page.
+  /// Build the about page content.
 
-  IconData _getPageIcon() {
-    switch (_selectedIndex) {
-      case 0:
-        return Icons.home;
-      case 1:
-        return Icons.info;
-      case 2:
-        return Icons.settings;
-      default:
-        return Icons.home;
-    }
+  Widget _buildAboutPage() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Center(
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info,
+                  size: 64,
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'About SolidUI\n\n'
+                  'SolidUI simplifies building Solid applications:\n\n'
+                  '1. Define your menu items with child widgets\n'
+                  '2. Set up your SolidScaffold\n'
+                  '3. Let SolidScaffold handle the rest!\n\n'
+                  'The navigation is fully responsive and includes POD server '
+                  'integration. Each menu item can now directly contain its '
+                  'child widget for simplified development.',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build the settings page content.
+
+  Widget _buildSettingsPage() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Center(
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.settings,
+                  size: 64,
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Settings page\n\n'
+                  'Here you would typically include:\n\n'
+                  '• User preferences\n'
+                  '• Application settings\n'
+                  '• Account management\n'
+                  '• Data synchronisation options\n\n'
+                  'The status bar below shows your connection status and server '
+                  'information. Each page is now independently defined in its '
+                  'own widget for better organisation.',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Toggle login status.
