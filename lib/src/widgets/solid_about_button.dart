@@ -33,6 +33,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 
 /// A button that shows an About dialogue when pressed.
@@ -255,7 +256,7 @@ class SolidAbout {
     // If text is provided, use it with MarkdownBody.
 
     if (config.text != null && config.text!.isNotEmpty) {
-      children.add(const Gap(16));
+      children.add(const Gap(AboutConstants.contentVerticalSpacing));
 
       // Get the same text style as applicationLegalese.
 
@@ -275,12 +276,31 @@ class SolidAbout {
         strong: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
         em: bodySmallStyle?.copyWith(fontStyle: FontStyle.italic),
         listBullet: bodySmallStyle,
-        blockSpacing: 8.0, // Consistent spacing
+        blockSpacing: AboutConstants.markdownBlockSpacing, // Consistent spacing
       );
+
+      // Calculate left padding based on icon size + iconTextSpacing.
+
+      double leftPadding = AboutConstants.iconTextSpacing; // Default padding
+      if (config.applicationIcon != null) {
+        // Try to extract size from Icon widget.
+
+        if (config.applicationIcon is Icon) {
+          final icon = config.applicationIcon as Icon;
+          leftPadding = (icon.size ?? AboutConstants.defaultIconSize) +
+              AboutConstants.iconTextSpacing;
+        } else {
+          // For other widgets, assume default icon size + iconTextSpacing.
+
+          leftPadding =
+              AboutConstants.defaultIconSize + AboutConstants.iconTextSpacing;
+        }
+      }
 
       children.add(
         Padding(
-          padding: const EdgeInsets.only(left: 88.0, right: 24.0),
+          padding: EdgeInsets.only(
+              left: leftPadding, right: AboutConstants.textRightPadding),
           child: MarkdownBody(
             data: wordWrap(config.text!),
             styleSheet: markdownStyleSheet,

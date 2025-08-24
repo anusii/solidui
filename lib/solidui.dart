@@ -28,6 +28,7 @@
 
 library;
 
+export 'src/constants/about.dart';
 export 'src/constants/navigation.dart';
 export 'src/widgets/solid_nav_bar.dart';
 export 'src/widgets/solid_nav_drawer.dart';
