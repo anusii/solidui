@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_markdown: ^0.7.7+1
   gap: ^3.0.1
   markdown_tooltip: ^0.0.8
   package_info_plus: ^8.3.1

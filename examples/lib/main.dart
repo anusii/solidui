@@ -59,8 +59,31 @@ void main() async {
 
 /// Simple example app demonstrating SolidScaffold basic usage.
 
-class SimpleExampleApp extends StatelessWidget {
+class SimpleExampleApp extends StatefulWidget {
   const SimpleExampleApp({super.key});
+
+  @override
+  State<SimpleExampleApp> createState() => _SimpleExampleAppState();
+}
+
+class _SimpleExampleAppState extends State<SimpleExampleApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _toggleTheme() {
+    setState(() {
+      switch (_themeMode) {
+        case ThemeMode.system:
+          _themeMode = ThemeMode.light;
+          break;
+        case ThemeMode.light:
+          _themeMode = ThemeMode.dark;
+          break;
+        case ThemeMode.dark:
+          _themeMode = ThemeMode.system;
+          break;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,16 +103,26 @@ class SimpleExampleApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      themeMode: ThemeMode.system,
-      home: const HomePage(),
+      themeMode: _themeMode,
+      home: HomePage(
+        currentThemeMode: _themeMode,
+        onToggleTheme: _toggleTheme,
+      ),
     );
   }
 }
 
-/// Main home page demonstrating basic SolidScaffold usage.
+/// Main home page demonstrating SolidScaffold with theme and About features.
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+    required this.currentThemeMode,
+    required this.onToggleTheme,
+  });
+
+  final ThemeMode currentThemeMode;
+  final VoidCallback onToggleTheme;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -101,27 +134,33 @@ class _HomePageState extends State<HomePage> {
 
   // Simple content for each page.
 
-  final List<String> _pageContent = [
-    'Welcome to the Home page!\n\n'
-        'This is a simple demonstration of SolidScaffold.'
-        '\n\nThe navigation automatically switches between a side rail '
-        '(on wide screens) and a drawer menu (on narrow screens).',
-    'About page\n\nThis example shows how easy it is to use SolidScaffold:\n\n'
-        '1. Define your menu items\n'
-        '2. Set up your content\n'
-        '3. Let SolidScaffold handle the rest!\n\n'
-        'The navigation is fully responsive and includes POD server '
-        'integration.',
-    'Settings page\n\nHere you would typically include:\n\n'
-        '• User preferences\n'
-        '• Application settings\n'
-        '• Account management\n'
-        '• Data synchronisation options\n\n'
-        'The status bar below shows your connection status and server '
-        'information.',
-  ];
+  List<String> get _pageContent => [
+        'Welcome to the SolidUI Example!\n\n'
+            'This demonstrates SolidScaffold with theme toggle and About features:\n\n'
+            '• Responsive navigation (rail ↔ drawer)\n'
+            '• Theme switching (🌙/☀️ button)\n'
+            '• Custom About dialogue (ℹ️ button)\n'
+            '• Version information display\n'
+            '• Status bar integration\n'
+            '• Security key management\n\n'
+            'Try clicking the theme toggle button in the top-right!\n'
+            'Current theme: ${_getThemeModeText()}',
+        'About page\n\nThis example shows how easy it is to use SolidScaffold:\n\n'
+            '1. Define your menu items\n'
+            '2. Set up your content\n'
+            '3. Let SolidScaffold handle the rest!\n\n'
+            'The navigation is fully responsive and includes POD server '
+            'integration.',
+        'Settings page\n\nHere you would typically include:\n\n'
+            '• User preferences\n'
+            '• Application settings\n'
+            '• Account management\n'
+            '• Data synchronisation options\n\n'
+            'The status bar below shows your connection status and server '
+            'information.',
+      ];
 
-  // Buld the widget.
+  // Build the widget.
 
   @override
   Widget build(BuildContext context) {
@@ -223,6 +262,45 @@ class _HomePageState extends State<HomePage> {
           _selectedIndex = index;
         });
       },
+      themeToggle: SolidThemeToggleConfig(
+        enabled: true,
+        currentThemeMode: widget.currentThemeMode,
+        onToggleTheme: widget.onToggleTheme,
+        showInAppBarActions: true,
+        showOnVeryNarrowScreen: false,
+      ),
+      aboutConfig: const SolidAboutConfig(
+        applicationName: 'SolidUI Example',
+        applicationIcon: Icon(
+          Icons.widgets,
+          size: 64,
+          color: Colors.blue,
+        ),
+        applicationLegalese: '''
+        © 2025 Software Innovation Institute, ANU
+        ''',
+        text: '''
+
+This example demonstrates key SolidUI features:
+
+🧭 **Responsive navigation** (rail ↔ drawer)
+
+🎨 **Theme switching** (light/dark/system)
+
+ℹ️ **Customisable About dialogues**
+
+📋 **Version information display**
+
+🔐 **Security key management**
+
+📊 **Status bar integration**
+
+👤 **User information display**
+
+For more information, visit the [SolidUI GitHub repository](https://github.com/anusii/solidui).
+
+''',
+      ),
       child: _buildPageContent(),
     );
   }
@@ -270,10 +348,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          '• Try resizing your browser window to see responsive navigation\n'
-                          '• Click the menu items to switch between pages\n'
+                          '• Try resizing your window to see responsive navigation\n'
+                          '• Click menu items to switch between pages\n'
                           '• Use the login button to simulate POD connection\n'
-                          '• Check the status bar for server and connection info',
+                          '• Check the version widget for changelog access\n'
+                          '• View the status bar for server and connection info'
+                          '• Click the theme toggle button (🌙/☀️) in the top-right\n'
+                          '• Click the About button (ℹ️) to see custom app info\n',
                         ),
                       ],
                     ),
@@ -330,5 +411,18 @@ class _HomePageState extends State<HomePage> {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  /// Get theme mode text for display.
+
+  String _getThemeModeText() {
+    switch (widget.currentThemeMode) {
+      case ThemeMode.light:
+        return 'Light Mode ☀️';
+      case ThemeMode.dark:
+        return 'Dark Mode 🌙';
+      case ThemeMode.system:
+        return 'System Mode 🖥️';
+    }
   }
 }

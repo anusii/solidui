@@ -42,6 +42,10 @@ class SolidThemeToggleConfig {
 
   final IconData? darkModeIcon;
 
+  /// Custom icon for system mode (defaults to computer icon).
+
+  final IconData? systemModeIcon;
+
   /// Callback when theme is toggled. Should handle the theme change logic.
 
   final VoidCallback? onToggleTheme;
@@ -66,26 +70,27 @@ class SolidThemeToggleConfig {
 
   final int priority;
 
-  /// Whether to hide the theme toggle on narrow screens.
+  /// Whether to show the theme toggle on narrow screens.
 
-  final bool hideOnNarrowScreen;
+  final bool showOnNarrowScreen;
 
-  /// Whether to hide the theme toggle on very narrow screens.
+  /// Whether to show the theme toggle on very narrow screens.
 
-  final bool hideOnVeryNarrowScreen;
+  final bool showOnVeryNarrowScreen;
 
   const SolidThemeToggleConfig({
     this.enabled = true,
     this.lightModeIcon,
     this.darkModeIcon,
+    this.systemModeIcon,
     this.onToggleTheme,
     this.currentThemeMode = ThemeMode.system,
     this.showInAppBarActions = true,
     this.tooltip,
     this.label = 'Toggle Theme',
     this.priority = 1,
-    this.hideOnNarrowScreen = false,
-    this.hideOnVeryNarrowScreen = true,
+    this.showOnNarrowScreen = true,
+    this.showOnVeryNarrowScreen = true,
   });
 
   /// Returns the appropriate icon based on current theme mode.
@@ -93,12 +98,11 @@ class SolidThemeToggleConfig {
   IconData get currentIcon {
     switch (currentThemeMode) {
       case ThemeMode.light:
-        return darkModeIcon ?? Icons.dark_mode;
-      case ThemeMode.dark:
         return lightModeIcon ?? Icons.light_mode;
-      case ThemeMode.system:
-        // For system mode, show dark mode icon as toggle action
+      case ThemeMode.dark:
         return darkModeIcon ?? Icons.dark_mode;
+      case ThemeMode.system:
+        return systemModeIcon ?? Icons.computer;
     }
   }
 
@@ -112,25 +116,31 @@ class SolidThemeToggleConfig {
         return '''
 **Theme Toggle**
 
-🌙 Switch to **Dark Mode**
+☀️ **Light Mode** (Current)
 
-Tap to switch to dark theme for better viewing in low light conditions.
+Tap to switch to Dark Mode for better viewing in low light conditions.
+
+Cycle: Light → Dark → System
 ''';
       case ThemeMode.dark:
         return '''
 **Theme Toggle**
 
-☀️ Switch to **Light Mode**
+🌙 **Dark Mode** (Current)
 
-Tap to switch to light theme for better viewing in bright conditions.
+Tap to switch to System Mode to follow your device settings.
+
+Cycle: Light → Dark → System
 ''';
       case ThemeMode.system:
         return '''
 **Theme Toggle**
 
-🎨 **Toggle Theme**
+🖥️ **System Mode** (Current)
 
-Tap to toggle between light and dark themes. Currently following system settings.
+Following your device settings. Tap to switch to Light Mode.
+
+Cycle: Light → Dark → System
 ''';
     }
   }
@@ -140,11 +150,11 @@ Tap to toggle between light and dark themes. Currently following system settings
   String get currentOverflowLabel {
     switch (currentThemeMode) {
       case ThemeMode.light:
-        return 'Dark Mode';
+        return 'Light Mode ☀️';
       case ThemeMode.dark:
-        return 'Light Mode';
+        return 'Dark Mode 🌙';
       case ThemeMode.system:
-        return label;
+        return 'System Mode 🖥️';
     }
   }
 }
