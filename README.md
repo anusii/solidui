@@ -84,11 +84,13 @@ class MyApp extends StatelessWidget {
           SolidMenuItem(
             title: 'Home',
             icon: Icons.home,
+            child: HomeScreen(),
             tooltip: 'Navigate to home screen',
           ),
           SolidMenuItem(
             title: 'Settings',
             icon: Icons.settings,
+            child: SettingsScreen(),
             tooltip: 'Configure application settings',
           ),
         ],
@@ -140,6 +142,100 @@ For more information, visit our [website](https://example.com).
           child: Text('Welcome to your Solid application'),
         ),
       ),
+    );
+  }
+}
+```
+
+### Menu Item Child Widgets
+
+The `child` parameter in `SolidMenuItem` allows you to directly specify the widget to display when that menu item is selected. This simplifies development by keeping menu configuration and content together:
+
+```dart
+SolidScaffold(
+  menu: [
+    SolidMenuItem(
+      title: 'Home',
+      icon: Icons.home,
+      child: HomeScreen(), // Direct widget reference
+      tooltip: 'Navigate to home screen',
+    ),
+    SolidMenuItem(
+      title: 'Profile',
+      icon: Icons.person,
+      child: ProfileScreen(userId: currentUserId), // Parameterised widgets
+      tooltip: 'View your profile',
+    ),
+    SolidMenuItem(
+      title: 'Settings',
+      icon: Icons.settings,
+      child: SettingsScreen(
+        onSave: () => print('Settings saved'),
+        theme: currentTheme,
+      ), // Complex widget configuration
+      tooltip: 'Configure application settings',
+    ),
+  ],
+  // No need to manually manage selectedIndex or onMenuSelected
+  // The scaffold automatically handles navigation
+)
+```
+
+**Benefits of the child parameter:**
+
+- **Simplified Configuration**: Each menu item contains its own content widget
+- **Better Organisation**: Menu structure and content are defined together
+- **Reduced Boilerplate**: No need to manually manage selectedIndex or content arrays
+- **Type Safety**: Direct widget references prevent runtime errors
+- **Parameter Passing**: Easy to pass specific parameters to each screen
+
+**Migration from Legacy Approach:**
+
+```dart
+// Old approach (still supported for compatibility)
+class MyPage extends StatefulWidget {
+  @override
+  _MyPageState createState() => _MyPageState();
+}
+
+class _MyPageState extends State<MyPage> {
+  int selectedIndex = 0;
+  List<Widget> screens = [HomeScreen(), ProfileScreen(), SettingsScreen()];
+  
+  @override
+  Widget build(BuildContext context) {
+    return SolidScaffold(
+      selectedIndex: selectedIndex,
+      onMenuSelected: (index) => setState(() => selectedIndex = index),
+      child: screens[selectedIndex],
+      // ... menu items without child parameter
+    );
+  }
+}
+
+// New simplified approach
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SolidScaffold(
+      menu: [
+        SolidMenuItem(
+          title: 'Home',
+          icon: Icons.home,
+          child: HomeScreen(), // Content defined here
+        ),
+        SolidMenuItem(
+          title: 'Profile', 
+          icon: Icons.person,
+          child: ProfileScreen(), // Content defined here
+        ),
+        SolidMenuItem(
+          title: 'Settings',
+          icon: Icons.settings,
+          child: SettingsScreen(), // Content defined here
+        ),
+      ],
+      // Navigation handled automatically
     );
   }
 }
@@ -557,29 +653,22 @@ class _MyAppState extends State<MyApp> {
           SolidMenuItem(
             title: 'Home',
             icon: Icons.home,
+            child: HomeDashboard(),
             tooltip: 'Home page',
           ),
           SolidMenuItem(
             title: 'Settings',
             icon: Icons.settings,
+            child: AppSettings(),
             tooltip: 'Settings',
           ),
           SolidMenuItem(
             title: 'Profile',
             icon: Icons.person,
+            child: UserProfile(),
             tooltip: 'User profile',
           ),
         ],
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -591,8 +680,16 @@ class _MyAppState extends State<MyApp> {
 ```dart
 SolidScaffold(
   menu: [
-    SolidMenuItem(title: 'Home', icon: Icons.home),
-    SolidMenuItem(title: 'Settings', icon: Icons.settings),
+    SolidMenuItem(
+      title: 'Home', 
+      icon: Icons.home,
+      child: HomeScreen(),
+    ),
+    SolidMenuItem(
+      title: 'Settings', 
+      icon: Icons.settings,
+      child: SettingsScreen(),
+    ),
   ],
   appBar: SolidAppBarConfig(
     title: 'My Application',
@@ -629,7 +726,11 @@ SolidScaffold(
 ```dart
 SolidScaffold(
   menu: [
-    SolidMenuItem(title: 'Home', icon: Icons.home),
+    SolidMenuItem(
+      title: 'Home', 
+      icon: Icons.home,
+      child: HomeScreen(),
+    ),
   ],
   statusBar: SolidStatusBarConfig(
     serverInfo: SolidServerInfo(
@@ -666,6 +767,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
         SolidMenuItem(
           title: 'Dashboard',
           icon: Icons.dashboard,
+          child: DashboardScreen(),
           tooltip: 'Dashboard',
           onTap: (context) {
             print('Switch to dashboard');
@@ -674,17 +776,20 @@ class _FullExampleAppState extends State<FullExampleApp> {
         SolidMenuItem(
           title: 'Projects',
           icon: Icons.work,
+          child: ProjectsScreen(),
           tooltip: 'Project management',
           color: Colors.blue,
         ),
         SolidMenuItem(
           title: 'Team',
           icon: Icons.people,
+          child: TeamScreen(),
           tooltip: 'Team management',
         ),
         SolidMenuItem(
           title: 'About',
           icon: Icons.info,
+          child: AboutScreen(),
           tooltip: 'About us',
           message: 'This is a sample application built using SolidScaffold',
           dialogTitle: 'About',
@@ -967,7 +1072,7 @@ For support and documentation, visit [our website](https://example.com).
 - `title`: Menu title (required)
 - `icon`: Menu icon (required)
 - `color`: Icon colour (optional)
-- `content`: Content component (optional)
+- `child`: Child widget displayed when menu item is selected (optional)
 - `tooltip`: Tooltip (optional)
 - `message`: Message dialogue content (optional)
 - `dialogTitle`: Dialogue title (optional)
