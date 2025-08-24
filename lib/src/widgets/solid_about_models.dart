@@ -54,12 +54,18 @@ class SolidAboutConfig {
 
   final String? applicationLegalese;
 
+  /// Main text content for the About dialogue (supports Markdown).
+  /// If provided, this will be rendered as MarkdownBody with word wrapping.
+
+  final String? text;
+
   /// Custom About dialogue content. If provided, this replaces the default
   /// dialogue.
 
   final Widget? customContent;
 
   /// Additional children widgets to be shown in the About dialogue.
+  /// Note: If 'text' is provided, it takes precedence over 'children'.
 
   final List<Widget>? children;
 
@@ -91,6 +97,7 @@ class SolidAboutConfig {
     this.applicationVersion,
     this.applicationIcon,
     this.applicationLegalese,
+    this.text,
     this.customContent,
     this.children,
     this.showOnNarrowScreen = true,
@@ -114,7 +121,8 @@ class SolidAboutConfig {
 
 ℹ️ View application information
 
-Tap to view details about this application including version, copyright, and licensing information.
+Tap to view details about this application including version, copyright, and
+licensing information.
 ''';
   }
 

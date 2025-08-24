@@ -27,9 +27,13 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 
 /// A button that shows an About dialogue when pressed.
@@ -143,7 +147,6 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
       child: iconButton,
     );
   }
-
 }
 
 /// A static helper for showing About dialogues programmatically.
@@ -220,13 +223,13 @@ class SolidAbout {
   /// Shows a default About dialogue with minimal configuration.
 
   static void showDefault(
-      BuildContext context, {
-        String? applicationName,
-        String? applicationVersion,
-        Widget? applicationIcon,
-        String? applicationLegalese,
-        List<Widget>? children,
-      }) {
+    BuildContext context, {
+    String? applicationName,
+    String? applicationVersion,
+    Widget? applicationIcon,
+    String? applicationLegalese,
+    List<Widget>? children,
+  }) {
     final config = SolidAboutConfig(
       applicationName: applicationName,
       applicationVersion: applicationVersion,
@@ -246,6 +249,78 @@ class SolidAbout {
     required String applicationVersion,
     required SolidAboutConfig config,
   }) {
+    // Build children based on provided configuration.
+
+    List<Widget> children = [];
+
+    // If text is provided, use it with MarkdownBody.
+
+    if (config.text != null && config.text!.isNotEmpty) {
+      children.add(const Gap(AboutConstants.contentVerticalSpacing));
+
+      // Get the same text style as applicationLegalese.
+
+      final textTheme = Theme.of(context).textTheme;
+      final bodySmallStyle = textTheme.bodySmall;
+
+      // Create MarkdownStyleSheet to match legalese formatting.
+
+      final markdownStyleSheet = MarkdownStyleSheet(
+        p: bodySmallStyle,
+        h1: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h2: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h3: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h4: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h5: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        h6: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        strong: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
+        em: bodySmallStyle?.copyWith(fontStyle: FontStyle.italic),
+        listBullet: bodySmallStyle,
+        blockSpacing: AboutConstants.markdownBlockSpacing, // Consistent spacing
+      );
+
+      // Calculate left padding based on icon size + iconTextSpacing.
+
+      double leftPadding = AboutConstants.iconTextSpacing; // Default padding
+      if (config.applicationIcon != null) {
+        // Try to extract size from Icon widget.
+
+        if (config.applicationIcon is Icon) {
+          final icon = config.applicationIcon as Icon;
+          leftPadding = (icon.size ?? AboutConstants.defaultIconSize) +
+              AboutConstants.iconTextSpacing;
+        } else {
+          // For other widgets, assume default icon size + iconTextSpacing.
+
+          leftPadding =
+              AboutConstants.defaultIconSize + AboutConstants.iconTextSpacing;
+        }
+      }
+
+      children.add(
+        Padding(
+          padding: EdgeInsets.only(
+              left: leftPadding, right: AboutConstants.textRightPadding),
+          child: MarkdownBody(
+            data: wordWrap(config.text!),
+            styleSheet: markdownStyleSheet,
+            selectable: true,
+            softLineBreak: true,
+            onTapLink: (text, href, about) {
+              if (href != null) {
+                final Uri url = Uri.parse(href);
+                launchUrl(url);
+              }
+            },
+          ),
+        ),
+      );
+    } else {
+      // Fall back to children if text is not provided.
+
+      children.addAll(config.children ?? []);
+    }
+
     showAboutDialog(
       context: context,
       applicationName: applicationName,
@@ -253,7 +328,7 @@ class SolidAbout {
       applicationIcon: config.applicationIcon,
       applicationLegalese: wordWrap(config.applicationLegalese ??
           '© ${DateTime.now().year} $applicationName\n\n'),
-      children: config.children ?? [],
+      children: children,
     );
   }
 }

@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  gap: ^3.0.1
   solidui:
     path: ../
   window_manager: ^0.4.3

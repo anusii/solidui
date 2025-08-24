@@ -30,7 +30,6 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
-import 'package:gap/gap.dart';
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -277,22 +276,30 @@ class _HomePageState extends State<HomePage> {
           size: 64,
           color: Colors.blue,
         ),
-        children: [
-          Gap(16),
-          Text(
-            'This example demonstrates key SolidUI features:',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 12),
-          Text('🧭 Responsive navigation (rail ↔ drawer)'),
-          Text('🎨 Theme switching (light/dark/system)'),
-          Text('ℹ️ Customisable About dialogues'),
-          Text('📋 Version information display'),
-          Text('🔐 Security key management'),
-          Text('📊 Status bar integration'),
-          Text('👤 User information display'),
-          SizedBox(height: 16),
-        ],
+        applicationLegalese: '''
+        © 2025 Software Innovation Institute, ANU
+        ''',
+        text: '''
+
+This example demonstrates key SolidUI features:
+
+🧭 **Responsive navigation** (rail ↔ drawer)
+
+🎨 **Theme switching** (light/dark/system)
+
+ℹ️ **Customisable About dialogues**
+
+📋 **Version information display**
+
+🔐 **Security key management**
+
+📊 **Status bar integration**
+
+👤 **User information display**
+
+For more information, visit the [SolidUI GitHub repository](https://github.com/anusii/solidui).
+
+''',
       ),
       child: _buildPageContent(),
     );

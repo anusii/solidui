@@ -119,14 +119,22 @@ class MyApp extends StatelessWidget {
         aboutConfig: SolidAboutConfig(
           applicationName: 'My Solid App',
           applicationIcon: Icon(Icons.apps, size: 64),
-          children: [
-            Text('A sample Solid application built with SolidUI'),
-            SizedBox(height: 16),
-            Text('Features:'),
-            Text('• Responsive navigation'),
-            Text('• Theme switching'),
-            Text('• Solid POD integration'),
-          ],
+          applicationLegalese: '''© 2025 My Company''',
+          text: '''
+
+A sample Solid application built with SolidUI.
+
+**Features:**
+
+• Responsive navigation
+
+• Theme switching
+
+• Solid POD integration
+
+For more information, visit our [website](https://example.com).
+
+''',
         ),
         child: Center(
           child: Text('Welcome to your Solid application'),
@@ -414,14 +422,22 @@ SolidScaffold(
     applicationName: 'My Custom App',
     applicationVersion: '2.0.0',
     applicationIcon: Icon(Icons.star, size: 64, color: Colors.blue),
-    children: [
-      Text('A powerful application for managing your workflow'),
-      SizedBox(height: 16),
-      Text('Features:', style: TextStyle(fontWeight: FontWeight.bold)),
-      Text('• Feature 1'),
-      Text('• Feature 2'),
-      Text('• Feature 3'),
-    ],
+    applicationLegalese: '''© 2025 Custom Company''',
+    text: '''
+
+A powerful application for managing your workflow.
+
+**Features:**
+
+• Feature 1
+
+• Feature 2
+
+• Feature 3
+
+Visit our [support page](https://example.com/support) for help.
+
+''',
   ),
   child: content,
 )
@@ -434,31 +450,22 @@ SolidScaffold(
   aboutConfig: SolidAboutConfig(
     applicationName: 'Enterprise App',
     applicationIcon: Image.asset('assets/app_icon.png', width: 64, height: 64),
-    applicationLegalese: '''© 2025 My Company Ltd.
-    
+    applicationLegalese: '''© 2025 My Company Ltd.''',
+    text: '''
+
+Enterprise-grade application for business workflows.
+
+**Licensing:**
 Licensed under MIT License.
 
 This software includes third-party libraries.
 See NOTICE file for attribution details.
 
-Visit https://mycompany.com for support.''',
-    children: [
-      Text('Enterprise-grade application for business workflows'),
-      SizedBox(height: 16),
-      Divider(),
-      ListTile(
-        leading: Icon(Icons.web),
-        title: Text('Website'),
-        subtitle: Text('https://mycompany.com'),
-        onTap: () => launchUrl(Uri.parse('https://mycompany.com')),
-      ),
-      ListTile(
-        leading: Icon(Icons.email),
-        title: Text('Support'),
-        subtitle: Text('support@mycompany.com'),
-        onTap: () => launchUrl(Uri.parse('mailto:support@mycompany.com')),
-      ),
-    ],
+**Support:**
+
+Visit [our website](https://mycompany.com) for support and documentation.
+
+''',
     showOnVeryNarrowScreen: true, // Show even on very narrow screens
     tooltip: 'Learn more about this application',
   ),
@@ -498,16 +505,21 @@ SolidScaffold(
 You can also show About dialogues programmatically:
 
 ```dart
-// Show with custom configuration
+// Show with custom configuration using text parameter
 SolidAbout.show(context, SolidAboutConfig(
   applicationName: 'My App',
-  children: [Text('Custom about content')],
+  applicationLegalese: '© 2025 My Company',
+  text: '''
+Custom about content with **Markdown** support.
+
+Visit our [website](https://example.com) for more information.
+''',
 ));
 
 // Show with minimal configuration
 SolidAbout.showDefault(context,
   applicationName: 'Quick App',
-  children: [Text('Simple about dialogue')],
+  applicationLegalese: '© 2025 Quick Company',
 );
 ```
 
@@ -764,40 +776,32 @@ Switch between light and dark modes for optimal viewing experience.
       aboutConfig: SolidAboutConfig(
         applicationName: 'Project Management System',
         applicationIcon: Icon(Icons.work, size: 64, color: Colors.blue),
-        applicationLegalese: '''© 2025 Example Company
+        applicationLegalese: '''© 2025 Example Company''',
+        text: '''
 
 A comprehensive project management solution built with Flutter and SolidUI.
 
+Manage your projects efficiently with our comprehensive project management system.
+
+**Key Features:**
+
+• Project tracking and task management
+
+• Team collaboration tools
+
+• Gantt charts and timeline views
+
+• Real-time progress monitoring
+
+• Solid POD integration for secure data storage
+
+**Licensing:**
 Licensed under MIT License.
 
-For support and documentation, visit our website.''',
-        children: [
-          Text(
-            'Manage your projects efficiently with our comprehensive project management system.',
-            style: TextStyle(fontSize: 14),
-          ),
-          SizedBox(height: 16),
-          Text('Key Features:', style: TextStyle(fontWeight: FontWeight.bold)),
-          Text('• Project tracking and management'),
-          Text('• Team collaboration tools'),
-          Text('• Real-time notifications'),
-          Text('• Responsive design for all devices'),
-          Text('• Secure data storage'),
-          SizedBox(height: 16),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.web),
-            title: Text('Documentation'),
-            subtitle: Text('Visit our online documentation'),
-            dense: true,
-          ),
-          ListTile(
-            leading: Icon(Icons.support),
-            title: Text('Support'),
-            subtitle: Text('Get help from our support team'),
-            dense: true,
-          ),
-        ],
+**Support:**
+For support and documentation, visit [our website](https://example.com).
+
+''',
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewItem,
@@ -991,8 +995,9 @@ For support and documentation, visit our website.''',
 - `applicationVersion`: Application version displayed in dialogue (auto-detected if not provided)
 - `applicationIcon`: Application icon displayed in dialogue (optional)
 - `applicationLegalese`: Application legal notice/copyright information (optional)
+- `text`: Main text content for the About dialogue (supports Markdown, with automatic word wrapping) (optional)
 - `customContent`: Custom dialogue content widget (replaces default dialogue if provided)
-- `children`: Additional widgets to show in the About dialogue (optional)
+- `children`: Additional widgets to show in the About dialogue (optional, ignored if `text` is provided)
 - `showOnNarrowScreen`: Show About button on narrow screens (default true)
 - `showOnVeryNarrowScreen`: Show About button on very narrow screens (default false)
 - `priority`: Priority for ordering in AppBar actions (default 999)
