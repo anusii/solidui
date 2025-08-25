@@ -114,6 +114,20 @@ class SolidThemeToggleConfig {
   String getCurrentTooltip(ThemeMode themeMode) {
     if (tooltip != null) return tooltip!;
 
+    if (usesInternalManagement) {
+      return '''
+**Theme Toggle**
+
+Switch between system, light and dark modes for optimal viewing experience.
+
+🌙 **Dark Mode**: Better for low-light environments
+
+☀️ **Light Mode**: Better for bright environments
+
+🖥️ **System Mode**: Follows your device settings
+''';
+    }
+
     switch (themeMode) {
       case ThemeMode.light:
         return '''
@@ -161,35 +175,9 @@ Cycle: Light → Dark → System
     }
   }
 
-  /// A simple configuration that handles theme management internally.
-
-  const SolidThemeToggleConfig.managed({
-    this.enabled = true,
-    this.lightModeIcon,
-    this.darkModeIcon,
-    this.systemModeIcon,
-    this.showInAppBarActions = true,
-    String? tooltip,
-    this.label = 'Toggle Theme',
-    this.priority = 1,
-    this.showOnNarrowScreen = true,
-    this.showOnVeryNarrowScreen = true,
-  })  : onToggleTheme = null,
-        currentThemeMode = null,
-        tooltip = tooltip ??
-            '''
-**Theme Toggle**
-
-Switch between system, light and dark modes for optimal viewing experience.
-
-🌙 **Dark Mode**: Better for low-light environments
-
-☀️ **Light Mode**: Better for bright environments
-
-🖥️ **System Mode**: Follows your device settings
-''';
-
   /// Whether this config uses internal theme management.
+  /// When both onToggleTheme and currentThemeMode are null, SolidScaffold
+  /// will automatically manage theme state using SolidThemeNotifier.
 
   bool get usesInternalManagement =>
       onToggleTheme == null && currentThemeMode == null;

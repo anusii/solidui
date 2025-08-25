@@ -26,17 +26,18 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SolidThemeNotifier extends ChangeNotifier {
   static const String _themeModeKey = 'solid_theme_mode';
-  
+
   ThemeMode _themeMode = ThemeMode.system;
   SharedPreferences? _prefs;
   bool _isInitialized = false;
 
   /// Creates a new SolidThemeNotifier.
-  /// 
+  ///
   /// Call [initialize] to load the saved theme mode.
 
   SolidThemeNotifier();
@@ -50,12 +51,12 @@ class SolidThemeNotifier extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
 
   /// Initialises the notifier by loading the saved theme mode.
-  /// 
+  ///
   /// This should be called once during app initialisation.
 
   Future<void> initialize() async {
     if (_isInitialized) return;
-    
+
     try {
       _prefs = await SharedPreferences.getInstance();
       await _loadThemeMode();
@@ -70,7 +71,7 @@ class SolidThemeNotifier extends ChangeNotifier {
 
   Future<void> _loadThemeMode() async {
     if (_prefs == null) return;
-    
+
     final String? themeModeString = _prefs!.getString(_themeModeKey);
     if (themeModeString != null) {
       switch (themeModeString) {
@@ -91,7 +92,7 @@ class SolidThemeNotifier extends ChangeNotifier {
 
   Future<void> _saveThemeMode() async {
     if (_prefs == null) return;
-    
+
     String themeModeString;
     switch (_themeMode) {
       case ThemeMode.light:
@@ -104,7 +105,7 @@ class SolidThemeNotifier extends ChangeNotifier {
         themeModeString = 'system';
         break;
     }
-    
+
     await _prefs!.setString(_themeModeKey, themeModeString);
   }
 
@@ -112,7 +113,7 @@ class SolidThemeNotifier extends ChangeNotifier {
 
   Future<void> setThemeMode(ThemeMode themeMode) async {
     if (_themeMode == themeMode) return;
-    
+
     _themeMode = themeMode;
     notifyListeners();
     await _saveThemeMode();

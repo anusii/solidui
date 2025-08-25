@@ -198,7 +198,7 @@ class _HomePageState extends State<HomePage> {
       ),
       userInfo: userInfo,
       onLogout: _webId != null ? (context) => _logout() : null,
-      themeToggle: const SolidThemeToggleConfig.managed(
+      themeToggle: const SolidThemeToggleConfig(
         enabled: true,
         showInAppBarActions: true,
         showOnVeryNarrowScreen: false,

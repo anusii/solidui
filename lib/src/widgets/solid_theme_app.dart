@@ -26,6 +26,7 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 class SolidThemeApp extends StatefulWidget {

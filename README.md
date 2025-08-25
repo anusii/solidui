@@ -111,7 +111,7 @@ class MyApp extends StatelessWidget {
           securityKeyStatus: SolidSecurityKeyStatus(),
         ),
         versionConfig: SolidVersionConfig(),
-        themeToggle: const SolidThemeToggleConfig.managed(
+        themeToggle: const SolidThemeToggleConfig(
           enabled: true,
         ),
         aboutConfig: SolidAboutConfig(
@@ -835,7 +835,7 @@ class _FullExampleAppState extends State<FullExampleApp> {
       ),
       onLogout: _webId != null ? _logout : null,
       onShowAlert: _showAlert,
-      themeToggle: const SolidThemeToggleConfig.managed(
+      themeToggle: const SolidThemeToggleConfig(
         enabled: true,
         showInAppBarActions: true,
         showOnVeryNarrowScreen: false,
@@ -1052,26 +1052,26 @@ For support and documentation, visit [our website](https://example.com).
 
 ### SolidThemeToggleConfig Parameters
 
+When both `onToggleTheme` and `currentThemeMode` are null (default), SolidUI
+automatically manages theme state using `SolidThemeNotifier`:
+
 - `enabled`: Whether theme toggle is enabled (default true)
 - `showInAppBarActions`: Show in AppBar actions vs overflow menu (default true)
 - `lightModeIcon`: Custom light mode icon (optional, defaults to Icons.light_mode)
 - `darkModeIcon`: Custom dark mode icon (optional, defaults to Icons.dark_mode)
 - `systemModeIcon`: Custom system mode icon (optional, defaults to Icons.computer)
-- `tooltip`: Custom tooltip text (optional, auto-generated with mode cycle info)
+- `tooltip`: Custom tooltip text (optional, auto-generated)
 - `label`: Label for overflow menu (default 'Toggle Theme')
 - `showOnNarrowScreen`: Show on narrow screens (default true)
 - `showOnVeryNarrowScreen`: Show on very narrow screens (default true)
 
-#### Manual State Management
+#### External State Management
 
-Use the default constructor for external theme state management:
+For custom theme state management, provide both parameters:
 
-- `enabled`: Whether theme toggle is enabled (default true)
 - `currentThemeMode`: Current theme mode for state indication (required for external management)
 - `onToggleTheme`: Theme toggle callback (required for external management)
-- All parameters from simplified usage above
-- `showOnNarrowScreen`: Show on narrow screens (default true)
-- `showOnVeryNarrowScreen`: Show on very narrow screens (default true)
+- All parameters from automatic management above
 
 ### SolidAboutConfig Parameters
 
