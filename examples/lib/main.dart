@@ -67,30 +67,9 @@ class SimpleExampleApp extends StatefulWidget {
 }
 
 class _SimpleExampleAppState extends State<SimpleExampleApp> {
-  ThemeMode _themeMode = ThemeMode.system;
-
-  void _toggleTheme() {
-    setState(() {
-      switch (_themeMode) {
-        case ThemeMode.system:
-          _themeMode = ThemeMode.light;
-          break;
-        case ThemeMode.light:
-          _themeMode = ThemeMode.dark;
-          break;
-        case ThemeMode.dark:
-          _themeMode = ThemeMode.system;
-          break;
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      // Turn off debug banner for now.
-
-      debugShowCheckedModeBanner: false,
+    return SolidThemeApp(
       title: 'SolidUI Simple Example',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -103,11 +82,7 @@ class _SimpleExampleAppState extends State<SimpleExampleApp> {
         ),
         useMaterial3: true,
       ),
-      themeMode: _themeMode,
-      home: HomePage(
-        currentThemeMode: _themeMode,
-        onToggleTheme: _toggleTheme,
-      ),
+      home: const HomePage(),
     );
   }
 }
@@ -115,14 +90,7 @@ class _SimpleExampleAppState extends State<SimpleExampleApp> {
 /// Main home page demonstrating SolidScaffold with theme and About features.
 
 class HomePage extends StatefulWidget {
-  const HomePage({
-    super.key,
-    required this.currentThemeMode,
-    required this.onToggleTheme,
-  });
-
-  final ThemeMode currentThemeMode;
-  final VoidCallback onToggleTheme;
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -230,10 +198,8 @@ class _HomePageState extends State<HomePage> {
       ),
       userInfo: userInfo,
       onLogout: _webId != null ? (context) => _logout() : null,
-      themeToggle: SolidThemeToggleConfig(
+      themeToggle: const SolidThemeToggleConfig.managed(
         enabled: true,
-        currentThemeMode: widget.currentThemeMode,
-        onToggleTheme: widget.onToggleTheme,
         showInAppBarActions: true,
         showOnVeryNarrowScreen: false,
       ),
@@ -299,9 +265,7 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
                   '• Custom About dialogue (ℹ️ button)\n'
                   '• Version information display\n'
                   '• Status bar integration\n'
-                  '• Security key management\n\n'
-                  'Try clicking the theme toggle button in the top-right!\n'
-                  'Current theme: ${_getThemeModeText()}',
+                  '• Security key management\n',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
@@ -448,18 +412,5 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
         duration: const Duration(seconds: 2),
       ),
     );
-  }
-
-  /// Get theme mode text for display.
-
-  String _getThemeModeText() {
-    switch (widget.currentThemeMode) {
-      case ThemeMode.light:
-        return 'Light Mode ☀️';
-      case ThemeMode.dark:
-        return 'Dark Mode 🌙';
-      case ThemeMode.system:
-        return 'System Mode 🖥️';
-    }
   }
 }

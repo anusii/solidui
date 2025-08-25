@@ -111,12 +111,8 @@ class MyApp extends StatelessWidget {
           securityKeyStatus: SolidSecurityKeyStatus(),
         ),
         versionConfig: SolidVersionConfig(),
-        themeToggle: SolidThemeToggleConfig(
+        themeToggle: const SolidThemeToggleConfig.managed(
           enabled: true,
-          currentThemeMode: ThemeMode.system,
-          onToggleTheme: () {
-            print('Theme toggled');
-          },
         ),
         aboutConfig: SolidAboutConfig(
           applicationName: 'My Solid App',
@@ -192,28 +188,6 @@ SolidScaffold(
 **Migration from Legacy Approach:**
 
 ```dart
-// Old approach (still supported for compatibility)
-class MyPage extends StatefulWidget {
-  @override
-  _MyPageState createState() => _MyPageState();
-}
-
-class _MyPageState extends State<MyPage> {
-  int selectedIndex = 0;
-  List<Widget> screens = [HomeScreen(), ProfileScreen(), SettingsScreen()];
-  
-  @override
-  Widget build(BuildContext context) {
-    return SolidScaffold(
-      selectedIndex: selectedIndex,
-      onMenuSelected: (index) => setState(() => selectedIndex = index),
-      child: screens[selectedIndex],
-      // ... menu items without child parameter
-    );
-  }
-}
-
-// New simplified approach
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -861,10 +835,8 @@ class _FullExampleAppState extends State<FullExampleApp> {
       ),
       onLogout: _webId != null ? _logout : null,
       onShowAlert: _showAlert,
-      themeToggle: SolidThemeToggleConfig(
+      themeToggle: const SolidThemeToggleConfig.managed(
         enabled: true,
-        currentThemeMode: _currentThemeMode,
-        onToggleTheme: _toggleTheme,
         showInAppBarActions: true,
         showOnVeryNarrowScreen: false,
         tooltip: '''
@@ -1081,14 +1053,23 @@ For support and documentation, visit [our website](https://example.com).
 ### SolidThemeToggleConfig Parameters
 
 - `enabled`: Whether theme toggle is enabled (default true)
-- `currentThemeMode`: Current theme mode for state indication (required)
-- `onToggleTheme`: Theme toggle callback (optional)
 - `showInAppBarActions`: Show in AppBar actions vs overflow menu (default true)
 - `lightModeIcon`: Custom light mode icon (optional, defaults to Icons.light_mode)
 - `darkModeIcon`: Custom dark mode icon (optional, defaults to Icons.dark_mode)
 - `systemModeIcon`: Custom system mode icon (optional, defaults to Icons.computer)
 - `tooltip`: Custom tooltip text (optional, auto-generated with mode cycle info)
 - `label`: Label for overflow menu (default 'Toggle Theme')
+- `showOnNarrowScreen`: Show on narrow screens (default true)
+- `showOnVeryNarrowScreen`: Show on very narrow screens (default true)
+
+#### Manual State Management
+
+Use the default constructor for external theme state management:
+
+- `enabled`: Whether theme toggle is enabled (default true)
+- `currentThemeMode`: Current theme mode for state indication (required for external management)
+- `onToggleTheme`: Theme toggle callback (required for external management)
+- All parameters from simplified usage above
 - `showOnNarrowScreen`: Show on narrow screens (default true)
 - `showOnVeryNarrowScreen`: Show on very narrow screens (default true)
 

@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.3.3
   solidui:
     path: ../
   window_manager: ^0.4.3

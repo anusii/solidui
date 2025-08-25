@@ -47,12 +47,15 @@ class SolidThemeToggleConfig {
   final IconData? systemModeIcon;
 
   /// Callback when theme is toggled. Should handle the theme change logic.
+  /// If null, SolidScaffold will manage theme state internally.
 
   final VoidCallback? onToggleTheme;
 
   /// Current theme mode to determine which icon to show.
+  /// Only used for external state management. If null, internal state will be
+  /// used.
 
-  final ThemeMode currentThemeMode;
+  final ThemeMode? currentThemeMode;
 
   /// Whether to show as icon button in AppBar actions or in overflow menu.
 
@@ -84,7 +87,7 @@ class SolidThemeToggleConfig {
     this.darkModeIcon,
     this.systemModeIcon,
     this.onToggleTheme,
-    this.currentThemeMode = ThemeMode.system,
+    this.currentThemeMode,
     this.showInAppBarActions = true,
     this.tooltip,
     this.label = 'Toggle Theme',
@@ -95,8 +98,8 @@ class SolidThemeToggleConfig {
 
   /// Returns the appropriate icon based on current theme mode.
 
-  IconData get currentIcon {
-    switch (currentThemeMode) {
+  IconData getCurrentIcon(ThemeMode themeMode) {
+    switch (themeMode) {
       case ThemeMode.light:
         return lightModeIcon ?? Icons.light_mode;
       case ThemeMode.dark:
@@ -108,10 +111,10 @@ class SolidThemeToggleConfig {
 
   /// Returns tooltip text based on current theme mode.
 
-  String get currentTooltip {
+  String getCurrentTooltip(ThemeMode themeMode) {
     if (tooltip != null) return tooltip!;
 
-    switch (currentThemeMode) {
+    switch (themeMode) {
       case ThemeMode.light:
         return '''
 **Theme Toggle**
@@ -147,8 +150,8 @@ Cycle: Light → Dark → System
 
   /// Returns overflow menu label based on current theme mode.
 
-  String get currentOverflowLabel {
-    switch (currentThemeMode) {
+  String getCurrentOverflowLabel(ThemeMode themeMode) {
+    switch (themeMode) {
       case ThemeMode.light:
         return 'Light Mode ☀️';
       case ThemeMode.dark:
@@ -157,4 +160,37 @@ Cycle: Light → Dark → System
         return 'System Mode 🖥️';
     }
   }
+
+  /// A simple configuration that handles theme management internally.
+
+  const SolidThemeToggleConfig.managed({
+    this.enabled = true,
+    this.lightModeIcon,
+    this.darkModeIcon,
+    this.systemModeIcon,
+    this.showInAppBarActions = true,
+    String? tooltip,
+    this.label = 'Toggle Theme',
+    this.priority = 1,
+    this.showOnNarrowScreen = true,
+    this.showOnVeryNarrowScreen = true,
+  })  : onToggleTheme = null,
+        currentThemeMode = null,
+        tooltip = tooltip ??
+            '''
+**Theme Toggle**
+
+Switch between system, light and dark modes for optimal viewing experience.
+
+🌙 **Dark Mode**: Better for low-light environments
+
+☀️ **Light Mode**: Better for bright environments
+
+🖥️ **System Mode**: Follows your device settings
+''';
+
+  /// Whether this config uses internal theme management.
+
+  bool get usesInternalManagement =>
+      onToggleTheme == null && currentThemeMode == null;
 }

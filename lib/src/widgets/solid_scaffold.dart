@@ -44,6 +44,7 @@ import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
+import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// Simplified unified scaffold component that automatically handles responsive
 /// layout switching.
@@ -274,11 +275,39 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     if (_hasVersionConfig()) {
       _initializeVersionLoading();
     }
+
+    // Initialise theme notifier if using internal management.
+
+    if (widget.themeToggle?.usesInternalManagement == true) {
+      _initializeThemeNotifier();
+    }
+  }
+
+  /// Initialises the theme notifier for internal theme management.
+
+  void _initializeThemeNotifier() {
+    if (!solidThemeNotifier.isInitialized) {
+      solidThemeNotifier.initialize();
+    }
+    solidThemeNotifier.addListener(_onThemeChanged);
+  }
+
+  /// Handles theme changes from the notifier.
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {
+        // Trigger rebuild when theme changes.
+      });
+    }
   }
 
   @override
   void dispose() {
     _securityKeyService?.removeListener(_onSecurityKeyChanged);
+    if (widget.themeToggle?.usesInternalManagement == true) {
+      solidThemeNotifier.removeListener(_onThemeChanged);
+    }
     super.dispose();
   }
 
@@ -505,6 +534,26 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         .toList();
   }
 
+  /// Gets the current theme mode (internal or external).
+
+  ThemeMode _getCurrentThemeMode() {
+    if (widget.themeToggle?.usesInternalManagement == true) {
+      return solidThemeNotifier.themeMode;
+    }
+    return widget.themeToggle?.currentThemeMode ?? ThemeMode.system;
+  }
+
+  /// Gets the theme toggle callback (internal or external).
+
+  VoidCallback? _getThemeToggleCallback() {
+    if (widget.themeToggle?.usesInternalManagement == true) {
+      return () async {
+        await solidThemeNotifier.toggleTheme();
+      };
+    }
+    return widget.themeToggle?.onToggleTheme;
+  }
+
   /// Builds the AppBar.
 
   PreferredSizeWidget? _buildAppBar(BuildContext context) {
@@ -595,6 +644,8 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     if (widget.themeToggle != null && widget.themeToggle!.enabled) {
       final themeConfig = widget.themeToggle!;
+      final currentThemeMode = _getCurrentThemeMode();
+      final themeToggleCallback = _getThemeToggleCallback();
 
       // Determine whether to show theme toggle based on screen width.
 
@@ -611,14 +662,14 @@ class _SolidScaffoldState extends State<SolidScaffold> {
           themeConfig.showInAppBarActions &&
           screenWidth >= config.veryNarrowScreenThreshold) {
         Widget themeButton = IconButton(
-          icon: Icon(themeConfig.currentIcon),
-          onPressed: themeConfig.onToggleTheme,
+          icon: Icon(themeConfig.getCurrentIcon(currentThemeMode)),
+          onPressed: themeToggleCallback,
         );
 
         // Wrap with MarkdownTooltip.
 
         themeButton = MarkdownTooltip(
-          message: themeConfig.currentTooltip,
+          message: themeConfig.getCurrentTooltip(currentThemeMode),
           child: themeButton,
         );
 
@@ -666,14 +717,15 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
       if (hasThemeToggleInOverflow) {
         final themeConfig = widget.themeToggle!;
+        final currentThemeMode = _getCurrentThemeMode();
         overflowMenuItems.add(
           PopupMenuItem<String>(
             value: 'theme_toggle',
             child: Row(
               children: [
-                Icon(themeConfig.currentIcon),
+                Icon(themeConfig.getCurrentIcon(currentThemeMode)),
                 const SizedBox(width: 8),
-                Text(themeConfig.currentOverflowLabel),
+                Text(themeConfig.getCurrentOverflowLabel(currentThemeMode)),
               ],
             ),
           ),
@@ -701,7 +753,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
         PopupMenuButton<String>(
           onSelected: (String id) {
             if (id == 'theme_toggle') {
-              widget.themeToggle?.onToggleTheme?.call();
+              _getThemeToggleCallback()?.call();
             } else if (id == 'about') {
               if (aboutConfig.onPressed != null) {
                 aboutConfig.onPressed!();
