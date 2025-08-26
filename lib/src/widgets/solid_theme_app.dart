@@ -28,19 +28,24 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
+import 'package:solidui/src/widgets/solid_default_theme.dart';
 
 class SolidThemeApp extends StatefulWidget {
   /// The title of the application.
 
   final String title;
 
-  /// The light theme data.
+  /// The light theme data. If null, uses SolidDefaultTheme.lightTheme().
 
   final ThemeData? theme;
 
-  /// The dark theme data.
+  /// The dark theme data. If null, uses SolidDefaultTheme.darkTheme().
 
   final ThemeData? darkTheme;
+
+  /// Optional theme configuration for customising default themes.
+
+  final SolidDefaultThemeConfig? themeConfig;
 
   /// The home widget.
 
@@ -50,10 +55,6 @@ class SolidThemeApp extends StatefulWidget {
 
   final bool debugShowCheckedModeBanner;
 
-  /// All other MaterialApp parameters.
-
-  final Map<String, dynamic>? materialAppParams;
-
   /// Creates a SolidThemeApp with automatic theme management.
 
   const SolidThemeApp({
@@ -62,8 +63,8 @@ class SolidThemeApp extends StatefulWidget {
     required this.home,
     this.theme,
     this.darkTheme,
+    this.themeConfig,
     this.debugShowCheckedModeBanner = false,
-    this.materialAppParams,
   });
 
   @override
@@ -86,8 +87,10 @@ class _SolidThemeAppState extends State<SolidThemeApp> {
       builder: (context, _) {
         return MaterialApp(
           title: widget.title,
-          theme: widget.theme,
-          darkTheme: widget.darkTheme,
+          theme: widget.theme ?? 
+            (widget.themeConfig?.lightTheme ?? SolidDefaultTheme.lightTheme()),
+          darkTheme: widget.darkTheme ?? 
+            (widget.themeConfig?.darkTheme ?? SolidDefaultTheme.darkTheme()),
           themeMode: solidThemeNotifier.themeMode,
           debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
           home: widget.home,

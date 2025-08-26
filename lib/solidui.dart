@@ -42,6 +42,7 @@ export 'src/widgets/solid_status_bar_models.dart';
 export 'src/widgets/solid_theme_models.dart';
 export 'src/widgets/solid_theme_notifier.dart';
 export 'src/widgets/solid_theme_app.dart';
+export 'src/widgets/solid_default_theme.dart';
 export 'src/widgets/solid_about_models.dart';
 export 'src/widgets/solid_about_button.dart';
 export 'src/widgets/solid_security_key_utils.dart';
