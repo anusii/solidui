@@ -31,39 +31,40 @@ import 'package:flutter/material.dart';
 
 class SolidDefaultTheme {
   /// Default primary color for SolidUI applications.
-  
+
   static const Color primaryColor = Colors.blue;
 
   /// Default padding used throughout the application.
-  
+
   static const double defaultPadding = 16.0;
 
   /// Default border radius for UI elements.
-  
+
   static const double defaultBorderRadius = 8.0;
 
   /// Default text color for primary text.
-  
+
   static const Color primaryTextColor = Colors.black87;
 
   /// Default text color for secondary text.
-  
+
   static const Color secondaryTextColor = Colors.black54;
 
   /// Creates a light theme with optional customisation.
-  
+
   static ThemeData lightTheme({
     Color? primaryColor,
     ColorScheme? colorScheme,
   }) {
     final seedColor = primaryColor ?? SolidDefaultTheme.primaryColor;
-    
+
     return ThemeData(
       useMaterial3: true,
-      colorScheme: colorScheme ?? ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: Brightness.light,
-      ),
+      colorScheme: colorScheme ??
+          ColorScheme.fromSeed(
+            seedColor: seedColor,
+            brightness: Brightness.light,
+          ),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
@@ -95,19 +96,20 @@ class SolidDefaultTheme {
   }
 
   /// Creates a dark theme with optional customisation.
-  
+
   static ThemeData darkTheme({
     Color? primaryColor,
     ColorScheme? colorScheme,
   }) {
     final seedColor = primaryColor ?? SolidDefaultTheme.primaryColor;
-    
+
     return ThemeData(
       useMaterial3: true,
-      colorScheme: colorScheme ?? ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: Brightness.dark,
-      ),
+      colorScheme: colorScheme ??
+          ColorScheme.fromSeed(
+            seedColor: seedColor,
+            brightness: Brightness.dark,
+          ),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
@@ -143,27 +145,27 @@ class SolidDefaultTheme {
 
 class SolidDefaultThemeConfig {
   /// Primary color for the application.
-  
+
   final Color primaryColor;
 
   /// Default padding used throughout the application.
-  
+
   final double defaultPadding;
 
   /// Default border radius for UI elements.
-  
+
   final double defaultBorderRadius;
 
   /// Text color for primary text.
-  
+
   final Color primaryTextColor;
 
   /// Text color for secondary text.
-  
+
   final Color secondaryTextColor;
 
   /// Creates a theme configuration.
-  
+
   const SolidDefaultThemeConfig({
     this.primaryColor = SolidDefaultTheme.primaryColor,
     this.defaultPadding = SolidDefaultTheme.defaultPadding,
@@ -173,14 +175,14 @@ class SolidDefaultThemeConfig {
   });
 
   /// Creates light and dark themes based on this configuration.
-  
+
   ThemeData get lightTheme => SolidDefaultTheme.lightTheme(
-    primaryColor: primaryColor,
-  );
+        primaryColor: primaryColor,
+      );
 
   /// Creates dark theme based on this configuration.
-  
+
   ThemeData get darkTheme => SolidDefaultTheme.darkTheme(
-    primaryColor: primaryColor,
-  );
+        primaryColor: primaryColor,
+      );
 }

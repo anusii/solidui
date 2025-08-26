@@ -27,8 +27,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 import 'package:solidui/src/widgets/solid_default_theme.dart';
+import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 class SolidThemeApp extends StatefulWidget {
   /// The title of the application.
@@ -87,10 +87,11 @@ class _SolidThemeAppState extends State<SolidThemeApp> {
       builder: (context, _) {
         return MaterialApp(
           title: widget.title,
-          theme: widget.theme ?? 
-            (widget.themeConfig?.lightTheme ?? SolidDefaultTheme.lightTheme()),
-          darkTheme: widget.darkTheme ?? 
-            (widget.themeConfig?.darkTheme ?? SolidDefaultTheme.darkTheme()),
+          theme: widget.theme ??
+              (widget.themeConfig?.lightTheme ??
+                  SolidDefaultTheme.lightTheme()),
+          darkTheme: widget.darkTheme ??
+              (widget.themeConfig?.darkTheme ?? SolidDefaultTheme.darkTheme()),
           themeMode: solidThemeNotifier.themeMode,
           debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
           home: widget.home,
