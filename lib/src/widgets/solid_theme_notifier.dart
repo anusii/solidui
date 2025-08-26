@@ -74,16 +74,27 @@ class SolidThemeNotifier extends ChangeNotifier {
 
     final String? themeModeString = _prefs!.getString(_themeModeKey);
     if (themeModeString != null) {
+      final ThemeMode newThemeMode;
       switch (themeModeString) {
         case 'light':
-          _themeMode = ThemeMode.light;
+          newThemeMode = ThemeMode.light;
           break;
         case 'dark':
-          _themeMode = ThemeMode.dark;
+          newThemeMode = ThemeMode.dark;
           break;
         case 'system':
-          _themeMode = ThemeMode.system;
+          newThemeMode = ThemeMode.system;
           break;
+        default:
+          newThemeMode = ThemeMode.system;
+          break;
+      }
+      
+      // Only update and notify if the theme mode actually changed.
+
+      if (_themeMode != newThemeMode) {
+        _themeMode = newThemeMode;
+        notifyListeners();
       }
     }
   }

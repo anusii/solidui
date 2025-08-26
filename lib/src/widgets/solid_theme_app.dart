@@ -72,16 +72,47 @@ class SolidThemeApp extends StatefulWidget {
 }
 
 class _SolidThemeAppState extends State<SolidThemeApp> {
+  bool _isInitialized = false;
+
   @override
   void initState() {
     super.initState();
-    // Initialise the global theme notifier.
+    _initializeTheme();
+  }
 
-    solidThemeNotifier.initialize();
+  Future<void> _initializeTheme() async {
+    // Ensure the theme notifier is properly initialised before first build.
+
+    await solidThemeNotifier.initialize();
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show a loading indicator while theme is being initialised.
+
+    if (!_isInitialized) {
+      return MaterialApp(
+        title: widget.title,
+        theme: widget.theme ??
+            (widget.themeConfig?.lightTheme ??
+                SolidDefaultTheme.lightTheme()),
+        darkTheme: widget.darkTheme ??
+            (widget.themeConfig?.darkTheme ?? SolidDefaultTheme.darkTheme()),
+        themeMode: ThemeMode.system, // Use system theme as fallback
+        debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
+        home: const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
     return AnimatedBuilder(
       animation: solidThemeNotifier,
       builder: (context, _) {
