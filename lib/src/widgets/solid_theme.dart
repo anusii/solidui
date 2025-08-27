@@ -29,7 +29,7 @@ import 'package:flutter/material.dart';
 
 /// Default theme constants for SolidUI applications.
 
-class SolidDefaultTheme {
+class SolidTheme {
   /// Default primary color for SolidUI applications.
 
   static const Color primaryColor = Colors.blue;
@@ -56,7 +56,7 @@ class SolidDefaultTheme {
     Color? primaryColor,
     ColorScheme? colorScheme,
   }) {
-    final seedColor = primaryColor ?? SolidDefaultTheme.primaryColor;
+    final seedColor = primaryColor ?? SolidTheme.primaryColor;
 
     return ThemeData(
       useMaterial3: true,
@@ -101,7 +101,7 @@ class SolidDefaultTheme {
     Color? primaryColor,
     ColorScheme? colorScheme,
   }) {
-    final seedColor = primaryColor ?? SolidDefaultTheme.primaryColor;
+    final seedColor = primaryColor ?? SolidTheme.primaryColor;
 
     return ThemeData(
       useMaterial3: true,
@@ -143,7 +143,7 @@ class SolidDefaultTheme {
 
 /// Configuration for customising SolidUI theme.
 
-class SolidDefaultThemeConfig {
+class SolidThemeConfig {
   /// Primary color for the application.
 
   final Color primaryColor;
@@ -166,23 +166,23 @@ class SolidDefaultThemeConfig {
 
   /// Creates a theme configuration.
 
-  const SolidDefaultThemeConfig({
-    this.primaryColor = SolidDefaultTheme.primaryColor,
-    this.defaultPadding = SolidDefaultTheme.defaultPadding,
-    this.defaultBorderRadius = SolidDefaultTheme.defaultBorderRadius,
-    this.primaryTextColor = SolidDefaultTheme.primaryTextColor,
-    this.secondaryTextColor = SolidDefaultTheme.secondaryTextColor,
+  const SolidThemeConfig({
+    this.primaryColor = SolidTheme.primaryColor,
+    this.defaultPadding = SolidTheme.defaultPadding,
+    this.defaultBorderRadius = SolidTheme.defaultBorderRadius,
+    this.primaryTextColor = SolidTheme.primaryTextColor,
+    this.secondaryTextColor = SolidTheme.secondaryTextColor,
   });
 
   /// Creates light and dark themes based on this configuration.
 
-  ThemeData get lightTheme => SolidDefaultTheme.lightTheme(
+  ThemeData get lightTheme => SolidTheme.lightTheme(
         primaryColor: primaryColor,
       );
 
   /// Creates dark theme based on this configuration.
 
-  ThemeData get darkTheme => SolidDefaultTheme.darkTheme(
+  ThemeData get darkTheme => SolidTheme.darkTheme(
         primaryColor: primaryColor,
       );
 }

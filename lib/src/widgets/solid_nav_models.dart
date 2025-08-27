@@ -213,7 +213,7 @@ class SolidVersionConfig {
 
 /// Configuration for theme toggle functionality.
 
-class SolidThemeConfig {
+class SolidNavThemeConfig {
   /// Whether the theme toggle is enabled.
 
   final bool enabled;
@@ -230,7 +230,7 @@ class SolidThemeConfig {
 
   final Future<void> Function()? onToggle;
 
-  const SolidThemeConfig({
+  const SolidNavThemeConfig({
     this.enabled = true,
     this.lightModeTooltip = 'Switch to light theme',
     this.darkModeTooltip = 'Switch to dark theme',
@@ -263,7 +263,7 @@ class SolidAppBarConfig {
 
   /// Theme toggle configuration. If null, theme toggle is not shown.
 
-  final SolidThemeConfig? themeConfig;
+  final SolidNavThemeConfig? themeConfig;
 
   /// Width threshold for narrow screens.
 

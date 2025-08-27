@@ -27,7 +27,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/widgets/solid_default_theme.dart';
+import 'package:solidui/src/widgets/solid_theme.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 class SolidThemeApp extends StatefulWidget {
@@ -35,17 +35,17 @@ class SolidThemeApp extends StatefulWidget {
 
   final String title;
 
-  /// The light theme data. If null, uses SolidDefaultTheme.lightTheme().
+  /// The light theme data. If null, uses SolidTheme.lightTheme().
 
   final ThemeData? theme;
 
-  /// The dark theme data. If null, uses SolidDefaultTheme.darkTheme().
+  /// The dark theme data. If null, uses SolidTheme.darkTheme().
 
   final ThemeData? darkTheme;
 
   /// Optional theme configuration for customising default themes.
 
-  final SolidDefaultThemeConfig? themeConfig;
+  final SolidThemeConfig? themeConfig;
 
   /// The home widget.
 
@@ -99,10 +99,9 @@ class _SolidThemeAppState extends State<SolidThemeApp> {
       return MaterialApp(
         title: widget.title,
         theme: widget.theme ??
-            (widget.themeConfig?.lightTheme ??
-                SolidDefaultTheme.lightTheme()),
+            (widget.themeConfig?.lightTheme ?? SolidTheme.lightTheme()),
         darkTheme: widget.darkTheme ??
-            (widget.themeConfig?.darkTheme ?? SolidDefaultTheme.darkTheme()),
+            (widget.themeConfig?.darkTheme ?? SolidTheme.darkTheme()),
         themeMode: ThemeMode.system, // Use system theme as fallback
         debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
         home: const Scaffold(
@@ -119,10 +118,9 @@ class _SolidThemeAppState extends State<SolidThemeApp> {
         return MaterialApp(
           title: widget.title,
           theme: widget.theme ??
-              (widget.themeConfig?.lightTheme ??
-                  SolidDefaultTheme.lightTheme()),
+              (widget.themeConfig?.lightTheme ?? SolidTheme.lightTheme()),
           darkTheme: widget.darkTheme ??
-              (widget.themeConfig?.darkTheme ?? SolidDefaultTheme.darkTheme()),
+              (widget.themeConfig?.darkTheme ?? SolidTheme.darkTheme()),
           themeMode: solidThemeNotifier.themeMode,
           debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
           home: widget.home,
