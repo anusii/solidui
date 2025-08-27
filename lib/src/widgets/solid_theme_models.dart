@@ -112,21 +112,11 @@ class SolidThemeToggleConfig {
   /// Returns tooltip text based on current theme mode.
 
   String getCurrentTooltip(ThemeMode themeMode) {
+    // If a custom tooltip is provided, use it instead of the default one.
+
     if (tooltip != null) return tooltip!;
 
-//     if (usesInternalManagement) {
-//       return '''
-// **Theme Toggle**
-
-// Switch between system, light and dark modes for optimal viewing experience.
-
-// 🌙 **Dark Mode**: Better for low-light environments
-
-// ☀️ **Light Mode**: Better for bright environments
-
-// 🖥️ **System Mode**: Follows your device settings
-// ''';
-//     }
+    // Return responsive tooltip based on current theme mode.
 
     switch (themeMode) {
       case ThemeMode.light:
@@ -135,8 +125,8 @@ class SolidThemeToggleConfig {
 
 ☀️ **Light Mode** (Current)
 
-Light Mode is best for vieing in light conditions. Tap here to switch to Dark
-Mode for low ligh conditions and then again for your System Mode.
+Light Mode is best for viewing in light conditions. Tap here to switch to Dark
+Mode for low light conditions and then again for your System Mode.
 
 Cycle: Light → Dark → System
 ''';
@@ -146,7 +136,7 @@ Cycle: Light → Dark → System
 
 🌙 **Dark Mode** (Current)
 
-Dark Mode is best for viewing in low light confitions. Tap here to switch to
+Dark Mode is best for viewing in low light conditions. Tap here to switch to
 System Mode to follow your device settings and then again for Light Mode.
 
 Cycle: Light → Dark → System
@@ -179,8 +169,13 @@ Cycle: Light → Dark → System
   }
 
   /// Whether this config uses internal theme management.
-  /// When both onToggleTheme and currentThemeMode are null, SolidScaffold
-  /// will automatically manage theme state using SolidThemeNotifier.
+  /// 
+  /// Returns `true` when both `onToggleTheme` and `currentThemeMode` are null,
+  /// indicating that SolidScaffold should automatically manage theme state
+  /// using `SolidThemeNotifier`.
+  /// 
+  /// Returns `false` when external theme management is being used, requiring
+  /// both parameters to be provided for proper functionality.
 
   bool get usesInternalManagement =>
       onToggleTheme == null && currentThemeMode == null;

@@ -263,6 +263,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   String? _appVersion;
   bool _isVersionLoaded = false;
 
+  // Theme management cache.
+
+  bool? _cachedUsesInternalManagement;
+
   @override
   void initState() {
     super.initState();
@@ -278,7 +282,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
 
     // Initialise theme notifier if using internal management.
 
-    if (widget.themeToggle?.usesInternalManagement == true) {
+    if (_getUsesInternalManagement()) {
       _initializeThemeNotifier();
     }
   }
@@ -305,7 +309,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   @override
   void dispose() {
     _securityKeyService?.removeListener(_onSecurityKeyChanged);
-    if (widget.themeToggle?.usesInternalManagement == true) {
+    if (_getUsesInternalManagement()) {
       solidThemeNotifier.removeListener(_onThemeChanged);
     }
     super.dispose();
@@ -513,6 +517,13 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     return MediaQuery.of(context).size.width > widget.narrowScreenThreshold;
   }
 
+  /// Gets whether theme toggle uses internal management (cached for performance).
+
+  bool _getUsesInternalManagement() {
+    return _cachedUsesInternalManagement ??= 
+        widget.themeToggle?.usesInternalManagement ?? false;
+  }
+
   /// Converts SolidMenuItem to SolidNavTab.
 
   List<SolidNavTab> _convertToNavTabs() {
@@ -535,18 +546,24 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   }
 
   /// Gets the current theme mode (internal or external).
+  /// 
+  /// For internal management: returns the current mode from SolidThemeNotifier.
+  /// For external management: returns the explicitly provided currentThemeMode.
 
   ThemeMode _getCurrentThemeMode() {
-    if (widget.themeToggle?.usesInternalManagement == true) {
+    if (_getUsesInternalManagement()) {
       return solidThemeNotifier.themeMode;
     }
     return widget.themeToggle?.currentThemeMode ?? ThemeMode.system;
   }
 
   /// Gets the theme toggle callback (internal or external).
+  /// 
+  /// For internal management: returns a callback that uses SolidThemeNotifier.
+  /// For external management: returns the explicitly provided onToggleTheme callback.
 
   VoidCallback? _getThemeToggleCallback() {
-    if (widget.themeToggle?.usesInternalManagement == true) {
+    if (_getUsesInternalManagement()) {
       return () async {
         await solidThemeNotifier.toggleTheme();
       };
