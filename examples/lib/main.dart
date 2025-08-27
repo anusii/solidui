@@ -30,8 +30,12 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:solidpod/solidpod.dart' show getWebId, logoutPopup;
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
+
+import 'package:solidui_simple_example/login/create_solid_login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,13 +58,95 @@ void main() async {
     });
   }
 
-  runApp(const SimpleExampleApp());
+  runApp(const SolidUIExampleApp());
+}
+
+/// Main SolidUI example app that handles login and main application.
+
+class SolidUIExampleApp extends StatelessWidget {
+  const SolidUIExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SolidUI Example',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      home: const LoginWrapper(),
+    );
+  }
+}
+
+/// Wrapper that handles login state and navigation.
+
+class LoginWrapper extends StatefulWidget {
+  const LoginWrapper({super.key});
+
+  @override
+  State<LoginWrapper> createState() => _LoginWrapperState();
+}
+
+class _LoginWrapperState extends State<LoginWrapper> {
+  SharedPreferences? _prefs;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    try {
+      _prefs = await SharedPreferences.getInstance();
+    } catch (e) {
+      debugPrint('Error loading preferences: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_prefs == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Error loading application preferences'),
+        ),
+      );
+    }
+
+    return createSolidLogin(context, _prefs!);
+  }
 }
 
 /// Simple example app demonstrating SolidScaffold basic usage.
 
 class SimpleExampleApp extends StatefulWidget {
-  const SimpleExampleApp({super.key});
+  final SharedPreferences? prefs;
+  
+  SimpleExampleApp({super.key, this.prefs});
 
   @override
   State<SimpleExampleApp> createState() => _SimpleExampleAppState();
@@ -82,7 +168,7 @@ class _SimpleExampleAppState extends State<SimpleExampleApp> {
         ),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: HomePage(prefs: widget.prefs),
     );
   }
 }
@@ -90,7 +176,9 @@ class _SimpleExampleAppState extends State<SimpleExampleApp> {
 /// Main home page demonstrating SolidScaffold with theme and About features.
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final SharedPreferences? prefs;
+  
+  HomePage({super.key, this.prefs});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -98,6 +186,31 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? _webId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  /// Load user information from Solid POD.
+
+  Future<void> _loadUserInfo() async {
+    try {
+      final webId = await getWebId();
+      if (mounted) {
+        setState(() {
+          _webId = webId;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _webId = null;
+        });
+      }
+    }
+  }
 
   // Build the widget.
 
@@ -111,6 +224,18 @@ class _HomePageState extends State<HomePage> {
         icon: Icons.home,
         child: _buildHomePage(),
         tooltip: 'Home page',
+      ),
+      SolidMenuItem(
+        title: 'File Manager',
+        icon: Icons.folder,
+        child: _buildFileManagerPage(),
+        tooltip: '''
+
+**File Manager**: Manage your POD files.
+
+Upload, download, browse, and organise files in your Solid POD storage.
+
+''',
       ),
       SolidMenuItem(
         title: 'About',
@@ -306,6 +431,14 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
     );
   }
 
+  /// Build the file manager page content.
+
+  Widget _buildFileManagerPage() {
+    return const SolidFile(
+      basePath: 'solidui_example',
+    );
+  }
+
   /// Build the about page content.
 
   Widget _buildAboutPage() {
@@ -386,21 +519,66 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
   /// Toggle login status.
 
   void _toggleLogin() {
-    setState(() {
-      _webId = _webId == null
-          ? 'https://demo-user.example-pod.com/profile/card#me'
-          : null;
-    });
-    _showMessage(_webId != null ? 'Logged in successfully' : 'Logged out');
+    if (_webId != null) {
+      _logout();
+    } else {
+      _showLoginDialog();
+    }
   }
 
-  /// Logout user.
+  /// Show login dialogue.
 
-  void _logout() {
-    setState(() {
-      _webId = null;
-    });
-    _showMessage('Logged out successfully');
+  void _showLoginDialog() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => createSolidLogin(
+          context, 
+          widget.prefs!,
+        ),
+      ),
+    );
+  }
+
+  /// Logout user using SolidPod logout.
+
+  Future<void> _logout() async {
+    try {
+      // Use logoutPopup to show logout confirmation and redirect to login.
+
+      if (widget.prefs != null) {
+        await logoutPopup(
+          context, 
+          createSolidLogin(context, widget.prefs!),
+        );
+        
+        // Check if user is still logged in after popup.
+
+        try {
+          final webId = await getWebId();
+          if (mounted) {
+            setState(() {
+              _webId = webId;
+            });
+            if (webId == null) {
+              _showMessage('Logged out successfully');
+            }
+          }
+        } catch (e) {
+          // Logout was successful.
+
+          if (mounted) {
+            setState(() {
+              _webId = null;
+            });
+            _showMessage('Logged out successfully');
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showMessage('Logout failed: $e');
+      }
+    }
   }
 
   /// Show a simple message.

@@ -9,10 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  file_picker: ^10.3.2
   flutter_markdown: ^0.7.7+1
   gap: ^3.0.1
   markdown_tooltip: ^0.0.8
   package_info_plus: ^8.3.1
+  path: ^1.9.1
   rdflib: ^0.2.12
   shared_preferences: ^2.3.3
   solidpod: ^0.7.8

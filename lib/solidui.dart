@@ -32,21 +32,32 @@ export 'src/constants/about.dart';
 export 'src/constants/navigation.dart';
 export 'src/widgets/solid_nav_bar.dart';
 export 'src/widgets/solid_nav_drawer.dart';
-
 export 'src/widgets/solid_nav_models.dart';
 
 export 'src/widgets/solid_scaffold.dart';
 export 'src/widgets/solid_scaffold_models.dart';
+
 export 'src/widgets/solid_status_bar.dart';
 export 'src/widgets/solid_status_bar_models.dart';
+
 export 'src/widgets/solid_theme_models.dart';
 export 'src/widgets/solid_theme_notifier.dart';
 export 'src/widgets/solid_theme_app.dart';
 export 'src/widgets/solid_default_theme.dart';
+
 export 'src/widgets/solid_about_models.dart';
 export 'src/widgets/solid_about_button.dart';
+
 export 'src/widgets/solid_security_key_utils.dart';
 export 'src/widgets/solid_security_key_manager.dart';
 export 'src/widgets/solid_security_key_view.dart';
 export 'src/widgets/solid_security_key_central_manager.dart';
 export 'src/services/solid_security_key_service.dart';
+
+export 'src/widgets/solid_file.dart';
+export 'src/widgets/solid_file_browser.dart';
+export 'src/widgets/solid_file_uploader.dart';
+export 'src/models/file_item.dart';
+export 'src/models/file_state.dart';
+export 'src/utils/file_operations.dart';
+export 'src/utils/is_text_file.dart';
