@@ -27,12 +27,12 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
 
-import 'package:solidui/src/widgets/path_bar.dart';
-import 'package:solidui/src/widgets/file_browser_content.dart';
-import 'package:solidui/src/widgets/file_browser_loading_state.dart';
 import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/widgets/empty_directory_view.dart';
+import 'package:solidui/src/widgets/file_browser_content.dart';
+import 'package:solidui/src/widgets/file_browser_loading_state.dart';
+import 'package:solidui/src/widgets/path_bar.dart';
 
 /// A file browser widget to interact with files and directories in user's POD.
 

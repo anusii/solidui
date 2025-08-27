@@ -25,8 +25,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/widgets/file_list_item.dart';
 import 'package:solidui/src/models/file_item.dart';
+import 'package:solidui/src/widgets/file_list_item.dart';
 
 /// A widget that displays a list of files with their metadata and actions.
 

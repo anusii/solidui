@@ -25,9 +25,9 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/widgets/directory_list.dart';
 import 'package:solidui/src/widgets/file_list.dart';
-import 'package:solidui/src/models/file_item.dart';
 
 /// Content widget for the file browser.
 

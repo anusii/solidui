@@ -89,7 +89,7 @@ class SolidThemeNotifier extends ChangeNotifier {
           newThemeMode = ThemeMode.system;
           break;
       }
-      
+
       // Only update and notify if the theme mode actually changed.
 
       if (_themeMode != newThemeMode) {

@@ -35,7 +35,7 @@ import 'package:solidpod/solidpod.dart' show getWebId, logoutPopup;
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'package:solidui_simple_example/login/create_solid_login.dart';
+import 'package:solidui_example/login/create_solid_login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

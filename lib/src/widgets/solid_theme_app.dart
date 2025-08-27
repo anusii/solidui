@@ -99,8 +99,7 @@ class _SolidThemeAppState extends State<SolidThemeApp> {
       return MaterialApp(
         title: widget.title,
         theme: widget.theme ??
-            (widget.themeConfig?.lightTheme ??
-                SolidDefaultTheme.lightTheme()),
+            (widget.themeConfig?.lightTheme ?? SolidDefaultTheme.lightTheme()),
         darkTheme: widget.darkTheme ??
             (widget.themeConfig?.darkTheme ?? SolidDefaultTheme.darkTheme()),
         themeMode: ThemeMode.system, // Use system theme as fallback

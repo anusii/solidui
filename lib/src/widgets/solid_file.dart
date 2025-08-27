@@ -32,10 +32,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
 
-import 'package:solidui/src/widgets/solid_file_browser.dart';
-import 'package:solidui/src/widgets/solid_file_uploader.dart';
 import 'package:solidui/src/models/file_state.dart';
 import 'package:solidui/src/utils/is_text_file.dart';
+import 'package:solidui/src/widgets/solid_file_browser.dart';
+import 'package:solidui/src/widgets/solid_file_uploader.dart';
 
 /// The main file service widget that provides file upload, download, and
 /// preview functionality.
@@ -127,7 +127,8 @@ class _SolidFileState extends State<SolidFile> {
     if (_fileState.uploadFile == null) return;
 
     try {
-      _updateFileState(_fileState.copyWith(uploadInProgress: true, uploadDone: false));
+      _updateFileState(
+          _fileState.copyWith(uploadInProgress: true, uploadDone: false));
 
       final file = File(_fileState.uploadFile!);
       String fileContent;
@@ -154,7 +155,8 @@ class _SolidFileState extends State<SolidFile> {
 
       // Extract the subdirectory path.
 
-      String? subPath = _fileState.currentPath?.replaceFirst(widget.basePath, '').trim();
+      String? subPath =
+          _fileState.currentPath?.replaceFirst(widget.basePath, '').trim();
       String uploadPath = subPath == null || subPath.isEmpty
           ? remoteFileName
           : '${subPath.startsWith("/") ? subPath.substring(1) : subPath}/$remoteFileName';
@@ -193,7 +195,8 @@ class _SolidFileState extends State<SolidFile> {
           widget.onOperationComplete?.call();
         }
       } else if (context.mounted) {
-        _showAlert('Upload failed - please check your connection and permissions.');
+        _showAlert(
+            'Upload failed - please check your connection and permissions.');
       }
     } catch (e) {
       if (context.mounted) {
@@ -207,10 +210,12 @@ class _SolidFileState extends State<SolidFile> {
   /// Handles the download and decryption of files from the POD.
 
   Future<void> _handleDownload() async {
-    if (_fileState.remoteFileName == null || _fileState.currentPath == null) return;
+    if (_fileState.remoteFileName == null || _fileState.currentPath == null)
+      return;
 
     try {
-      _updateFileState(_fileState.copyWith(downloadInProgress: true, downloadDone: false));
+      _updateFileState(
+          _fileState.copyWith(downloadInProgress: true, downloadDone: false));
 
       // Let user choose where to save the file.
 
@@ -258,7 +263,8 @@ class _SolidFileState extends State<SolidFile> {
       final outputFileHandle = File(outputFile);
       await outputFileHandle.writeAsString(fileContent);
 
-      _updateFileState(_fileState.copyWith(downloadDone: true, downloadInProgress: false));
+      _updateFileState(
+          _fileState.copyWith(downloadDone: true, downloadInProgress: false));
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -281,10 +287,12 @@ class _SolidFileState extends State<SolidFile> {
   /// Handles file deletion from the POD.
 
   Future<void> _handleDelete() async {
-    if (_fileState.remoteFileName == null || _fileState.currentPath == null) return;
+    if (_fileState.remoteFileName == null || _fileState.currentPath == null)
+      return;
 
     try {
-      _updateFileState(_fileState.copyWith(deleteInProgress: true, deleteDone: false));
+      _updateFileState(
+          _fileState.copyWith(deleteInProgress: true, deleteDone: false));
 
       final baseDir = widget.basePath;
       final filePath = _fileState.currentPath == baseDir
@@ -556,13 +564,15 @@ class _SolidFileState extends State<SolidFile> {
                             },
                             onImportCsv: (name, filePath) {
                               if (mounted) {
-                                _updateFileState(_fileState.copyWith(currentPath: filePath));
+                                _updateFileState(
+                                    _fileState.copyWith(currentPath: filePath));
                                 _browserKey.currentState?.refreshFiles();
                               }
                             },
                             onDirectoryChanged: (path) {
                               if (mounted) {
-                                _updateFileState(_fileState.copyWith(currentPath: path));
+                                _updateFileState(
+                                    _fileState.copyWith(currentPath: path));
                               }
                             },
                           ),
@@ -588,10 +598,12 @@ class _SolidFileState extends State<SolidFile> {
                             basePath: widget.basePath,
                             onUpload: _handleUpload,
                             onFileSelected: (filePath) {
-                              _updateFileState(_fileState.copyWith(uploadFile: filePath));
+                              _updateFileState(
+                                  _fileState.copyWith(uploadFile: filePath));
                             },
                             onPreviewRequested: (preview) {
-                              _updateFileState(_fileState.copyWith(filePreview: preview));
+                              _updateFileState(
+                                  _fileState.copyWith(filePreview: preview));
                             },
                           ),
                         ),
@@ -710,13 +722,15 @@ class _SolidFileState extends State<SolidFile> {
                           },
                           onImportCsv: (name, filePath) {
                             if (mounted) {
-                              _updateFileState(_fileState.copyWith(currentPath: filePath));
+                              _updateFileState(
+                                  _fileState.copyWith(currentPath: filePath));
                               _browserKey.currentState?.refreshFiles();
                             }
                           },
                           onDirectoryChanged: (path) {
                             if (mounted) {
-                              _updateFileState(_fileState.copyWith(currentPath: path));
+                              _updateFileState(
+                                  _fileState.copyWith(currentPath: path));
                             }
                           },
                         ),
@@ -740,10 +754,12 @@ class _SolidFileState extends State<SolidFile> {
                             basePath: widget.basePath,
                             onUpload: _handleUpload,
                             onFileSelected: (filePath) {
-                              _updateFileState(_fileState.copyWith(uploadFile: filePath));
+                              _updateFileState(
+                                  _fileState.copyWith(uploadFile: filePath));
                             },
                             onPreviewRequested: (preview) {
-                              _updateFileState(_fileState.copyWith(filePreview: preview));
+                              _updateFileState(
+                                  _fileState.copyWith(filePreview: preview));
                             },
                           ),
                         ),

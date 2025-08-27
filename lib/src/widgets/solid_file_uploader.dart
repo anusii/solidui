@@ -76,7 +76,7 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
   @override
   void didUpdateWidget(SolidFileUploader oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Update preview when file state changes.
 
     if (widget.fileState.filePreview != null &&
@@ -111,7 +111,7 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
         filePreview = content;
         showPreview = true;
       });
-      
+
       // Notify parent.
 
       widget.onPreviewRequested(content);
@@ -141,7 +141,8 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(8.0),
               ),
@@ -267,7 +268,8 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                      const Icon(Icons.check_circle,
+                          color: Colors.green, size: 18),
                     ],
                   ),
                 ),

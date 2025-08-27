@@ -26,22 +26,60 @@ library;
 import 'package:path/path.dart' as path;
 
 /// Checks if a file is a text file based on its extension.
-/// 
+///
 /// Returns true if the file has a text-based extension, false otherwise.
 
 bool isTextFile(String filePath) {
   final extension = path.extension(filePath).toLowerCase();
-  
+
   const textExtensions = {
-    '.txt', '.md', '.json', '.xml', '.yaml', '.yml', '.csv',
-    '.html', '.htm', '.css', '.js', '.ts', '.dart', '.py',
-    '.java', '.cpp', '.c', '.h', '.php', '.rb', '.go',
-    '.rs', '.swift', '.kt', '.scala', '.sh', '.bat',
-    '.ps1', '.sql', '.log', '.ini', '.cfg', '.conf',
-    '.properties', '.gitignore', '.dockerfile', '.makefile',
-    '.readme', '.license', '.changelog', '.ttl', '.rdf',
-    '.owl', '.n3', '.nt', '.jsonld'
+    '.txt',
+    '.md',
+    '.json',
+    '.xml',
+    '.yaml',
+    '.yml',
+    '.csv',
+    '.html',
+    '.htm',
+    '.css',
+    '.js',
+    '.ts',
+    '.dart',
+    '.py',
+    '.java',
+    '.cpp',
+    '.c',
+    '.h',
+    '.php',
+    '.rb',
+    '.go',
+    '.rs',
+    '.swift',
+    '.kt',
+    '.scala',
+    '.sh',
+    '.bat',
+    '.ps1',
+    '.sql',
+    '.log',
+    '.ini',
+    '.cfg',
+    '.conf',
+    '.properties',
+    '.gitignore',
+    '.dockerfile',
+    '.makefile',
+    '.readme',
+    '.license',
+    '.changelog',
+    '.ttl',
+    '.rdf',
+    '.owl',
+    '.n3',
+    '.nt',
+    '.jsonld'
   };
-  
+
   return textExtensions.contains(extension);
 }
