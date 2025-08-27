@@ -1,3 +1,15 @@
+<!-- markdownlint-disable MD041 -->
+
+[![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
+
+[![GitHub License](https://img.shields.io/github/license/anusii/solidui)](https://raw.githubusercontent.com/anusii/solidui/dev/LICENSE)
+[![GitHub Version](https://img.shields.io/badge/dynamic/yaml?url=https://raw.githubusercontent.com/anusii/solidui/master/pubspec.yaml&query=$.version&label=version&logo=github)](https://github.com/anusii/solidui/blob/dev/CHANGELOG.md)
+[![Pub Version](https://img.shields.io/pub/v/solidui?label=pub.dev&labelColor=333940&logo=flutter)](https://pub.dev/packages/solidui)
+[![GitHub Last Updated](https://img.shields.io/github/last-commit/anusii/solidui?label=last%20updated)](https://github.com/anusii/solidui/commits/dev/)
+[![GitHub Commit Activity (main)](https://img.shields.io/github/commit-activity/w/anusii/solidui/main)](https://github.com/anusii/solidui/commits/dev/)
+[![GitHub Issues](https://img.shields.io/github/issues/anusii/solidui)](https://github.com/anusii/solidui/issues)
+
 # SolidUI
 
 This package provides a UI library for building Solid applications
@@ -20,7 +32,6 @@ Scaffold
 - **SolidNavBar** - Navigation rail for wide screens
 - **SolidNavDrawer** - Navigation drawer for narrow screens
 
-
 ### 🔐 Security Management
 
 - **SolidSecurityKeyStatus** - Simple configuration with intelligent defaults
@@ -40,20 +51,23 @@ Scaffold
 
 ### 🎨 Theme & Styling
 
-- **SolidThemeToggleConfig** - Configurable theme switching with light/dark mode support
+- **SolidThemeToggleConfig** - Configurable theme switching with
+  light/dark mode support
 - Integrated theme toggle in SolidScaffold with responsive behavior
 
 ### ℹ️ About Dialogue
 
-- **SolidAboutConfig** - Configurable About dialogue with application information
-- **SolidAboutButton** - About button component with customisable content
-- Integrated About button in SolidScaffold with automatic application info detection
+- **SolidAboutConfig** - Configurable About dialogue with application
+  information
+- **SolidAboutButton** - About button component with customisable
+  content
+- Integrated About button in SolidScaffold with automatic application
+  info detection
 
 ### 🛠️ Utilities & Constants
 
 - **NavigationConstants** - Predefined constants for consistent navigation,
   status bar heights, and UI component sizing
-
 
 ## Quick Start
 
@@ -145,7 +159,10 @@ For more information, visit our [website](https://example.com).
 
 ### Menu Item Child Widgets
 
-The `child` parameter in `SolidMenuItem` allows you to directly specify the widget to display when that menu item is selected. This simplifies development by keeping menu configuration and content together:
+The `child` parameter in `SolidMenuItem` allows you to directly
+specify the widget to display when that menu item is selected. This
+simplifies development by keeping menu configuration and content
+together:
 
 ```dart
 SolidScaffold(
@@ -199,7 +216,7 @@ class MyPage extends StatelessWidget {
           child: HomeScreen(), // Content defined here
         ),
         SolidMenuItem(
-          title: 'Profile', 
+          title: 'Profile',
           icon: Icons.person,
           child: ProfileScreen(), // Content defined here
         ),
@@ -217,7 +234,9 @@ class MyPage extends StatelessWidget {
 
 ### Scaffold Compatibility Mode
 
-**SolidScaffold can be used as a drop-in replacement for Flutter's standard Scaffold.** When no `menu` parameter is provided, SolidScaffold behaves exactly like a standard Scaffold:
+**SolidScaffold can be used as a drop-in replacement for Flutter's
+standard Scaffold.** When no `menu` parameter is provided,
+SolidScaffold behaves exactly like a standard Scaffold:
 
 ```dart
 import 'package:flutter/material.dart';
@@ -247,7 +266,7 @@ class StandardScaffoldReplacement extends StatelessWidget {
         child: Icon(Icons.add),
       ),
       // All standard Scaffold parameters are supported:
-      // drawer, endDrawer, bottomNavigationBar, bottomSheet, 
+      // drawer, endDrawer, bottomNavigationBar, bottomSheet,
       // persistentFooterButtons, resizeToAvoidBottomInset, etc.
     );
   }
@@ -255,6 +274,7 @@ class StandardScaffoldReplacement extends StatelessWidget {
 ```
 
 **Migration from Scaffold to SolidScaffold:**
+
 ```dart
 // Before (standard Scaffold)
 return Scaffold(
@@ -290,7 +310,9 @@ rail and drawer based on screen width.
 **Parameters:**
 
 **SolidUI-specific parameters:**
-- `menu` - List of menu items (optional, when null enables compatibility mode)
+
+- `menu` - List of menu items (optional, when null enables
+  compatibility mode)
 - `child` - Main content area for SolidUI layout (optional)
 - `appBar` - SolidUI AppBar configuration (optional)
 - `statusBar` - Optional status bar configuration
@@ -298,9 +320,11 @@ rail and drawer based on screen width.
 - `onLogout` - Optional logout callback
 - `themeToggle` - Optional theme toggle configuration
 - `aboutConfig` - Optional About dialogue configuration
-- `narrowScreenThreshold` - Width threshold for layout switching (default: NavigationConstants.narrowScreenThreshold)
+- `narrowScreenThreshold` - Width threshold for layout switching
+  (default: NavigationConstants.narrowScreenThreshold)
 
 **Standard Scaffold compatibility parameters:**
+
 - `body` - Standard Scaffold body content (used when `child` is null)
 - `scaffoldAppBar` - Standard Scaffold AppBar (used when `appBar` is null)
 - `drawer` - Standard Scaffold drawer
@@ -341,6 +365,7 @@ Configuration for the bottom status bar showing server and user information.
 No need for separate components or custom dialogues.
 
 #### Simple Usage
+
 ```dart
 SolidScaffold(
   // ... other configuration.
@@ -358,6 +383,7 @@ SolidScaffold(
 ```
 
 #### Advanced Usage with Custom Configuration
+
 ```dart
 SolidScaffold(
   // ... other configuration.
@@ -379,7 +405,9 @@ SolidScaffold(
 ```
 
 #### Manual Management (Advanced)
+
 For custom implementations, you can still use the components directly:
+
 ```dart
 SolidSecurityKeyManager(
   config: SolidSecurityKeyManagerConfig(
@@ -402,7 +430,8 @@ SolidUI components automatically adapt to different screen sizes:
 
 ## Theming
 
-SolidUI components integrate with Flutter's theme system and support light, dark, and system themes with intelligent icon switching:
+SolidUI components integrate with Flutter's theme system and support
+light, dark, and system themes with intelligent icon switching:
 
 ```dart
 MaterialApp(
@@ -416,7 +445,8 @@ MaterialApp(
 
 ## Version Management
 
-SolidUI provides automatic version management that loads version information directly from your app's `pubspec.yaml`.
+SolidUI provides automatic version management that loads version
+information directly from your app's `pubspec.yaml`.
 
 ### Zero-Config Usage
 
@@ -428,6 +458,7 @@ appBar: SolidAppBarConfig(
 ```
 
 This will:
+
 - Automatically read version from `pubspec.yaml`
 - Display version in the format `1.0.0+1`
 - Show loading state until version is loaded
@@ -460,11 +491,13 @@ appBar: SolidAppBarConfig(
 
 ## About Dialogue Configuration
 
-SolidUI provides an integrated About dialogue system that automatically displays application information with sensible defaults.
+SolidUI provides an integrated About dialogue system that
+automatically displays application information with sensible defaults.
 
 ### Automatic About Button
 
-By default, SolidScaffold automatically adds an About button (ℹ️ icon) to the AppBar. The button will:
+By default, SolidScaffold automatically adds an About button (ℹ️ icon)
+to the AppBar. The button will:
 
 - **Auto-detect application name and version** from `pubspec.yaml`
 - **Show default copyright notice** with current year
@@ -597,7 +630,7 @@ SolidAbout.showDefault(context,
 
 ## Application Examples
 
-### Basic Usage
+### Basic Application Usage
 
 #### Simplest Implementation
 
@@ -655,12 +688,12 @@ class _MyAppState extends State<MyApp> {
 SolidScaffold(
   menu: [
     SolidMenuItem(
-      title: 'Home', 
+      title: 'Home',
       icon: Icons.home,
       child: HomeScreen(),
     ),
     SolidMenuItem(
-      title: 'Settings', 
+      title: 'Settings',
       icon: Icons.settings,
       child: SettingsScreen(),
     ),
@@ -701,7 +734,7 @@ SolidScaffold(
 SolidScaffold(
   menu: [
     SolidMenuItem(
-      title: 'Home', 
+      title: 'Home',
       icon: Icons.home,
       child: HomeScreen(),
     ),
@@ -993,29 +1026,35 @@ For support and documentation, visit [our website](https://example.com).
 
 ## Key Features
 
-### Responsive Design
+### Responsive UI Design
+
 - Automatically switches layout based on screen width
 - Customisable narrow screen threshold
 
 ### Simplified Menu Configuration
+
 - Only requires defining a `SolidMenuItem` list
 - Supports icons, titles, tooltips, colours, etc.
 
 ### Optional AppBar
+
 - Supports action button lists
 - Automatically handles overflow menu
 - Responsive button show/hide
 
 ### Optional Status Bar
+
 - Displays server information, login status, etc.
 - Supports custom status items
 - Responsive layout
 
 ### User Information Support
+
 - Displays user information in drawer
 - Supports logout functionality
 
 ### Theme Toggle Integration
+
 - Built-in light/dark mode switching
 - Responsive placement (AppBar actions or overflow menu)
 - Customisable icons, tooltips, and behaviour
@@ -1069,28 +1108,41 @@ automatically manages theme state using `SolidThemeNotifier`:
 
 For custom theme state management, provide both parameters:
 
-- `currentThemeMode`: Current theme mode for state indication (required for external management)
-- `onToggleTheme`: Theme toggle callback (required for external management)
+- `currentThemeMode`: Current theme mode for state indication
+  (required for external management)
+- `onToggleTheme`: Theme toggle callback (required for external
+  management)
 - All parameters from automatic management above
 
 ### SolidAboutConfig Parameters
 
 - `enabled`: Whether the About button is enabled (default true)
-- `icon`: Custom icon for the About button (default Icons.info_outline)
-- `applicationName`: Application name displayed in dialogue (auto-detected if not provided)
-- `applicationVersion`: Application version displayed in dialogue (auto-detected if not provided)
+- `icon`: Custom icon for the About button (default
+  Icons.info_outline)
+- `applicationName`: Application name displayed in dialogue
+  (auto-detected if not provided)
+- `applicationVersion`: Application version displayed in dialogue
+  (auto-detected if not provided)
 - `applicationIcon`: Application icon displayed in dialogue (optional)
-- `applicationLegalese`: Application legal notice/copyright information (optional)
-- `text`: Main text content for the About dialogue (supports Markdown, with automatic word wrapping) (optional)
-- `customContent`: Custom dialogue content widget (replaces default dialogue if provided)
-- `children`: Additional widgets to show in the About dialogue (optional, ignored if `text` is provided)
-- `showOnNarrowScreen`: Show About button on narrow screens (default true)
-- `showOnVeryNarrowScreen`: Show About button on very narrow screens (default false)
+- `applicationLegalese`: Application legal notice/copyright
+  information (optional)
+- `text`: Main text content for the About dialogue (supports Markdown,
+  with automatic word wrapping) (optional)
+- `customContent`: Custom dialogue content widget (replaces default
+  dialogue if provided)
+- `children`: Additional widgets to show in the About dialogue
+  (optional, ignored if `text` is provided)
+- `showOnNarrowScreen`: Show About button on narrow screens (default
+  true)
+- `showOnVeryNarrowScreen`: Show About button on very narrow screens
+  (default false)
 - `priority`: Priority for ordering in AppBar actions (default 999)
 - `tooltip`: Custom tooltip text (auto-generated if not provided)
 - `onPressed`: Custom callback when About button is pressed (optional)
 
-The new `SolidScaffold` component greatly simplifies navigation usage, allowing you to create feature-rich responsive navigation interfaces with built-in theme switching, About dialogues, and minimal code.
+The new `SolidScaffold` component greatly simplifies navigation usage,
+allowing you to create feature-rich responsive navigation interfaces
+with built-in theme switching, About dialogues, and minimal code.
 
 ## Development Status
 
