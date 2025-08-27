@@ -1,6 +1,6 @@
 /// Models for theme toggle functionality in Solid applications.
 ///
-// Time-stamp: <Monday 2025-08-18 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Wednesday 2025-08-27 12:21:35 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -47,12 +47,15 @@ class SolidThemeToggleConfig {
   final IconData? systemModeIcon;
 
   /// Callback when theme is toggled. Should handle the theme change logic.
+  /// If null, SolidScaffold will manage theme state internally.
 
   final VoidCallback? onToggleTheme;
 
   /// Current theme mode to determine which icon to show.
+  /// Only used for external state management. If null, internal state will be
+  /// used.
 
-  final ThemeMode currentThemeMode;
+  final ThemeMode? currentThemeMode;
 
   /// Whether to show as icon button in AppBar actions or in overflow menu.
 
@@ -84,7 +87,7 @@ class SolidThemeToggleConfig {
     this.darkModeIcon,
     this.systemModeIcon,
     this.onToggleTheme,
-    this.currentThemeMode = ThemeMode.system,
+    this.currentThemeMode,
     this.showInAppBarActions = true,
     this.tooltip,
     this.label = 'Toggle Theme',
@@ -95,8 +98,8 @@ class SolidThemeToggleConfig {
 
   /// Returns the appropriate icon based on current theme mode.
 
-  IconData get currentIcon {
-    switch (currentThemeMode) {
+  IconData getCurrentIcon(ThemeMode themeMode) {
+    switch (themeMode) {
       case ThemeMode.light:
         return lightModeIcon ?? Icons.light_mode;
       case ThemeMode.dark:
@@ -108,17 +111,22 @@ class SolidThemeToggleConfig {
 
   /// Returns tooltip text based on current theme mode.
 
-  String get currentTooltip {
+  String getCurrentTooltip(ThemeMode themeMode) {
+    // If a custom tooltip is provided, use it instead of the default one.
+
     if (tooltip != null) return tooltip!;
 
-    switch (currentThemeMode) {
+    // Return responsive tooltip based on current theme mode.
+
+    switch (themeMode) {
       case ThemeMode.light:
         return '''
 **Theme Toggle**
 
 ☀️ **Light Mode** (Current)
 
-Tap to switch to Dark Mode for better viewing in low light conditions.
+Light Mode is best for viewing in light conditions. Tap here to switch to Dark
+Mode for low light conditions and then again for your System Mode.
 
 Cycle: Light → Dark → System
 ''';
@@ -128,7 +136,8 @@ Cycle: Light → Dark → System
 
 🌙 **Dark Mode** (Current)
 
-Tap to switch to System Mode to follow your device settings.
+Dark Mode is best for viewing in low light conditions. Tap here to switch to
+System Mode to follow your device settings and then again for Light Mode.
 
 Cycle: Light → Dark → System
 ''';
@@ -138,7 +147,8 @@ Cycle: Light → Dark → System
 
 🖥️ **System Mode** (Current)
 
-Following your device settings. Tap to switch to Light Mode.
+System Mode follows your device settings. Tap here to switch to Light Mode and
+then again for Dark mode.
 
 Cycle: Light → Dark → System
 ''';
@@ -147,8 +157,8 @@ Cycle: Light → Dark → System
 
   /// Returns overflow menu label based on current theme mode.
 
-  String get currentOverflowLabel {
-    switch (currentThemeMode) {
+  String getCurrentOverflowLabel(ThemeMode themeMode) {
+    switch (themeMode) {
       case ThemeMode.light:
         return 'Light Mode ☀️';
       case ThemeMode.dark:
@@ -157,4 +167,16 @@ Cycle: Light → Dark → System
         return 'System Mode 🖥️';
     }
   }
+
+  /// Whether this config uses internal theme management.
+  /// 
+  /// Returns `true` when both `onToggleTheme` and `currentThemeMode` are null,
+  /// indicating that SolidScaffold should automatically manage theme state
+  /// using `SolidThemeNotifier`.
+  /// 
+  /// Returns `false` when external theme management is being used, requiring
+  /// both parameters to be provided for proper functionality.
+
+  bool get usesInternalManagement =>
+      onToggleTheme == null && currentThemeMode == null;
 }
