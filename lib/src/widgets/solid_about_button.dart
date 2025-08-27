@@ -169,7 +169,9 @@ class SolidAbout {
   }
 
   static void _showCustomAboutDialog(
-      BuildContext context, SolidAboutConfig config) {
+    BuildContext context,
+    SolidAboutConfig config,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -187,7 +189,9 @@ class SolidAbout {
   }
 
   static Future<void> _showDefaultAboutDialog(
-      BuildContext context, SolidAboutConfig config) async {
+    BuildContext context,
+    SolidAboutConfig config,
+  ) async {
     String? packageName;
     String? version;
     String? buildNumber;
@@ -304,8 +308,10 @@ class SolidAbout {
       applicationName: applicationName,
       applicationVersion: applicationVersion,
       applicationIcon: config.applicationIcon,
-      applicationLegalese: wordWrap(config.applicationLegalese ??
-          '© ${DateTime.now().year} $applicationName\n\n'),
+      applicationLegalese: wordWrap(
+        config.applicationLegalese ??
+            '© ${DateTime.now().year} $applicationName\n\n',
+      ),
       children: children,
     );
   }

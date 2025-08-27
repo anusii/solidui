@@ -169,11 +169,11 @@ Cycle: Light → Dark → System
   }
 
   /// Whether this config uses internal theme management.
-  /// 
+  ///
   /// Returns `true` when both `onToggleTheme` and `currentThemeMode` are null,
   /// indicating that SolidScaffold should automatically manage theme state
   /// using `SolidThemeNotifier`.
-  /// 
+  ///
   /// Returns `false` when external theme management is being used, requiring
   /// both parameters to be provided for proper functionality.
 

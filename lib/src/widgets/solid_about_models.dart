@@ -129,7 +129,10 @@ licensing information.
   /// Returns whether to show the About button based on screen width.
 
   bool shouldShow(
-      double screenWidth, double narrowThreshold, double veryNarrowThreshold) {
+    double screenWidth,
+    double narrowThreshold,
+    double veryNarrowThreshold,
+  ) {
     if (screenWidth < veryNarrowThreshold && !showOnVeryNarrowScreen) {
       return false;
     }

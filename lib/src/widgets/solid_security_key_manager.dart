@@ -171,7 +171,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
         if (!hasValidKeyFile && hasKeyInMemory) {
           debugPrint(
-              'KeyManager has key but file missing, clearing KeyManager state');
+            'KeyManager has key but file missing, clearing KeyManager state',
+          );
           await KeyManager.forgetSecurityKey();
         }
       } catch (e) {
@@ -248,7 +249,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
           ),
           title: const Text('Notice'),
           content: const Text(
-              'No security key found. Please set a security key first.'),
+            'No security key found. Please set a security key first.',
+          ),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -290,8 +292,11 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       // Check for specific error conditions.
 
       if (fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
-        await _showErrorDialog(context, 'Not Logged In',
-            'You must be logged in to view security keys.');
+        await _showErrorDialog(
+          context,
+          'Not Logged In',
+          'You must be logged in to view security keys.',
+        );
         return;
       }
 
@@ -313,8 +318,11 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
           ),
         );
       } else {
-        await _showErrorDialog(context, 'Empty Key File',
-            'The security key file exists but appears to be empty.');
+        await _showErrorDialog(
+          context,
+          'Empty Key File',
+          'The security key file exists but appears to be empty.',
+        );
       }
     } on Exception catch (e) {
       debugPrint('Exception reading security key: $e');
@@ -587,7 +595,10 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   /// Shows an error dialogue with detailed message.
 
   Future<void> _showErrorDialog(
-      BuildContext context, String title, String message) async {
+    BuildContext context,
+    String title,
+    String message,
+  ) async {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -729,7 +740,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                               foregroundColor:
                                   Theme.of(context).colorScheme.primary,
                               side: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary),
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -738,7 +750,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                               await _showKeyInputDialog(context);
                             },
                             child: Text(
-                                _hasExistingKey ? 'Change Key' : 'Set Key'),
+                              _hasExistingKey ? 'Change Key' : 'Set Key',
+                            ),
                           ),
                         ),
                         if (_hasExistingKey &&
@@ -753,7 +766,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                                 foregroundColor:
                                     Theme.of(context).colorScheme.error,
                                 side: BorderSide(
-                                    color: Theme.of(context).colorScheme.error),
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),

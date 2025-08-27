@@ -520,7 +520,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   /// Gets whether theme toggle uses internal management (cached for performance).
 
   bool _getUsesInternalManagement() {
-    return _cachedUsesInternalManagement ??= 
+    return _cachedUsesInternalManagement ??=
         widget.themeToggle?.usesInternalManagement ?? false;
   }
 
@@ -532,21 +532,23 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     }
 
     return widget.menu!
-        .map((item) => SolidNavTab(
-              title: item.title,
-              icon: item.icon,
-              color: item.color,
-              child: item.child,
-              tooltip: item.tooltip,
-              message: item.message,
-              dialogTitle: item.dialogTitle,
-              action: item.onTap,
-            ))
+        .map(
+          (item) => SolidNavTab(
+            title: item.title,
+            icon: item.icon,
+            color: item.color,
+            child: item.child,
+            tooltip: item.tooltip,
+            message: item.message,
+            dialogTitle: item.dialogTitle,
+            action: item.onTap,
+          ),
+        )
         .toList();
   }
 
   /// Gets the current theme mode (internal or external).
-  /// 
+  ///
   /// For internal management: returns the current mode from SolidThemeNotifier.
   /// For external management: returns the explicitly provided currentThemeMode.
 
@@ -558,7 +560,7 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   }
 
   /// Gets the theme toggle callback (internal or external).
-  /// 
+  ///
   /// For internal management: returns a callback that uses SolidThemeNotifier.
   /// For external management: returns the explicitly provided onToggleTheme callback.
 
@@ -716,18 +718,18 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       // Add regular overflow items.
 
       overflowMenuItems.addAll(
-        config.overflowItems
-            .where((item) => item.showInOverflow)
-            .map((item) => PopupMenuItem<String>(
-                  value: item.id,
-                  child: Row(
-                    children: [
-                      Icon(item.icon),
-                      const SizedBox(width: 8),
-                      Text(item.label),
-                    ],
-                  ),
-                )),
+        config.overflowItems.where((item) => item.showInOverflow).map(
+              (item) => PopupMenuItem<String>(
+                value: item.id,
+                child: Row(
+                  children: [
+                    Icon(item.icon),
+                    const SizedBox(width: 8),
+                    Text(item.label),
+                  ],
+                ),
+              ),
+            ),
       );
 
       // Add theme toggle to overflow menu if configured.
@@ -814,8 +816,11 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     // Prepare About button if it should be shown.
 
     if (aboutConfig.enabled &&
-        aboutConfig.shouldShow(screenWidth, config.narrowScreenThreshold,
-            config.veryNarrowScreenThreshold) &&
+        aboutConfig.shouldShow(
+          screenWidth,
+          config.narrowScreenThreshold,
+          config.veryNarrowScreenThreshold,
+        ) &&
         screenWidth >= config.veryNarrowScreenThreshold) {
       aboutButton = SolidAboutButton(
         config: aboutConfig,
@@ -842,7 +847,9 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   /// Determine the appropriate AppBar based on the appBar parameter type.
 
   PreferredSizeWidget? _resolveAppBar(
-      BuildContext context, bool isCompatibilityMode) {
+    BuildContext context,
+    bool isCompatibilityMode,
+  ) {
     // Handle different appBar parameter types.
 
     if (widget.appBar is PreferredSizeWidget) {
@@ -1036,7 +1043,8 @@ Tap here to open the navigation drawer and access all available pages and option
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(
-                NavigationConstants.hamburgerButtonRadius),
+              NavigationConstants.hamburgerButtonRadius,
+            ),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.3),
               width: 1,
@@ -1053,7 +1061,8 @@ Tap here to open the navigation drawer and access all available pages and option
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(
-                  NavigationConstants.hamburgerButtonRadius),
+                NavigationConstants.hamburgerButtonRadius,
+              ),
               onTap: () {
                 _scaffoldKey.currentState?.openDrawer();
               },

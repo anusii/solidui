@@ -97,8 +97,9 @@ class SolidSecurityKeyUtils {
   ///
   /// Returns true if a security key exists, false otherwise.
 
-  static Future<bool> fetchKeySavedStatus(
-      [Function(bool)? onKeyStatusChanged]) async {
+  static Future<bool> fetchKeySavedStatus([
+    Function(bool)? onKeyStatusChanged,
+  ]) async {
     try {
       // Simply check if the security key exists in memory.
 
