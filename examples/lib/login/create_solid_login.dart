@@ -30,7 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
-import 'package:solidui_example/main.dart';
+import '../main.dart';
 
 /// Creates a Solid login widget for authentication.
 ///

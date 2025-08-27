@@ -35,7 +35,7 @@ import 'package:solidpod/solidpod.dart' show getWebId, logoutPopup;
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'package:solidui_example/login/create_solid_login.dart';
+import 'login/create_solid_login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -145,8 +145,8 @@ class _LoginWrapperState extends State<LoginWrapper> {
 
 class SimpleExampleApp extends StatefulWidget {
   final SharedPreferences? prefs;
-  
-  SimpleExampleApp({super.key, this.prefs});
+
+  const SimpleExampleApp({super.key, this.prefs});
 
   @override
   State<SimpleExampleApp> createState() => _SimpleExampleAppState();
@@ -177,8 +177,8 @@ class _SimpleExampleAppState extends State<SimpleExampleApp> {
 
 class HomePage extends StatefulWidget {
   final SharedPreferences? prefs;
-  
-  HomePage({super.key, this.prefs});
+
+  const HomePage({super.key, this.prefs});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -532,7 +532,7 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => createSolidLogin(
-          context, 
+          context,
           widget.prefs!,
         ),
       ),
@@ -547,10 +547,10 @@ For more information, visit the [SolidUI GitHub repository](https://github.com/a
 
       if (widget.prefs != null) {
         await logoutPopup(
-          context, 
+          context,
           createSolidLogin(context, widget.prefs!),
         );
-        
+
         // Check if user is still logged in after popup.
 
         try {

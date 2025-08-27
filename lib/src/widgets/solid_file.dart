@@ -210,8 +210,9 @@ class _SolidFileState extends State<SolidFile> {
   /// Handles the download and decryption of files from the POD.
 
   Future<void> _handleDownload() async {
-    if (_fileState.remoteFileName == null || _fileState.currentPath == null)
+    if (_fileState.remoteFileName == null || _fileState.currentPath == null) {
       return;
+    }
 
     try {
       _updateFileState(
@@ -287,8 +288,9 @@ class _SolidFileState extends State<SolidFile> {
   /// Handles file deletion from the POD.
 
   Future<void> _handleDelete() async {
-    if (_fileState.remoteFileName == null || _fileState.currentPath == null)
+    if (_fileState.remoteFileName == null || _fileState.currentPath == null) {
       return;
+    }
 
     try {
       _updateFileState(
