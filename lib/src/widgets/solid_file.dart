@@ -109,7 +109,7 @@ class _SolidFileState extends State<SolidFile> {
         String formattedName = dirName.replaceAll('_', ' ');
         formattedName =
             formattedName[0].toUpperCase() + formattedName.substring(1);
-        return '$formattedName Data';
+        return formattedName;
     }
   }
 
@@ -165,10 +165,12 @@ class _SolidFileState extends State<SolidFile> {
 
       // Upload file with encryption.
 
+      final contextForUpload = context;
+
       final result = await writePod(
         uploadPath,
         fileContent,
-        context,
+        contextForUpload,
         Text('Upload'),
         encrypted: true,
       );
@@ -184,10 +186,11 @@ class _SolidFileState extends State<SolidFile> {
         // Show success message.
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          final currentContext = context;
+          ScaffoldMessenger.of(currentContext).showSnackBar(
             SnackBar(
               content: const Text('File uploaded successfully'),
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
+              backgroundColor: Theme.of(currentContext).colorScheme.tertiary,
             ),
           );
           // Refresh the browser.
@@ -238,16 +241,19 @@ class _SolidFileState extends State<SolidFile> {
 
       if (!context.mounted) return;
 
+      final contextForKey = context;
+
       await getKeyFromUserIfRequired(
-        context,
+        contextForKey,
         Text('Please enter your security key to download the file'),
       );
 
       if (!context.mounted) return;
+      final contextForRead = context;
 
       final fileContent = await readPod(
         relativePath,
-        context,
+        contextForRead,
         Text('Downloading'),
       );
 
@@ -268,10 +274,11 @@ class _SolidFileState extends State<SolidFile> {
           _fileState.copyWith(downloadDone: true, downloadInProgress: false));
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        final currentContext = context;
+        ScaffoldMessenger.of(currentContext).showSnackBar(
           SnackBar(
             content: const Text('File downloaded successfully'),
-            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            backgroundColor: Theme.of(currentContext).colorScheme.tertiary,
           ),
         );
         widget.onOperationComplete?.call();
@@ -341,10 +348,11 @@ class _SolidFileState extends State<SolidFile> {
         _updateFileState(_fileState.copyWith(deleteDone: true));
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          final currentContext = context;
+          ScaffoldMessenger.of(currentContext).showSnackBar(
             SnackBar(
               content: const Text('File deleted successfully'),
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
+              backgroundColor: Theme.of(currentContext).colorScheme.tertiary,
             ),
           );
 
@@ -406,41 +414,6 @@ class _SolidFileState extends State<SolidFile> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Back button to root folder.
-
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-          child: TextButton.icon(
-            onPressed: () {
-              final rootPath = widget.basePath;
-              if (_fileState.currentPath != rootPath) {
-                _updateFileState(_fileState.copyWith(currentPath: rootPath));
-                _browserKey.currentState?.navigateToPath(rootPath);
-              }
-            },
-            icon: Icon(
-              Icons.arrow_back,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text(
-              'Back to Home Folder',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            style: TextButton.styleFrom(
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.1),
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-            ),
-          ),
-        ),
-
         // Main content area.
 
         Expanded(

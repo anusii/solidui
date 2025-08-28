@@ -160,3 +160,4 @@ app.*.map.json
 /android/build.gradle.kts
 /android/gradle.properties
 /android/settings.gradle.kts
+/android/app/src/main/kotlin/com/example/solidui_example/MainActivity.kt
