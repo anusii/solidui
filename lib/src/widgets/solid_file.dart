@@ -79,7 +79,7 @@ class _SolidFileState extends State<SolidFile> {
   String _getFriendlyFolderName(String pathValue) {
     final String root = widget.basePath;
     if (pathValue.isEmpty || pathValue == root) {
-      return 'Home Folder';
+      return 'Home';
     }
 
     // Use path.basename to safely get the last component.
@@ -101,14 +101,21 @@ class _SolidFileState extends State<SolidFile> {
         return 'Health Plan Data';
       case 'pathology':
         return 'Pathology Data';
+      case 'tv_shows':
+        return 'TV Shows';
 
       default:
-        // Basic formatting for unknown folders: capitalise first letter, replace underscores.
+        // Basic formatting for unknown folders:
+        // capitalise first letter, replace underscores.
 
         if (dirName.isEmpty) return 'Folder';
-        String formattedName = dirName.replaceAll('_', ' ');
-        formattedName =
-            formattedName[0].toUpperCase() + formattedName.substring(1);
+        String formattedName = dirName.replaceAll('_', ' ').trim();
+        formattedName = formattedName
+            .split(RegExp(r'\s+'))
+            .map((w) => w.isEmpty
+                ? w
+                : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+            .join(' ');
         return formattedName;
     }
   }
