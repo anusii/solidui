@@ -1,4 +1,4 @@
-/// Default theme system for SolidUI applications.
+/// Theme system for SolidUI applications.
 ///
 // Time-stamp: <Tuesday 2025-08-27 14:30:00 +1000 Tony Chen>
 ///
@@ -27,7 +27,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-/// Default theme constants for SolidUI applications.
+/// Theme constants for SolidUI applications.
 
 class SolidTheme {
   /// Default primary color for SolidUI applications.
