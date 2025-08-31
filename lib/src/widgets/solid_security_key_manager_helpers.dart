@@ -16,8 +16,10 @@ import 'package:solidpod/solidpod.dart'
     show KeyManager, SolidFunctionCallStatus, getEncKeyPath;
 
 /// Helper class for Security Key Manager operations.
+
 class SolidSecurityKeyManagerHelpers {
   /// Checks if a security key exists and is valid.
+
   static Future<bool> checkKeyStatus(
     Future<String> Function() getKeyPathFunction,
     Future<String> Function(String filePath) readFunction,
@@ -30,17 +32,20 @@ class SolidSecurityKeyManagerHelpers {
       }
 
       // Verify the file actually exists.
+
       try {
         final filePath = await getKeyPathFunction();
         final fileContent = await readFunction(filePath);
 
         // Check if we got valid content.
+
         final hasValidKeyFile = fileContent.isNotEmpty &&
             fileContent != SolidFunctionCallStatus.notLoggedIn.toString() &&
             fileContent != SolidFunctionCallStatus.fail.toString();
 
         // If KeyManager thinks there's a key but file doesn't exist,
         // clear the KeyManager state.
+
         if (!hasValidKeyFile && hasKeyInMemory) {
           debugPrint(
             'KeyManager has key but file missing, clearing KeyManager state',
@@ -51,9 +56,11 @@ class SolidSecurityKeyManagerHelpers {
         return hasValidKeyFile;
       } catch (e) {
         // File check failed, assume no valid key.
+
         debugPrint('Key file verification failed: $e');
 
         // Clear KeyManager state if file is missing.
+
         if (hasKeyInMemory) {
           try {
             await KeyManager.forgetSecurityKey();
@@ -70,6 +77,7 @@ class SolidSecurityKeyManagerHelpers {
   }
 
   /// Handles showing key input dialog for existing keys.
+
   static Future<void> handleExistingKeyChange(
     Future<void> Function() changeKeyFunction,
     void Function(String message) showErrorFunction,
@@ -82,11 +90,13 @@ class SolidSecurityKeyManagerHelpers {
   }
 
   /// Gets the version to display.
+
   static String getVersionToDisplay() {
     return '0.0.0+0';
   }
 
   /// Returns decoration for input fields.
+
   static InputDecoration getInputDecoration(String label, ThemeData theme) {
     return InputDecoration(
       labelText: label,
@@ -99,6 +109,7 @@ class SolidSecurityKeyManagerHelpers {
   }
 
   /// Defines consistent button styles.
+
   static ButtonStyle getButtonStyle(
     ThemeData theme, {
     bool isDestructive = false,
@@ -120,6 +131,7 @@ class SolidSecurityKeyManagerHelpers {
   }
 
   /// Shows an error dialog with detailed message.
+
   static Future<void> showErrorDialog(
     BuildContext context,
     String title,
@@ -149,6 +161,7 @@ class SolidSecurityKeyManagerHelpers {
   }
 
   /// Shows a snack bar with an error message.
+
   static void showErrorSnackBar(BuildContext context, String message) {
     final theme = Theme.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -164,6 +177,7 @@ class SolidSecurityKeyManagerHelpers {
   }
 
   /// Shows success snack bar.
+
   static void showSuccessSnackBar(BuildContext context, String message) {
     final theme = Theme.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -179,6 +193,7 @@ class SolidSecurityKeyManagerHelpers {
   }
 
   /// Handles key submission validation and setting.
+
   static Future<bool> handleKeySubmission(
     String key,
     String confirmKey,
@@ -198,6 +213,7 @@ class SolidSecurityKeyManagerHelpers {
 
     try {
       // Attempt to initialise POD keys.
+
       await KeyManager.initPodKeys(key);
 
       // Verify the key was actually set by checking the file.
@@ -218,10 +234,12 @@ class SolidSecurityKeyManagerHelpers {
 
       if (keySetSuccessfully) {
         // Success - show success message.
+
         showSuccessFunction('Security key set and verified successfully');
         return true;
       } else {
         // Key was set in memory but file verification failed.
+
         showErrorFunction('Key set but not verified in your POD storage.');
         return true; // Still update status as key is at least in memory
       }
