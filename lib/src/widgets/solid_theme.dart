@@ -143,7 +143,7 @@ class SolidTheme {
 
 /// Configuration for customising SolidUI theme.
 
-class SolidThemeStyleConfig {
+class SolidThemeConfig {
   /// Primary color for the application.
 
   final Color primaryColor;
@@ -166,7 +166,7 @@ class SolidThemeStyleConfig {
 
   /// Creates a theme configuration.
 
-  const SolidThemeStyleConfig({
+  const SolidThemeConfig({
     this.primaryColor = SolidTheme.primaryColor,
     this.defaultPadding = SolidTheme.defaultPadding,
     this.defaultBorderRadius = SolidTheme.defaultBorderRadius,

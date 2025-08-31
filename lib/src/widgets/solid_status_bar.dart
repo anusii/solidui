@@ -183,7 +183,9 @@ class SolidStatusBar extends StatelessWidget {
   /// Shows the built-in security key manager dialogue.
 
   void _showSecurityKeyManager(
-      BuildContext context, SolidSecurityKeyStatus config) {
+    BuildContext context,
+    SolidSecurityKeyStatus config,
+  ) {
     showDialog(
       context: context,
       barrierColor: Theme.of(context).colorScheme.onSurface,

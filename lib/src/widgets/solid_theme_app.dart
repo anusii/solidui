@@ -45,7 +45,7 @@ class SolidThemeApp extends StatefulWidget {
 
   /// Optional theme configuration for customising default themes.
 
-  final SolidThemeStyleConfig? themeConfig;
+  final SolidThemeConfig? themeConfig;
 
   /// The home widget.
 

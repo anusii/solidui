@@ -1,6 +1,6 @@
 /// Models for theme toggle functionality in Solid applications.
 ///
-// Time-stamp: <Monday 2025-08-18 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Sunday 2025-08-31 11:06:35 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -112,21 +112,11 @@ class SolidThemeToggleConfig {
   /// Returns tooltip text based on current theme mode.
 
   String getCurrentTooltip(ThemeMode themeMode) {
+    // If a custom tooltip is provided, use it instead of the default one.
+
     if (tooltip != null) return tooltip!;
 
-    if (usesInternalManagement) {
-      return '''
-**Theme Toggle**
-
-Switch between system, light and dark modes for optimal viewing experience.
-
-🌙 **Dark Mode**: Better for low-light environments
-
-☀️ **Light Mode**: Better for bright environments
-
-🖥️ **System Mode**: Follows your device settings
-''';
-    }
+    // Return responsive tooltip based on current theme mode.
 
     switch (themeMode) {
       case ThemeMode.light:
@@ -135,9 +125,10 @@ Switch between system, light and dark modes for optimal viewing experience.
 
 ☀️ **Light Mode** (Current)
 
-Tap to switch to Dark Mode for better viewing in low light conditions.
+Light Mode is best for viewing in light conditions. Tap here to switch to Dark
+Mode for low light conditions and then again for your System Mode.
 
-Cycle: Light → Dark → System
+Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 ''';
       case ThemeMode.dark:
         return '''
@@ -145,9 +136,10 @@ Cycle: Light → Dark → System
 
 🌙 **Dark Mode** (Current)
 
-Tap to switch to System Mode to follow your device settings.
+Dark Mode is best for viewing in low light conditions. Tap here to switch to
+System Mode to follow your device settings and then again for Light Mode.
 
-Cycle: Light → Dark → System
+Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 ''';
       case ThemeMode.system:
         return '''
@@ -155,9 +147,10 @@ Cycle: Light → Dark → System
 
 🖥️ **System Mode** (Current)
 
-Following your device settings. Tap to switch to Light Mode.
+System Mode follows your device settings. Tap here to switch to Light Mode and
+then again for Dark mode.
 
-Cycle: Light → Dark → System
+Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 ''';
     }
   }
@@ -176,8 +169,13 @@ Cycle: Light → Dark → System
   }
 
   /// Whether this config uses internal theme management.
-  /// When both onToggleTheme and currentThemeMode are null, SolidScaffold
-  /// will automatically manage theme state using SolidThemeNotifier.
+  ///
+  /// Returns `true` when both `onToggleTheme` and `currentThemeMode` are null,
+  /// indicating that SolidScaffold should automatically manage theme state
+  /// using `SolidThemeNotifier`.
+  ///
+  /// Returns `false` when external theme management is being used, requiring
+  /// both parameters to be provided for proper functionality.
 
   bool get usesInternalManagement =>
       onToggleTheme == null && currentThemeMode == null;
