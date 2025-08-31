@@ -31,13 +31,12 @@ import 'package:flutter/material.dart';
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
-import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
-import 'package:solidui/src/widgets/solid_scaffold_build_helper.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_init_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
+import 'package:solidui/src/widgets/solid_scaffold_widget_builder.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
@@ -197,17 +196,6 @@ class SolidScaffold extends StatefulWidget {
     super.key,
     this.menu,
     this.child,
-    this.appBar,
-    this.statusBar,
-    this.userInfo,
-    this.onLogout,
-    this.onShowAlert,
-    this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
-    this.initialIndex = 0,
-    this.onMenuSelected,
-    this.selectedIndex,
-    this.themeToggle,
-    this.aboutConfig,
     this.body,
     this.scaffoldAppBar,
     this.drawer,
@@ -216,6 +204,12 @@ class SolidScaffold extends StatefulWidget {
     this.bottomSheet,
     this.persistentFooterButtons,
     this.resizeToAvoidBottomInset,
+    this.appBar,
+    this.statusBar,
+    this.userInfo,
+    this.onLogout,
+    this.onShowAlert,
+    this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
@@ -231,6 +225,11 @@ class SolidScaffold extends StatefulWidget {
     this.drawerEnableOpenDragGesture = true,
     this.endDrawerEnableOpenDragGesture = true,
     this.restorationId,
+    this.initialIndex = 0,
+    this.onMenuSelected,
+    this.selectedIndex,
+    this.themeToggle,
+    this.aboutConfig,
   });
   @override
   State<SolidScaffold> createState() => _SolidScaffoldState();
@@ -344,8 +343,10 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     }
   }
 
-  bool _isWideScreen(BuildContext context) =>
-      SolidScaffoldHelpers.isWideScreen(context, widget.narrowScreenThreshold);
+  bool _isWideScreen(BuildContext context) => SolidScaffoldHelpers.isWideScreen(
+        context,
+        widget.narrowScreenThreshold,
+      );
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
   int get _currentSelectedIndex => widget.selectedIndex ?? _selectedIndex;
@@ -353,94 +354,35 @@ class _SolidScaffoldState extends State<SolidScaffold> {
   Widget build(BuildContext context) {
     final isWideScreen = _isWideScreen(context);
     final isCompatibilityMode = widget.menu == null;
-    Widget? bodyContent;
-    if (isCompatibilityMode) {
-      bodyContent = widget.body;
-    } else {
-      bodyContent = SolidScaffoldLayoutBuilder.buildBody(
-        context,
-        isWideScreen,
-        SolidScaffoldHelpers.convertToNavTabs(widget.menu),
-        _currentSelectedIndex,
-        SolidScaffoldHelpers.getEffectiveChild(
-          widget.menu,
-          _currentSelectedIndex,
-          widget.child,
-          widget.body,
-        ),
-        _onMenuSelected,
-        widget.onShowAlert,
-      );
-    }
-    return SolidScaffoldBuildHelper.buildScaffold(
+    final bodyContent = isCompatibilityMode
+        ? widget.body
+        : SolidScaffoldLayoutBuilder.buildBody(
+            context,
+            isWideScreen,
+            SolidScaffoldHelpers.convertToNavTabs(widget.menu),
+            _currentSelectedIndex,
+            SolidScaffoldHelpers.getEffectiveChild(
+              widget.menu,
+              _currentSelectedIndex,
+              widget.child,
+              widget.body,
+            ),
+            _onMenuSelected,
+            widget.onShowAlert,
+          );
+    return SolidScaffoldWidgetBuilder.buildFromWidget(
       context: context,
       scaffoldKey: _scaffoldKey,
+      widget: widget,
       isWideScreen: isWideScreen,
       isCompatibilityMode: isCompatibilityMode,
-      floatingActionButton: widget.floatingActionButton,
-      resolveAppBar: (context, isCompatibilityMode) =>
-          SolidScaffoldHelpers.resolveAppBar(
-        context,
-        widget.appBar,
-        widget.scaffoldAppBar,
-        isCompatibilityMode,
-        widget.menu,
-        (context) => SolidScaffoldHelpers.buildAppBarFromConfig(
-          context,
-          widget.appBar,
-          widget.themeToggle,
-          SolidScaffoldHelpers.getCurrentThemeMode(
-            _getUsesInternalManagement(),
-            solidThemeNotifier,
-            widget.themeToggle,
-          ),
-          SolidScaffoldHelpers.getThemeToggleCallback(
-            _getUsesInternalManagement(),
-            solidThemeNotifier,
-            widget.themeToggle,
-          ),
-          widget.aboutConfig ?? const SolidAboutConfig(),
-          widget.narrowScreenThreshold,
-          _shouldShowVersion,
-          _getVersionToDisplay,
-        ),
-      ),
-      buildDrawer: () {
-        if (_isWideScreen(context) || widget.menu == null) return null;
-        return SolidNavDrawer(
-          userInfo: widget.userInfo,
-          tabs: SolidScaffoldHelpers.convertToNavTabs(widget.menu),
-          selectedIndex: _currentSelectedIndex,
-          onTabSelected: _onMenuSelected,
-          onLogout: widget.onLogout,
-          showLogout: widget.onLogout != null,
-        );
-      },
-      endDrawer: widget.endDrawer,
-      backgroundColor: widget.backgroundColor,
-      floatingActionButtonLocation: widget.floatingActionButtonLocation,
-      floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
       bodyContent: bodyContent,
-      bottomNavigationBar: isCompatibilityMode
-          ? widget.bottomNavigationBar
-          : SolidScaffoldLayoutBuilder.buildStatusBar(
-              widget.statusBar,
-              _isKeySaved,
-            ),
-      bottomSheet: widget.bottomSheet,
-      persistentFooterButtons: widget.persistentFooterButtons,
-      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      onDrawerChanged: widget.onDrawerChanged,
-      onEndDrawerChanged: widget.onEndDrawerChanged,
-      primary: widget.primary,
-      drawerDragStartBehavior: widget.drawerDragStartBehavior,
-      extendBody: widget.extendBody,
-      extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
-      drawerScrimColor: widget.drawerScrimColor,
-      drawerEdgeDragWidth: widget.drawerEdgeDragWidth,
-      drawerEnableOpenDragGesture: widget.drawerEnableOpenDragGesture,
-      endDrawerEnableOpenDragGesture: widget.endDrawerEnableOpenDragGesture,
-      restorationId: widget.restorationId,
+      isKeySaved: _isKeySaved,
+      currentSelectedIndex: _currentSelectedIndex,
+      onMenuSelected: _onMenuSelected,
+      getUsesInternalManagement: _getUsesInternalManagement,
+      shouldShowVersion: _shouldShowVersion,
+      getVersionToDisplay: _getVersionToDisplay,
     );
   }
 }

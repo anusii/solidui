@@ -38,16 +38,8 @@ import 'package:solidui/src/widgets/solid_file_ui_builder.dart';
 /// preview functionality.
 
 class SolidFile extends StatefulWidget {
-  /// The base path for file operations.
-
   final String basePath;
-
-  /// Callback when a file is selected in the browser.
-
   final Function(String, String)? onFileSelected;
-
-  /// Callback when an operation is completed.
-
   final VoidCallback? onOperationComplete;
   const SolidFile({
     super.key,
@@ -68,8 +60,6 @@ class _SolidFileState extends State<SolidFile> {
     _fileState = FileState(currentPath: widget.basePath);
   }
 
-  /// Helper function to get a user-friendly name from the path.
-
   String _getFriendlyFolderName(String pathValue) {
     return SolidFileOperations.getFriendlyFolderName(
       pathValue,
@@ -85,14 +75,10 @@ class _SolidFileState extends State<SolidFile> {
     });
   }
 
-  /// Shows success message.
-
   void _showSuccessMessage(String message) {
     if (!mounted) return;
     SolidFileOperations.showSuccessMessage(context, message);
   }
-
-  /// Shows alert dialogue.
 
   void _showAlert(String message) {
     if (!mounted) return;
@@ -166,8 +152,6 @@ class _SolidFileState extends State<SolidFile> {
       _showAlert('Download failed');
     }
   }
-
-  /// Handles file deletion from the POD.
 
   Future<void> _handleDelete() async {
     if (_fileState.remoteFileName == null || _fileState.currentPath == null) {
@@ -259,8 +243,6 @@ class _SolidFileState extends State<SolidFile> {
     );
   }
 
-  /// Handles file download.
-
   Future<void> _handleFileDownload(String name, String filePath) async {
     _updateFileState(
       _fileState.copyWith(
@@ -287,16 +269,12 @@ class _SolidFileState extends State<SolidFile> {
     }
   }
 
-  /// Handles CSV import.
-
   void _handleImportCsv(String name, String filePath) {
     if (mounted) {
       _updateFileState(_fileState.copyWith(currentPath: filePath));
       _browserKey.currentState?.refreshFiles();
     }
   }
-
-  /// Handles directory changes.
 
   void _handleDirectoryChanged(String pathValue) {
     if (mounted) {

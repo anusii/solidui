@@ -33,24 +33,10 @@ import 'package:solidui/src/widgets/solid_file_uploader_helpers.dart';
 /// A widget that handles file upload functionality and preview.
 
 class SolidFileUploader extends StatefulWidget {
-  /// The current file state.
-
   final FileState fileState;
-
-  /// Callback when upload is requested.
-
   final Future<void> Function() onUpload;
-
-  /// Callback when file is selected.
-
   final void Function(String?) onFileSelected;
-
-  /// Callback when file preview is requested.
-
   final void Function(String) onPreviewRequested;
-
-  /// The base path for file operations.
-
   final String basePath;
   const SolidFileUploader({
     super.key,
@@ -98,8 +84,6 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
     }
   }
 
-  /// Handles upload button press.
-
   Future<void> _handleUploadButtonPress() async {
     final filePath = await SolidFileUploaderHelpers.pickFile();
     if (filePath != null) {
@@ -114,8 +98,6 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
       });
     }
   }
-
-  /// Handles JSON preview.
 
   Future<void> _handleJsonPreview() async {
     final result = await FilePicker.platform.pickFiles(
@@ -158,8 +140,6 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Title.
-
               Text(
                 'Upload Files',
                 style: TextStyle(

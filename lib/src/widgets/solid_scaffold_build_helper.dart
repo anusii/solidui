@@ -26,7 +26,12 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_nav_drawer.dart';
+import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
+import 'package:solidui/src/widgets/solid_scaffold_models.dart';
+import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// Helper for building the main Scaffold in SolidScaffold.
 
@@ -101,6 +106,94 @@ class SolidScaffoldBuildHelper {
       drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
       endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
       restorationId: restorationId,
+    );
+  }
+
+  /// Builds a configured scaffold with all necessary components.
+
+  static Widget buildConfiguredScaffold({
+    required BuildContext context,
+    required GlobalKey<ScaffoldState> scaffoldKey,
+    required SolidScaffoldConfig config,
+    required bool isWideScreen,
+    required bool isCompatibilityMode,
+    required Widget? bodyContent,
+    required bool isKeySaved,
+    required int currentSelectedIndex,
+    required void Function(int) onMenuSelected,
+    required bool Function() getUsesInternalManagement,
+    required bool Function() shouldShowVersion,
+    required String Function() getVersionToDisplay,
+  }) {
+    return buildScaffold(
+      context: context,
+      scaffoldKey: scaffoldKey,
+      isWideScreen: isWideScreen,
+      isCompatibilityMode: isCompatibilityMode,
+      floatingActionButton: config.floatingActionButton,
+      resolveAppBar: (context, isCompatibilityMode) =>
+          SolidScaffoldHelpers.resolveAppBar(
+        context,
+        config.appBar,
+        config.scaffoldAppBar,
+        isCompatibilityMode,
+        config.menu,
+        (context) => SolidScaffoldHelpers.buildAppBarFromConfig(
+          context,
+          config.appBar,
+          config.themeToggle,
+          SolidScaffoldHelpers.getCurrentThemeMode(
+            getUsesInternalManagement(),
+            solidThemeNotifier,
+            config.themeToggle,
+          ),
+          SolidScaffoldHelpers.getThemeToggleCallback(
+            getUsesInternalManagement(),
+            solidThemeNotifier,
+            config.themeToggle,
+          ),
+          config.aboutConfig ?? const SolidAboutConfig(),
+          config.narrowScreenThreshold,
+          shouldShowVersion,
+          getVersionToDisplay,
+        ),
+      ),
+      buildDrawer: () {
+        if (isWideScreen || config.menu == null) return null;
+        return SolidNavDrawer(
+          userInfo: config.userInfo,
+          tabs: SolidScaffoldHelpers.convertToNavTabs(config.menu),
+          selectedIndex: currentSelectedIndex,
+          onTabSelected: onMenuSelected,
+          onLogout: config.onLogout,
+          showLogout: config.onLogout != null,
+        );
+      },
+      endDrawer: config.endDrawer,
+      backgroundColor: config.backgroundColor,
+      floatingActionButtonLocation: config.floatingActionButtonLocation,
+      floatingActionButtonAnimator: config.floatingActionButtonAnimator,
+      bodyContent: bodyContent,
+      bottomNavigationBar: isCompatibilityMode
+          ? config.bottomNavigationBar
+          : SolidScaffoldLayoutBuilder.buildStatusBar(
+              config.statusBar,
+              isKeySaved,
+            ),
+      bottomSheet: config.bottomSheet,
+      persistentFooterButtons: config.persistentFooterButtons,
+      resizeToAvoidBottomInset: config.resizeToAvoidBottomInset,
+      onDrawerChanged: config.onDrawerChanged,
+      onEndDrawerChanged: config.onEndDrawerChanged,
+      primary: config.primary,
+      drawerDragStartBehavior: config.drawerDragStartBehavior,
+      extendBody: config.extendBody,
+      extendBodyBehindAppBar: config.extendBodyBehindAppBar,
+      drawerScrimColor: config.drawerScrimColor,
+      drawerEdgeDragWidth: config.drawerEdgeDragWidth,
+      drawerEnableOpenDragGesture: config.drawerEnableOpenDragGesture,
+      endDrawerEnableOpenDragGesture: config.endDrawerEnableOpenDragGesture,
+      restorationId: config.restorationId,
     );
   }
 }

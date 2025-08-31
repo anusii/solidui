@@ -31,17 +31,11 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show
-        KeyManager,
-        SolidFunctionCallStatus,
-        changeKeyPopup,
-        deleteFile,
-        getEncKeyPath,
-        readPod;
+    show KeyManager, deleteFile, getEncKeyPath, readPod;
 
+import 'solid_security_key_manager_dialogs.dart';
 import 'solid_security_key_manager_helpers.dart';
 import 'solid_security_key_manager_ui.dart';
-import 'solid_security_key_view.dart';
 
 /// Configuration for the Security Key Manager.
 
@@ -139,90 +133,21 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   }
 
   Future<void> _showPrivateData(String title, BuildContext context) async {
-    if (!_hasExistingKey) {
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text('Notice'),
-          content: const Text(
-            'No security key found. Please set a security key first.',
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-    setState(() => _isLoading = true);
-
-    try {
-      final filePath = await getEncKeyPath();
-      if (!context.mounted) return;
-
-      final fileContent = await readPod(
-        filePath,
-        context,
-        SolidSecurityKeyManager(
-          config: widget.config,
-          onKeyStatusChanged: widget.onKeyStatusChanged,
-        ),
-      );
-      if (!context.mounted) return;
-      if (fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
-        await SolidSecurityKeyManagerHelpers.showErrorDialog(
-          context,
-          'Not Logged In',
-          'You must be logged in to view security keys.',
-        );
-        return;
-      }
-      if (fileContent == SolidFunctionCallStatus.fail.toString()) {
-        await _showKeyFileNotFoundDialog(context);
-        return;
-      }
-      if (fileContent.isNotEmpty) {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SolidSecurityKeyView(
-              keyInfo: fileContent,
-              title: title,
-            ),
-          ),
-        );
-      } else {
-        await SolidSecurityKeyManagerHelpers.showErrorDialog(
-          context,
-          'Empty Key File',
-          'The security key file exists but appears to be empty.',
-        );
-      }
-    } catch (e) {
-      debugPrint('Exception reading security key: $e');
-      if (context.mounted) {
-        await SolidSecurityKeyManagerHelpers.showErrorDialog(
-          context,
-          'Error Reading Key',
-          e.toString(),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    await SolidSecurityKeyManagerDialogs.showPrivateData(
+      title,
+      context,
+      _hasExistingKey,
+      SolidSecurityKeyManager(
+        config: widget.config,
+        onKeyStatusChanged: widget.onKeyStatusChanged,
+      ),
+      (loading) {
+        if (mounted) setState(() => _isLoading = loading);
+      },
+      widget.onKeyStatusChanged,
+      _checkKeyStatus,
+      _showKeyFileNotFoundDialog,
+    );
   }
 
   Future<void> _showKeyInputDialog(BuildContext context) async {
@@ -230,16 +155,15 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     _confirmKeyController.clear();
 
     if (_hasExistingKey) {
-      await SolidSecurityKeyManagerHelpers.handleExistingKeyChange(
+      await SolidSecurityKeyManagerDialogs.showKeyInputDialog(
+        context,
+        widget.config.appWidget,
         () async {
+          await _checkKeyStatus();
           if (!mounted) return;
-          await changeKeyPopup(context, widget.config.appWidget);
+          widget.onKeyStatusChanged(true);
         },
-        (message) =>
-            SolidSecurityKeyManagerHelpers.showErrorSnackBar(context, message),
       );
-      widget.onKeyStatusChanged(true);
-      await _checkKeyStatus();
       if (context.mounted) Navigator.of(context).pop();
       return;
     }
@@ -247,7 +171,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   }
 
   Future<void> _showNewKeyDialog(BuildContext context) async {
-    await SolidSecurityKeyManagerHelpers.showNewKeyDialog(
+    await SolidSecurityKeyManagerDialogs.showNewKeyDialog(
       context,
       _keyController,
       _confirmKeyController,
@@ -282,7 +206,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       context,
       'Security Key File Not Found',
       'The security key file could not be found. '
-      'Would you like to set a new security key?',
+          'Would you like to set a new security key?',
     );
     await KeyManager.forgetSecurityKey();
     await _checkKeyStatus();
