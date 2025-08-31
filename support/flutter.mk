@@ -210,7 +210,7 @@ locmax:
 	' _ {} \; | sort -nr); \
 	if [ -n "$$output" ]; then \
 		echo "$$output"; \
-		echo "$(CROSS) Error: Files with more than $(LINES) lines found"; \
+		echo "\n$(CROSS) Error: Files with more than $(LINES) lines found"; \
 		exit 1; \
 	else \
 		echo "$(TICK) All files are under $(LINES) lines"; \
