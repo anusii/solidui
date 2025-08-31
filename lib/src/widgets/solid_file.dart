@@ -23,19 +23,16 @@
 
 library;
 
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/models/file_state.dart';
-import 'package:solidui/src/utils/is_text_file.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
-import 'package:solidui/src/widgets/solid_file_uploader.dart';
+import 'package:solidui/src/widgets/solid_file_operations.dart';
+import 'package:solidui/src/widgets/solid_file_ui_builder.dart';
 
 /// The main file service widget that provides file upload, download, and
 /// preview functionality.
@@ -52,14 +49,12 @@ class SolidFile extends StatefulWidget {
   /// Callback when an operation is completed.
 
   final VoidCallback? onOperationComplete;
-
   const SolidFile({
     super.key,
     required this.basePath,
     this.onFileSelected,
     this.onOperationComplete,
   });
-
   @override
   State<SolidFile> createState() => _SolidFileState();
 }
@@ -67,7 +62,6 @@ class SolidFile extends StatefulWidget {
 class _SolidFileState extends State<SolidFile> {
   final _browserKey = GlobalKey<SolidFileBrowserState>();
   late FileState _fileState;
-
   @override
   void initState() {
     super.initState();
@@ -77,47 +71,10 @@ class _SolidFileState extends State<SolidFile> {
   /// Helper function to get a user-friendly name from the path.
 
   String _getFriendlyFolderName(String pathValue) {
-    final String root = widget.basePath;
-    if (pathValue.isEmpty || pathValue == root) {
-      return 'Home';
-    }
-
-    // Use path.basename to safely get the last component.
-
-    final dirName = path.basename(pathValue);
-
-    switch (dirName) {
-      case 'diary':
-        return 'Appointments Data';
-      case 'blood_pressure':
-        return 'Blood Pressure Data';
-      case 'medication':
-        return 'Medication Data';
-      case 'vaccination':
-        return 'Vaccination Data';
-      case 'profile':
-        return 'Profile Data';
-      case 'health_plan':
-        return 'Health Plan Data';
-      case 'pathology':
-        return 'Pathology Data';
-      case 'tv_shows':
-        return 'TV Shows';
-
-      default:
-        // Basic formatting for unknown folders:
-        // capitalise first letter, replace underscores.
-
-        if (dirName.isEmpty) return 'Folder';
-        String formattedName = dirName.replaceAll('_', ' ').trim();
-        formattedName = formattedName
-            .split(RegExp(r'\s+'))
-            .map((w) => w.isEmpty
-                ? w
-                : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
-            .join(' ');
-        return formattedName;
-    }
+    return SolidFileOperations.getFriendlyFolderName(
+      pathValue,
+      widget.basePath,
+    );
   }
 
   /// Updates the file state and triggers a rebuild.
@@ -128,92 +85,49 @@ class _SolidFileState extends State<SolidFile> {
     });
   }
 
+  /// Shows success message.
+
+  void _showSuccessMessage(String message) {
+    if (!mounted) return;
+    SolidFileOperations.showSuccessMessage(context, message);
+  }
+
+  /// Shows alert dialogue.
+
+  void _showAlert(String message) {
+    if (!mounted) return;
+    SolidFileOperations.showAlert(context, message);
+  }
+
   /// Handles file upload by reading its contents and encrypting it for upload.
 
   Future<void> _handleUpload() async {
     if (_fileState.uploadFile == null) return;
-
-    try {
-      _updateFileState(
-          _fileState.copyWith(uploadInProgress: true, uploadDone: false));
-
-      final file = File(_fileState.uploadFile!);
-      String fileContent;
-
-      // For text files, we directly read the content.
-      // For binary files, we encode them into base64 format.
-
-      if (isTextFile(_fileState.uploadFile!)) {
-        fileContent = await file.readAsString();
-      } else {
-        final bytes = await file.readAsBytes();
-        fileContent = base64Encode(bytes);
-      }
-
-      // Sanitise file name and append encryption extension.
-
-      String sanitizedFileName = path
-          .basename(_fileState.uploadFile!)
-          .replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_')
-          .replaceAll(RegExp(r'\.enc\.ttl$'), '');
-
-      final remoteFileName = '$sanitizedFileName.enc.ttl';
-      final cleanFileName = sanitizedFileName;
-
-      // Extract the subdirectory path.
-
-      String? subPath =
-          _fileState.currentPath?.replaceFirst(widget.basePath, '').trim();
-      String uploadPath = subPath == null || subPath.isEmpty
-          ? remoteFileName
-          : '${subPath.startsWith("/") ? subPath.substring(1) : subPath}/$remoteFileName';
-
-      if (!context.mounted) return;
-
-      // Upload file with encryption.
-
-      final contextForUpload = context;
-
-      final result = await writePod(
-        uploadPath,
-        fileContent,
-        contextForUpload,
-        Text('Upload'),
-        encrypted: true,
+    if (!context.mounted) return;
+    final newState = await SolidFileOperations.handleUpload(
+      _fileState,
+      widget.basePath,
+      (uploadPath, fileContent) async {
+        if (!mounted) return SolidFunctionCallStatus.fail;
+        return await writePod(
+          uploadPath,
+          fileContent,
+          context,
+          const Text('Upload'),
+          encrypted: true,
+        );
+      },
+    );
+    if (!context.mounted) return;
+    _updateFileState(newState);
+    if (newState.uploadDone) {
+      _showSuccessMessage('File uploaded successfully');
+      _browserKey.currentState?.refreshFiles();
+      widget.onOperationComplete?.call();
+    } else if (!newState.uploadInProgress) {
+      _showAlert(
+        'Upload failed - please check your connection and permissions.',
       );
-
-      _updateFileState(_fileState.copyWith(
-        uploadDone: result == SolidFunctionCallStatus.success,
-        uploadInProgress: false,
-        remoteFileName: remoteFileName,
-        cleanFileName: cleanFileName,
-      ));
-
-      if (result == SolidFunctionCallStatus.success) {
-        // Show success message.
-
-        if (context.mounted) {
-          final currentContext = context;
-          ScaffoldMessenger.of(currentContext).showSnackBar(
-            SnackBar(
-              content: const Text('File uploaded successfully'),
-              backgroundColor: Theme.of(currentContext).colorScheme.tertiary,
-            ),
-          );
-          // Refresh the browser.
-          _browserKey.currentState?.refreshFiles();
-          widget.onOperationComplete?.call();
-        }
-      } else if (context.mounted) {
-        _showAlert(
-            'Upload failed - please check your connection and permissions.');
-      }
-    } catch (e) {
-      if (context.mounted) {
-        _showAlert('Upload error: ${e.toString()}');
-        debugPrint('Upload error: $e');
-      }
-      _updateFileState(_fileState.copyWith(uploadInProgress: false));
     }
   }
 
@@ -223,79 +137,33 @@ class _SolidFileState extends State<SolidFile> {
     if (_fileState.remoteFileName == null || _fileState.currentPath == null) {
       return;
     }
-
-    try {
-      _updateFileState(
-          _fileState.copyWith(downloadInProgress: true, downloadDone: false));
-
-      // Let user choose where to save the file.
-
-      String? outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save file as:',
-        fileName: _fileState.cleanFileName ??
-            _fileState.remoteFileName?.replaceAll('.enc.ttl', ''),
-      );
-
-      if (outputFile == null) {
-        _updateFileState(_fileState.copyWith(downloadInProgress: false));
-        return;
-      }
-
-      final baseDir = widget.basePath;
-      final relativePath = _fileState.currentPath == baseDir
-          ? '$baseDir/${_fileState.remoteFileName}'
-          : '${_fileState.currentPath}/${_fileState.remoteFileName}';
-
-      if (!context.mounted) return;
-
-      final contextForKey = context;
-
-      await getKeyFromUserIfRequired(
-        contextForKey,
-        Text('Please enter your security key to download the file'),
-      );
-
-      if (!context.mounted) return;
-      final contextForRead = context;
-
-      final fileContent = await readPod(
-        relativePath,
-        contextForRead,
-        Text('Downloading'),
-      );
-
-      if (!context.mounted) return;
-
-      if (fileContent == SolidFunctionCallStatus.fail.toString() ||
-          fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
-        throw Exception(
-          'Download failed - please check your connection and permissions',
+    if (!context.mounted) return;
+    final newState = await SolidFileOperations.handleDownload(
+      _fileState,
+      widget.basePath,
+      () async {
+        if (!mounted) return;
+        await getKeyFromUserIfRequired(
+          context,
+          const Text('Please enter your security key to download the file'),
         );
-      }
-
-      // Save the decrypted content to file
-      final outputFileHandle = File(outputFile);
-      await outputFileHandle.writeAsString(fileContent);
-
-      _updateFileState(
-          _fileState.copyWith(downloadDone: true, downloadInProgress: false));
-
-      if (context.mounted) {
-        final currentContext = context;
-        ScaffoldMessenger.of(currentContext).showSnackBar(
-          SnackBar(
-            content: const Text('File downloaded successfully'),
-            backgroundColor: Theme.of(currentContext).colorScheme.tertiary,
-          ),
+      },
+      (relativePath) async {
+        if (!mounted) return '';
+        return await readPod(
+          relativePath,
+          context,
+          const Text('Downloading'),
         );
-        widget.onOperationComplete?.call();
-      }
-    } catch (e) {
-      if (context.mounted) {
-        _showAlert('Download error: ${e.toString()}');
-        debugPrint('Download error: $e');
-      }
-      _updateFileState(_fileState.copyWith(downloadInProgress: false));
+      },
+    );
+    if (!context.mounted) return;
+    _updateFileState(newState);
+    if (newState.downloadDone) {
+      _showSuccessMessage('File downloaded successfully');
+      widget.onOperationComplete?.call();
+    } else if (!newState.downloadInProgress && !newState.downloadDone) {
+      _showAlert('Download failed');
     }
   }
 
@@ -305,452 +173,134 @@ class _SolidFileState extends State<SolidFile> {
     if (_fileState.remoteFileName == null || _fileState.currentPath == null) {
       return;
     }
-
-    try {
-      _updateFileState(
-          _fileState.copyWith(deleteInProgress: true, deleteDone: false));
-
-      final baseDir = widget.basePath;
-      final filePath = _fileState.currentPath == baseDir
-          ? '$baseDir/${_fileState.remoteFileName}'
-          : '${_fileState.currentPath}/${_fileState.remoteFileName}';
-
-      if (!context.mounted) return;
-
-      // First try to delete the main file.
-
-      bool mainFileDeleted = false;
-      try {
-        await deleteFile(filePath);
-        mainFileDeleted = true;
-      } catch (e) {
-        debugPrint('Error deleting main file: $e');
-        // Only rethrow if it's not a 404 error.
-
-        if (!e.toString().contains('404') &&
-            !e.toString().contains('NotFoundHttpError')) {
-          rethrow;
-        }
-      }
-
-      if (!context.mounted) return;
-
-      // If main file deletion succeeded, try to delete the ACL file.
-
-      if (mainFileDeleted) {
-        try {
-          await deleteFile('$filePath.acl');
-        } catch (e) {
-          // ACL files are optional and may not exist.
-
-          if (e.toString().contains('404') ||
-              e.toString().contains('NotFoundHttpError')) {
-            debugPrint('ACL file not found (safe to ignore)');
-          } else {
-            debugPrint('Error deleting ACL file: ${e.toString()}');
-          }
-        }
-
-        if (!context.mounted) return;
-        _updateFileState(_fileState.copyWith(deleteDone: true));
-
-        if (context.mounted) {
-          final currentContext = context;
-          ScaffoldMessenger.of(currentContext).showSnackBar(
-            SnackBar(
-              content: const Text('File deleted successfully'),
-              backgroundColor: Theme.of(currentContext).colorScheme.tertiary,
-            ),
-          );
-
-          // Refresh the browser.
-          _browserKey.currentState?.refreshFiles();
-          widget.onOperationComplete?.call();
-        }
-      }
-    } catch (e) {
-      if (!context.mounted) return;
-
-      _updateFileState(_fileState.copyWith(deleteDone: false));
-
-      // Provide user-friendly error messages.
-
-      final message = e.toString().contains('404') ||
-              e.toString().contains('NotFoundHttpError')
-          ? 'File not found or already deleted'
-          : 'Delete failed: ${e.toString()}';
-
-      _showAlert(message);
-      debugPrint('Delete error: $e');
-    } finally {
-      if (context.mounted) {
-        _updateFileState(_fileState.copyWith(deleteInProgress: false));
-      }
-    }
-  }
-
-  /// Shows an alert dialog with the given message.
-
-  void _showAlert(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+    if (!context.mounted) return;
+    final newState = await SolidFileOperations.handleDelete(
+      _fileState,
+      widget.basePath,
     );
+    if (!context.mounted) return;
+    _updateFileState(newState);
+    if (newState.deleteDone) {
+      _showSuccessMessage('File deleted successfully');
+      _browserKey.currentState?.refreshFiles();
+      widget.onOperationComplete?.call();
+    } else if (!newState.deleteInProgress && !newState.deleteDone) {
+      _showAlert('Delete failed');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get current path and friendly name.
-
     final currentPath = _fileState.currentPath ?? widget.basePath;
-    final String friendlyFolderName = _getFriendlyFolderName(currentPath);
-
-    // Determine if we're on a wide screen.
-
-    final isWideScreen = MediaQuery.of(context).size.width > 800;
-
+    final friendlyFolderName = _getFriendlyFolderName(currentPath);
+    final isWideScreen = MediaQuery.of(context).size.width >
+        NavigationConstants.narrowScreenThreshold;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Main content area.
-
         Expanded(
           child: isWideScreen
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // File browser on the left.
-
-                    Expanded(
-                      flex: 2,
-                      child: Card(
-                        color: Theme.of(context).cardColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        elevation: 4,
-                        margin: const EdgeInsets.only(right: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SolidFileBrowser(
-                            key: _browserKey,
-                            browserKey: _browserKey,
-                            friendlyFolderName: friendlyFolderName,
-                            basePath: widget.basePath,
-                            onFileSelected: (name, filePath) async {
-                              setState(() {});
-
-                              try {
-                                // Read file content for preview.
-
-                                final content = await readPod(
-                                  filePath,
-                                  context,
-                                  Container(),
-                                );
-                                String preview;
-
-                                if (isTextFile(name)) {
-                                  // For text files, show the first 500 characters.
-
-                                  preview = content.length > 500
-                                      ? '${content.substring(0, 500)}...'
-                                      : content;
-                                } else {
-                                  // For binary files, show basic info.
-
-                                  preview =
-                                      'Binary file\nSize: ${(content.length / 1024).toStringAsFixed(2)} KB\nType: ${path.extension(name)}';
-                                }
-
-                                _updateFileState(_fileState.copyWith(
-                                  downloadFile: filePath,
-                                  filePreview: preview,
-                                  remoteFileName: path.basename(name),
-                                ));
-
-                                widget.onFileSelected?.call(name, filePath);
-                              } catch (e) {
-                                debugPrint('Preview error: $e');
-                                _updateFileState(_fileState.copyWith(
-                                  downloadFile: filePath,
-                                  filePreview: 'Error loading preview',
-                                  remoteFileName: path.basename(name),
-                                ));
-                              }
-                            },
-                            onFileDownload: (name, filePath) async {
-                              _updateFileState(_fileState.copyWith(
-                                downloadFile: filePath,
-                                remoteFileName: path.basename(name),
-                              ));
-                              await _handleDownload();
-                            },
-                            onFileDelete: (name, filePath) async {
-                              // Show confirmation dialog before deleting.
-
-                              final bool? confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).dialogTheme.backgroundColor,
-                                    title: Text(
-                                      'Confirm Delete',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleLarge,
-                                    ),
-                                    content: Text(
-                                      'Are you sure you want to delete "$name"?',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium,
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.of(
-                                          context,
-                                        ).pop(false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.of(
-                                          context,
-                                        ).pop(true),
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-
-                              if (!context.mounted) return;
-
-                              if (confirm == true) {
-                                _updateFileState(_fileState.copyWith(
-                                  remoteFileName: path.basename(name),
-                                ));
-                                await _handleDelete();
-                              }
-                            },
-                            onImportCsv: (name, filePath) {
-                              if (mounted) {
-                                _updateFileState(
-                                    _fileState.copyWith(currentPath: filePath));
-                                _browserKey.currentState?.refreshFiles();
-                              }
-                            },
-                            onDirectoryChanged: (path) {
-                              if (mounted) {
-                                _updateFileState(
-                                    _fileState.copyWith(currentPath: path));
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Upload section on the right.
-
-                    Expanded(
-                      flex: 1,
-                      child: Card(
-                        color: Theme.of(context).cardColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        elevation: 4,
-                        margin: const EdgeInsets.only(left: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: SolidFileUploader(
-                            fileState: _fileState,
-                            basePath: widget.basePath,
-                            onUpload: _handleUpload,
-                            onFileSelected: (filePath) {
-                              _updateFileState(
-                                  _fileState.copyWith(uploadFile: filePath));
-                            },
-                            onPreviewRequested: (preview) {
-                              _updateFileState(
-                                  _fileState.copyWith(filePreview: preview));
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              ? SolidFileUIBuilder.buildWideScreenLayout(
+                  context,
+                  _browserKey,
+                  friendlyFolderName,
+                  widget.basePath,
+                  _fileState,
+                  _updateFileState,
+                  _handleFileSelection,
+                  _handleFileDownload,
+                  _handleFileDelete,
+                  _handleImportCsv,
+                  _handleDirectoryChanged,
+                  () async => await _handleUpload(),
+                  (filePath) => _updateFileState(
+                    _fileState.copyWith(uploadFile: filePath),
+                  ),
+                  (preview) => _updateFileState(
+                    _fileState.copyWith(filePreview: preview),
+                  ),
                 )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // File browser for narrow screen.
-
-                    SizedBox(
-                      height: 300,
-                      child: Card(
-                        color: Theme.of(context).cardColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        elevation: 4,
-                        margin: const EdgeInsets.all(16.0),
-                        child: SolidFileBrowser(
-                          key: _browserKey,
-                          browserKey: _browserKey,
-                          friendlyFolderName: friendlyFolderName,
-                          basePath: widget.basePath,
-                          onFileSelected: (name, filePath) async {
-                            setState(() {});
-
-                            try {
-                              final content = await readPod(
-                                filePath,
-                                context,
-                                Container(),
-                              );
-                              String preview;
-
-                              if (isTextFile(name)) {
-                                preview = content.length > 500
-                                    ? '${content.substring(0, 500)}...'
-                                    : content;
-                              } else {
-                                preview =
-                                    'Binary file\nSize: ${(content.length / 1024).toStringAsFixed(2)} KB\nType: ${path.extension(name)}';
-                              }
-
-                              _updateFileState(_fileState.copyWith(
-                                downloadFile: filePath,
-                                filePreview: preview,
-                                remoteFileName: path.basename(name),
-                              ));
-
-                              widget.onFileSelected?.call(name, filePath);
-                            } catch (e) {
-                              debugPrint('Preview error: $e');
-                              _updateFileState(_fileState.copyWith(
-                                downloadFile: filePath,
-                                filePreview: 'Error loading preview',
-                                remoteFileName: path.basename(name),
-                              ));
-                            }
-                          },
-                          onFileDownload: (name, filePath) async {
-                            _updateFileState(_fileState.copyWith(
-                              downloadFile: filePath,
-                              remoteFileName: path.basename(name),
-                            ));
-                            await _handleDownload();
-                          },
-                          onFileDelete: (name, filePath) async {
-                            final bool? confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).dialogTheme.backgroundColor,
-                                  title: Text(
-                                    'Confirm Delete',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleLarge,
-                                  ),
-                                  content: Text(
-                                    'Are you sure you want to delete "$name"?',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodyMedium,
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(
-                                        context,
-                                      ).pop(false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(
-                                        context,
-                                      ).pop(true),
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-
-                            if (!context.mounted) return;
-
-                            if (confirm == true) {
-                              _updateFileState(_fileState.copyWith(
-                                remoteFileName: path.basename(name),
-                              ));
-                              await _handleDelete();
-                            }
-                          },
-                          onImportCsv: (name, filePath) {
-                            if (mounted) {
-                              _updateFileState(
-                                  _fileState.copyWith(currentPath: filePath));
-                              _browserKey.currentState?.refreshFiles();
-                            }
-                          },
-                          onDirectoryChanged: (path) {
-                            if (mounted) {
-                              _updateFileState(
-                                  _fileState.copyWith(currentPath: path));
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-
-                    // Upload section for narrow screen.
-
-                    Expanded(
-                      child: Card(
-                        color: Theme.of(context).cardColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        elevation: 4,
-                        margin: const EdgeInsets.all(16.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: SolidFileUploader(
-                            fileState: _fileState,
-                            basePath: widget.basePath,
-                            onUpload: _handleUpload,
-                            onFileSelected: (filePath) {
-                              _updateFileState(
-                                  _fileState.copyWith(uploadFile: filePath));
-                            },
-                            onPreviewRequested: (preview) {
-                              _updateFileState(
-                                  _fileState.copyWith(filePreview: preview));
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              : SolidFileUIBuilder.buildNarrowScreenLayout(
+                  context,
+                  _browserKey,
+                  friendlyFolderName,
+                  widget.basePath,
+                  _fileState,
+                  _updateFileState,
+                  _handleFileSelection,
+                  _handleFileDownload,
+                  _handleFileDelete,
+                  _handleImportCsv,
+                  _handleDirectoryChanged,
+                  () async => await _handleUpload(),
+                  (filePath) => _updateFileState(
+                    _fileState.copyWith(uploadFile: filePath),
+                  ),
+                  (preview) => _updateFileState(
+                    _fileState.copyWith(filePreview: preview),
+                  ),
                 ),
         ),
       ],
     );
+  }
+
+  /// Handles file selection with preview.
+
+  Future<void> _handleFileSelection(String name, String filePath) async {
+    setState(() {});
+    await SolidFileUIBuilder.handleFileSelection(
+      name,
+      filePath,
+      context,
+      _fileState,
+      _updateFileState,
+      widget.onFileSelected,
+    );
+  }
+
+  /// Handles file download.
+
+  Future<void> _handleFileDownload(String name, String filePath) async {
+    _updateFileState(
+      _fileState.copyWith(
+        downloadFile: filePath,
+        remoteFileName: path.basename(name),
+      ),
+    );
+    await _handleDownload();
+  }
+
+  /// Handles file deletion with confirmation.
+
+  Future<void> _handleFileDelete(String name, String filePath) async {
+    final confirm =
+        await SolidFileUIBuilder.showDeleteConfirmation(context, name);
+    if (!context.mounted) return;
+    if (confirm) {
+      _updateFileState(
+        _fileState.copyWith(
+          remoteFileName: path.basename(name),
+        ),
+      );
+      await _handleDelete();
+    }
+  }
+
+  /// Handles CSV import.
+
+  void _handleImportCsv(String name, String filePath) {
+    if (mounted) {
+      _updateFileState(_fileState.copyWith(currentPath: filePath));
+      _browserKey.currentState?.refreshFiles();
+    }
+  }
+
+  /// Handles directory changes.
+
+  void _handleDirectoryChanged(String pathValue) {
+    if (mounted) {
+      _updateFileState(_fileState.copyWith(currentPath: pathValue));
+    }
   }
 }

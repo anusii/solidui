@@ -221,17 +221,19 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       builder: (context, constraints) {
         if (constraints.maxHeight <= 0 || constraints.maxWidth <= 0) {
           return const SizedBox(
-              width: 200,
-              height: 150,
-              child: Center(
-                  child: Column(
+            width: 200,
+            height: 150,
+            child: Center(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 8),
-                  Text('Loading file browser...')
+                  Text('Loading file browser...'),
                 ],
-              )));
+              ),
+            ),
+          );
         }
 
         return SizedBox(
