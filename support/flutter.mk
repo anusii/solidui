@@ -126,7 +126,7 @@ linux_config:
 	flutter config --enable-linux-desktop
 
 .PHONY: prep
-prep: analyze fix import_order_fix format ignore license todo markdown depend bakfind test
+prep: analyze fix import_order_fix format dcm ignore license locmax todo markdown depend bakfind test
 	@echo "ADVISORY: make tests docs"
 	@echo $(SEPARATOR)
 
@@ -193,6 +193,44 @@ depend:
 	@echo "Dart: REVIEW DEPENDENCIES."
 	-dependency_validator
 	@echo $(SEPARATOR)
+
+LINES ?= 300
+
+.PHONY: locmax
+locmax:
+	@echo "Files with EXCESS LINES OF CODE:\n"
+	@-output=$$(find lib -name "*.dart" -exec sh -c ' \
+		lines=$$(grep -v "^\s*$$" "$$1" | grep -v "^\s*//" | sed "/\/\*/,/\*\//d" | wc -l); \
+		if [ $$lines -gt $(LINES) ]; then \
+			printf "%4d %s\n" $$lines "$$1"; \
+		fi \
+	' _ {} \; | sort -nr); \
+	if [ -n "$$output" ]; then \
+		echo "$$output"; \
+		echo "Error: Files with more than $(LINES) lines found"; \
+		exit 1; \
+	else \
+		echo "All files are under $(LINES) lines"; \
+	fi
+	@echo $(SEPARATOR)
+
+# Check and fail if any files exceed limit
+
+PHONY: locmax-enforce
+locmax-enforce:
+	@output=$$(find lib -name "*.dart" -exec sh -c ' \
+		lines=$$(grep -v "^\s*$$" "$$1" | grep -v "^\s*//" | sed "/\/\*/,/\*\//d" | wc -l); \
+		if [ $$lines -gt $(LINES) ]; then \
+			printf "%4d %s\n" $$lines "$$1"; \
+		fi \
+	' _ {} \; | sort -nr); \
+	if [ -n "$$output" ]; then \
+		echo "$$output"; \
+		echo "Error: Files with more than $(LINES) lines found"; \
+		exit 1; \
+	else \
+		echo "All files are under $(LINES) lines"; \
+	fi
 
 
 # dart pub global activate dependency_validator
@@ -408,8 +446,36 @@ import_order_fix:
 	import_order
 	@echo $(SEPARATOR)
 
-### TODO THESE SHOULD BE CHECKED AND CLEANED UP
+# dart pub global activate dart_code_metrics
 
+.PHONY: dcm
+dcm: nullable unused_code unused_files metrics
+
+.PHONY: nullable
+nullable:
+	@echo "Dart Code Metrics: NULLABLE"
+	-metrics check-unnecessary-nullable --disable-sunset-warning lib
+	@echo $(SEPARATOR)
+
+.PHONY: unused_code
+unused_code:
+	@echo "Dart Code Metrics: UNUSED CODE"
+	-metrics check-unused-code --disable-sunset-warning lib
+	@echo $(SEPARATOR)
+
+.PHONY: unused_files
+unused_files:
+	@echo "Dart Code Metrics: UNUSED FILES"
+	-metrics check-unused-files --disable-sunset-warning lib
+	@echo $(SEPARATOR)
+
+.PHONY: metrics
+metrics:
+	@echo "Dart Code Metrics: METRICS"
+	-metrics analyze --disable-sunset-warning lib --reporter=console
+	@echo $(SEPARATOR)
+
+### TODO THESE SHOULD BE CHECKED AND CLEANED UP
 
 .PHONY: docs
 docs::
