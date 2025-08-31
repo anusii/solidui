@@ -83,7 +83,7 @@ class SolidMenuItem {
 /// Configuration class to hold all SolidScaffold parameters.
 /// This helps reduce the main widget class size and improves maintainability.
 
-class SolidScaffoldConfig {
+class SolidScaffoldInternalConfig {
   /// List of menu items for SolidUI navigation.
   /// If null, SolidScaffold behaves like a standard Scaffold.
 
@@ -232,7 +232,7 @@ class SolidScaffoldConfig {
 
   final SolidAboutConfig? aboutConfig;
 
-  const SolidScaffoldConfig({
+  const SolidScaffoldInternalConfig({
     this.menu,
     this.child,
     this.body,

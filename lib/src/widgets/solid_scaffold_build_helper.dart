@@ -114,7 +114,7 @@ class SolidScaffoldBuildHelper {
   static Widget buildConfiguredScaffold({
     required BuildContext context,
     required GlobalKey<ScaffoldState> scaffoldKey,
-    required SolidScaffoldConfig config,
+    required SolidScaffoldInternalConfig config,
     required bool isWideScreen,
     required bool isCompatibilityMode,
     required Widget? bodyContent,
