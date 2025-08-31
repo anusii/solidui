@@ -112,9 +112,11 @@ class _SolidFileState extends State<SolidFile> {
         String formattedName = dirName.replaceAll('_', ' ').trim();
         formattedName = formattedName
             .split(RegExp(r'\s+'))
-            .map((w) => w.isEmpty
-                ? w
-                : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+            .map(
+              (w) => w.isEmpty
+                  ? w
+                  : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}',
+            )
             .join(' ');
         return formattedName;
     }
@@ -135,7 +137,8 @@ class _SolidFileState extends State<SolidFile> {
 
     try {
       _updateFileState(
-          _fileState.copyWith(uploadInProgress: true, uploadDone: false));
+        _fileState.copyWith(uploadInProgress: true, uploadDone: false),
+      );
 
       final file = File(_fileState.uploadFile!);
       String fileContent;
@@ -182,12 +185,14 @@ class _SolidFileState extends State<SolidFile> {
         encrypted: true,
       );
 
-      _updateFileState(_fileState.copyWith(
-        uploadDone: result == SolidFunctionCallStatus.success,
-        uploadInProgress: false,
-        remoteFileName: remoteFileName,
-        cleanFileName: cleanFileName,
-      ));
+      _updateFileState(
+        _fileState.copyWith(
+          uploadDone: result == SolidFunctionCallStatus.success,
+          uploadInProgress: false,
+          remoteFileName: remoteFileName,
+          cleanFileName: cleanFileName,
+        ),
+      );
 
       if (result == SolidFunctionCallStatus.success) {
         // Show success message.
@@ -206,7 +211,8 @@ class _SolidFileState extends State<SolidFile> {
         }
       } else if (context.mounted) {
         _showAlert(
-            'Upload failed - please check your connection and permissions.');
+          'Upload failed - please check your connection and permissions.',
+        );
       }
     } catch (e) {
       if (context.mounted) {
@@ -226,7 +232,8 @@ class _SolidFileState extends State<SolidFile> {
 
     try {
       _updateFileState(
-          _fileState.copyWith(downloadInProgress: true, downloadDone: false));
+        _fileState.copyWith(downloadInProgress: true, downloadDone: false),
+      );
 
       // Let user choose where to save the file.
 
@@ -278,7 +285,8 @@ class _SolidFileState extends State<SolidFile> {
       await outputFileHandle.writeAsString(fileContent);
 
       _updateFileState(
-          _fileState.copyWith(downloadDone: true, downloadInProgress: false));
+        _fileState.copyWith(downloadDone: true, downloadInProgress: false),
+      );
 
       if (context.mounted) {
         final currentContext = context;
@@ -308,7 +316,8 @@ class _SolidFileState extends State<SolidFile> {
 
     try {
       _updateFileState(
-          _fileState.copyWith(deleteInProgress: true, deleteDone: false));
+        _fileState.copyWith(deleteInProgress: true, deleteDone: false),
+      );
 
       final baseDir = widget.basePath;
       final filePath = _fileState.currentPath == baseDir
@@ -472,27 +481,33 @@ class _SolidFileState extends State<SolidFile> {
                                       'Binary file\nSize: ${(content.length / 1024).toStringAsFixed(2)} KB\nType: ${path.extension(name)}';
                                 }
 
-                                _updateFileState(_fileState.copyWith(
-                                  downloadFile: filePath,
-                                  filePreview: preview,
-                                  remoteFileName: path.basename(name),
-                                ));
+                                _updateFileState(
+                                  _fileState.copyWith(
+                                    downloadFile: filePath,
+                                    filePreview: preview,
+                                    remoteFileName: path.basename(name),
+                                  ),
+                                );
 
                                 widget.onFileSelected?.call(name, filePath);
                               } catch (e) {
                                 debugPrint('Preview error: $e');
-                                _updateFileState(_fileState.copyWith(
-                                  downloadFile: filePath,
-                                  filePreview: 'Error loading preview',
-                                  remoteFileName: path.basename(name),
-                                ));
+                                _updateFileState(
+                                  _fileState.copyWith(
+                                    downloadFile: filePath,
+                                    filePreview: 'Error loading preview',
+                                    remoteFileName: path.basename(name),
+                                  ),
+                                );
                               }
                             },
                             onFileDownload: (name, filePath) async {
-                              _updateFileState(_fileState.copyWith(
-                                downloadFile: filePath,
-                                remoteFileName: path.basename(name),
-                              ));
+                              _updateFileState(
+                                _fileState.copyWith(
+                                  downloadFile: filePath,
+                                  remoteFileName: path.basename(name),
+                                ),
+                              );
                               await _handleDownload();
                             },
                             onFileDelete: (name, filePath) async {
@@ -538,23 +553,27 @@ class _SolidFileState extends State<SolidFile> {
                               if (!context.mounted) return;
 
                               if (confirm == true) {
-                                _updateFileState(_fileState.copyWith(
-                                  remoteFileName: path.basename(name),
-                                ));
+                                _updateFileState(
+                                  _fileState.copyWith(
+                                    remoteFileName: path.basename(name),
+                                  ),
+                                );
                                 await _handleDelete();
                               }
                             },
                             onImportCsv: (name, filePath) {
                               if (mounted) {
                                 _updateFileState(
-                                    _fileState.copyWith(currentPath: filePath));
+                                  _fileState.copyWith(currentPath: filePath),
+                                );
                                 _browserKey.currentState?.refreshFiles();
                               }
                             },
                             onDirectoryChanged: (path) {
                               if (mounted) {
                                 _updateFileState(
-                                    _fileState.copyWith(currentPath: path));
+                                  _fileState.copyWith(currentPath: path),
+                                );
                               }
                             },
                           ),
@@ -581,11 +600,13 @@ class _SolidFileState extends State<SolidFile> {
                             onUpload: _handleUpload,
                             onFileSelected: (filePath) {
                               _updateFileState(
-                                  _fileState.copyWith(uploadFile: filePath));
+                                _fileState.copyWith(uploadFile: filePath),
+                              );
                             },
                             onPreviewRequested: (preview) {
                               _updateFileState(
-                                  _fileState.copyWith(filePreview: preview));
+                                _fileState.copyWith(filePreview: preview),
+                              );
                             },
                           ),
                         ),
@@ -632,27 +653,33 @@ class _SolidFileState extends State<SolidFile> {
                                     'Binary file\nSize: ${(content.length / 1024).toStringAsFixed(2)} KB\nType: ${path.extension(name)}';
                               }
 
-                              _updateFileState(_fileState.copyWith(
-                                downloadFile: filePath,
-                                filePreview: preview,
-                                remoteFileName: path.basename(name),
-                              ));
+                              _updateFileState(
+                                _fileState.copyWith(
+                                  downloadFile: filePath,
+                                  filePreview: preview,
+                                  remoteFileName: path.basename(name),
+                                ),
+                              );
 
                               widget.onFileSelected?.call(name, filePath);
                             } catch (e) {
                               debugPrint('Preview error: $e');
-                              _updateFileState(_fileState.copyWith(
-                                downloadFile: filePath,
-                                filePreview: 'Error loading preview',
-                                remoteFileName: path.basename(name),
-                              ));
+                              _updateFileState(
+                                _fileState.copyWith(
+                                  downloadFile: filePath,
+                                  filePreview: 'Error loading preview',
+                                  remoteFileName: path.basename(name),
+                                ),
+                              );
                             }
                           },
                           onFileDownload: (name, filePath) async {
-                            _updateFileState(_fileState.copyWith(
-                              downloadFile: filePath,
-                              remoteFileName: path.basename(name),
-                            ));
+                            _updateFileState(
+                              _fileState.copyWith(
+                                downloadFile: filePath,
+                                remoteFileName: path.basename(name),
+                              ),
+                            );
                             await _handleDownload();
                           },
                           onFileDelete: (name, filePath) async {
@@ -696,23 +723,27 @@ class _SolidFileState extends State<SolidFile> {
                             if (!context.mounted) return;
 
                             if (confirm == true) {
-                              _updateFileState(_fileState.copyWith(
-                                remoteFileName: path.basename(name),
-                              ));
+                              _updateFileState(
+                                _fileState.copyWith(
+                                  remoteFileName: path.basename(name),
+                                ),
+                              );
                               await _handleDelete();
                             }
                           },
                           onImportCsv: (name, filePath) {
                             if (mounted) {
                               _updateFileState(
-                                  _fileState.copyWith(currentPath: filePath));
+                                _fileState.copyWith(currentPath: filePath),
+                              );
                               _browserKey.currentState?.refreshFiles();
                             }
                           },
                           onDirectoryChanged: (path) {
                             if (mounted) {
                               _updateFileState(
-                                  _fileState.copyWith(currentPath: path));
+                                _fileState.copyWith(currentPath: path),
+                              );
                             }
                           },
                         ),
@@ -737,11 +768,13 @@ class _SolidFileState extends State<SolidFile> {
                             onUpload: _handleUpload,
                             onFileSelected: (filePath) {
                               _updateFileState(
-                                  _fileState.copyWith(uploadFile: filePath));
+                                _fileState.copyWith(uploadFile: filePath),
+                              );
                             },
                             onPreviewRequested: (preview) {
                               _updateFileState(
-                                  _fileState.copyWith(filePreview: preview));
+                                _fileState.copyWith(filePreview: preview),
+                              );
                             },
                           ),
                         ),

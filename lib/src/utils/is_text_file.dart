@@ -78,7 +78,7 @@ bool isTextFile(String filePath) {
     '.owl',
     '.n3',
     '.nt',
-    '.jsonld'
+    '.jsonld',
   };
 
   return textExtensions.contains(extension);

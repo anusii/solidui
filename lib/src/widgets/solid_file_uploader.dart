@@ -200,9 +200,10 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
       builder: (context, constraints) {
         if (constraints.maxWidth <= 0) {
           return const SizedBox(
-              width: 250,
-              height: 100,
-              child: Center(child: Text('Loading uploader...')));
+            width: 250,
+            height: 100,
+            child: Center(child: Text('Loading uploader...')),
+          );
         }
 
         return SizedBox(
@@ -268,8 +269,11 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const Icon(Icons.check_circle,
-                          color: Colors.green, size: 18),
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 18,
+                      ),
                     ],
                   ),
                 ),
@@ -335,8 +339,10 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                           }
                         }
                       },
-                icon: Icon(Icons.analytics,
-                    color: Theme.of(context).colorScheme.primary),
+                icon: Icon(
+                  Icons.analytics,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 label: Text(
                   'Visualise JSON',
                   style: TextStyle(
@@ -364,8 +370,10 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                   onPressed: widget.fileState.uploadInProgress
                       ? null
                       : () => handlePreview(widget.fileState.uploadFile!),
-                  icon: Icon(Icons.preview,
-                      color: Theme.of(context).colorScheme.primary),
+                  icon: Icon(
+                    Icons.preview,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   label: Text(
                     'Preview File',
                     style: TextStyle(
