@@ -57,6 +57,10 @@ class PathBar extends StatelessWidget {
 
   final String friendlyFolderName;
 
+  /// Base path of the file browser.
+
+  final String basePath;
+
   const PathBar({
     super.key,
     required this.currentPath,
@@ -66,6 +70,7 @@ class PathBar extends StatelessWidget {
     required this.isLoading,
     required this.currentDirFileCount,
     required this.friendlyFolderName,
+    required this.basePath,
   });
 
   @override
@@ -112,14 +117,27 @@ class PathBar extends StatelessWidget {
               ),
             ),
 
-            // File count.
+            // Base path and file count.
 
-            Text(
-              'Files in current directory: $currentDirFileCount',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-                fontSize: 12,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Base path: $basePath',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Files in current directory: $currentDirFileCount',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(width: 12),
 

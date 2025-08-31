@@ -258,6 +258,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                     isLoading: isLoading,
                     currentDirFileCount: currentDirFileCount,
                     friendlyFolderName: widget.friendlyFolderName,
+                    basePath: widget.basePath,
                   ),
 
                   const SizedBox(height: 12),
