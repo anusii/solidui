@@ -23,39 +23,21 @@
 
 library;
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:path/path.dart' as path;
 
 import 'package:solidui/src/models/file_state.dart';
-import 'package:solidui/src/utils/is_text_file.dart';
+import 'package:solidui/src/widgets/solid_file_uploader_helpers.dart';
 
 /// A widget that handles file upload functionality and preview.
 
 class SolidFileUploader extends StatefulWidget {
-  /// The current file state.
-
   final FileState fileState;
-
-  /// Callback when upload is requested.
-
   final Future<void> Function() onUpload;
-
-  /// Callback when file is selected.
-
   final void Function(String?) onFileSelected;
-
-  /// Callback when file preview is requested.
-
   final void Function(String) onPreviewRequested;
-
-  /// The base path for file operations.
-
   final String basePath;
-
   const SolidFileUploader({
     super.key,
     required this.fileState,
@@ -64,7 +46,6 @@ class SolidFileUploader extends StatefulWidget {
     required this.onPreviewRequested,
     required this.basePath,
   });
-
   @override
   State<SolidFileUploader> createState() => _SolidFileUploaderState();
 }
@@ -72,7 +53,6 @@ class SolidFileUploader extends StatefulWidget {
 class _SolidFileUploaderState extends State<SolidFileUploader> {
   String? filePreview;
   bool showPreview = false;
-
   @override
   void didUpdateWidget(SolidFileUploader oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -92,105 +72,54 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
 
   Future<void> handlePreview(String filePath) async {
     try {
-      final file = File(filePath);
-      String content;
-
-      if (isTextFile(filePath)) {
-        content = await file.readAsString();
-        content =
-            content.length > 500 ? '${content.substring(0, 500)}...' : content;
-      } else {
-        final bytes = await file.readAsBytes();
-        content =
-            'Binary file\nSize: ${(bytes.length / 1024).toStringAsFixed(2)} KB\nType: ${path.extension(filePath)}';
-      }
-
-      // Update local state.
-
+      final content =
+          await SolidFileUploaderHelpers.generateFilePreview(filePath);
       setState(() {
         filePreview = content;
         showPreview = true;
       });
-
-      // Notify parent.
-
       widget.onPreviewRequested(content);
     } catch (e) {
       debugPrint('Preview error: $e');
     }
   }
 
+  Future<void> _handleUploadButtonPress() async {
+    final filePath = await SolidFileUploaderHelpers.pickFile();
+    if (filePath != null) {
+      widget.onFileSelected(filePath);
+      await handlePreview(filePath);
+      if (!context.mounted) return;
+      await widget.onUpload();
+      widget.onFileSelected(null);
+      setState(() {
+        filePreview = null;
+        showPreview = false;
+      });
+    }
+  }
+
+  Future<void> _handleJsonPreview() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.first;
+      if (file.path != null) {
+        await handlePreview(file.path!);
+      }
+    }
+  }
+
   /// Builds a preview card UI to show content or info of selected file.
 
   Widget _buildPreviewCard() {
-    if (!showPreview || filePreview == null) return const SizedBox.shrink();
-
-    return Card(
-      elevation: 2,
-      color: Theme.of(context).cardColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(8.0),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.preview,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Preview',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.titleMedium?.color,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: () => setState(() => showPreview = false),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: SingleChildScrollView(
-              child: Text(
-                filePreview!,
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+    if (!showPreview) return const SizedBox.shrink();
+    return SolidFileUploaderHelpers.buildPreviewCard(
+      context,
+      filePreview,
+      () => setState(() => showPreview = false),
     );
   }
 
@@ -205,15 +134,12 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
             child: Center(child: Text('Loading uploader...')),
           );
         }
-
         return SizedBox(
           width: constraints.maxWidth,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Title.
-
               Text(
                 'Upload Files',
                 style: TextStyle(
@@ -283,25 +209,7 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
               ElevatedButton.icon(
                 onPressed: widget.fileState.uploadInProgress
                     ? null
-                    : () async {
-                        final result = await FilePicker.platform.pickFiles();
-                        if (result != null && result.files.isNotEmpty) {
-                          final file = result.files.first;
-                          if (file.path != null) {
-                            widget.onFileSelected(file.path);
-                            await handlePreview(file.path!);
-                            if (!context.mounted) return;
-                            await widget.onUpload();
-                            // Clear the upload file after successful upload
-                            widget.onFileSelected(null);
-                            // Clear the preview
-                            setState(() {
-                              filePreview = null;
-                              showPreview = false;
-                            });
-                          }
-                        }
-                      },
+                    : _handleUploadButtonPress,
                 icon: const Icon(Icons.file_upload, color: Colors.white),
                 label: const Text(
                   'Upload',
@@ -319,7 +227,6 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
 
               // Visualise JSON button.
@@ -327,18 +234,7 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
               TextButton.icon(
                 onPressed: widget.fileState.uploadInProgress
                     ? null
-                    : () async {
-                        final result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: ['json'],
-                        );
-                        if (result != null && result.files.isNotEmpty) {
-                          final file = result.files.first;
-                          if (file.path != null) {
-                            await handlePreview(file.path!);
-                          }
-                        }
-                      },
+                    : _handleJsonPreview,
                 icon: Icon(
                   Icons.analytics,
                   color: Theme.of(context).colorScheme.primary,
