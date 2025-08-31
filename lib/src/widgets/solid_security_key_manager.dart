@@ -33,9 +33,9 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart'
     show KeyManager, deleteFile, getEncKeyPath, readPod;
 
-import 'solid_security_key_manager_dialogs.dart';
-import 'solid_security_key_manager_helpers.dart';
-import 'solid_security_key_manager_ui.dart';
+import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
+import 'package:solidui/src/widgets/solid_security_key_manager_helpers.dart';
+import 'package:solidui/src/widgets/solid_security_key_manager_ui.dart';
 
 /// Configuration for the Security Key Manager.
 

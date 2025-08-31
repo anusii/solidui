@@ -106,7 +106,7 @@ class SolidScaffoldInitHelpers {
 
   static Future<bool> loadSecurityKeyStatus(
     SolidSecurityKeyService? service,
-    Function(bool)? onKeyStatusChanged,
+    Function(bool) onKeyStatusChanged,
   ) async {
     if (service == null) return false;
 
@@ -114,7 +114,7 @@ class SolidScaffoldInitHelpers {
       final hasKeyInMemory = await service.isKeySaved();
 
       await service.fetchKeySavedStatus((bool hasKey) {
-        onKeyStatusChanged?.call(hasKey);
+        onKeyStatusChanged(hasKey);
       });
 
       return hasKeyInMemory;
