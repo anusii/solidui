@@ -1,6 +1,6 @@
 /// Models for theme toggle functionality in Solid applications.
 ///
-// Time-stamp: <Wednesday 2025-08-27 12:21:35 +1000 Graham Williams>
+// Time-stamp: <Sunday 2025-08-31 11:06:35 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -128,7 +128,7 @@ class SolidThemeToggleConfig {
 Light Mode is best for viewing in light conditions. Tap here to switch to Dark
 Mode for low light conditions and then again for your System Mode.
 
-Cycle: Light → Dark → System
+Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 ''';
       case ThemeMode.dark:
         return '''
@@ -139,7 +139,7 @@ Cycle: Light → Dark → System
 Dark Mode is best for viewing in low light conditions. Tap here to switch to
 System Mode to follow your device settings and then again for Light Mode.
 
-Cycle: Light → Dark → System
+Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 ''';
       case ThemeMode.system:
         return '''
@@ -150,7 +150,7 @@ Cycle: Light → Dark → System
 System Mode follows your device settings. Tap here to switch to Light Mode and
 then again for Dark mode.
 
-Cycle: Light → Dark → System
+Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 ''';
     }
   }
