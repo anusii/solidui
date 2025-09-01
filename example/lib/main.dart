@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Monday 2025-09-01 14:26:35 +1000 Graham Williams>
+// Time-stamp: <Monday 2025-09-01 14:40:06 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -36,7 +36,7 @@ import 'package:solidpod/solidpod.dart' show getWebId, logoutPopup;
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'login/create_solid_login.dart.~1~';
+import 'login/create_solid_login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
