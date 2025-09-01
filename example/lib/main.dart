@@ -1,6 +1,6 @@
 /// Simple SolidUI Example Application
 ///
-// Time-stamp: <Monday 2025-09-01 14:01:18 +1000 Graham Williams>
+// Time-stamp: <Monday 2025-09-01 14:26:35 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -29,14 +29,14 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:markdown_tooltip/markdown_tooltip.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart' show getWebId, logoutPopup;
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'login/create_solid_login.dart';
+import 'login/create_solid_login.dart.~1~';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

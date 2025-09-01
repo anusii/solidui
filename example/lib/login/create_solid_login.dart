@@ -1,6 +1,6 @@
 /// Create Solid Login Widget for SolidUI Examples.
 //
-// Time-stamp: <Monday 2025-09-01 14:06:48 +1000 Graham Williams>
+// Time-stamp: <Monday 2025-09-01 14:25:43 +1000 Graham Williams>
 //
 /// Copyright (C) 2025, Software Innovation Institute, ANU
 ///
@@ -30,7 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
-import '../main.dart.~1~';
+import '../main.dart';
 
 /// Creates a Solid login widget for authentication.
 ///
