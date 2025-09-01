@@ -1,0 +1,27 @@
+name: solidui_example
+description: A simple example demonstrating SolidScaffold usage.
+publish_to: 'none'
+version: 0.0.2+0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  markdown_tooltip: any
+  shared_preferences: ^2.5.3
+  solidpod: ^0.7.8
+  solidui:
+    path: ../
+  window_manager: ^0.4.3
+
+dev_dependencies:
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
