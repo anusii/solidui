@@ -53,6 +53,10 @@ class PathBar extends StatelessWidget {
 
   final int currentDirFileCount;
 
+  /// Number of directories in the current directory.
+
+  final int currentDirDirectoryCount;
+
   /// Friendly folder name.
 
   final String friendlyFolderName;
@@ -69,6 +73,7 @@ class PathBar extends StatelessWidget {
     required this.onRefresh,
     required this.isLoading,
     required this.currentDirFileCount,
+    required this.currentDirDirectoryCount,
     required this.friendlyFolderName,
     required this.basePath,
   });
@@ -87,83 +92,108 @@ class PathBar extends StatelessWidget {
           horizontal: 16.0,
           vertical: 8.0,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Back button (only shown if there's history).
-
-            if (pathHistory.length > 1)
-              IconButton(
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: Theme.of(context).iconTheme.color,
-                ),
-                tooltip: 'Back to $friendlyFolderName',
-                onPressed: onNavigateUp,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            if (pathHistory.length > 1) const SizedBox(width: 12),
-
-            // Path text display.
-
-            Expanded(
-              child: Text(
-                friendlyFolderName,
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.titleMedium?.color,
-                  fontWeight: FontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-
-            // Base path and file count.
+            // Title bar with back button, friendly name, and refresh button.
 
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  'Base path: $basePath',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                    fontSize: 12,
+                // Back button (only shown if there's history).
+
+                if (pathHistory.length > 1)
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
+                    tooltip: 'Back to $friendlyFolderName',
+                    onPressed: onNavigateUp,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                if (pathHistory.length > 1) const SizedBox(width: 12),
+
+                // Path text display.
+
+                Expanded(
+                  child: Text(
+                    friendlyFolderName,
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.titleMedium?.color,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+
+                // File and directory counts.
+
+                Row(
+                  children: [
+                    Text(
+                      'Directories: $currentDirDirectoryCount',
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Files: $currentDirFileCount',
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(width: 12),
-                Text(
-                  'Files in current directory: $currentDirFileCount',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                    fontSize: 12,
+
+                // Refresh button.
+
+                IconButton(
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: isLoading
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh,
+                            color: Theme.of(context).iconTheme.color,
+                          ),
                   ),
+                  tooltip: 'Refresh',
+                  onPressed: isLoading ? null : onRefresh,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
-            const SizedBox(width: 12),
 
-            // Refresh button.
+            const SizedBox(height: 8),
 
-            IconButton(
-              icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: isLoading
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      )
-                    : Icon(
-                        Icons.refresh,
-                        color: Theme.of(context).iconTheme.color,
-                      ),
+            // Full current path with horizontal scrolling.
+
+            SizedBox(
+              height: 20,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Text(
+                  currentPath,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                    fontSize: 11,
+                    fontFamily: 'monospace',
+                  ),
+                ),
               ),
-              tooltip: 'Refresh',
-              onPressed: isLoading ? null : onRefresh,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
             ),
           ],
         ),

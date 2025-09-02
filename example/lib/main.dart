@@ -343,7 +343,7 @@ class _HomePageState extends State<HomePage> {
         ),
         applicationLegalese: '''
 
-        © 2025 Software Innovation Institute, the Australian National UNiversity
+        © 2025 Software Innovation Institute, the Australian National University
 
         ''',
         text: '''
