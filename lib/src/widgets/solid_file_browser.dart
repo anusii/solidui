@@ -157,7 +157,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       setState(() {
         isLoggedIn = loggedIn;
       });
-      
+
       if (isLoggedIn) {
         await refreshFiles();
       } else {

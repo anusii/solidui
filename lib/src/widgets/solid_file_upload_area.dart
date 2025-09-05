@@ -24,8 +24,10 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:path/path.dart' as path;
+
 import 'package:solidui/src/models/data_format_config.dart';
 import 'package:solidui/src/widgets/solid_format_info_card.dart';
 
@@ -268,7 +270,9 @@ class SolidFileUploadArea extends StatelessWidget {
 
           // Additional buttons (Visualise JSON, Preview File, Convert to JSON).
 
-          if (config.showJsonButtons || (state.uploadedFilePath != null && config.showPreviewButtons)) ...[
+          if (config.showJsonButtons ||
+              (state.uploadedFilePath != null &&
+                  config.showPreviewButtons)) ...[
             const SizedBox(height: 12),
             _buildAdditionalButtons(context),
           ],
@@ -287,7 +291,8 @@ class SolidFileUploadArea extends StatelessWidget {
   /// Builds a preview card UI to show content or info of selected file.
 
   Widget _buildPreviewCard(BuildContext context) {
-    if (!state.showPreview || state.filePreview == null) return const SizedBox.shrink();
+    if (!state.showPreview || state.filePreview == null)
+      return const SizedBox.shrink();
 
     return Card(
       elevation: 2,
@@ -411,16 +416,20 @@ class SolidFileUploadArea extends StatelessWidget {
     if (config.showCsvButtons) {
       if (callbacks.onImportCsv != null) {
         buttons.add(const SizedBox(width: 8));
-        buttons.add(Expanded(
-          child: _buildCsvImportButton(context),
-        ),);
+        buttons.add(
+          Expanded(
+            child: _buildCsvImportButton(context),
+          ),
+        );
       }
 
       if (callbacks.onExportCsv != null) {
         buttons.add(const SizedBox(width: 8));
-        buttons.add(Expanded(
-          child: _buildCsvExportButton(context),
-        ),);
+        buttons.add(
+          Expanded(
+            child: _buildCsvExportButton(context),
+          ),
+        );
       }
     }
 
@@ -429,16 +438,20 @@ class SolidFileUploadArea extends StatelessWidget {
     if (config.showProfileButtons) {
       if (callbacks.onImportProfile != null) {
         buttons.add(const SizedBox(width: 8));
-        buttons.add(Expanded(
-          child: _buildProfileImportButton(context),
-        ),);
+        buttons.add(
+          Expanded(
+            child: _buildProfileImportButton(context),
+          ),
+        );
       }
 
       if (callbacks.onExportProfile != null) {
         buttons.add(const SizedBox(width: 8));
-        buttons.add(Expanded(
-          child: _buildProfileExportButton(context),
-        ),);
+        buttons.add(
+          Expanded(
+            child: _buildProfileExportButton(context),
+          ),
+        );
       }
     }
 
@@ -571,7 +584,6 @@ This button allows you to export your health data to a CSV file:
     );
   }
 
-
   Widget _buildAdditionalButtons(BuildContext context) {
     final buttons = <Widget>[];
 
@@ -595,7 +607,8 @@ This button allows you to export your health data to a CSV file:
 
     // Add Preview File button (when file is uploaded).
 
-    if (state.uploadedFilePath != null && config.showPreviewButtons &&
+    if (state.uploadedFilePath != null &&
+        config.showPreviewButtons &&
         callbacks.onPreviewFile != null) {
       buttons.add(
         _buildTextButton(
@@ -614,7 +627,9 @@ This button allows you to export your health data to a CSV file:
 
     // Add Convert to JSON button (when file is uploaded).
 
-    if (state.uploadedFilePath != null && config.showPreviewButtons && callbacks.onConvertToJson != null) {
+    if (state.uploadedFilePath != null &&
+        config.showPreviewButtons &&
+        callbacks.onConvertToJson != null) {
       buttons.add(
         _buildTextButton(
           context: context,
@@ -642,7 +657,6 @@ This will extract text from the PDF, structure it as JSON data, and upload both 
           .toList(),
     );
   }
-
 
   Widget _buildTextButton({
     required BuildContext context,

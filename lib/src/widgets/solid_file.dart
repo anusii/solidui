@@ -24,6 +24,7 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_area.dart';
 
@@ -253,7 +254,8 @@ class _SolidFileState extends State<SolidFile> {
                   child: SolidFileUploadArea(
                     config: widget.state.uploadConfig!,
                     callbacks: widget.callbacks.uploadCallbacks!,
-                    state: widget.state.uploadState ?? const SolidFileUploadState(),
+                    state: widget.state.uploadState ??
+                        const SolidFileUploadState(),
                   ),
                 ),
               ),
@@ -302,21 +304,26 @@ class _SolidFileState extends State<SolidFile> {
       browserKey: _browserKey,
       basePath: widget.config.basePath,
       friendlyFolderName: widget.state.friendlyFolderName,
-      onFileSelected: widget.callbacks.onFileSelected ?? (fileName, filePath) {
-        debugPrint('File selected: $fileName at $filePath');
-      },
-      onFileDownload: widget.callbacks.onFileDownload ?? (fileName, filePath) {
-        debugPrint('Download file: $fileName at $filePath');
-      },
-      onFileDelete: widget.callbacks.onFileDelete ?? (fileName, filePath) {
-        debugPrint('Delete file: $fileName at $filePath');
-      },
-      onImportCsv: widget.callbacks.onImportCsv ?? (fileName, filePath) {
-        debugPrint('Import CSV: $fileName at $filePath');
-      },
-      onDirectoryChanged: widget.callbacks.onDirectoryChanged ?? (path) {
-        debugPrint('Directory changed: $path');
-      },
+      onFileSelected: widget.callbacks.onFileSelected ??
+          (fileName, filePath) {
+            debugPrint('File selected: $fileName at $filePath');
+          },
+      onFileDownload: widget.callbacks.onFileDownload ??
+          (fileName, filePath) {
+            debugPrint('Download file: $fileName at $filePath');
+          },
+      onFileDelete: widget.callbacks.onFileDelete ??
+          (fileName, filePath) {
+            debugPrint('Delete file: $fileName at $filePath');
+          },
+      onImportCsv: widget.callbacks.onImportCsv ??
+          (fileName, filePath) {
+            debugPrint('Import CSV: $fileName at $filePath');
+          },
+      onDirectoryChanged: widget.callbacks.onDirectoryChanged ??
+          (path) {
+            debugPrint('Directory changed: $path');
+          },
     );
   }
 }

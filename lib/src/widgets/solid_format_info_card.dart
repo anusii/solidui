@@ -24,6 +24,7 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:solidui/src/models/data_format_config.dart';
 
 /// A card widget that displays data format information.
@@ -169,7 +170,7 @@ class SolidFormatInfoCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: config.isJson 
+                color: config.isJson
                     ? Theme.of(context).colorScheme.tertiaryContainer
                     : Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(4),
@@ -179,7 +180,7 @@ class SolidFormatInfoCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: config.isJson 
+                  color: config.isJson
                       ? Theme.of(context).colorScheme.onTertiaryContainer
                       : Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
