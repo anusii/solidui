@@ -462,8 +462,48 @@ class _HomePageState extends State<HomePage> {
   /// Build the file manager page content.
 
   Widget _buildFileManagerPage() {
-    return const SolidFile(
-      basePath: 'solidui_example',
+    return SolidFile(
+      config: const SolidFileConfig(
+        basePath: 'solidui_example',
+        showBackButton: true,
+        backButtonText: 'Back to Data Folder',
+      ),
+      callbacks: SolidFileCallbacks(
+        onBackPressed: () {
+          debugPrint('Back button pressed');
+        },
+        onFileSelected: (fileName, filePath) {
+          debugPrint('File selected: $fileName');
+        },
+        onFileDownload: (fileName, filePath) {
+          debugPrint('Download file: $fileName');
+        },
+        onFileDelete: (fileName, filePath) {
+          debugPrint('Delete file: $fileName');
+        },
+        onDirectoryChanged: (path) {
+          debugPrint('Directory changed: $path');
+        },
+        onImportCsv: (fileName, filePath) {
+          debugPrint('Import CSV: $fileName');
+        },
+        uploadCallbacks: SolidFileUploadCallbacks(
+          onUpload: () {
+            debugPrint('Upload file');
+          },
+          onVisualiseJson: () {
+            debugPrint('Visualise JSON');
+          },
+        ),
+      ),
+      state: const SolidFileState(
+        currentPath: 'solidui_example',
+        friendlyFolderName: 'Example Data',
+        uploadConfig: SolidFileUploadConfig(
+          showJsonButtons: true,
+          showPreviewButtons: true,
+        ),
+      ),
     );
   }
 
