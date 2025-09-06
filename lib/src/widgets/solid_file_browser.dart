@@ -385,7 +385,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
               ),
             ),
             child: Text(
-              'Not logged in',
+              'Not connected to any POD',
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
                 fontSize: 16,
