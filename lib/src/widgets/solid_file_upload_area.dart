@@ -291,8 +291,9 @@ class SolidFileUploadArea extends StatelessWidget {
   /// Builds a preview card UI to show content or info of selected file.
 
   Widget _buildPreviewCard(BuildContext context) {
-    if (!state.showPreview || state.filePreview == null)
+    if (!state.showPreview || state.filePreview == null) {
       return const SizedBox.shrink();
+    }
 
     return Card(
       elevation: 2,
@@ -674,6 +675,7 @@ This will extract text from the PDF, structure it as JSON data, and upload both 
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
+        minimumSize: const Size(160, 40),
       ),
     );
 
