@@ -389,8 +389,9 @@ class _HomePageState extends State<HomePage> {
                   This template app serves to demonstrate the SolidScaffold()
                   widget which extends the standard Flutter Scaffold()
                   widget. It provides a left hand rail for selecting features,
-                  an app bar with some standard buttons, and a status bar to show current parameters. The Solid Scaffold adds
-                  parameters for:
+                  an app bar with some standard buttons, and a status bar to
+                  show current parameters. The Solid Scaffold adds parameters
+                  for:
 
                   • **Responsive navigation** including the option to present as
                     a left hand rail or a menu drawer depending on screen width;
@@ -410,15 +411,6 @@ class _HomePageState extends State<HomePage> {
                   • Security key management
 
                   '''),
-
-                  // 'Welcome to the SolidUI Example!\n\n'
-                  // 'This demonstrates SolidScaffold with child parameter features:\n\n'
-                  // '• Responsive navigation (rail ↔ drawer)\n'
-                  // '• Theme switching (🌙/☀️ button)\n'
-                  // '• Custom About dialogue (ℹ️ button)\n'
-                  // '• Version information display\n'
-                  // '• Status bar integration\n'
-                  // '• Security key management\n',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
