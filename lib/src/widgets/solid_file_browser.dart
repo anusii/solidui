@@ -363,21 +363,21 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
           Icon(
             Icons.account_circle_outlined,
-            size: 64,
+            size: 48,
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Display not logged in message.
 
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
               ).colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
                 color: Theme.of(
                   context,
@@ -387,22 +387,11 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
             child: Text(
               'Not logged in',
               style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 18,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          Text(
-            'Please log in to your Solid POD to browse files',
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium?.color,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
