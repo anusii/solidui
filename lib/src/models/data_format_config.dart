@@ -95,19 +95,17 @@ class DataFormatConfig {
 
 /// Pre-defined format configurations for common health data types.
 
-class SolidDataFormats {
+class SolidFileDataFormats {
   static const bloodPressure = DataFormatConfig(
     title: 'Blood Pressure CSV Format',
     requiredFields: ['timestamp', 'systolic', 'diastolic', 'heart_rate'],
     optionalFields: ['notes'],
-    description: 'Blood pressure readings with timestamps',
   );
 
   static const vaccination = DataFormatConfig(
     title: 'Vaccination CSV Format',
     requiredFields: ['timestamp', 'name', 'type'],
     optionalFields: ['location', 'notes', 'batch_number'],
-    description: 'Vaccination records and details',
   );
 
   static const medication = DataFormatConfig(
@@ -120,14 +118,12 @@ class SolidDataFormats {
       'start_date',
     ],
     optionalFields: ['notes'],
-    description: 'Medication schedules and tracking',
   );
 
   static const diary = DataFormatConfig(
-    title: 'Diary CSV Format',
+    title: 'Appointment CSV Format',
     requiredFields: ['timestamp', 'content'],
     optionalFields: ['mood', 'tags', 'notes'],
-    description: 'Personal diary entries and notes',
   );
 
   static const profile = DataFormatConfig(
@@ -142,6 +138,5 @@ class SolidDataFormats {
       'gender',
     ],
     isJson: true,
-    description: 'User profile information',
   );
 }

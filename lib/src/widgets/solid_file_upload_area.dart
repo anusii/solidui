@@ -592,7 +592,7 @@ This button allows you to export your health data to a CSV file:
 
     if (config.showJsonButtons && callbacks.onVisualiseJson != null) {
       buttons.add(
-        _buildTextButton(
+        _buildFullWidthButton(
           context: context,
           onPressed: callbacks.onVisualiseJson,
           icon: Icons.analytics,
@@ -682,6 +682,38 @@ This will extract text from the PDF, structure it as JSON data, and upload both 
     return MarkdownTooltip(
       message: tooltip,
       child: textButton,
+    );
+  }
+
+  Widget _buildFullWidthButton({
+    required BuildContext context,
+    required VoidCallback? onPressed,
+    required IconData icon,
+    required String label,
+    required String tooltip,
+  }) {
+    final textButton = TextButton.icon(
+      onPressed: state.uploadInProgress ? null : onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .primary
+            .withValues(alpha: 0.1),
+      ),
+    );
+
+    return SizedBox(
+      width: double.infinity,
+      child: MarkdownTooltip(
+        message: tooltip,
+        child: textButton,
+      ),
     );
   }
 }

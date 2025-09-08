@@ -186,6 +186,20 @@ class SolidFormatInfoCard extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Note text.
+
+            const SizedBox(height: 8),
+            Text(
+              config.isJson
+                  ? 'Note: The JSON file must contain these required fields with valid values.'
+                  : 'Note: The first row should contain these column headers. All values should be in the correct format.',
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),

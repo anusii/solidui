@@ -91,12 +91,12 @@ class FileTypeConfig {
   /// Gets the file type configuration based on the current path.
 
   static FileTypeConfig fromPath(String currentPath) {
-    if (currentPath.contains('/bp')) {
+    if (currentPath.contains('/blood_pressure')) {
       return FileTypeConfig(
         type: SolidFileType.bloodPressure,
         displayName: 'Blood Pressure Data',
         showCsvButtons: true,
-        formatConfig: SolidDataFormats.bloodPressure,
+        formatConfig: SolidFileDataFormats.bloodPressure,
         uploadTooltip: '''
 
 **Upload**: Tap here to upload a file to your Solid Health Pod.
@@ -108,7 +108,7 @@ class FileTypeConfig {
         type: SolidFileType.vaccination,
         displayName: 'Vaccination Data',
         showCsvButtons: true,
-        formatConfig: SolidDataFormats.vaccination,
+        formatConfig: SolidFileDataFormats.vaccination,
         uploadTooltip: '''
 
 **Upload**: Tap here to upload a file to your Solid Health Pod.
@@ -120,7 +120,7 @@ class FileTypeConfig {
         type: SolidFileType.medication,
         displayName: 'Medication Data',
         showCsvButtons: true,
-        formatConfig: SolidDataFormats.medication,
+        formatConfig: SolidFileDataFormats.medication,
         uploadTooltip: '''
 
 **Upload**: Tap here to upload a file to your Solid Health Pod.
@@ -130,9 +130,9 @@ class FileTypeConfig {
     } else if (currentPath.contains('/diary')) {
       return FileTypeConfig(
         type: SolidFileType.diary,
-        displayName: 'Diary Data',
+        displayName: 'Appointments Data',
         showCsvButtons: true,
-        formatConfig: SolidDataFormats.diary,
+        formatConfig: SolidFileDataFormats.diary,
         uploadTooltip: '''
 
 **Upload**: Tap here to upload a file to your Solid Health Pod.
@@ -144,7 +144,7 @@ class FileTypeConfig {
         type: SolidFileType.profile,
         displayName: 'Profile Data',
         showProfileButtons: true,
-        formatConfig: SolidDataFormats.profile,
+        formatConfig: SolidFileDataFormats.profile,
         uploadTooltip: '''
 
 **Upload**: Tap here to upload a file to your Solid Health Pod.
@@ -154,13 +154,22 @@ class FileTypeConfig {
     } else {
       // General case - extract folder name from path
       final segments = currentPath.split('/');
-      String displayName = 'Health Data';
+      String displayName = 'Home Folder';
 
       if (segments.length >= 3) {
         final folderName = segments[2];
-        String formattedName = folderName.replaceAll('_', ' ');
-        formattedName =
-            formattedName[0].toUpperCase() + formattedName.substring(1);
+
+        final words = folderName
+            .trim()
+            .split(RegExp(r'[_\s]+'))
+            .where((w) => w.isNotEmpty)
+            .map((w) =>
+                w[0].toUpperCase() +
+                (w.length > 1 ? w.substring(1).toLowerCase() : ''))
+            .toList();
+
+        final formattedName = words.join(' ');
+
         displayName = '$formattedName Data';
       }
 

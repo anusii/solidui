@@ -231,30 +231,33 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
 
               // Visualise JSON button.
 
-              TextButton.icon(
-                onPressed: widget.fileState.uploadInProgress
-                    ? null
-                    : _handleJsonPreview,
-                icon: Icon(
-                  Icons.analytics,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                label: Text(
-                  'Visualise JSON',
-                  style: TextStyle(
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  onPressed: widget.fileState.uploadInProgress
+                      ? null
+                      : _handleJsonPreview,
+                  icon: Icon(
+                    Icons.analytics,
                     color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                  label: Text(
+                    'Visualise JSON',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  backgroundColor: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha: 0.1),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.1),
+                  ),
                 ),
               ),
 
