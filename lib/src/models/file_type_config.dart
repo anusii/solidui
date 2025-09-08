@@ -24,7 +24,8 @@
 library;
 
 import 'package:solidui/src/models/data_format_config.dart';
-import 'package:solidui/src/widgets/solid_file_upload_area.dart';
+import 'package:solidui/src/widgets/solid_file_operations.dart';
+import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
 /// Predefined file types for different data categories.
 
@@ -90,7 +91,7 @@ class FileTypeConfig {
 
   /// Gets the file type configuration based on the current path.
 
-  static FileTypeConfig fromPath(String currentPath) {
+  static FileTypeConfig fromPath(String currentPath, [String? basePath]) {
     if (currentPath.contains('/blood_pressure')) {
       return FileTypeConfig(
         type: SolidFileType.bloodPressure,
@@ -152,26 +153,33 @@ class FileTypeConfig {
 ''',
       );
     } else {
-      // General case - extract folder name from path
-      final segments = currentPath.split('/');
-      String displayName = 'Home Folder';
+      // General case - use the existing friendly folder name logic for
+      // consistency. If basePath is provided, use it; otherwise, construct a
+      // reasonable default.
 
-      if (segments.length >= 3) {
-        final folderName = segments[2];
+      String effectiveBasePath = basePath ?? '';
 
-        final words = folderName
-            .trim()
-            .split(RegExp(r'[_\s]+'))
-            .where((w) => w.isNotEmpty)
-            .map((w) =>
-                w[0].toUpperCase() +
-                (w.length > 1 ? w.substring(1).toLowerCase() : ''))
-            .toList();
+      if (effectiveBasePath.isEmpty) {
+        final segments =
+            currentPath.split('/').where((s) => s.isNotEmpty).toList();
 
-        final formattedName = words.join(' ');
+        // Construct a reasonable base path - typically the first 2 segments
+        // for most cases.
 
-        displayName = '$formattedName Data';
+        if (segments.length >= 2) {
+          effectiveBasePath = '/${segments[0]}/${segments[1]}';
+        } else if (segments.length == 1) {
+          effectiveBasePath = '/${segments[0]}';
+        }
       }
+
+      final friendlyName = SolidFileOperations.getFriendlyFolderName(
+        currentPath,
+        effectiveBasePath,
+      );
+
+      String displayName =
+          friendlyName == 'Home' ? 'Home Folder' : friendlyName;
 
       return FileTypeConfig(
         type: SolidFileType.general,

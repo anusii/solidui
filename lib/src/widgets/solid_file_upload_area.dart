@@ -25,162 +25,13 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:path/path.dart' as path;
 
-import 'package:solidui/src/models/data_format_config.dart';
 import 'package:solidui/src/widgets/solid_format_info_card.dart';
 
-/// Configuration for the file upload area.
-
-class SolidFileUploadConfig {
-  /// Whether to show CSV import/export buttons.
-
-  final bool showCsvButtons;
-
-  /// Whether to show Profile import/export buttons.
-
-  final bool showProfileButtons;
-
-  /// Whether to show JSON operations.
-
-  final bool showJsonButtons;
-
-  /// Whether to show file preview options.
-
-  final bool showPreviewButtons;
-
-  /// The data format configuration to display.
-
-  final DataFormatConfig? formatConfig;
-
-  /// Custom upload button text.
-
-  final String uploadButtonText;
-
-  /// Custom upload tooltip message.
-
-  final String? uploadTooltip;
-
-  const SolidFileUploadConfig({
-    this.showCsvButtons = false,
-    this.showProfileButtons = false,
-    this.showJsonButtons = true,
-    this.showPreviewButtons = true,
-    this.formatConfig,
-    this.uploadButtonText = 'Upload File',
-    this.uploadTooltip,
-  });
-}
-
-/// Callbacks for file upload area operations.
-
-class SolidFileUploadCallbacks {
-  /// Callback for file upload.
-
-  final VoidCallback? onUpload;
-
-  /// Callback for CSV import.
-
-  final VoidCallback? onImportCsv;
-
-  /// Callback for CSV export.
-
-  final VoidCallback? onExportCsv;
-
-  /// Callback for Profile import.
-
-  final VoidCallback? onImportProfile;
-
-  /// Callback for Profile export.
-
-  final VoidCallback? onExportProfile;
-
-  /// Callback for JSON visualisation.
-
-  final VoidCallback? onVisualiseJson;
-
-  /// Callback for file preview.
-
-  final VoidCallback? onPreviewFile;
-
-  /// Callback for PDF to JSON conversion.
-
-  final VoidCallback? onConvertToJson;
-
-  const SolidFileUploadCallbacks({
-    this.onUpload,
-    this.onImportCsv,
-    this.onExportCsv,
-    this.onImportProfile,
-    this.onExportProfile,
-    this.onVisualiseJson,
-    this.onPreviewFile,
-    this.onConvertToJson,
-  });
-}
-
-/// State information for the upload area.
-
-class SolidFileUploadState {
-  /// Whether upload is in progress.
-
-  final bool uploadInProgress;
-
-  /// Whether import is in progress.
-
-  final bool importInProgress;
-
-  /// Whether export is in progress.
-
-  final bool exportInProgress;
-
-  /// Path to uploaded file.
-
-  final String? uploadedFilePath;
-
-  /// Whether upload is done.
-
-  final bool uploadDone;
-
-  /// File preview content.
-
-  final String? filePreview;
-
-  /// Whether to show preview.
-
-  final bool showPreview;
-
-  const SolidFileUploadState({
-    this.uploadInProgress = false,
-    this.importInProgress = false,
-    this.exportInProgress = false,
-    this.uploadedFilePath,
-    this.uploadDone = false,
-    this.filePreview,
-    this.showPreview = false,
-  });
-
-  SolidFileUploadState copyWith({
-    bool? uploadInProgress,
-    bool? importInProgress,
-    bool? exportInProgress,
-    String? uploadedFilePath,
-    bool? uploadDone,
-    String? filePreview,
-    bool? showPreview,
-  }) {
-    return SolidFileUploadState(
-      uploadInProgress: uploadInProgress ?? this.uploadInProgress,
-      importInProgress: importInProgress ?? this.importInProgress,
-      exportInProgress: exportInProgress ?? this.exportInProgress,
-      uploadedFilePath: uploadedFilePath ?? this.uploadedFilePath,
-      uploadDone: uploadDone ?? this.uploadDone,
-      filePreview: filePreview ?? this.filePreview,
-      showPreview: showPreview ?? this.showPreview,
-    );
-  }
-}
+import 'solid_file_preview_card.dart';
+import 'solid_file_upload_buttons.dart';
+import 'solid_file_upload_config.dart';
 
 /// A comprehensive file upload area with data operation buttons.
 
@@ -247,7 +98,7 @@ class SolidFileUploadArea extends StatelessWidget {
 
           // Display preview card if enabled.
 
-          _buildPreviewCard(context),
+          _buildPreviewCard(),
           if (state.showPreview) const SizedBox(height: 16),
 
           // Show selected file info.
@@ -290,77 +141,14 @@ class SolidFileUploadArea extends StatelessWidget {
 
   /// Builds a preview card UI to show content or info of selected file.
 
-  Widget _buildPreviewCard(BuildContext context) {
+  Widget _buildPreviewCard() {
     if (!state.showPreview || state.filePreview == null) {
       return const SizedBox.shrink();
     }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: Theme.of(context).dividerColor.withAlpha(10),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.preview,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Preview',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: MarkdownTooltip(
-                    message: '''
-
-**Close Preview:** Tap here to close the file preview panel.
-
-''',
-                    child: const Icon(Icons.close, size: 20),
-                  ),
-                  onPressed: () {
-                    // This would need to be handled by the parent widget
-                    // For now, we'll just ignore the close action.
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: SingleChildScrollView(
-              child: Text(
-                state.filePreview!,
-                style: const TextStyle(fontFamily: 'monospace'),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return SolidFilePreviewCard(
+      content: state.filePreview!,
+      onClose: () {},
     );
   }
 
@@ -409,7 +197,14 @@ class SolidFileUploadArea extends StatelessWidget {
     final buttons = <Widget>[
       // Main upload button.
 
-      Expanded(child: _buildUploadButton(context)),
+      Expanded(
+        child: SolidFileUploadButtons.buildUploadButton(
+          context: context,
+          config: config,
+          state: state,
+          onPressed: callbacks.onUpload,
+        ),
+      ),
     ];
 
     // Add CSV buttons.
@@ -419,7 +214,11 @@ class SolidFileUploadArea extends StatelessWidget {
         buttons.add(const SizedBox(width: 8));
         buttons.add(
           Expanded(
-            child: _buildCsvImportButton(context),
+            child: SolidFileUploadButtons.buildCsvImportButton(
+              context: context,
+              state: state,
+              onPressed: callbacks.onImportCsv,
+            ),
           ),
         );
       }
@@ -428,7 +227,11 @@ class SolidFileUploadArea extends StatelessWidget {
         buttons.add(const SizedBox(width: 8));
         buttons.add(
           Expanded(
-            child: _buildCsvExportButton(context),
+            child: SolidFileUploadButtons.buildCsvExportButton(
+              context: context,
+              state: state,
+              onPressed: callbacks.onExportCsv,
+            ),
           ),
         );
       }
@@ -441,7 +244,11 @@ class SolidFileUploadArea extends StatelessWidget {
         buttons.add(const SizedBox(width: 8));
         buttons.add(
           Expanded(
-            child: _buildProfileImportButton(context),
+            child: SolidFileUploadButtons.buildProfileImportButton(
+              context: context,
+              state: state,
+              onPressed: callbacks.onImportProfile,
+            ),
           ),
         );
       }
@@ -450,139 +257,17 @@ class SolidFileUploadArea extends StatelessWidget {
         buttons.add(const SizedBox(width: 8));
         buttons.add(
           Expanded(
-            child: _buildProfileExportButton(context),
+            child: SolidFileUploadButtons.buildProfileExportButton(
+              context: context,
+              state: state,
+              onPressed: callbacks.onExportProfile,
+            ),
           ),
         );
       }
     }
 
     return Row(children: buttons);
-  }
-
-  Widget _buildUploadButton(BuildContext context) {
-    final uploadButton = ElevatedButton.icon(
-      onPressed: state.uploadInProgress ? null : callbacks.onUpload,
-      icon: state.uploadInProgress
-          ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.file_upload),
-      label: Text(config.uploadButtonText),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
-
-    if (config.uploadTooltip != null) {
-      return MarkdownTooltip(
-        message: config.uploadTooltip!,
-        child: uploadButton,
-      );
-    }
-
-    return uploadButton;
-  }
-
-  Widget _buildCsvImportButton(BuildContext context) {
-    return MarkdownTooltip(
-      message: '''
-
-**Import CSV:** Tap here to import data from a CSV file:
-
-- Select a CSV file from your device;
-
-- The data will be processed and added to your health records;
-
-- Please ensure the CSV follows the required format.
-
-
-''',
-      child: ElevatedButton.icon(
-        onPressed: state.importInProgress ? null : callbacks.onImportCsv,
-        icon: const Icon(Icons.table_chart),
-        label: const Text('Import CSV'),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCsvExportButton(BuildContext context) {
-    return MarkdownTooltip(
-      message: '''
-
-**Export CSV:** Tap here to export your health data to a CSV
-file:
-
-This button allows you to export your health data to a CSV file:
-- Export your vaccination, blood pressure, or diary records
-
-- The data will be saved in a standard CSV format
-
-- You can use this file for backup or analysis
-
-- The export process is quick and efficient
-
-''',
-      child: ElevatedButton.icon(
-        onPressed: state.exportInProgress ? null : callbacks.onExportCsv,
-        icon: const Icon(Icons.download),
-        label: const Text('Export CSV'),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileImportButton(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: state.importInProgress ? null : callbacks.onImportProfile,
-      icon: const Icon(Icons.person),
-      label: const Text('Import Profile'),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileExportButton(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: state.exportInProgress ? null : callbacks.onExportProfile,
-      icon: const Icon(Icons.download),
-      label: const Text('Export Profile'),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
   }
 
   Widget _buildAdditionalButtons(BuildContext context) {
@@ -592,8 +277,9 @@ This button allows you to export your health data to a CSV file:
 
     if (config.showJsonButtons && callbacks.onVisualiseJson != null) {
       buttons.add(
-        _buildFullWidthButton(
+        SolidFileUploadButtons.buildFullWidthButton(
           context: context,
+          state: state,
           onPressed: callbacks.onVisualiseJson,
           icon: Icons.analytics,
           label: 'Visualise JSON',
@@ -612,8 +298,9 @@ This button allows you to export your health data to a CSV file:
         config.showPreviewButtons &&
         callbacks.onPreviewFile != null) {
       buttons.add(
-        _buildTextButton(
+        SolidFileUploadButtons.buildTextButton(
           context: context,
+          state: state,
           onPressed: callbacks.onPreviewFile,
           icon: Icons.preview,
           label: 'Preview File',
@@ -632,8 +319,9 @@ This button allows you to export your health data to a CSV file:
         config.showPreviewButtons &&
         callbacks.onConvertToJson != null) {
       buttons.add(
-        _buildTextButton(
+        SolidFileUploadButtons.buildTextButton(
           context: context,
+          state: state,
           onPressed: callbacks.onConvertToJson,
           icon: Icons.code,
           label: 'Convert to JSON',
@@ -656,64 +344,6 @@ This will extract text from the PDF, structure it as JSON data, and upload both 
           .expand((widget) => [widget, const SizedBox(height: 12)])
           .take(buttons.length * 2 - 1)
           .toList(),
-    );
-  }
-
-  Widget _buildTextButton({
-    required BuildContext context,
-    required VoidCallback? onPressed,
-    required IconData icon,
-    required String label,
-    required String tooltip,
-  }) {
-    final textButton = TextButton.icon(
-      onPressed: state.uploadInProgress ? null : onPressed,
-      icon: Icon(icon),
-      label: Text(label),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        minimumSize: const Size(160, 40),
-      ),
-    );
-
-    return MarkdownTooltip(
-      message: tooltip,
-      child: textButton,
-    );
-  }
-
-  Widget _buildFullWidthButton({
-    required BuildContext context,
-    required VoidCallback? onPressed,
-    required IconData icon,
-    required String label,
-    required String tooltip,
-  }) {
-    final textButton = TextButton.icon(
-      onPressed: state.uploadInProgress ? null : onPressed,
-      icon: Icon(icon),
-      label: Text(label),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        backgroundColor: Theme.of(context)
-            .colorScheme
-            .primary
-            .withValues(alpha: 0.1),
-      ),
-    );
-
-    return SizedBox(
-      width: double.infinity,
-      child: MarkdownTooltip(
-        message: tooltip,
-        child: textButton,
-      ),
     );
   }
 }

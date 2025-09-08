@@ -28,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:solidui/src/models/file_type_config.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_area.dart';
+import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
 /// Configuration for the SolidFile widget.
 
@@ -242,7 +243,7 @@ class SolidFile extends StatefulWidget {
     required SolidFileConfig config,
     required SolidFileCallbacks callbacks,
     required SolidFileState state,
-    GlobalKey<SolidFileBrowserState>? browserKey,
+    this.browserKey,
   })  : basePath = config.basePath,
         currentPath = state.currentPath,
         friendlyFolderName = state.friendlyFolderName,
@@ -260,7 +261,6 @@ class SolidFile extends StatefulWidget {
         uploadConfig = state.uploadConfig,
         uploadCallbacks = callbacks.uploadCallbacks,
         uploadState = state.uploadState,
-        browserKey = browserKey,
         autoConfig = false; // Legacy mode does not use auto-config
 
   @override
@@ -305,7 +305,7 @@ class _SolidFileState extends State<SolidFile> {
     }
 
     if (widget.autoConfig && widget.showUpload) {
-      final typeConfig = FileTypeConfig.fromPath(_currentPath);
+      final typeConfig = FileTypeConfig.fromPath(_currentPath, widget.basePath);
       return typeConfig.createUploadConfig();
     }
 
@@ -321,7 +321,7 @@ class _SolidFileState extends State<SolidFile> {
     }
 
     if (widget.autoConfig) {
-      final typeConfig = FileTypeConfig.fromPath(_currentPath);
+      final typeConfig = FileTypeConfig.fromPath(_currentPath, widget.basePath);
       return typeConfig.displayName;
     }
 
@@ -334,7 +334,7 @@ class _SolidFileState extends State<SolidFile> {
     setState(() {
       _currentPath = path;
     });
-    
+
     // Call the external callback if provided.
 
     widget.onDirectoryChanged?.call(path);

@@ -65,4 +65,7 @@ export 'src/models/data_format_config.dart';
 export 'src/models/file_type_config.dart';
 export 'src/widgets/solid_format_info_card.dart';
 export 'src/widgets/solid_file_upload_area.dart';
+export 'src/widgets/solid_file_upload_config.dart';
+export 'src/widgets/solid_file_upload_buttons.dart';
+export 'src/widgets/solid_file_preview_card.dart';
 export 'src/widgets/solid_file.dart';

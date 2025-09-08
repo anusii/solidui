@@ -377,7 +377,7 @@ Configuration for the bottom status bar showing server and user information.
 **Automatic security key management** integrated directly into SolidScaffold.
 No need for separate components or custom dialogues.
 
-#### Simple Usage
+#### Simple Usage of Security Key Management
 
 ```dart
 SolidScaffold(
@@ -439,7 +439,7 @@ SolidSecurityKeyManager(
 configuration based on the file path. It handles file upload, download,
 browsing, and data format operations.
 
-#### Simple Usage
+#### Simple Usage of File Management
 
 ```dart
 SolidFile(
