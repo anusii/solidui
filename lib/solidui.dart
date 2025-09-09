@@ -54,18 +54,20 @@ export 'src/widgets/solid_security_key_view.dart';
 export 'src/widgets/solid_security_key_central_manager.dart';
 export 'src/services/solid_security_key_service.dart';
 
+export 'src/widgets/solid_file.dart';
 export 'src/widgets/solid_file_browser.dart';
 export 'src/widgets/solid_file_uploader.dart';
-export 'src/models/file_item.dart';
-export 'src/models/file_state.dart';
-export 'src/utils/file_operations.dart';
-export 'src/utils/is_text_file.dart';
-
-export 'src/models/data_format_config.dart';
-export 'src/models/file_type_config.dart';
-export 'src/widgets/solid_format_info_card.dart';
 export 'src/widgets/solid_file_upload_area.dart';
 export 'src/widgets/solid_file_upload_config.dart';
 export 'src/widgets/solid_file_upload_buttons.dart';
 export 'src/widgets/solid_file_preview_card.dart';
-export 'src/widgets/solid_file.dart';
+
+export 'src/models/file_item.dart';
+export 'src/models/file_state.dart';
+export 'src/models/data_format_config.dart';
+export 'src/models/file_type_config.dart';
+
+export 'src/utils/file_operations.dart';
+export 'src/utils/is_text_file.dart';
+
+export 'src/widgets/solid_format_info_card.dart';

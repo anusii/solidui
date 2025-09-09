@@ -354,7 +354,18 @@ class _SolidFileState extends State<SolidFile> {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
             child: TextButton.icon(
-              onPressed: widget.onBackPressed,
+              onPressed: widget.onBackPressed ??
+                  () {
+                    // Default behavior: reset to base path.
+
+                    setState(() {
+                      _currentPath = widget.basePath;
+                    });
+
+                    // Refresh the browser to the base path.
+
+                    _browserKey.currentState?.navigateToPath(widget.basePath);
+                  },
               icon: const Icon(Icons.home),
               label: Text(widget.backButtonText),
             ),
