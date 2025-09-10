@@ -25,260 +25,466 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:path/path.dart' as path;
-import 'package:solidpod/solidpod.dart';
-
-import 'package:solidui/src/constants/navigation.dart';
-import 'package:solidui/src/models/file_state.dart';
+import 'package:solidui/src/models/file_type_config.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
-import 'package:solidui/src/widgets/solid_file_operations.dart';
-import 'package:solidui/src/widgets/solid_file_ui_builder.dart';
+import 'package:solidui/src/widgets/solid_file_upload_area.dart';
+import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
-/// The main file service widget that provides file upload, download, and
-/// preview functionality.
+/// Configuration for the SolidFile widget.
+
+class SolidFileConfig {
+  /// Base path for file operations.
+
+  final String basePath;
+
+  /// Whether to show the back button.
+
+  final bool showBackButton;
+
+  /// Text for the back button.
+
+  final String backButtonText;
+
+  /// Whether to use wide screen layout.
+
+  final bool? forceWideScreen;
+
+  /// Custom height for the file browser.
+
+  final double? browserHeight;
+
+  const SolidFileConfig({
+    required this.basePath,
+    this.showBackButton = true,
+    this.backButtonText = 'Back to Home Folder',
+    this.forceWideScreen,
+    this.browserHeight,
+  });
+}
+
+/// Callbacks for SolidFile operations.
+
+class SolidFileCallbacks {
+  /// Callback when back button is pressed.
+
+  final VoidCallback? onBackPressed;
+
+  /// Callback when a file is selected.
+
+  final Function(String fileName, String filePath)? onFileSelected;
+
+  /// Callback when a file should be downloaded.
+
+  final Function(String fileName, String filePath)? onFileDownload;
+
+  /// Callback when a file should be deleted.
+
+  final Function(String fileName, String filePath)? onFileDelete;
+
+  /// Callback when directory changes.
+
+  final Function(String path)? onDirectoryChanged;
+
+  /// Callback for CSV import.
+
+  final Function(String fileName, String filePath)? onImportCsv;
+
+  /// Upload area callbacks.
+
+  final SolidFileUploadCallbacks? uploadCallbacks;
+
+  const SolidFileCallbacks({
+    this.onBackPressed,
+    this.onFileSelected,
+    this.onFileDownload,
+    this.onFileDelete,
+    this.onDirectoryChanged,
+    this.onImportCsv,
+    this.uploadCallbacks,
+  });
+}
+
+/// State for the SolidFile widget.
+
+class SolidFileState {
+  /// Current path in the file browser.
+
+  final String currentPath;
+
+  /// Friendly name for the current folder.
+
+  final String friendlyFolderName;
+
+  /// Upload area state.
+
+  final SolidFileUploadState? uploadState;
+
+  /// Upload area configuration.
+
+  final SolidFileUploadConfig? uploadConfig;
+
+  const SolidFileState({
+    required this.currentPath,
+    required this.friendlyFolderName,
+    this.uploadState,
+    this.uploadConfig,
+  });
+}
+
+/// A comprehensive file management widget combining file browser and upload
+/// functionality.
 
 class SolidFile extends StatefulWidget {
+  /// Base path for file operations.
+
   final String basePath;
-  final Function(String, String)? onFileSelected;
-  final VoidCallback? onOperationComplete;
+
+  /// Current path in the file browser.
+
+  final String? currentPath;
+
+  /// Friendly name for the current folder.
+
+  final String? friendlyFolderName;
+
+  /// Whether to show the back button.
+
+  final bool showBackButton;
+
+  /// Text for the back button.
+
+  final String backButtonText;
+
+  /// Whether to use wide screen layout.
+
+  final bool? forceWideScreen;
+
+  /// Custom height for the file browser.
+
+  final double? browserHeight;
+
+  /// Callback when back button is pressed.
+
+  final VoidCallback? onBackPressed;
+
+  /// Callback when a file is selected.
+
+  final Function(String fileName, String filePath)? onFileSelected;
+
+  /// Callback when a file should be downloaded.
+
+  final Function(String fileName, String filePath)? onFileDownload;
+
+  /// Callback when a file should be deleted.
+
+  final Function(String fileName, String filePath)? onFileDelete;
+
+  /// Callback when directory changes.
+
+  final Function(String path)? onDirectoryChanged;
+
+  /// Callback for CSV import.
+
+  final Function(String fileName, String filePath)? onImportCsv;
+
+  /// Whether to show upload functionality.
+
+  final bool showUpload;
+
+  /// Upload configuration.
+  /// If null, will be auto-generated based on currentPath.
+
+  final SolidFileUploadConfig? uploadConfig;
+
+  /// Upload callbacks.
+
+  final SolidFileUploadCallbacks? uploadCallbacks;
+
+  /// Upload state.
+
+  final SolidFileUploadState? uploadState;
+
+  /// Global key for the file browser.
+
+  final GlobalKey<SolidFileBrowserState>? browserKey;
+
+  /// Whether to automatically configure upload settings based on path.
+  /// Defaults to true for convenience.
+
+  final bool autoConfig;
+
   const SolidFile({
     super.key,
     required this.basePath,
+    this.currentPath,
+    this.friendlyFolderName,
+    this.showBackButton = true,
+    this.backButtonText = 'Back to Home Folder',
+    this.forceWideScreen,
+    this.browserHeight,
+    this.onBackPressed,
     this.onFileSelected,
-    this.onOperationComplete,
+    this.onFileDownload,
+    this.onFileDelete,
+    this.onDirectoryChanged,
+    this.onImportCsv,
+    this.showUpload = true,
+    this.uploadConfig,
+    this.uploadCallbacks,
+    this.uploadState,
+    this.browserKey,
+    this.autoConfig = true,
   });
+
+  /// Legacy constructor for backward compatibility.
+
+  SolidFile.withConfig({
+    super.key,
+    required SolidFileConfig config,
+    required SolidFileCallbacks callbacks,
+    required SolidFileState state,
+    this.browserKey,
+  })  : basePath = config.basePath,
+        currentPath = state.currentPath,
+        friendlyFolderName = state.friendlyFolderName,
+        showBackButton = config.showBackButton,
+        backButtonText = config.backButtonText,
+        forceWideScreen = config.forceWideScreen,
+        browserHeight = config.browserHeight,
+        onBackPressed = callbacks.onBackPressed,
+        onFileSelected = callbacks.onFileSelected,
+        onFileDownload = callbacks.onFileDownload,
+        onFileDelete = callbacks.onFileDelete,
+        onDirectoryChanged = callbacks.onDirectoryChanged,
+        onImportCsv = callbacks.onImportCsv,
+        showUpload = state.uploadConfig != null,
+        uploadConfig = state.uploadConfig,
+        uploadCallbacks = callbacks.uploadCallbacks,
+        uploadState = state.uploadState,
+        autoConfig = false; // Legacy mode does not use auto-config
+
   @override
   State<SolidFile> createState() => _SolidFileState();
 }
 
 class _SolidFileState extends State<SolidFile> {
-  final _browserKey = GlobalKey<SolidFileBrowserState>();
-  late FileState _fileState;
+  late GlobalKey<SolidFileBrowserState> _browserKey;
+  late String _currentPath;
+
   @override
   void initState() {
     super.initState();
-    _fileState = FileState(currentPath: widget.basePath);
+    _browserKey = widget.browserKey ?? GlobalKey<SolidFileBrowserState>();
+    _currentPath = widget.currentPath ?? widget.basePath;
   }
 
-  String _getFriendlyFolderName(String pathValue) {
-    return SolidFileOperations.getFriendlyFolderName(
-      pathValue,
-      widget.basePath,
-    );
+  /// Determines if we should use wide screen layout.
+
+  bool _shouldUseWideScreen(BuildContext context) {
+    if (widget.forceWideScreen != null) {
+      return widget.forceWideScreen!;
+    }
+    return MediaQuery.of(context).size.width > 800;
   }
 
-  /// Updates the file state and triggers a rebuild.
+  /// Gets the effective browser height.
 
-  void _updateFileState(FileState newState) {
+  double _getBrowserHeight(BuildContext context) {
+    if (widget.browserHeight != null) {
+      return widget.browserHeight!;
+    }
+    return MediaQuery.of(context).size.height * 0.7;
+  }
+
+  /// Gets the effective upload configuration, either from the provided config
+  /// or auto-generated based on the current path when autoConfig is true.
+
+  SolidFileUploadConfig? _getEffectiveUploadConfig() {
+    if (widget.uploadConfig != null) {
+      return widget.uploadConfig;
+    }
+
+    if (widget.autoConfig && widget.showUpload) {
+      final typeConfig = FileTypeConfig.fromPath(_currentPath, widget.basePath);
+      return typeConfig.createUploadConfig();
+    }
+
+    return null;
+  }
+
+  /// Gets the effective friendly folder name, either from the provided name
+  /// or auto-generated based on the current path when autoConfig is true.
+
+  String _getEffectiveFriendlyFolderName() {
+    if (widget.friendlyFolderName != null) {
+      return widget.friendlyFolderName!;
+    }
+
+    if (widget.autoConfig) {
+      final typeConfig = FileTypeConfig.fromPath(_currentPath, widget.basePath);
+      return typeConfig.displayName;
+    }
+
+    return 'Files';
+  }
+
+  /// Handles directory changes and updates internal state.
+
+  void _handleDirectoryChanged(String path) {
     setState(() {
-      _fileState = newState;
+      _currentPath = path;
     });
-  }
 
-  void _showSuccessMessage(String message) {
-    if (!mounted) return;
-    SolidFileOperations.showSuccessMessage(context, message);
-  }
+    // Call the external callback if provided.
 
-  void _showAlert(String message) {
-    if (!mounted) return;
-    SolidFileOperations.showAlert(context, message);
-  }
-
-  /// Handles file upload by reading its contents and encrypting it for upload.
-
-  Future<void> _handleUpload() async {
-    if (_fileState.uploadFile == null) return;
-    if (!context.mounted) return;
-    final newState = await SolidFileOperations.handleUpload(
-      _fileState,
-      widget.basePath,
-      (uploadPath, fileContent) async {
-        if (!mounted) return SolidFunctionCallStatus.fail;
-        return await writePod(
-          uploadPath,
-          fileContent,
-          context,
-          const Text('Upload'),
-          encrypted: true,
-        );
-      },
-    );
-    if (!context.mounted) return;
-    _updateFileState(newState);
-    if (newState.uploadDone) {
-      _showSuccessMessage('File uploaded successfully');
-      _browserKey.currentState?.refreshFiles();
-      widget.onOperationComplete?.call();
-    } else if (!newState.uploadInProgress) {
-      _showAlert(
-        'Upload failed - please check your connection and permissions.',
-      );
-    }
-  }
-
-  /// Handles the download and decryption of files from the POD.
-
-  Future<void> _handleDownload() async {
-    if (_fileState.remoteFileName == null || _fileState.currentPath == null) {
-      return;
-    }
-    if (!context.mounted) return;
-    final newState = await SolidFileOperations.handleDownload(
-      _fileState,
-      widget.basePath,
-      () async {
-        if (!mounted) return;
-        await getKeyFromUserIfRequired(
-          context,
-          const Text('Please enter your security key to download the file'),
-        );
-      },
-      (relativePath) async {
-        if (!mounted) return '';
-        return await readPod(
-          relativePath,
-          context,
-          const Text('Downloading'),
-        );
-      },
-    );
-    if (!context.mounted) return;
-    _updateFileState(newState);
-    if (newState.downloadDone) {
-      _showSuccessMessage('File downloaded successfully');
-      widget.onOperationComplete?.call();
-    } else if (!newState.downloadInProgress && !newState.downloadDone) {
-      _showAlert('Download failed');
-    }
-  }
-
-  Future<void> _handleDelete() async {
-    if (_fileState.remoteFileName == null || _fileState.currentPath == null) {
-      return;
-    }
-    if (!context.mounted) return;
-    final newState = await SolidFileOperations.handleDelete(
-      _fileState,
-      widget.basePath,
-    );
-    if (!context.mounted) return;
-    _updateFileState(newState);
-    if (newState.deleteDone) {
-      _showSuccessMessage('File deleted successfully');
-      _browserKey.currentState?.refreshFiles();
-      widget.onOperationComplete?.call();
-    } else if (!newState.deleteInProgress && !newState.deleteDone) {
-      _showAlert('Delete failed');
-    }
+    widget.onDirectoryChanged?.call(path);
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentPath = _fileState.currentPath ?? widget.basePath;
-    final friendlyFolderName = _getFriendlyFolderName(currentPath);
-    final isWideScreen = MediaQuery.of(context).size.width >
-        NavigationConstants.narrowScreenThreshold;
+    final isWideScreen = _shouldUseWideScreen(context);
+    final browserHeight = _getBrowserHeight(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Back button to root folder.
+
+        if (widget.showBackButton)
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+            child: TextButton.icon(
+              onPressed: widget.onBackPressed ??
+                  () {
+                    // Default behavior: reset to base path.
+
+                    setState(() {
+                      _currentPath = widget.basePath;
+                    });
+
+                    // Refresh the browser to the base path.
+
+                    _browserKey.currentState?.navigateToPath(widget.basePath);
+                  },
+              icon: const Icon(Icons.home),
+              label: Text(widget.backButtonText),
+            ),
+          ),
+
+        // Main content area.
+
         Expanded(
-          child: isWideScreen
-              ? SolidFileUIBuilder.buildWideScreenLayout(
-                  context,
-                  _browserKey,
-                  friendlyFolderName,
-                  widget.basePath,
-                  _fileState,
-                  _updateFileState,
-                  _handleFileSelection,
-                  _handleFileDownload,
-                  _handleFileDelete,
-                  _handleImportCsv,
-                  _handleDirectoryChanged,
-                  () async => await _handleUpload(),
-                  (filePath) => _updateFileState(
-                    _fileState.copyWith(uploadFile: filePath),
-                  ),
-                  (preview) => _updateFileState(
-                    _fileState.copyWith(filePreview: preview),
-                  ),
-                )
-              : SolidFileUIBuilder.buildNarrowScreenLayout(
-                  context,
-                  _browserKey,
-                  friendlyFolderName,
-                  widget.basePath,
-                  _fileState,
-                  _updateFileState,
-                  _handleFileSelection,
-                  _handleFileDownload,
-                  _handleFileDelete,
-                  _handleImportCsv,
-                  _handleDirectoryChanged,
-                  () async => await _handleUpload(),
-                  (filePath) => _updateFileState(
-                    _fileState.copyWith(uploadFile: filePath),
-                  ),
-                  (preview) => _updateFileState(
-                    _fileState.copyWith(filePreview: preview),
-                  ),
-                ),
+          child: SingleChildScrollView(
+            child: isWideScreen
+                ? _buildWideScreenLayout(context, browserHeight)
+                : _buildNarrowScreenLayout(context, browserHeight),
+          ),
         ),
       ],
     );
   }
 
-  /// Handles file selection with preview.
+  /// Builds the wide screen layout (side-by-side).
 
-  Future<void> _handleFileSelection(String name, String filePath) async {
-    setState(() {});
-    await SolidFileUIBuilder.handleFileSelection(
-      name,
-      filePath,
-      context,
-      _fileState,
-      _updateFileState,
-      widget.onFileSelected,
-    );
-  }
+  Widget _buildWideScreenLayout(BuildContext context, double browserHeight) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // File browser on the left.
 
-  Future<void> _handleFileDownload(String name, String filePath) async {
-    _updateFileState(
-      _fileState.copyWith(
-        downloadFile: filePath,
-        remoteFileName: path.basename(name),
-      ),
-    );
-    await _handleDownload();
-  }
-
-  /// Handles file deletion with confirmation.
-
-  Future<void> _handleFileDelete(String name, String filePath) async {
-    final confirm =
-        await SolidFileUIBuilder.showDeleteConfirmation(context, name);
-    if (!context.mounted) return;
-    if (confirm) {
-      _updateFileState(
-        _fileState.copyWith(
-          remoteFileName: path.basename(name),
+        Expanded(
+          flex: 2,
+          child: Card(
+            margin: const EdgeInsets.only(left: 16, right: 8),
+            child: SizedBox(
+              height: browserHeight,
+              child: _buildFileBrowser(),
+            ),
+          ),
         ),
-      );
-      await _handleDelete();
-    }
+
+        // Upload section on the right.
+
+        if (widget.showUpload &&
+            _getEffectiveUploadConfig() != null &&
+            widget.uploadCallbacks != null)
+          Expanded(
+            flex: 1,
+            child: Card(
+              margin: const EdgeInsets.only(left: 8, right: 16),
+              child: SizedBox(
+                height: browserHeight,
+                child: SingleChildScrollView(
+                  child: SolidFileUploadArea(
+                    config: _getEffectiveUploadConfig()!,
+                    callbacks: widget.uploadCallbacks!,
+                    state: widget.uploadState ?? const SolidFileUploadState(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
-  void _handleImportCsv(String name, String filePath) {
-    if (mounted) {
-      _updateFileState(_fileState.copyWith(currentPath: filePath));
-      _browserKey.currentState?.refreshFiles();
-    }
+  /// Builds the narrow screen layout (stacked).
+
+  Widget _buildNarrowScreenLayout(BuildContext context, double browserHeight) {
+    return Column(
+      children: [
+        // File browser on top.
+
+        Card(
+          margin: const EdgeInsets.all(16),
+          child: SizedBox(
+            height: browserHeight * 0.6, // Smaller height for narrow screens
+            child: _buildFileBrowser(),
+          ),
+        ),
+
+        // Upload section below.
+
+        if (widget.showUpload &&
+            _getEffectiveUploadConfig() != null &&
+            widget.uploadCallbacks != null)
+          Card(
+            margin: const EdgeInsets.all(16),
+            child: SolidFileUploadArea(
+              config: _getEffectiveUploadConfig()!,
+              callbacks: widget.uploadCallbacks!,
+              state: widget.uploadState ?? const SolidFileUploadState(),
+            ),
+          ),
+      ],
+    );
   }
 
-  void _handleDirectoryChanged(String pathValue) {
-    if (mounted) {
-      _updateFileState(_fileState.copyWith(currentPath: pathValue));
-    }
+  /// Builds the file browser widget.
+
+  Widget _buildFileBrowser() {
+    return SolidFileBrowser(
+      key: _browserKey,
+      browserKey: _browserKey,
+      basePath: widget.basePath,
+      friendlyFolderName: _getEffectiveFriendlyFolderName(),
+      onFileSelected: widget.onFileSelected ??
+          (fileName, filePath) {
+            debugPrint('File selected: $fileName at $filePath');
+          },
+      onFileDownload: widget.onFileDownload ??
+          (fileName, filePath) {
+            debugPrint('Download file: $fileName at $filePath');
+          },
+      onFileDelete: widget.onFileDelete ??
+          (fileName, filePath) {
+            debugPrint('Delete file: $fileName at $filePath');
+          },
+      onImportCsv: widget.onImportCsv ??
+          (fileName, filePath) {
+            debugPrint('Import CSV: $fileName at $filePath');
+          },
+      onDirectoryChanged: _handleDirectoryChanged,
+    );
   }
 }

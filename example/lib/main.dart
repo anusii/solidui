@@ -343,7 +343,7 @@ class _HomePageState extends State<HomePage> {
         ),
         applicationLegalese: '''
 
-        © 2025 Software Innovation Institute, the Australian National UNiversity
+        © 2025 Software Innovation Institute, the Australian National University
 
         ''',
         text: '''
@@ -389,8 +389,9 @@ class _HomePageState extends State<HomePage> {
                   This template app serves to demonstrate the SolidScaffold()
                   widget which extends the standard Flutter Scaffold()
                   widget. It provides a left hand rail for selecting features,
-                  an app bar with some standard buttons, and a status bar to show current parameters. The Solid Scaffold adds
-                  parameters for:
+                  an app bar with some standard buttons, and a status bar to
+                  show current parameters. The Solid Scaffold adds parameters
+                  for:
 
                   • **Responsive navigation** including the option to present as
                     a left hand rail or a menu drawer depending on screen width;
@@ -410,15 +411,6 @@ class _HomePageState extends State<HomePage> {
                   • Security key management
 
                   '''),
-
-                  // 'Welcome to the SolidUI Example!\n\n'
-                  // 'This demonstrates SolidScaffold with child parameter features:\n\n'
-                  // '• Responsive navigation (rail ↔ drawer)\n'
-                  // '• Theme switching (🌙/☀️ button)\n'
-                  // '• Custom About dialogue (ℹ️ button)\n'
-                  // '• Version information display\n'
-                  // '• Status bar integration\n'
-                  // '• Security key management\n',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
@@ -462,8 +454,35 @@ class _HomePageState extends State<HomePage> {
   /// Build the file manager page content.
 
   Widget _buildFileManagerPage() {
-    return const SolidFile(
+    return SolidFile(
       basePath: 'solidui_example',
+      currentPath: 'solidui_example',
+      onBackPressed: () {
+        debugPrint('Back button pressed');
+      },
+      onFileSelected: (fileName, filePath) {
+        debugPrint('File selected: $fileName');
+      },
+      onFileDownload: (fileName, filePath) {
+        debugPrint('Download file: $fileName');
+      },
+      onFileDelete: (fileName, filePath) {
+        debugPrint('Delete file: $fileName');
+      },
+      onDirectoryChanged: (path) {
+        debugPrint('Directory changed: $path');
+      },
+      onImportCsv: (fileName, filePath) {
+        debugPrint('Import CSV: $fileName');
+      },
+      uploadCallbacks: SolidFileUploadCallbacks(
+        onUpload: () {
+          debugPrint('Upload file');
+        },
+        onVisualiseJson: () {
+          debugPrint('Visualise JSON');
+        },
+      ),
     );
   }
 

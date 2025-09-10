@@ -64,6 +64,19 @@ Scaffold
 - Integrated About button in SolidScaffold with automatic application
   info detection
 
+### 📁 File Management
+
+- **SolidFile** - Comprehensive file management widget with automatic
+  configuration based on path
+- **SolidFileBrowser** - File browser with upload, download, and delete
+operations
+- **SolidFileUploadArea** - Drag & drop file upload with data format support
+- **FileTypeConfig** - Automatic file type configuration for different data
+types
+- Automatic detection of file types (blood pressure, vaccination, medication,
+diary, profile)
+- Built-in CSV import/export functionality for health data
+
 ### 🛠️ Utilities & Constants
 
 - **NavigationConstants** - Predefined constants for consistent navigation,
@@ -364,7 +377,7 @@ Configuration for the bottom status bar showing server and user information.
 **Automatic security key management** integrated directly into SolidScaffold.
 No need for separate components or custom dialogues.
 
-#### Simple Usage
+#### Simple Usage of Security Key Management
 
 ```dart
 SolidScaffold(
@@ -417,6 +430,87 @@ SolidSecurityKeyManager(
   onKeyStatusChanged: (hasKey) {
     // Handle key status changes.
   },
+)
+```
+
+### File Management
+
+**SolidFile provides comprehensive file management** with automatic
+configuration based on the file path. It handles file upload, download,
+browsing, and data format operations.
+
+#### Simple Usage of File Management
+
+```dart
+SolidFile(
+  basePath: 'myapp/data',
+  currentPath: 'myapp/data/health',
+  onFileSelected: (fileName, filePath) {
+    print('Selected: $fileName');
+  },
+  onFileDownload: (fileName, filePath) {
+    print('Download: $fileName');
+  },
+)
+```
+
+#### Automatic Configuration
+
+SolidFile automatically detects file types and configures appropriate buttons:
+
+```dart
+SolidFile(
+  basePath: 'healthapp/data',
+  currentPath: 'healthapp/data/bp',        // Blood pressure data
+  // Automatically shows CSV import/export buttons
+  // Automatically sets friendlyFolderName to "Blood Pressure Data"
+  // Automatically configures data format for blood pressure
+)
+
+SolidFile(
+  basePath: 'healthapp/data',
+  currentPath: 'healthapp/data/profile',   // Profile data
+  // Automatically shows Profile import/export buttons
+  // Automatically sets friendlyFolderName to "Profile Data"
+  // Automatically configures data format for profile
+)
+```
+
+#### With Upload Callbacks
+
+```dart
+SolidFile(
+  basePath: 'myapp/data',
+  currentPath: 'myapp/data/documents',
+  uploadCallbacks: SolidFileUploadCallbacks(
+    onUpload: () {
+      // Handle file upload
+    },
+    onImportCsv: () {
+      // Handle CSV import
+    },
+    onExportCsv: () {
+      // Handle CSV export
+    },
+  ),
+)
+```
+
+#### Manual Configuration (Advanced)
+
+For custom upload configurations, disable auto-config:
+
+```dart
+SolidFile(
+  basePath: 'myapp/data',
+  currentPath: 'myapp/data/custom',
+  autoConfig: false,  // Disable automatic configuration
+  uploadConfig: SolidFileUploadConfig(
+    showCsvButtons: true,
+    showJsonButtons: false,
+    formatConfig: myCustomFormat,
+  ),
+  friendlyFolderName: 'Custom Data Folder',
 )
 ```
 
