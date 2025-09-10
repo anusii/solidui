@@ -32,6 +32,7 @@ import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
 import 'package:solidui/src/widgets/solid_file_empty_directory_view.dart';
+import 'package:solidui/src/widgets/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_path_bar.dart';
 
 /// A file browser widget to interact with files and directories in user's POD.
@@ -265,8 +266,46 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   void navigateToPath(String path) {
     setState(() {
       currentPath = path;
+      // Update path history to ensure proper navigation state
+      // If navigating to base path, reset history.
+
+      if (path == widget.basePath) {
+        pathHistory = [widget.basePath];
+      } else {
+        // If the path is not already in history, add it.
+
+        if (pathHistory.isEmpty || pathHistory.last != path) {
+          // If this is a subdirectory of the base path, build proper history.
+
+          if (path.startsWith(widget.basePath)) {
+            pathHistory = [widget.basePath];
+            final relativePath = path.substring(widget.basePath.length);
+            if (relativePath.isNotEmpty && relativePath != '/') {
+              final segments =
+                  relativePath.split('/').where((s) => s.isNotEmpty);
+              var currentBuildPath = widget.basePath;
+              for (final segment in segments) {
+                currentBuildPath = '$currentBuildPath/$segment';
+                pathHistory.add(currentBuildPath);
+              }
+            }
+          } else {
+            // For paths outside base path, just add to history.
+
+            pathHistory.add(path);
+          }
+        }
+      }
       refreshFiles();
     });
+  }
+
+  /// Gets the effective friendly folder name based on the current path.
+  /// Uses SolidFileOperations for consistent title generation.
+
+  String _getEffectiveFriendlyFolderName() {
+    return SolidFileOperations.getFriendlyFolderName(
+        currentPath, widget.basePath);
   }
 
   @override
@@ -313,7 +352,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                       isLoading: isLoading,
                       currentDirFileCount: currentDirFileCount,
                       currentDirDirectoryCount: currentDirDirectoryCount,
-                      friendlyFolderName: widget.friendlyFolderName,
+                      friendlyFolderName: _getEffectiveFriendlyFolderName(),
                       basePath: widget.basePath,
                     ),
 

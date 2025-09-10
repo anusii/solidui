@@ -235,7 +235,7 @@ class SolidFileOperations {
   static String getFriendlyFolderName(String pathValue, String basePath) {
     final String root = basePath;
     if (pathValue.isEmpty || pathValue == root) {
-      return 'Home';
+      return 'Home Folder';
     }
 
     // Use path.basename to safely get the last component.
