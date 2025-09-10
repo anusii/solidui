@@ -305,7 +305,9 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   String _getEffectiveFriendlyFolderName() {
     return SolidFileOperations.getFriendlyFolderName(
-        currentPath, widget.basePath);
+        currentPath,
+        widget.basePath,
+    );
   }
 
   @override
