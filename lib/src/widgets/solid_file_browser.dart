@@ -298,6 +298,8 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       }
       refreshFiles();
     });
+
+    widget.onDirectoryChanged.call(path);
   }
 
   /// Gets the effective friendly folder name based on the current path.
