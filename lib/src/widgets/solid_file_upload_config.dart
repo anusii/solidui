@@ -118,7 +118,7 @@ class SolidFileUploadCallbacks {
   /// Creates a default instance with empty (no-op) callbacks for all
   /// operations. This allows all upload features to be enabled but with
   /// default behavior.
-  
+
   const SolidFileUploadCallbacks.defaults()
       : onUpload = _defaultCallback,
         onImportCsv = _defaultCallback,
@@ -131,7 +131,7 @@ class SolidFileUploadCallbacks {
 
   /// Creates a default instance with disabled callbacks (null values).
   /// This will make all upload features appear disabled/greyed out.
-  
+
   const SolidFileUploadCallbacks.disabled()
       : onUpload = null,
         onImportCsv = null,
@@ -143,7 +143,7 @@ class SolidFileUploadCallbacks {
         onConvertToJson = null;
 
   /// Default no-operation callback that does nothing when invoked.
-  
+
   static void _defaultCallback() {
     // Default implementation - no operation.
     // Users can override specific callbacks if needed.
