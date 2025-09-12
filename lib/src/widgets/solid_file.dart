@@ -278,6 +278,19 @@ class _SolidFileState extends State<SolidFile> {
     _currentPath = widget.currentPath ?? widget.basePath;
   }
 
+  @override
+  void didUpdateWidget(covariant SolidFile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldPath = oldWidget.currentPath ?? oldWidget.basePath;
+    final newPath = widget.currentPath ?? widget.basePath;
+
+    if (oldPath != newPath && newPath != _currentPath) {
+      setState(() {
+        _currentPath = newPath;
+      });
+    }
+  }
+
   /// Determines if we should use wide screen layout.
 
   bool _shouldUseWideScreen(BuildContext context) {
