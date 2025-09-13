@@ -26,7 +26,6 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/models/data_format_config.dart';
-import 'package:solidui/src/utils/solid_file_operations.dart';
 
 /// Configuration for the file upload area.
 
