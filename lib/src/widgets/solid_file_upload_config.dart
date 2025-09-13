@@ -84,6 +84,10 @@ class SolidFileUploadCallbacks {
 
   final VoidCallback? onExportCsv;
 
+  /// Callback for successful CSV import.
+
+  final Function(String importType)? onImportSuccess;
+
   /// Callback for Profile import.
 
   final VoidCallback? onImportProfile;
@@ -108,6 +112,7 @@ class SolidFileUploadCallbacks {
     this.onUpload,
     this.onImportCsv,
     this.onExportCsv,
+    this.onImportSuccess,
     this.onImportProfile,
     this.onExportProfile,
     this.onVisualiseJson,
@@ -123,6 +128,7 @@ class SolidFileUploadCallbacks {
       : onUpload = _defaultCallback,
         onImportCsv = _defaultCallback,
         onExportCsv = _defaultCallback,
+        onImportSuccess = null,
         onImportProfile = _defaultCallback,
         onExportProfile = _defaultCallback,
         onVisualiseJson = _defaultCallback,
@@ -136,6 +142,7 @@ class SolidFileUploadCallbacks {
       : onUpload = null,
         onImportCsv = null,
         onExportCsv = null,
+        onImportSuccess = null,
         onImportProfile = null,
         onExportProfile = null,
         onVisualiseJson = null,
