@@ -458,31 +458,17 @@ class _HomePageState extends State<HomePage> {
       basePath: 'solidui_example',
       currentPath: 'solidui_example',
       onBackPressed: () {
-        debugPrint('Back button pressed');
+        _showMessage('Back to home folder');
       },
       onFileSelected: (fileName, filePath) {
-        debugPrint('File selected: $fileName');
-      },
-      onFileDownload: (fileName, filePath) {
-        debugPrint('Download file: $fileName');
-      },
-      onFileDelete: (fileName, filePath) {
-        debugPrint('Delete file: $fileName');
+        _showMessage('File selected: $fileName');
       },
       onDirectoryChanged: (path) {
-        debugPrint('Directory changed: $path');
+        _showMessage('Directory changed: $path');
       },
       onImportCsv: (fileName, filePath) {
-        debugPrint('Import CSV: $fileName');
+        _showMessage('CSV import: $fileName');
       },
-      uploadCallbacks: SolidFileUploadCallbacks(
-        onUpload: () {
-          debugPrint('Upload file');
-        },
-        onVisualiseJson: () {
-          debugPrint('Visualise JSON');
-        },
-      ),
     );
   }
 

@@ -26,6 +26,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/models/file_type_config.dart';
+import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_area.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
@@ -325,6 +326,108 @@ class _SolidFileState extends State<SolidFile> {
     return null;
   }
 
+  /// Gets the effective upload callbacks, either from the provided callbacks
+  /// or default implementations with working file operations.
+
+  SolidFileUploadCallbacks _getEffectiveUploadCallbacks() {
+    if (widget.uploadCallbacks != null) {
+      return widget.uploadCallbacks!;
+    }
+
+    // Provide default callbacks with working file operations.
+
+    return SolidFileUploadCallbacks(
+      onUpload: () {
+        SolidFileOperations.uploadFile(
+          context,
+          _currentPath,
+          onSuccess: () {
+            // Refresh the file browser after successful upload.
+
+            _browserKey.currentState?.refreshFiles();
+          },
+        );
+      },
+      onVisualiseJson: () {
+        // Show a placeholder message for JSON visualisation.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('JSON visualisation feature coming soon'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onPreviewFile: () {
+        // Show a placeholder message for file preview.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('File preview feature coming soon'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onConvertToJson: () {
+        // Show a placeholder message for JSON conversion.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('PDF to JSON conversion feature coming soon'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onImportCsv: () {
+        // Show a placeholder message for CSV import.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('CSV import: please implement custom handler'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onExportCsv: () {
+        // Show a placeholder message for CSV export.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('CSV export: please implement custom handler'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onImportProfile: () {
+        // Show a placeholder message for profile import.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Profile import: please implement custom handler'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onExportProfile: () {
+        // Show a placeholder message for profile export.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Profile export: please implement custom handler'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+    );
+  }
+
   /// Gets the effective friendly folder name, either from the provided name
   /// or auto-generated based on the current path when autoConfig is true.
 
@@ -418,9 +521,7 @@ class _SolidFileState extends State<SolidFile> {
 
         // Upload section on the right.
 
-        if (widget.showUpload &&
-            _getEffectiveUploadConfig() != null &&
-            widget.uploadCallbacks != null)
+        if (widget.showUpload && _getEffectiveUploadConfig() != null)
           Expanded(
             flex: 1,
             child: Card(
@@ -430,7 +531,7 @@ class _SolidFileState extends State<SolidFile> {
                 child: SingleChildScrollView(
                   child: SolidFileUploadArea(
                     config: _getEffectiveUploadConfig()!,
-                    callbacks: widget.uploadCallbacks!,
+                    callbacks: _getEffectiveUploadCallbacks(),
                     state: widget.uploadState ?? const SolidFileUploadState(),
                   ),
                 ),
@@ -458,14 +559,12 @@ class _SolidFileState extends State<SolidFile> {
 
         // Upload section below.
 
-        if (widget.showUpload &&
-            _getEffectiveUploadConfig() != null &&
-            widget.uploadCallbacks != null)
+        if (widget.showUpload && _getEffectiveUploadConfig() != null)
           Card(
             margin: const EdgeInsets.all(16),
             child: SolidFileUploadArea(
               config: _getEffectiveUploadConfig()!,
-              callbacks: widget.uploadCallbacks!,
+              callbacks: _getEffectiveUploadCallbacks(),
               state: widget.uploadState ?? const SolidFileUploadState(),
             ),
           ),
@@ -487,11 +586,26 @@ class _SolidFileState extends State<SolidFile> {
           },
       onFileDownload: widget.onFileDownload ??
           (fileName, filePath) {
-            debugPrint('Download file: $fileName at $filePath');
+            SolidFileOperations.downloadFile(
+              context,
+              fileName,
+              filePath,
+              basePath: widget.basePath,
+            );
           },
       onFileDelete: widget.onFileDelete ??
           (fileName, filePath) {
-            debugPrint('Delete file: $fileName at $filePath');
+            SolidFileOperations.deletePodFile(
+              context,
+              fileName,
+              filePath,
+              basePath: widget.basePath,
+              onSuccess: () {
+                // Refresh the browser after successful deletion.
+
+                _browserKey.currentState?.refreshFiles();
+              },
+            );
           },
       onImportCsv: widget.onImportCsv ??
           (fileName, filePath) {
