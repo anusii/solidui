@@ -360,11 +360,22 @@ class _SolidFileState extends State<SolidFile> {
         );
       },
       onVisualiseJson: () {
-        // Show a placeholder message for JSON visualisation.
+        // Show a placeholder message for POD JSON preview.
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('JSON visualisation feature coming soon'),
+            content: const Text('POD JSON preview feature coming soon'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      onSelectLocalJson: () {
+        // Show a placeholder message for local JSON selection.
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Local JSON selection feature coming soon'),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             duration: const Duration(seconds: 2),
           ),

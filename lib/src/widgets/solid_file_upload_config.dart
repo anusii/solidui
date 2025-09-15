@@ -96,9 +96,13 @@ class SolidFileUploadCallbacks {
 
   final VoidCallback? onExportProfile;
 
-  /// Callback for JSON visualisation.
+  /// Callback for JSON visualisation from POD.
 
   final VoidCallback? onVisualiseJson;
+
+  /// Callback for selecting local JSON files.
+
+  final VoidCallback? onSelectLocalJson;
 
   /// Callback for file preview.
 
@@ -116,6 +120,7 @@ class SolidFileUploadCallbacks {
     this.onImportProfile,
     this.onExportProfile,
     this.onVisualiseJson,
+    this.onSelectLocalJson,
     this.onPreviewFile,
     this.onConvertToJson,
   });
@@ -132,6 +137,7 @@ class SolidFileUploadCallbacks {
         onImportProfile = _defaultCallback,
         onExportProfile = _defaultCallback,
         onVisualiseJson = _defaultCallback,
+        onSelectLocalJson = _defaultCallback,
         onPreviewFile = _defaultCallback,
         onConvertToJson = _defaultCallback;
 
@@ -146,6 +152,7 @@ class SolidFileUploadCallbacks {
         onImportProfile = null,
         onExportProfile = null,
         onVisualiseJson = null,
+        onSelectLocalJson = null,
         onPreviewFile = null,
         onConvertToJson = null;
 

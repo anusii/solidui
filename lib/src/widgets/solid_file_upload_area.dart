@@ -278,7 +278,7 @@ class SolidFileUploadArea extends StatelessWidget {
   Widget _buildAdditionalButtons(BuildContext context) {
     final buttons = <Widget>[];
 
-    // Add Visualise JSON button.
+    // Add Visualise POD JSON button.
 
     if (config.showJsonButtons && callbacks.onVisualiseJson != null) {
       buttons.add(
@@ -286,11 +286,32 @@ class SolidFileUploadArea extends StatelessWidget {
           context: context,
           state: state,
           onPressed: callbacks.onVisualiseJson,
-          icon: Icons.analytics,
-          label: 'Visualise JSON',
+          icon: Icons.cloud_download,
+          label: 'Visualise POD JSON',
           tooltip: '''
 
-**Visualise JSON**: Tap here to select and visualise a JSON file from your local machine.
+**Visualise POD JSON**: Tap here to select and visualise a JSON file from 
+your Solid POD.
+
+''',
+        ),
+      );
+    }
+
+    // Add Visualise Local JSON button.
+
+    if (config.showJsonButtons && callbacks.onSelectLocalJson != null) {
+      buttons.add(
+        SolidFileUploadButtons.buildFullWidthButton(
+          context: context,
+          state: state,
+          onPressed: callbacks.onSelectLocalJson,
+          icon: Icons.folder_open,
+          label: 'Visualise Local JSON',
+          tooltip: '''
+
+**Visualise Local JSON**: Tap here to select and visualise a JSON file from 
+your local device.
 
 ''',
         ),
