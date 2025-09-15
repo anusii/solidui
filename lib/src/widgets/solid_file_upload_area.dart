@@ -60,6 +60,10 @@ class SolidFileUploadArea extends StatelessWidget {
 
   final EdgeInsets? padding;
 
+  /// Callback when preview is closed.
+
+  final VoidCallback? onClosePreview;
+
   const SolidFileUploadArea({
     super.key,
     required this.config,
@@ -68,6 +72,7 @@ class SolidFileUploadArea extends StatelessWidget {
     this.header,
     this.footer,
     this.padding,
+    this.onClosePreview,
   });
 
   @override
@@ -148,7 +153,7 @@ class SolidFileUploadArea extends StatelessWidget {
 
     return SolidFilePreviewCard(
       content: state.filePreview!,
-      onClose: () {},
+      onClose: onClosePreview,
     );
   }
 

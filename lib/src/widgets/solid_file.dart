@@ -86,6 +86,10 @@ class SolidFileCallbacks {
 
   final Function(String path)? onDirectoryChanged;
 
+  /// Callback when preview is closed by user.
+
+  final VoidCallback? onClosePreview;
+
   /// Callback for CSV import.
 
   final Function(String fileName, String filePath)? onImportCsv;
@@ -100,6 +104,7 @@ class SolidFileCallbacks {
     this.onFileDownload,
     this.onFileDelete,
     this.onDirectoryChanged,
+    this.onClosePreview,
     this.onImportCsv,
     this.uploadCallbacks,
   });
@@ -184,6 +189,10 @@ class SolidFile extends StatefulWidget {
 
   final Function(String path)? onDirectoryChanged;
 
+  /// Callback when preview is closed by user.
+
+  final VoidCallback? onClosePreview;
+
   /// Callback for CSV import.
 
   final Function(String fileName, String filePath)? onImportCsv;
@@ -228,6 +237,7 @@ class SolidFile extends StatefulWidget {
     this.onFileDownload,
     this.onFileDelete,
     this.onDirectoryChanged,
+    this.onClosePreview,
     this.onImportCsv,
     this.showUpload = true,
     this.uploadConfig,
@@ -257,6 +267,7 @@ class SolidFile extends StatefulWidget {
         onFileDownload = callbacks.onFileDownload,
         onFileDelete = callbacks.onFileDelete,
         onDirectoryChanged = callbacks.onDirectoryChanged,
+        onClosePreview = callbacks.onClosePreview,
         onImportCsv = callbacks.onImportCsv,
         showUpload = state.uploadConfig != null,
         uploadConfig = state.uploadConfig,
@@ -271,19 +282,12 @@ class SolidFile extends StatefulWidget {
 class _SolidFileState extends State<SolidFile> {
   late GlobalKey<SolidFileBrowserState> _browserKey;
   late String _currentPath;
-  String? _localFilePreview;
-  bool _localShowPreview = false;
 
   @override
   void initState() {
     super.initState();
     _browserKey = widget.browserKey ?? GlobalKey<SolidFileBrowserState>();
     _currentPath = widget.currentPath ?? widget.basePath;
-    
-    // Initialise local preview state from widget state.
-
-    _localFilePreview = widget.uploadState?.filePreview;
-    _localShowPreview = widget.uploadState?.showPreview ?? false;
   }
 
   @override
@@ -295,18 +299,6 @@ class _SolidFileState extends State<SolidFile> {
     if (oldPath != newPath && newPath != _currentPath) {
       setState(() {
         _currentPath = newPath;
-      });
-    }
-    
-    // Sync with external preview state.
-
-    final newPreview = widget.uploadState?.filePreview;
-    final newShowPreview = widget.uploadState?.showPreview ?? false;
-    
-    if (newPreview != _localFilePreview || newShowPreview != _localShowPreview) {
-      setState(() {
-        _localFilePreview = newPreview;
-        _localShowPreview = newShowPreview;
       });
     }
   }
@@ -522,78 +514,10 @@ class _SolidFileState extends State<SolidFile> {
                       : _buildNarrowScreenLayout(context, browserHeight),
                 ),
               ),
-              
-              // Preview area (if enabled).
-              
-              if (_localShowPreview) ...[
-                const SizedBox(height: 8),
-                _buildPreviewArea(context),
-              ],
             ],
           ),
         ),
       ],
-    );
-  }
-
-  /// Builds the preview area for displaying file content.
-
-  Widget _buildPreviewArea(BuildContext context) {
-    if (!_localShowPreview || _localFilePreview == null) {
-      return const SizedBox.shrink();
-    }
-    
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        elevation: 2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.preview,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'File Preview',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => setState(() => _localShowPreview = false),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              constraints: const BoxConstraints(maxHeight: 300),
-              child: SingleChildScrollView(
-                child: Text(
-                  _localFilePreview!,
-                  style: const TextStyle(fontFamily: 'monospace'),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -630,6 +554,7 @@ class _SolidFileState extends State<SolidFile> {
                     config: _getEffectiveUploadConfig()!,
                     callbacks: _getEffectiveUploadCallbacks(),
                     state: widget.uploadState ?? const SolidFileUploadState(),
+                    onClosePreview: widget.onClosePreview,
                   ),
                 ),
               ),
@@ -663,6 +588,7 @@ class _SolidFileState extends State<SolidFile> {
               config: _getEffectiveUploadConfig()!,
               callbacks: _getEffectiveUploadCallbacks(),
               state: widget.uploadState ?? const SolidFileUploadState(),
+              onClosePreview: widget.onClosePreview,
             ),
           ),
       ],
@@ -704,10 +630,13 @@ class _SolidFileState extends State<SolidFile> {
               },
             );
           },
-      onImportCsv: widget.onImportCsv ??
-          (fileName, filePath) {
-            debugPrint('Import CSV: $fileName at $filePath');
-          },
+      onImportCsv: widget.uploadCallbacks?.onImportCsv != null 
+          ? (String fileName, String filePath) {
+              widget.uploadCallbacks!.onImportCsv!();
+            }
+          : widget.onImportCsv ?? (String fileName, String filePath) {
+              debugPrint('Import CSV: $fileName at $filePath');
+            },
       onDirectoryChanged: _handleDirectoryChanged,
     );
   }
