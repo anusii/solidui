@@ -271,12 +271,19 @@ class SolidFile extends StatefulWidget {
 class _SolidFileState extends State<SolidFile> {
   late GlobalKey<SolidFileBrowserState> _browserKey;
   late String _currentPath;
+  String? _localFilePreview;
+  bool _localShowPreview = false;
 
   @override
   void initState() {
     super.initState();
     _browserKey = widget.browserKey ?? GlobalKey<SolidFileBrowserState>();
     _currentPath = widget.currentPath ?? widget.basePath;
+    
+    // Initialise local preview state from widget state.
+
+    _localFilePreview = widget.uploadState?.filePreview;
+    _localShowPreview = widget.uploadState?.showPreview ?? false;
   }
 
   @override
@@ -288,6 +295,18 @@ class _SolidFileState extends State<SolidFile> {
     if (oldPath != newPath && newPath != _currentPath) {
       setState(() {
         _currentPath = newPath;
+      });
+    }
+    
+    // Sync with external preview state.
+
+    final newPreview = widget.uploadState?.filePreview;
+    final newShowPreview = widget.uploadState?.showPreview ?? false;
+    
+    if (newPreview != _localFilePreview || newShowPreview != _localShowPreview) {
+      setState(() {
+        _localFilePreview = newPreview;
+        _localShowPreview = newShowPreview;
       });
     }
   }
@@ -492,13 +511,89 @@ class _SolidFileState extends State<SolidFile> {
         // Main content area.
 
         Expanded(
-          child: SingleChildScrollView(
-            child: isWideScreen
-                ? _buildWideScreenLayout(context, browserHeight)
-                : _buildNarrowScreenLayout(context, browserHeight),
+          child: Column(
+            children: [
+              // File browser and upload area.
+              
+              Expanded(
+                child: SingleChildScrollView(
+                  child: isWideScreen
+                      ? _buildWideScreenLayout(context, browserHeight)
+                      : _buildNarrowScreenLayout(context, browserHeight),
+                ),
+              ),
+              
+              // Preview area (if enabled).
+              
+              if (_localShowPreview) ...[
+                const SizedBox(height: 8),
+                _buildPreviewArea(context),
+              ],
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  /// Builds the preview area for displaying file content.
+
+  Widget _buildPreviewArea(BuildContext context) {
+    if (!_localShowPreview || _localFilePreview == null) {
+      return const SizedBox.shrink();
+    }
+    
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Card(
+        elevation: 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.preview,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'File Preview',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => setState(() => _localShowPreview = false),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              constraints: const BoxConstraints(maxHeight: 300),
+              child: SingleChildScrollView(
+                child: Text(
+                  _localFilePreview!,
+                  style: const TextStyle(fontFamily: 'monospace'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
