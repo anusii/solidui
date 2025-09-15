@@ -303,7 +303,7 @@ class SolidFileUploadArea extends StatelessWidget {
         config.showPreviewButtons &&
         callbacks.onPreviewFile != null) {
       buttons.add(
-        SolidFileUploadButtons.buildTextButton(
+        SolidFileUploadButtons.buildFullWidthButton(
           context: context,
           state: state,
           onPressed: callbacks.onPreviewFile,
@@ -324,7 +324,7 @@ class SolidFileUploadArea extends StatelessWidget {
         config.showPreviewButtons &&
         callbacks.onConvertToJson != null) {
       buttons.add(
-        SolidFileUploadButtons.buildTextButton(
+        SolidFileUploadButtons.buildFullWidthButton(
           context: context,
           state: state,
           onPressed: callbacks.onConvertToJson,
