@@ -286,11 +286,11 @@ class SolidFileUploadArea extends StatelessWidget {
           context: context,
           state: state,
           onPressed: callbacks.onVisualiseJson,
-          icon: Icons.cloud_download,
-          label: 'Visualise POD JSON',
+          icon: Icons.add_chart,
+          label: 'Visualise JSON from POD',
           tooltip: '''
 
-**Visualise POD JSON**: Tap here to select and visualise a JSON file from 
+**Visualise JSON from POD**: Tap here to select and visualise a JSON file from 
 your Solid POD.
 
 ''',
