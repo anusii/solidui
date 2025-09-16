@@ -25,117 +25,13 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/models/file_type_config.dart';
-import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
-import 'package:solidui/src/widgets/solid_file_upload_area.dart';
+import 'package:solidui/src/widgets/solid_file_browser_builder.dart';
+import 'package:solidui/src/widgets/solid_file_callbacks.dart';
+import 'package:solidui/src/widgets/solid_file_helpers.dart';
+import 'package:solidui/src/widgets/solid_file_layout.dart';
+import 'package:solidui/src/widgets/solid_file_models.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
-
-/// Configuration for the SolidFile widget.
-
-class SolidFileConfig {
-  /// Base path for file operations.
-
-  final String basePath;
-
-  /// Whether to show the back button.
-
-  final bool showBackButton;
-
-  /// Text for the back button.
-
-  final String backButtonText;
-
-  /// Whether to use wide screen layout.
-
-  final bool? forceWideScreen;
-
-  /// Custom height for the file browser.
-
-  final double? browserHeight;
-
-  const SolidFileConfig({
-    required this.basePath,
-    this.showBackButton = true,
-    this.backButtonText = 'Back to Home Folder',
-    this.forceWideScreen,
-    this.browserHeight,
-  });
-}
-
-/// Callbacks for SolidFile operations.
-
-class SolidFileCallbacks {
-  /// Callback when back button is pressed.
-
-  final VoidCallback? onBackPressed;
-
-  /// Callback when a file is selected.
-
-  final Function(String fileName, String filePath)? onFileSelected;
-
-  /// Callback when a file should be downloaded.
-
-  final Function(String fileName, String filePath)? onFileDownload;
-
-  /// Callback when a file should be deleted.
-
-  final Function(String fileName, String filePath)? onFileDelete;
-
-  /// Callback when directory changes.
-
-  final Function(String path)? onDirectoryChanged;
-
-  /// Callback when preview is closed by user.
-
-  final VoidCallback? onClosePreview;
-
-  /// Callback for CSV import.
-
-  final Function(String fileName, String filePath)? onImportCsv;
-
-  /// Upload area callbacks.
-
-  final SolidFileUploadCallbacks? uploadCallbacks;
-
-  const SolidFileCallbacks({
-    this.onBackPressed,
-    this.onFileSelected,
-    this.onFileDownload,
-    this.onFileDelete,
-    this.onDirectoryChanged,
-    this.onClosePreview,
-    this.onImportCsv,
-    this.uploadCallbacks,
-  });
-}
-
-/// State for the SolidFile widget.
-
-class SolidFileState {
-  /// Current path in the file browser.
-
-  final String currentPath;
-
-  /// Friendly name for the current folder.
-
-  final String friendlyFolderName;
-
-  /// Upload area state.
-
-  final SolidFileUploadState? uploadState;
-
-  /// Upload area configuration.
-
-  final SolidFileUploadConfig? uploadConfig;
-
-  const SolidFileState({
-    required this.currentPath,
-    required this.friendlyFolderName,
-    this.uploadState,
-    this.uploadConfig,
-  });
-}
 
 /// A comprehensive file management widget combining file browser and upload
 /// functionality.
@@ -303,40 +199,6 @@ class _SolidFileState extends State<SolidFile> {
     }
   }
 
-  /// Determines if we should use wide screen layout.
-
-  bool _shouldUseWideScreen(BuildContext context) {
-    if (widget.forceWideScreen != null) {
-      return widget.forceWideScreen!;
-    }
-    return MediaQuery.of(context).size.width > 800;
-  }
-
-  /// Gets the effective browser height.
-
-  double _getBrowserHeight(BuildContext context) {
-    if (widget.browserHeight != null) {
-      return widget.browserHeight!;
-    }
-    return MediaQuery.of(context).size.height * 0.7;
-  }
-
-  /// Gets the effective upload configuration, either from the provided config
-  /// or auto-generated based on the current path when autoConfig is true.
-
-  SolidFileUploadConfig? _getEffectiveUploadConfig() {
-    if (widget.uploadConfig != null) {
-      return widget.uploadConfig;
-    }
-
-    if (widget.autoConfig && widget.showUpload) {
-      final typeConfig = FileTypeConfig.fromPath(_currentPath, widget.basePath);
-      return typeConfig.createUploadConfig();
-    }
-
-    return null;
-  }
-
   /// Gets the effective upload callbacks, either from the provided callbacks
   /// or default implementations with working file operations.
 
@@ -345,127 +207,13 @@ class _SolidFileState extends State<SolidFile> {
       return widget.uploadCallbacks!;
     }
 
-    // Provide default callbacks with working file operations.
+    // Use default callbacks helper.
 
-    return SolidFileUploadCallbacks(
-      onUpload: () {
-        SolidFileOperations.uploadFile(
-          context,
-          _currentPath,
-          onSuccess: () {
-            // Refresh the file browser after successful upload.
-
-            _browserKey.currentState?.refreshFiles();
-          },
-        );
-      },
-      onVisualiseJson: () {
-        // Show a placeholder message for POD JSON preview.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('POD JSON preview feature coming soon'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      onSelectLocalJson: () {
-        // Show a placeholder message for local JSON selection.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Local JSON selection feature coming soon'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      onPreviewFile: () {
-        // Show a placeholder message for file preview.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('File preview feature coming soon'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      onConvertToJson: () {
-        // Show a placeholder message for JSON conversion.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('PDF to JSON conversion feature coming soon'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      onImportCsv: () {
-        // Show a placeholder message for CSV import.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('CSV import: please implement custom handler'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      onExportCsv: () {
-        // Show a placeholder message for CSV export.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('CSV export: please implement custom handler'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      onImportProfile: () {
-        // Show a placeholder message for profile import.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                const Text('Profile import: please implement custom handler'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      onExportProfile: () {
-        // Show a placeholder message for profile export.
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                const Text('Profile export: please implement custom handler'),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
+    return SolidFileDefaultCallbacks.createUploadCallbacks(
+      context,
+      _currentPath,
+      _browserKey,
     );
-  }
-
-  /// Gets the effective friendly folder name, either from the provided name
-  /// or auto-generated based on the current path when autoConfig is true.
-
-  String _getEffectiveFriendlyFolderName() {
-    if (widget.friendlyFolderName != null) {
-      return widget.friendlyFolderName!;
-    }
-
-    if (widget.autoConfig) {
-      final typeConfig = FileTypeConfig.fromPath(_currentPath, widget.basePath);
-      return typeConfig.displayName;
-    }
-
-    return 'Files';
   }
 
   /// Handles directory changes and updates internal state.
@@ -482,8 +230,14 @@ class _SolidFileState extends State<SolidFile> {
 
   @override
   Widget build(BuildContext context) {
-    final isWideScreen = _shouldUseWideScreen(context);
-    final browserHeight = _getBrowserHeight(context);
+    final isWideScreen = SolidFileHelpers.shouldUseWideScreen(
+      context,
+      widget.forceWideScreen,
+    );
+    final browserHeight = SolidFileHelpers.getBrowserHeight(
+      context,
+      widget.browserHeight,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,12 +271,44 @@ class _SolidFileState extends State<SolidFile> {
           child: Column(
             children: [
               // File browser and upload area.
-              
+
               Expanded(
                 child: SingleChildScrollView(
                   child: isWideScreen
-                      ? _buildWideScreenLayout(context, browserHeight)
-                      : _buildNarrowScreenLayout(context, browserHeight),
+                      ? SolidFileLayoutBuilder.buildWideScreenLayout(
+                          browserHeight: browserHeight,
+                          fileBrowser: _buildFileBrowser(),
+                          showUpload: widget.showUpload,
+                          uploadConfig:
+                              SolidFileHelpers.getEffectiveUploadConfig(
+                            _currentPath,
+                            widget.basePath,
+                            widget.autoConfig,
+                            widget.showUpload,
+                            widget.uploadConfig,
+                          ),
+                          uploadCallbacks: _getEffectiveUploadCallbacks(),
+                          uploadState: widget.uploadState ??
+                              const SolidFileUploadState(),
+                          onClosePreview: widget.onClosePreview,
+                        )
+                      : SolidFileLayoutBuilder.buildNarrowScreenLayout(
+                          browserHeight: browserHeight,
+                          fileBrowser: _buildFileBrowser(),
+                          showUpload: widget.showUpload,
+                          uploadConfig:
+                              SolidFileHelpers.getEffectiveUploadConfig(
+                            _currentPath,
+                            widget.basePath,
+                            widget.autoConfig,
+                            widget.showUpload,
+                            widget.uploadConfig,
+                          ),
+                          uploadCallbacks: _getEffectiveUploadCallbacks(),
+                          uploadState: widget.uploadState ??
+                              const SolidFileUploadState(),
+                          onClosePreview: widget.onClosePreview,
+                        ),
                 ),
               ),
             ],
@@ -532,123 +318,24 @@ class _SolidFileState extends State<SolidFile> {
     );
   }
 
-  /// Builds the wide screen layout (side-by-side).
-
-  Widget _buildWideScreenLayout(BuildContext context, double browserHeight) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // File browser on the left.
-
-        Expanded(
-          flex: 2,
-          child: Card(
-            margin: const EdgeInsets.only(left: 16, right: 8),
-            child: SizedBox(
-              height: browserHeight,
-              child: _buildFileBrowser(),
-            ),
-          ),
-        ),
-
-        // Upload section on the right.
-
-        if (widget.showUpload && _getEffectiveUploadConfig() != null)
-          Expanded(
-            flex: 1,
-            child: Card(
-              margin: const EdgeInsets.only(left: 8, right: 16),
-              child: SizedBox(
-                height: browserHeight,
-                child: SingleChildScrollView(
-                  child: SolidFileUploadArea(
-                    config: _getEffectiveUploadConfig()!,
-                    callbacks: _getEffectiveUploadCallbacks(),
-                    state: widget.uploadState ?? const SolidFileUploadState(),
-                    onClosePreview: widget.onClosePreview,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  /// Builds the narrow screen layout (stacked).
-
-  Widget _buildNarrowScreenLayout(BuildContext context, double browserHeight) {
-    return Column(
-      children: [
-        // File browser on top.
-
-        Card(
-          margin: const EdgeInsets.all(16),
-          child: SizedBox(
-            height: browserHeight * 0.6, // Smaller height for narrow screens
-            child: _buildFileBrowser(),
-          ),
-        ),
-
-        // Upload section below.
-
-        if (widget.showUpload && _getEffectiveUploadConfig() != null)
-          Card(
-            margin: const EdgeInsets.all(16),
-            child: SolidFileUploadArea(
-              config: _getEffectiveUploadConfig()!,
-              callbacks: _getEffectiveUploadCallbacks(),
-              state: widget.uploadState ?? const SolidFileUploadState(),
-              onClosePreview: widget.onClosePreview,
-            ),
-          ),
-      ],
-    );
-  }
-
   /// Builds the file browser widget.
 
   Widget _buildFileBrowser() {
-    return SolidFileBrowser(
-      key: _browserKey,
+    return SolidFileBrowserBuilder.build(
       browserKey: _browserKey,
       basePath: widget.basePath,
-      friendlyFolderName: _getEffectiveFriendlyFolderName(),
-      onFileSelected: widget.onFileSelected ??
-          (fileName, filePath) {
-            debugPrint('File selected: $fileName at $filePath');
-          },
-      onFileDownload: widget.onFileDownload ??
-          (fileName, filePath) {
-            SolidFileOperations.downloadFile(
-              context,
-              fileName,
-              filePath,
-              basePath: widget.basePath,
-            );
-          },
-      onFileDelete: widget.onFileDelete ??
-          (fileName, filePath) {
-            SolidFileOperations.deletePodFile(
-              context,
-              fileName,
-              filePath,
-              basePath: widget.basePath,
-              onSuccess: () {
-                // Refresh the browser after successful deletion.
-
-                _browserKey.currentState?.refreshFiles();
-              },
-            );
-          },
-      onImportCsv: widget.uploadCallbacks?.onImportCsv != null 
-          ? (String fileName, String filePath) {
-              widget.uploadCallbacks!.onImportCsv!();
-            }
-          : widget.onImportCsv ?? (String fileName, String filePath) {
-              debugPrint('Import CSV: $fileName at $filePath');
-            },
+      friendlyFolderName: SolidFileHelpers.getEffectiveFriendlyFolderName(
+        _currentPath,
+        widget.basePath,
+        widget.autoConfig,
+        widget.friendlyFolderName,
+      ),
+      onFileSelected: widget.onFileSelected,
+      onFileDownload: widget.onFileDownload,
+      onFileDelete: widget.onFileDelete,
+      onImportCsv: widget.onImportCsv,
       onDirectoryChanged: _handleDirectoryChanged,
+      uploadCallbacks: widget.uploadCallbacks,
     );
   }
 }
