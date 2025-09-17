@@ -157,7 +157,17 @@ unlinked_spec.ds
 # Android related
 #-----------------------------------------------------------------------
 
-**/android/
+**/android/**/gradle-wrapper.jar
+.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+*.jks
+
+android/app/.cxx/
 
 #-----------------------------------------------------------------------
 # iOS/XCode related
@@ -194,3 +204,14 @@ coverage/
 #-----------------------------------------------------------------------
 
 app.*.symbols
+
+#-----------------------------------------------------------------------
+# Exceptions to above rules.
+#-----------------------------------------------------------------------
+
+!**/ios/**/default.mode1v3
+!**/ios/**/default.mode2v3
+!**/ios/**/default.pbxuser
+!**/ios/**/default.perspectivev3
+!/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+!/dev/ci/**/Gemfile.lock
