@@ -60,6 +60,10 @@ class SolidFileUploadArea extends StatelessWidget {
 
   final EdgeInsets? padding;
 
+  /// Callback when preview is closed.
+
+  final VoidCallback? onClosePreview;
+
   const SolidFileUploadArea({
     super.key,
     required this.config,
@@ -68,6 +72,7 @@ class SolidFileUploadArea extends StatelessWidget {
     this.header,
     this.footer,
     this.padding,
+    this.onClosePreview,
   });
 
   @override
@@ -148,7 +153,7 @@ class SolidFileUploadArea extends StatelessWidget {
 
     return SolidFilePreviewCard(
       content: state.filePreview!,
-      onClose: () {},
+      onClose: onClosePreview,
     );
   }
 
@@ -273,7 +278,7 @@ class SolidFileUploadArea extends StatelessWidget {
   Widget _buildAdditionalButtons(BuildContext context) {
     final buttons = <Widget>[];
 
-    // Add Visualise JSON button.
+    // Add Visualise POD JSON button.
 
     if (config.showJsonButtons && callbacks.onVisualiseJson != null) {
       buttons.add(
@@ -281,11 +286,32 @@ class SolidFileUploadArea extends StatelessWidget {
           context: context,
           state: state,
           onPressed: callbacks.onVisualiseJson,
-          icon: Icons.analytics,
-          label: 'Visualise JSON',
+          icon: Icons.add_chart,
+          label: 'Visualise JSON from POD',
           tooltip: '''
 
-**Visualise JSON**: Tap here to select and visualise a JSON file from your local machine.
+**Visualise JSON from POD**: Tap here to select and visualise a JSON file from 
+your Solid POD.
+
+''',
+        ),
+      );
+    }
+
+    // Add Visualise Local JSON button.
+
+    if (config.showJsonButtons && callbacks.onSelectLocalJson != null) {
+      buttons.add(
+        SolidFileUploadButtons.buildFullWidthButton(
+          context: context,
+          state: state,
+          onPressed: callbacks.onSelectLocalJson,
+          icon: Icons.folder_open,
+          label: 'Visualise Local JSON',
+          tooltip: '''
+
+**Visualise Local JSON**: Tap here to select and visualise a JSON file from 
+your local device.
 
 ''',
         ),
@@ -298,7 +324,7 @@ class SolidFileUploadArea extends StatelessWidget {
         config.showPreviewButtons &&
         callbacks.onPreviewFile != null) {
       buttons.add(
-        SolidFileUploadButtons.buildTextButton(
+        SolidFileUploadButtons.buildFullWidthButton(
           context: context,
           state: state,
           onPressed: callbacks.onPreviewFile,
@@ -319,7 +345,7 @@ class SolidFileUploadArea extends StatelessWidget {
         config.showPreviewButtons &&
         callbacks.onConvertToJson != null) {
       buttons.add(
-        SolidFileUploadButtons.buildTextButton(
+        SolidFileUploadButtons.buildFullWidthButton(
           context: context,
           state: state,
           onPressed: callbacks.onConvertToJson,

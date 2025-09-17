@@ -24,7 +24,7 @@
 library;
 
 import 'package:solidui/src/models/data_format_config.dart';
-import 'package:solidui/src/widgets/solid_file_operations.dart';
+import 'package:solidui/src/widgets/solid_file_helpers.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
 /// Predefined file types for different data categories.
@@ -173,7 +173,7 @@ class FileTypeConfig {
         }
       }
 
-      final friendlyName = SolidFileOperations.getFriendlyFolderName(
+      final friendlyName = SolidFileHelpers.getFriendlyFolderName(
         currentPath,
         effectiveBasePath,
       );

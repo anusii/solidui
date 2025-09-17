@@ -84,6 +84,10 @@ class SolidFileUploadCallbacks {
 
   final VoidCallback? onExportCsv;
 
+  /// Callback for successful CSV import.
+
+  final Function(String importType)? onImportSuccess;
+
   /// Callback for Profile import.
 
   final VoidCallback? onImportProfile;
@@ -92,9 +96,13 @@ class SolidFileUploadCallbacks {
 
   final VoidCallback? onExportProfile;
 
-  /// Callback for JSON visualisation.
+  /// Callback for JSON visualisation from POD.
 
   final VoidCallback? onVisualiseJson;
+
+  /// Callback for selecting local JSON files.
+
+  final VoidCallback? onSelectLocalJson;
 
   /// Callback for file preview.
 
@@ -108,9 +116,11 @@ class SolidFileUploadCallbacks {
     this.onUpload,
     this.onImportCsv,
     this.onExportCsv,
+    this.onImportSuccess,
     this.onImportProfile,
     this.onExportProfile,
     this.onVisualiseJson,
+    this.onSelectLocalJson,
     this.onPreviewFile,
     this.onConvertToJson,
   });
@@ -123,9 +133,11 @@ class SolidFileUploadCallbacks {
       : onUpload = _defaultCallback,
         onImportCsv = _defaultCallback,
         onExportCsv = _defaultCallback,
+        onImportSuccess = null,
         onImportProfile = _defaultCallback,
         onExportProfile = _defaultCallback,
         onVisualiseJson = _defaultCallback,
+        onSelectLocalJson = _defaultCallback,
         onPreviewFile = _defaultCallback,
         onConvertToJson = _defaultCallback;
 
@@ -136,9 +148,11 @@ class SolidFileUploadCallbacks {
       : onUpload = null,
         onImportCsv = null,
         onExportCsv = null,
+        onImportSuccess = null,
         onImportProfile = null,
         onExportProfile = null,
         onVisualiseJson = null,
+        onSelectLocalJson = null,
         onPreviewFile = null,
         onConvertToJson = null;
 
