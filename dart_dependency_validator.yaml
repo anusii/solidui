@@ -1,4 +1,2 @@
 ignore:
   - cupertino_icons  # An asset repository.
-  - flutter_test  # Test framework, used in examples.
-  - macos  # Platform-specific, used in examples.
