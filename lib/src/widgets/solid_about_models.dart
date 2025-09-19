@@ -1,6 +1,6 @@
 /// Models for About dialogue functionality in Solid applications.
 ///
-// Time-stamp: <Thursday 2025-08-21 15:20:34 +1000 Tony Chen>
+// Time-stamp: <Friday 2025-09-19 10:37:54 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -117,13 +117,13 @@ class SolidAboutConfig {
     if (tooltip != null) return tooltip!;
 
     return '''
-**About ${applicationName ?? 'Application'}**
 
-ℹ️ View application information
+    **About ${applicationName ?? 'Application'}**
 
-Tap to view details about this application including version, copyright, and
-licensing information.
-''';
+    Tap here to view details about this application including version,
+    copyright, and licensing information.
+
+    ''';
   }
 
   /// Returns whether to show the About button based on screen width.
