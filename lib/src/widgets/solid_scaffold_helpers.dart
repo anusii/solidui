@@ -103,12 +103,12 @@ class SolidScaffoldHelpers {
     VoidCallback? themeToggleCallback,
   ) {
     Widget themeButton = IconButton(
-      icon: Icon(themeConfig.getCurrentIcon(currentThemeMode)),
+      icon: Icon(themeConfig.getNextIcon(currentThemeMode)),
       onPressed: themeToggleCallback,
     );
 
     return MarkdownTooltip(
-      message: themeConfig.getCurrentTooltip(currentThemeMode),
+      message: themeConfig.getNextTooltip(currentThemeMode),
       child: themeButton,
     );
   }
@@ -150,9 +150,9 @@ class SolidScaffoldHelpers {
           value: 'theme_toggle',
           child: Row(
             children: [
-              Icon(themeToggle.getCurrentIcon(currentThemeMode)),
+              Icon(themeToggle.getNextIcon(currentThemeMode)),
               const SizedBox(width: 8),
-              Text(themeToggle.getCurrentOverflowLabel(currentThemeMode)),
+              Text(themeToggle.getNextOverflowLabel(currentThemeMode)),
             ],
           ),
         ),

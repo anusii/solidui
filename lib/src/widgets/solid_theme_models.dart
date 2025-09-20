@@ -168,6 +168,78 @@ Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
     }
   }
 
+  /// Returns the appropriate icon for the next theme mode.
+
+  IconData getNextIcon(ThemeMode themeMode) {
+    switch (themeMode) {
+      case ThemeMode.light:
+        return darkModeIcon ?? Icons.dark_mode;
+      case ThemeMode.dark:
+        return systemModeIcon ?? Icons.computer;
+      case ThemeMode.system:
+        return lightModeIcon ?? Icons.light_mode;
+    }
+  }
+
+  /// Returns tooltip text for switching to the next theme mode.
+
+  String getNextTooltip(ThemeMode themeMode) {
+    // If a custom tooltip is provided, use it instead of the default one.
+
+    if (tooltip != null) return tooltip!;
+
+    // Return responsive tooltip based on next theme mode.
+
+    switch (themeMode) {
+      case ThemeMode.light:
+        return '''
+**Theme Toggle**
+
+☀️ **Light Mode** (Current)
+
+Light Mode is best for viewing in bright conditions. Tap here to switch to Dark
+Mode for low light conditions.
+
+Next: 🌙 **Dark Mode**
+''';
+      case ThemeMode.dark:
+        return '''
+**Theme Toggle**
+
+🌙 **Dark Mode** (Current)
+
+Dark Mode is best for viewing in low light conditions. Tap here to switch to
+System Mode to follow your device settings.
+
+Next: 🖥️ **System Mode**
+''';
+      case ThemeMode.system:
+        return '''
+**Theme Toggle**
+
+🖥️ **System Mode** (Current)
+
+System Mode follows your device settings. Tap here to switch to Light Mode for
+bright viewing conditions.
+
+Next: ☀️ **Light Mode**
+''';
+    }
+  }
+
+  /// Returns overflow menu label for the next theme mode.
+
+  String getNextOverflowLabel(ThemeMode themeMode) {
+    switch (themeMode) {
+      case ThemeMode.light:
+        return 'Switch to Dark Mode 🌙';
+      case ThemeMode.dark:
+        return 'Switch to System Mode 🖥️';
+      case ThemeMode.system:
+        return 'Switch to Light Mode ☀️';
+    }
+  }
+
   /// Whether this config uses internal theme management.
   ///
   /// Returns `true` when both `onToggleTheme` and `currentThemeMode` are null,
