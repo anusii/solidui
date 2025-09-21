@@ -32,6 +32,7 @@ import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
+import 'package:solidui/src/widgets/solid_dynamic_login_status.dart';
 
 /// Builder class for creating Scaffold layouts.
 
@@ -118,6 +119,19 @@ class SolidScaffoldLayoutBuilder {
       );
     }
 
+    // Use dynamic login status if login status is configured.
+
+    if (config.loginStatus != null) {
+      return SolidDynamicLoginStatus(
+        baseConfig: modifiedConfig,
+        onTap: config.loginStatus!.onTap,
+        loggedInText: config.loginStatus!.loggedInText,
+        loggedOutText: config.loginStatus!.loggedOutText,
+        loggedInTooltip: config.loginStatus!.loggedInTooltip,
+        loggedOutTooltip: config.loginStatus!.loggedOutTooltip,
+      );
+    }
+    
     return SolidStatusBar(config: modifiedConfig);
   }
 
