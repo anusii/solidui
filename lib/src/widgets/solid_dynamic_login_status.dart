@@ -38,9 +38,13 @@ class SolidDynamicLoginStatus extends StatefulWidget {
 
   final SolidStatusBarConfig baseConfig;
 
-  /// Custom onTap handler for login/logout actions.
+  /// Custom onTap handler for login/logout actions when logged in.
 
   final VoidCallback? onTap;
+
+  /// Custom login handler for when user is not logged in.
+
+  final VoidCallback? onLogin;
 
   /// Custom text for logged in state.
 
@@ -62,6 +66,7 @@ class SolidDynamicLoginStatus extends StatefulWidget {
     super.key,
     required this.baseConfig,
     this.onTap,
+    this.onLogin,
     this.loggedInText,
     this.loggedOutText,
     this.loggedInTooltip,
@@ -120,11 +125,25 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
   /// Handles tap events and refreshes the login status.
 
   void _handleTap() {
-    // Call the custom onTap handler if provided.
+    final isCurrentlyLoggedIn =
+        _currentWebId != null && _currentWebId!.isNotEmpty;
 
-    widget.onTap?.call();
-
-    // Refresh the login status after a brief delay to allow for login/logout.
+    if (isCurrentlyLoggedIn) {
+      if (widget.onTap != null) {
+        widget.onTap!.call();
+      }
+    } else {
+      if (widget.onLogin != null) {
+        widget.onLogin!.call();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot log in: No login interface available'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    }
 
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
@@ -161,6 +180,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
     final updatedConfig = SolidStatusBarConfig(
       serverInfo: widget.baseConfig.serverInfo,
       loginStatus: dynamicLoginStatus,
+      onLogin: widget.baseConfig.onLogin,
       securityKeyStatus: widget.baseConfig.securityKeyStatus,
       customItems: widget.baseConfig.customItems,
       showOnNarrowScreens: widget.baseConfig.showOnNarrowScreens,

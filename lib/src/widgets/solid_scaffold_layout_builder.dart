@@ -113,6 +113,7 @@ class SolidScaffoldLayoutBuilder {
       modifiedConfig = SolidStatusBarConfig(
         serverInfo: config.serverInfo,
         loginStatus: config.loginStatus,
+        onLogin: config.onLogin,
         securityKeyStatus: updatedStatus,
         customItems: config.customItems,
         showOnNarrowScreens: config.showOnNarrowScreens,
@@ -125,6 +126,7 @@ class SolidScaffoldLayoutBuilder {
       return SolidDynamicLoginStatus(
         baseConfig: modifiedConfig,
         onTap: config.loginStatus!.onTap,
+        onLogin: config.onLogin,
         loggedInText: config.loginStatus!.loggedInText,
         loggedOutText: config.loginStatus!.loggedOutText,
         loggedInTooltip: config.loginStatus!.loggedInTooltip,
