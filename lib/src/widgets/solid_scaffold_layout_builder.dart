@@ -28,11 +28,11 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/widgets/solid_dynamic_login_status.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
-import 'package:solidui/src/widgets/solid_dynamic_login_status.dart';
 
 /// Builder class for creating Scaffold layouts.
 
@@ -131,7 +131,7 @@ class SolidScaffoldLayoutBuilder {
         loggedOutTooltip: config.loginStatus!.loggedOutTooltip,
       );
     }
-    
+
     return SolidStatusBar(config: modifiedConfig);
   }
 

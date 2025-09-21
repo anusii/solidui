@@ -24,10 +24,11 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:solidpod/solidpod.dart' show getWebId, checkLoggedIn;
 
-import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
+import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
 /// A dynamic login status widget that automatically checks and updates
 /// the login status based on the actual Solid POD authentication state.
@@ -90,7 +91,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       // Get the current WebID.
 
       final webId = await getWebId();
-      
+
       if (webId == null || webId.isEmpty) {
         setState(() {
           _currentWebId = null;
@@ -102,7 +103,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       // Verify if the user is actually logged in.
 
       final isLoggedIn = await checkLoggedIn();
-      
+
       setState(() {
         _currentWebId = isLoggedIn ? webId : null;
         _isLoading = false;
@@ -122,7 +123,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
     // Call the custom onTap handler if provided.
 
     widget.onTap?.call();
-    
+
     // Refresh the login status after a brief delay to allow for login/logout.
 
     Future.delayed(const Duration(milliseconds: 500), () {
