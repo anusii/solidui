@@ -32,6 +32,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
@@ -195,14 +196,29 @@ class SolidStatusBar extends StatelessWidget {
               const SizedBox(), // Provide default empty widget
           title: config.title ?? 'Security Key Management',
         ),
-        onKeyStatusChanged: config.onKeyStatusChanged ??
-            (bool hasKey) {
-              // Default empty callback if none provided.
+        onKeyStatusChanged: (bool hasKey) {
+          config.onKeyStatusChanged?.call(hasKey);
+          _refreshParentSecurityKeyStatus(context);
 
-              debugPrint('Security key status changed: $hasKey');
-            },
+          debugPrint('Security key status changed: $hasKey');
+        },
       ),
     );
+  }
+
+  /// Refreshes the security key status in the parent SolidScaffold.
+  ///
+  /// This method sends a notification to trigger a refresh of the
+  /// security key status after a key operation.
+  void _refreshParentSecurityKeyStatus(BuildContext context) {
+    try {
+      // Send a notification to trigger status refresh
+      // Note: We don't know the exact status here, so the parent will
+      // refresh and get the current status from the service
+      SecurityKeyStatusChangedNotification(isKeySaved: true).dispatch(context);
+    } catch (e) {
+      debugPrint('Could not refresh parent security key status: $e');
+    }
   }
 
   /// Builds custom status bar items.

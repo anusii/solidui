@@ -45,7 +45,6 @@ class SolidScaffoldInitHelpers {
 
     final service = SolidSecurityKeyService();
     service.addListener(onKeyChanged);
-    loadKeyStatus();
     return service;
   }
 

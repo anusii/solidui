@@ -30,6 +30,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
+import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
@@ -232,10 +233,10 @@ class SolidScaffold extends StatefulWidget {
     this.aboutConfig,
   });
   @override
-  State<SolidScaffold> createState() => _SolidScaffoldState();
+  State<SolidScaffold> createState() => SolidScaffoldState();
 }
 
-class _SolidScaffoldState extends State<SolidScaffold> {
+class SolidScaffoldState extends State<SolidScaffold> {
   late int _selectedIndex;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   SolidSecurityKeyService? _securityKeyService;
@@ -260,6 +261,12 @@ class _SolidScaffoldState extends State<SolidScaffold> {
       _getUsesInternalManagement(),
       _onThemeChanged,
     );
+
+    // Load security key status asynchronously after initialisation.
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSecurityKeyStatus();
+    });
   }
 
   @override
@@ -318,6 +325,30 @@ class _SolidScaffoldState extends State<SolidScaffold> {
     }
   }
 
+  /// Manually refresh the security key status.
+
+  Future<void> refreshSecurityKeyStatus() async {
+    if (_securityKeyService == null) return;
+
+    try {
+      final hasKey =
+          await _securityKeyService!.refreshAndNotify((bool keyStatus) {
+        if (mounted && keyStatus != _isKeySaved) {
+          setState(() => _isKeySaved = keyStatus);
+          widget.statusBar?.securityKeyStatus?.onKeyStatusChanged
+              ?.call(keyStatus);
+        }
+      });
+
+      if (mounted && hasKey != _isKeySaved) {
+        setState(() => _isKeySaved = hasKey);
+        widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(hasKey);
+      }
+    } catch (e) {
+      debugPrint('Error refreshing security key status: $e');
+    }
+  }
+
   String _getVersionToDisplay() =>
       SolidScaffoldHelpers.getVersionToDisplay(_isVersionLoaded, _appVersion);
   bool _shouldShowVersion() =>
@@ -370,19 +401,25 @@ class _SolidScaffoldState extends State<SolidScaffold> {
             _onMenuSelected,
             widget.onShowAlert,
           );
-    return SolidScaffoldWidgetBuilder.buildFromWidget(
-      context: context,
-      scaffoldKey: _scaffoldKey,
-      widget: widget,
-      isWideScreen: isWideScreen,
-      isCompatibilityMode: isCompatibilityMode,
-      bodyContent: bodyContent,
-      isKeySaved: _isKeySaved,
-      currentSelectedIndex: _currentSelectedIndex,
-      onMenuSelected: _onMenuSelected,
-      getUsesInternalManagement: _getUsesInternalManagement,
-      shouldShowVersion: _shouldShowVersion,
-      getVersionToDisplay: _getVersionToDisplay,
+    return NotificationListener<SecurityKeyStatusChangedNotification>(
+      onNotification: (notification) {
+        _loadSecurityKeyStatus();
+        return true;
+      },
+      child: SolidScaffoldWidgetBuilder.buildFromWidget(
+        context: context,
+        scaffoldKey: _scaffoldKey,
+        widget: widget,
+        isWideScreen: isWideScreen,
+        isCompatibilityMode: isCompatibilityMode,
+        bodyContent: bodyContent,
+        isKeySaved: _isKeySaved,
+        currentSelectedIndex: _currentSelectedIndex,
+        onMenuSelected: _onMenuSelected,
+        getUsesInternalManagement: _getUsesInternalManagement,
+        shouldShowVersion: _shouldShowVersion,
+        getVersionToDisplay: _getVersionToDisplay,
+      ),
     );
   }
 }
