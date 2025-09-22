@@ -39,6 +39,7 @@ export 'src/widgets/solid_scaffold_models.dart';
 
 export 'src/widgets/solid_status_bar.dart';
 export 'src/widgets/solid_status_bar_models.dart';
+export 'src/widgets/solid_dynamic_login_status.dart';
 
 export 'src/widgets/solid_theme_models.dart';
 export 'src/widgets/solid_theme_notifier.dart';
