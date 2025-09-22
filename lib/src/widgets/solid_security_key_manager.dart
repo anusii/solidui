@@ -122,7 +122,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       () async => await getEncKeyPath(),
       (filePath) async {
         if (!mounted) return '';
-        return await readPod(filePath, context, widget);
+        return await readPod(filePath, context, widget, basePath: '');
       },
     );
 
@@ -186,7 +186,12 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
           confirmKey,
           (filePath) async {
             if (!mounted) return '';
-            return await readPod(filePath, context, const SizedBox());
+            return await readPod(
+              filePath,
+              context,
+              const SizedBox(),
+              basePath: '',
+            );
           },
           (message) => SolidSecurityKeyManagerHelpers.showErrorSnackBar(
             context,
