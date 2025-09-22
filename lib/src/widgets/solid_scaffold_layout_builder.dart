@@ -28,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/widgets/solid_dynamic_login_status.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
@@ -112,9 +113,24 @@ class SolidScaffoldLayoutBuilder {
       modifiedConfig = SolidStatusBarConfig(
         serverInfo: config.serverInfo,
         loginStatus: config.loginStatus,
+        onLogin: config.onLogin,
         securityKeyStatus: updatedStatus,
         customItems: config.customItems,
         showOnNarrowScreens: config.showOnNarrowScreens,
+      );
+    }
+
+    // Use dynamic login status if login status is configured.
+
+    if (config.loginStatus != null) {
+      return SolidDynamicLoginStatus(
+        baseConfig: modifiedConfig,
+        onTap: config.loginStatus!.onTap,
+        onLogin: config.onLogin,
+        loggedInText: config.loginStatus!.loggedInText,
+        loggedOutText: config.loginStatus!.loggedOutText,
+        loggedInTooltip: config.loginStatus!.loggedInTooltip,
+        loggedOutTooltip: config.loginStatus!.loggedOutTooltip,
       );
     }
 

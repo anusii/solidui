@@ -288,6 +288,10 @@ class SolidStatusBarConfig {
 
   final SolidLoginStatus? loginStatus;
 
+  /// Custom login handler for when user is not logged in.
+
+  final VoidCallback? onLogin;
+
   /// Security key status configuration.
 
   final SolidSecurityKeyStatus? securityKeyStatus;
@@ -331,6 +335,7 @@ class SolidStatusBarConfig {
   const SolidStatusBarConfig({
     this.serverInfo,
     this.loginStatus,
+    this.onLogin,
     this.securityKeyStatus,
     this.customItems = const [],
     this.showOnNarrowScreens = false,
