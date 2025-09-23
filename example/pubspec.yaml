@@ -12,7 +12,8 @@ dependencies:
     sdk: flutter
   markdown_tooltip: any
   shared_preferences: ^2.5.3
-  solidpod: ^0.7.8
+  solidpod:
+    path: ../../solidpod
   solidui:
     path: ../
   window_manager: ^0.4.3

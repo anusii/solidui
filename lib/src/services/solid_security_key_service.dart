@@ -121,6 +121,13 @@ class SolidSecurityKeyService extends ChangeNotifier {
     await fetchKeySavedStatus();
   }
 
+  /// Refreshes status and calls callback with updated value.
+
+  Future<bool> refreshAndNotify([Function(bool)? onKeyStatusChanged]) async {
+    _lastKnownKeyStatus = null;
+    return await fetchKeySavedStatus(onKeyStatusChanged);
+  }
+
   /// Checks if a security key is needed for the current user.
   ///
   /// This method not only checks if a key exists but also determines

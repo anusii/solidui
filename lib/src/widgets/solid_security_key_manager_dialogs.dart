@@ -136,7 +136,8 @@ class SolidSecurityKeyManagerDialogs {
       final filePath = await getEncKeyPath();
       if (!context.mounted) return;
 
-      final fileContent = await readPod(filePath, context, appWidget);
+      final fileContent =
+          await readPod(filePath, context, appWidget, basePath: '');
       if (!context.mounted) return;
 
       if (fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
