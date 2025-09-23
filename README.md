@@ -58,7 +58,17 @@ SolidUI requires the following dependencies:
 
 ## SolidScaffold
 
-The primary component for building Solid applications with responsive navigation, app bar, status bar, and integrated functionality.
+The primary component for building Solid applications with responsive navigation, app bar, status bar, and integrated functionality. SolidScaffold automatically adapts its layout based on screen size, providing an optimal user experience across different devices.
+
+### Responsive Navigation Behaviour
+
+SolidScaffold intelligently switches between different navigation modes based on screen width:
+
+- **Wide screens (≥800px)**: Displays a vertical navigation rail (SolidNavBar) on the left side
+- **Narrow screens (<800px)**: Uses a collapsible navigation drawer (SolidNavDrawer) accessible via hamburger menu
+- **Custom threshold**: The breakpoint can be customised using the `narrowScreenThreshold` parameter
+
+This responsive behaviour ensures that your application provides an optimal navigation experience whether users are on desktop computers, tablets, or mobile devices. The transition between navigation modes is seamless and automatic.
 
 ### Constructor Parameters
 
@@ -95,7 +105,7 @@ SolidScaffold({
   void Function(BuildContext, String, String?)? onShowAlert,
   
   // Layout Configuration
-  double narrowScreenThreshold = 800.0,
+  double narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
   Color? backgroundColor,
   
   // Floating Action Button
@@ -137,6 +147,8 @@ class SolidMenuItem {
 
 ### App Bar Configuration
 
+The app bar provides application title, action buttons, and overflow menu items. Action buttons automatically move to an overflow menu on smaller screens to maintain usability.
+
 ```dart
 class SolidAppBarConfig {
   final String title;                           // App bar title
@@ -145,6 +157,13 @@ class SolidAppBarConfig {
   final Color? backgroundColor;                 // Background colour
   final SolidVersionConfig? versionConfig;      // Version display configuration
 }
+```
+
+**App Bar Responsive Features:**
+- **Action overflow**: Buttons automatically move to overflow menu when screen width decreases
+- **Visibility control**: Individual actions can be configured to hide on narrow or very narrow screens
+- **Theme integration**: Theme toggle and about buttons automatically adapt their placement
+- **Version display**: Version information adjusts its display format based on available space
 
 class SolidAppBarAction {
   final IconData icon;                    // Required: Button icon
@@ -166,6 +185,8 @@ class SolidOverflowMenuItem {
 
 ### Status Bar Configuration
 
+The status bar provides real-time information about server connectivity, login status, and security key state. It adapts its layout and content based on screen size.
+
 ```dart
 class SolidStatusBarConfig {
   final SolidServerInfo? serverInfo;           // Server information display
@@ -175,6 +196,13 @@ class SolidStatusBarConfig {
   final bool showOnNarrowScreens;              // Show on narrow screens (default: true)
   final SolidStatusBarLayout layout;           // Layout configuration
 }
+```
+
+**Status Bar Responsive Behaviour:**
+- **Wide screens**: All status items displayed with full text and icons
+- **Medium screens**: Condensed layout with essential information
+- **Narrow screens**: Can be hidden entirely or show minimal status information
+- **Custom items**: Support priority-based display for responsive layouts
 
 class SolidServerInfo {
   final String serverUri;                      // Required: Server URI
@@ -234,11 +262,19 @@ class SolidAboutConfig {
 
 ### Navigation Components
 
-**SolidNavBar**: Navigation rail for wide screens with vertical menu layout.
+**SolidNavBar**: Navigation rail for wide screens with vertical menu layout. Provides always-visible navigation with icon and text labels, suitable for desktop and tablet landscape orientations.
 
-**SolidNavDrawer**: Navigation drawer for narrow screens with collapsible menu.
+**SolidNavDrawer**: Navigation drawer for narrow screens with collapsible menu. Slides in from the left side when triggered by the hamburger menu button, maximising screen space on mobile devices.
 
-**SolidNavUserInfo**: User information display in navigation drawer.
+**SolidNavUserInfo**: User information display in navigation drawer. Shows user avatar, name, and optionally the WebID, appearing at the top of the navigation drawer.
+
+### Responsive Features
+
+- **Automatic Layout Switching**: SolidScaffold monitors screen width and automatically switches between navigation rail and drawer modes
+- **Threshold Customisation**: Default breakpoint is 800px, but can be customised via `narrowScreenThreshold`
+- **Preserved State**: Navigation state and selected menu item are preserved during layout transitions
+- **Touch-Friendly**: Navigation drawer includes swipe gestures and appropriate touch targets for mobile use
+- **Accessibility**: Both navigation modes support proper focus management and screen reader accessibility
 
 ```dart
 class SolidNavUserInfo {
@@ -314,7 +350,25 @@ class MyApp extends StatelessWidget {
 
 ## SolidFile
 
-Comprehensive file management widget for Solid POD integration with upload, download, and browser functionality.
+Comprehensive file management widget for Solid POD integration with upload, download, and browser functionality. SolidFile provides a complete file management solution with responsive layout and automatic configuration based on file paths.
+
+### Responsive File Management
+
+SolidFile adapts its layout based on screen size to provide optimal file management experience:
+
+- **Wide screen layout**: File browser and upload area displayed side-by-side for efficient workflow
+- **Narrow screen layout**: Stacked vertical layout with file browser above upload controls
+- **Auto-detection**: Automatically detects screen size and applies appropriate layout
+- **Force override**: Use `forceWideScreen` parameter to override automatic detection
+
+### Automatic Configuration
+
+SolidFile can automatically configure upload settings and folder names based on file paths:
+
+- **Path-based configuration**: Automatically detects data types (blood pressure, medication, etc.) from folder names
+- **Format detection**: Configures appropriate data formats and import/export options
+- **Friendly naming**: Generates user-friendly folder names from technical paths
+- **Manual override**: Disable with `autoConfig: false` for custom configurations
 
 ### Constructor Parameters
 
@@ -602,17 +656,37 @@ await securityKeyService.refreshKeyStatus();
 
 ## API Reference
 
-### Core Constants
+### Responsive Design System
+
+SolidUI implements a comprehensive responsive design system that automatically adapts to different screen sizes:
+
+#### Screen Size Breakpoints
 
 ```dart
 class NavigationConstants {
-  static const double narrowScreenThreshold = 800.0;     // Default responsive breakpoint
-  static const double veryNarrowScreenThreshold = 400.0; // Very narrow screen breakpoint
+  static const double narrowScreenThreshold = 800.0;     // Navigation rail → drawer transition
+  static const double veryNarrowScreenThreshold = 400.0; // Very narrow screen threshold
   static const double statusBarHeight = 32.0;            // Default status bar height
   static const double navRailWidth = 72.0;               // Navigation rail width
   static const double navRailExtendedWidth = 256.0;      // Extended navigation rail width
 }
 ```
+
+#### Responsive Behaviour Summary
+
+| Screen Width | Navigation | App Bar Actions | Status Bar | File Layout |
+|--------------|------------|-----------------|------------|-------------|
+| ≥800px | Navigation Rail (SolidNavBar) | All actions visible | Full status display | Side-by-side |
+| 400-799px | Navigation Drawer (SolidNavDrawer) | Selected actions + overflow | Compact display | Stacked |
+| <400px | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |
+
+#### Automatic Adaptations
+
+- **Navigation**: SolidNavBar automatically becomes SolidNavDrawer when screen width < 800px
+- **App Bar**: Action buttons move to overflow menu based on `showOnNarrowScreen` and `showOnVeryNarrowScreen` settings
+- **Status Bar**: Layout and visibility adapt based on `showOnNarrowScreens` configuration
+- **File Management**: SolidFile switches between wide and narrow layouts automatically
+- **Theme Controls**: Theme toggle and about buttons adjust their placement responsively
 
 ### File Operations
 
