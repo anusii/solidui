@@ -90,6 +90,103 @@ class SolidServerInfo {
     this.isClickable = true,
   });
 
+  /// Creates a SolidServerInfo from a WebID with automatic formatting.
+
+  factory SolidServerInfo.fromWebId(
+    String webId, {
+    String? tooltip,
+    bool isClickable = true,
+  }) {
+    final serverUri = _extractServerFromWebId(webId);
+    final displayText = _formatWebIdForDisplay(webId);
+
+    return SolidServerInfo(
+      serverUri: serverUri,
+      displayText: displayText,
+      tooltip: tooltip,
+      isClickable: isClickable,
+    );
+  }
+
+  /// Extracts the server URL from a WebID.
+
+  static String _extractServerFromWebId(String webId) {
+    try {
+      final uri = Uri.parse(webId);
+      return '${uri.scheme}://${uri.host}'
+          '${uri.port != 80 && uri.port != 443 ? ':${uri.port}' : ''}';
+    } catch (e) {
+      final parts = webId.split('/');
+      if (parts.length >= 3) {
+        return '${parts[0]}//${parts[2]}';
+      }
+      return webId;
+    }
+  }
+
+  /// Formats the WebID for display, including both server and username.
+
+  static String _formatWebIdForDisplay(String webId) {
+    try {
+      final uri = Uri.parse(webId);
+
+      // Get the host (server domain).
+
+      String host = uri.host;
+
+      // Extract username from the path.
+
+      String username = '';
+      final pathSegments = uri.pathSegments;
+
+      // Typical webID format: /username/profile/card#me
+      // So the username is usually the first path segment.
+
+      if (pathSegments.isNotEmpty) {
+        username = pathSegments.first;
+      }
+
+      // Return formatted display string.
+
+      if (username.isNotEmpty) {
+        return '$host/$username';
+      } else {
+        // Fallback to just the host if no username found.
+
+        return host;
+      }
+    } catch (e) {
+      // Fallback parsing for malformed URLs.
+
+      try {
+        // Remove common prefixes and suffixes.
+
+        String cleaned = webId;
+
+        // Remove protocol.
+
+        if (cleaned.startsWith('https://')) {
+          cleaned = cleaned.substring(8);
+        } else if (cleaned.startsWith('http://')) {
+          cleaned = cleaned.substring(7);
+        }
+
+        // Remove common webID suffix.
+
+        const suffix = '/profile/card#me';
+        if (cleaned.endsWith(suffix)) {
+          cleaned = cleaned.substring(0, cleaned.length - suffix.length);
+        }
+
+        return cleaned;
+      } catch (e2) {
+        // Final fallback: return original webID.
+
+        return webId;
+      }
+    }
+  }
+
   /// Gets the tooltip for server info.
 
   String get tooltipText {
