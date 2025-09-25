@@ -135,7 +135,7 @@ class SolidStatusBar extends StatelessWidget {
       child: _createInteractiveText(
         context: context,
         text: 'Login Status: ${loginStatus.displayText}',
-        onTap: loginStatus.onTap ?? 
+        onTap: loginStatus.onTap ??
             () => SolidAuthHandler.instance.handleAuthAction(context),
         style: theme.textTheme.bodyMedium?.copyWith(
           color: loginStatus.isLoggedIn

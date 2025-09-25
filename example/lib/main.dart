@@ -191,7 +191,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    
+
     // Configure the integrated authentication handler.
 
     SolidAuthHandler.instance.configure(
@@ -205,7 +205,7 @@ class _HomePageState extends State<HomePage> {
         appLink: 'https://github.com/anusii/solidui',
       ),
     );
-    
+
     _loadUserInfo();
   }
 
@@ -556,7 +556,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 
   /// Show a simple message.
 

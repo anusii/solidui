@@ -146,8 +146,8 @@ class SolidAuthHandler {
     return SolidDefaultLogin(
       appTitle: _config?.appTitle ?? 'Solid App',
       appDirectory: _config?.appDirectory ?? 'solid_app',
-      defaultServerUrl: _config?.defaultServerUrl ??
-          'https://pods.dev.solidcommunity.au',
+      defaultServerUrl:
+          _config?.defaultServerUrl ?? 'https://pods.dev.solidcommunity.au',
       appImage: _config?.appImage,
       appLogo: _config?.appLogo,
       appLink: _config?.appLink,
@@ -161,7 +161,7 @@ class SolidAuthHandler {
     try {
       final webId = await getWebId();
       if (!context.mounted) return;
-      
+
       if (webId != null && webId.isNotEmpty) {
         await handleLogout(context);
       } else {
