@@ -308,10 +308,12 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       statusBar: SolidStatusBarConfig(
-        serverInfo: const SolidServerInfo(
-          serverUri: 'https://pods.solidcommunity.au',
-          displayText: 'Demo POD Server: pods.solidcommunity.au',
-        ),
+        serverInfo: _webId != null
+            ? SolidServerInfo.fromWebId(_webId!)
+            : const SolidServerInfo(
+                serverUri: 'https://pods.solidcommunity.au',
+                displayText: 'Demo POD Server: pods.solidcommunity.au',
+              ),
         loginStatus: SolidLoginStatus(
           webId: _webId,
           onTap: _toggleLogin,
