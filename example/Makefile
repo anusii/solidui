@@ -2,7 +2,7 @@
 #
 # Generic Makefile
 #
-# Time-stamp: <Thursday 2025-06-26 16:07:58 +1000 Graham Williams>
+# Time-stamp: <Thursday 2025-09-25 16:40:00 +1000 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -39,7 +39,7 @@ DWLD=https://$(REPO)/installers
 # else installed in the local user's shares.
 
 INC_BASE=$(HOME)/.local/share/make
-INC_BASE=support
+INC_BASE=../support
 
 # Specific Makefiles will be loaded if they are found in
 # INC_BASE. Sometimes the INC_BASE is shared by multiple local
