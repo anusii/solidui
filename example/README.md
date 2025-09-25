@@ -1,6 +1,6 @@
 # SolidUI Simple Example
 
-A comprehensive example demonstrating how to use SolidScaffold from the SolidUI 
+A simple example demonstrating how to use SolidScaffold from the SolidUI 
 library.
 
 ## What This Example Shows
