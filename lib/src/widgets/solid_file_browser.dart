@@ -346,7 +346,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Navigation and path display bar (only show if logged in).
-
                   if (isLoggedIn)
                     PathBar(
                       currentPath: currentPath,
@@ -363,7 +362,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   if (isLoggedIn) const SizedBox(height: 12),
 
                   // Main content area with conditional rendering.
-
                   Expanded(
                     child: !isLoggedIn
                         ? _buildNotLoggedInView()
@@ -403,7 +401,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Display a large account icon with reduced opacity.
-
           Icon(
             Icons.account_circle_outlined,
             size: 48,
@@ -413,7 +410,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
           const SizedBox(height: 16),
 
           // Display not logged in message.
-
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             decoration: BoxDecoration(

@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD041 -->
+# SolidUI
 
 [![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
@@ -10,81 +10,20 @@
 [![GitHub Commit Activity (main)](https://img.shields.io/github/commit-activity/w/anusii/solidui/main)](https://github.com/anusii/solidui/commits/dev/)
 [![GitHub Issues](https://img.shields.io/github/issues/anusii/solidui)](https://github.com/anusii/solidui/issues)
 
-# SolidUI
+A comprehensive UI library for building Solid applications with Flutter. SolidUI provides responsive navigation components, file management capabilities, security key handling, and authentication features specifically designed for Solid POD applications.
 
-This package provides a UI library for building Solid applications
-with Flutter.
+## Table of Contents
 
-## Overview
+- [Installation](#installation)
+- [Requirements](#requirements) 
+- [SolidScaffold](#solidscaffold)
+- [SolidFile](#solidfile)
+- [Authentication and Login Detection](#authentication-and-login-detection)
+- [Security Key Management](#security-key-management)
+- [API Reference](#api-reference)
+- [Examples](#examples)
 
-SolidUI provides a collection of Flutter widgets and utilities tailored for
-Solid applications, offering responsive navigation components, security key
-management, and status bar widgets that integrate seamlessly with Solid POD
-infrastructure.
-
-## Features
-
-### 🧭 Navigation Components
-
-- **SolidScaffold** - Simplified unified scaffold component with automatic
-responsive layout switching and **full backward compatibility** with standard
-Scaffold
-- **SolidNavBar** - Navigation rail for wide screens
-- **SolidNavDrawer** - Navigation drawer for narrow screens
-
-### 🔐 Security Management
-
-- **SolidSecurityKeyStatus** - Simple configuration with intelligent defaults
-- **SolidSecurityKeyManager** - Advanced component for custom implementations
-- **SolidSecurityKeyService** - Service layer for security key operations
-- **SolidSecurityKeyCentralManager** - Centralised security key coordination
-
-### 📱 Version Management
-
-- **SolidVersionConfig** - Version configuration with smart defaults
-
-### 📊 Status Components
-
-- **SolidStatusBar** - Responsive status bar with server information, login
-  status, and custom items
-- **SolidStatusBarModels** - Data models for status bar configuration
-
-### 🎨 Theme & Styling
-
-- **SolidThemeToggleConfig** - Configurable theme switching with
-  light/dark mode support
-- Integrated theme toggle in SolidScaffold with responsive behavior
-
-### ℹ️ About Dialogue
-
-- **SolidAboutConfig** - Configurable About dialogue with application
-  information
-- **SolidAboutButton** - About button component with customisable
-  content
-- Integrated About button in SolidScaffold with automatic application
-  info detection
-
-### 📁 File Management
-
-- **SolidFile** - Comprehensive file management widget with automatic
-  configuration based on path
-- **SolidFileBrowser** - File browser with upload, download, and delete
-operations
-- **SolidFileUploadArea** - Drag & drop file upload with data format support
-- **FileTypeConfig** - Automatic file type configuration for different data
-types
-- Automatic detection of file types (blood pressure, vaccination, medication,
-diary, profile)
-- Built-in CSV import/export functionality for health data
-
-### 🛠️ Utilities & Constants
-
-- **NavigationConstants** - Predefined constants for consistent navigation,
-  status bar heights, and UI component sizing
-
-## Quick Start
-
-### Installation
+## Installation
 
 Add SolidUI to your `pubspec.yaml`:
 
@@ -93,10 +32,262 @@ dependencies:
   solidui:
     git:
       url: https://github.com/anusii/solidui.git
-      ref: main
+      ref: dev
 ```
 
-### Basic Usage
+## Requirements
+
+- Flutter SDK: `>=3.2.3 <4.0.0`
+- Dart: Compatible with Flutter requirements
+
+### Dependencies
+
+SolidUI requires the following dependencies:
+
+- `solidpod`: Solid POD integration
+- `flutter_markdown`: Markdown rendering support
+- `file_picker`: File selection functionality  
+- `shared_preferences`: Local storage for settings
+- `package_info_plus`: Application metadata access
+- `url_launcher`: URL launching capabilities
+- `markdown_tooltip`: Markdown-enabled tooltips
+- `rdflib`: RDF data handling
+- `gap`: Spacing utilities
+- `path`: Path manipulation
+- `version_widget`: Version display widget
+
+## SolidScaffold
+
+The primary component for building Solid applications with responsive navigation, app bar, status bar, and integrated functionality. SolidScaffold automatically adapts its layout based on screen size, providing an optimal user experience across different devices.
+
+### Responsive Navigation Behaviour
+
+SolidScaffold intelligently switches between different navigation modes based on screen width:
+
+- **Wide screens (≥800px)**: Displays a vertical navigation rail (SolidNavBar) on the left side
+- **Narrow screens (<800px)**: Uses a collapsible navigation drawer (SolidNavDrawer) accessible via hamburger menu
+- **Custom threshold**: The breakpoint can be customised using the `narrowScreenThreshold` parameter
+
+This responsive behaviour ensures that your application provides an optimal navigation experience whether users are on desktop computers, tablets, or mobile devices. The transition between navigation modes is seamless and automatic.
+
+### Constructor Parameters
+
+```dart
+SolidScaffold({
+  Key? key,
+  
+  // Navigation
+  List<SolidMenuItem>? menu,
+  Widget? child,
+  int initialIndex = 0,
+  void Function(int)? onMenuSelected,
+  int? selectedIndex,
+  
+  // Scaffold Compatibility
+  Widget? body,
+  PreferredSizeWidget? scaffoldAppBar,
+  Widget? drawer,
+  Widget? endDrawer,
+  Widget? bottomNavigationBar,
+  Widget? bottomSheet,
+  List<Widget>? persistentFooterButtons,
+  bool? resizeToAvoidBottomInset,
+  
+  // SolidUI Components
+  dynamic appBar,
+  SolidStatusBarConfig? statusBar,
+  SolidNavUserInfo? userInfo,
+  SolidThemeToggleConfig? themeToggle,
+  SolidAboutConfig? aboutConfig,
+  
+  // Callbacks
+  void Function(BuildContext)? onLogout,
+  void Function(BuildContext, String, String?)? onShowAlert,
+  
+  // Layout Configuration
+  double narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
+  Color? backgroundColor,
+  
+  // Floating Action Button
+  Widget? floatingActionButton,
+  FloatingActionButtonLocation? floatingActionButtonLocation,
+  FloatingActionButtonAnimator? floatingActionButtonAnimator,
+  
+  // Drawer Configuration
+  DrawerCallback? onDrawerChanged,
+  DrawerCallback? onEndDrawerChanged,
+  DragStartBehavior drawerDragStartBehavior = DragStartBehavior.start,
+  bool drawerEnableOpenDragGesture = true,
+  bool endDrawerEnableOpenDragGesture = true,
+  Color? drawerScrimColor,
+  double? drawerEdgeDragWidth,
+  
+  // Other Properties
+  bool primary = true,
+  bool extendBody = false,
+  bool extendBodyBehindAppBar = false,
+  String? restorationId,
+})
+```
+
+### Menu Items
+
+```dart
+class SolidMenuItem {
+  final String title;               // Required: Menu display title
+  final IconData icon;              // Required: Menu icon
+  final Color? color;               // Optional: Icon colour
+  final Widget? child;              // Optional: Content widget when selected
+  final String? tooltip;            // Optional: Tooltip message (supports Markdown)
+  final String? message;            // Optional: Dialogue message content
+  final String? dialogTitle;        // Optional: Dialogue title
+  final void Function(BuildContext)? onTap; // Optional: Tap callback
+}
+```
+
+### App Bar Configuration
+
+The app bar provides application title, action buttons, and overflow menu items. Action buttons automatically move to an overflow menu on smaller screens to maintain usability.
+
+```dart
+class SolidAppBarConfig {
+  final String title;                           // App bar title
+  final List<SolidAppBarAction>? actions;       // Action buttons
+  final List<SolidOverflowMenuItem>? overflowItems; // Overflow menu items
+  final Color? backgroundColor;                 // Background colour
+  final SolidVersionConfig? versionConfig;      // Version display configuration
+}
+```
+
+**App Bar Responsive Features:**
+- **Action overflow**: Buttons automatically move to overflow menu when screen width decreases
+- **Visibility control**: Individual actions can be configured to hide on narrow or very narrow screens
+- **Theme integration**: Theme toggle and about buttons automatically adapt their placement
+- **Version display**: Version information adjusts its display format based on available space
+
+class SolidAppBarAction {
+  final IconData icon;                    // Required: Button icon
+  final VoidCallback onPressed;           // Required: Press callback
+  final String? tooltip;                  // Optional: Tooltip message
+  final Color? color;                     // Optional: Icon colour
+  final bool showOnNarrowScreen;          // Show on narrow screens (default: true)
+  final bool showOnVeryNarrowScreen;      // Show on very narrow screens (default: true)
+}
+
+class SolidOverflowMenuItem {
+  final String id;                        // Required: Unique identifier
+  final IconData icon;                    // Required: Menu icon
+  final String label;                     // Required: Menu label
+  final VoidCallback onSelected;          // Required: Selection callback
+  final bool showInOverflow;              // Show in overflow menu (default: true)
+}
+```
+
+### Status Bar Configuration
+
+The status bar provides real-time information about server connectivity, login status, and security key state. It adapts its layout and content based on screen size.
+
+```dart
+class SolidStatusBarConfig {
+  final SolidServerInfo? serverInfo;           // Server information display
+  final SolidLoginStatus? loginStatus;         // Login status display
+  final SolidSecurityKeyStatus? securityKeyStatus; // Security key status
+  final List<SolidCustomStatusBarItem>? customItems; // Custom status items
+  final bool showOnNarrowScreens;              // Show on narrow screens (default: true)
+  final SolidStatusBarLayout layout;           // Layout configuration
+}
+```
+
+**Status Bar Responsive Behaviour:**
+- **Wide screens**: All status items displayed with full text and icons
+- **Medium screens**: Condensed layout with essential information
+- **Narrow screens**: Can be hidden entirely or show minimal status information
+- **Custom items**: Support priority-based display for responsive layouts
+
+class SolidServerInfo {
+  final String serverUri;                      // Required: Server URI
+  final String? displayText;                   // Optional: Custom display text
+  final String? tooltip;                       // Optional: Tooltip message
+  final bool isClickable;                      // Clickable to open in browser (default: true)
+}
+
+class SolidLoginStatus {
+  final String? webId;                         // Current WebID (null if not logged in)
+  final VoidCallback onTap;                    // Required: Tap callback
+  final String? loggedInText;                  // Custom logged in text
+  final String? loggedOutText;                 // Custom logged out text
+  final String? loggedInTooltip;               // Logged in tooltip
+  final String? loggedOutTooltip;              // Logged out tooltip
+}
+```
+
+### Theme Toggle Configuration
+
+```dart
+class SolidThemeToggleConfig {
+  final bool enabled;                          // Enable theme toggle (default: true)
+  final IconData? lightModeIcon;               // Custom light mode icon
+  final IconData? darkModeIcon;                // Custom dark mode icon
+  final IconData? systemModeIcon;              // Custom system mode icon
+  final VoidCallback? onToggleTheme;           // Custom toggle callback
+  final ThemeMode? currentThemeMode;           // Current theme for external management
+  final bool showInAppBarActions;              // Show in app bar actions (default: true)
+  final String? tooltip;                       // Custom tooltip
+  final String label;                          // Overflow menu label (default: 'Toggle Theme')
+  final bool showOnNarrowScreen;               // Show on narrow screens (default: true)
+  final bool showOnVeryNarrowScreen;           // Show on very narrow screens (default: true)
+}
+```
+
+### About Dialogue Configuration
+
+```dart
+class SolidAboutConfig {
+  final bool enabled;                          // Enable about button (default: true)
+  final IconData? icon;                        // Custom about icon
+  final String? applicationName;               // Application name (auto-detected if null)
+  final String? applicationVersion;            // Application version (auto-detected if null)
+  final Widget? applicationIcon;               // Application icon widget
+  final String? applicationLegalese;           // Legal notice/copyright
+  final String? text;                          // Main content text (supports Markdown)
+  final Widget? customContent;                 // Custom dialogue content
+  final List<Widget>? children;                // Additional child widgets
+  final bool showOnNarrowScreen;               // Show on narrow screens (default: true)
+  final bool showOnVeryNarrowScreen;           // Show on very narrow screens (default: false)
+  final int priority;                          // App bar action priority (default: 999)
+  final String? tooltip;                       // Custom tooltip
+  final VoidCallback? onPressed;               // Custom press callback
+}
+```
+
+### Navigation Components
+
+**SolidNavBar**: Navigation rail for wide screens with vertical menu layout. Provides always-visible navigation with icon and text labels, suitable for desktop and tablet landscape orientations.
+
+**SolidNavDrawer**: Navigation drawer for narrow screens with collapsible menu. Slides in from the left side when triggered by the hamburger menu button, maximising screen space on mobile devices.
+
+**SolidNavUserInfo**: User information display in navigation drawer. Shows user avatar, name, and optionally the WebID, appearing at the top of the navigation drawer.
+
+### Responsive Features
+
+- **Automatic Layout Switching**: SolidScaffold monitors screen width and automatically switches between navigation rail and drawer modes
+- **Threshold Customisation**: Default breakpoint is 800px, but can be customised via `narrowScreenThreshold`
+- **Preserved State**: Navigation state and selected menu item are preserved during layout transitions
+- **Touch-Friendly**: Navigation drawer includes swipe gestures and appropriate touch targets for mobile use
+- **Accessibility**: Both navigation modes support proper focus management and screen reader accessibility
+
+```dart
+class SolidNavUserInfo {
+  final String userName;                       // Required: User display name
+  final String? webId;                         // Optional: User WebID
+  final bool showWebId;                        // Show WebID in drawer (default: false)
+  final Widget? avatar;                        // Custom avatar widget
+  final IconData? avatarIcon;                  // Avatar icon (if no custom widget)
+  final double? avatarSize;                    // Custom avatar size
+}
+```
+
+### Example Usage
 
 ```dart
 import 'package:flutter/material.dart';
@@ -111,14 +302,20 @@ class MyApp extends StatelessWidget {
           SolidMenuItem(
             title: 'Home',
             icon: Icons.home,
-            child: HomeScreen(),
+            child: HomePage(),
             tooltip: 'Navigate to home screen',
+          ),
+          SolidMenuItem(
+            title: 'Files',
+            icon: Icons.folder,
+            child: FilesPage(),
+            tooltip: 'File management',
           ),
           SolidMenuItem(
             title: 'Settings',
             icon: Icons.settings,
-            child: SettingsScreen(),
-            tooltip: 'Configure application settings',
+            child: SettingsPage(),
+            tooltip: 'Application settings',
           ),
         ],
         appBar: SolidAppBarConfig(
@@ -127,42 +324,23 @@ class MyApp extends StatelessWidget {
             SolidAppBarAction(
               icon: Icons.refresh,
               onPressed: () => print('Refresh'),
-              tooltip: 'Refresh data',
+              tooltip: 'Refresh content',
             ),
           ],
         ),
         statusBar: SolidStatusBarConfig(
           serverInfo: SolidServerInfo(
-            serverUri: 'https://your-pod-server.com',
+            serverUri: 'https://solidcommunity.net',
           ),
-          securityKeyStatus: SolidSecurityKeyStatus(),
+          loginStatus: SolidLoginStatus(
+            webId: currentWebId,
+            onTap: () => handleLoginLogout(),
+          ),
         ),
-        versionConfig: SolidVersionConfig(),
-        themeToggle: const SolidThemeToggleConfig(
-          enabled: true,
-        ),
+        themeToggle: SolidThemeToggleConfig(enabled: true),
         aboutConfig: SolidAboutConfig(
           applicationName: 'My Solid App',
-          applicationIcon: Icon(Icons.apps, size: 64),
-          applicationLegalese: '''© 2025 My Company''',
-          text: '''
-
-A sample Solid application built with SolidUI.
-
-**Features:**
-
-• Responsive navigation
-
-• Theme switching
-
-• Solid POD integration
-
-For more information, visit our [website](https://example.com).
-
-''',
-        ),
-        child: Center(
-          child: Text('Welcome to your Solid application'),
+          text: 'A demonstration of SolidUI capabilities.',
         ),
       ),
     );
@@ -170,1078 +348,503 @@ For more information, visit our [website](https://example.com).
 }
 ```
 
-### Menu Item Child Widgets
+## SolidFile
 
-The `child` parameter in `SolidMenuItem` allows you to directly
-specify the widget to display when that menu item is selected. This
-simplifies development by keeping menu configuration and content
-together:
+Comprehensive file management widget for Solid POD integration with upload, download, and browser functionality. SolidFile provides a complete file management solution with responsive layout and automatic configuration based on file paths.
+
+### Responsive File Management
+
+SolidFile adapts its layout based on screen size to provide optimal file management experience:
+
+- **Wide screen layout**: File browser and upload area displayed side-by-side for efficient workflow
+- **Narrow screen layout**: Stacked vertical layout with file browser above upload controls
+- **Auto-detection**: Automatically detects screen size and applies appropriate layout
+- **Force override**: Use `forceWideScreen` parameter to override automatic detection
+
+### Automatic Configuration
+
+SolidFile can automatically configure upload settings and folder names based on file paths:
+
+- **Path-based configuration**: Automatically detects data types (blood pressure, medication, etc.) from folder names
+- **Format detection**: Configures appropriate data formats and import/export options
+- **Friendly naming**: Generates user-friendly folder names from technical paths
+- **Manual override**: Disable with `autoConfig: false` for custom configurations
+
+### Constructor Parameters
 
 ```dart
-SolidScaffold(
-  menu: [
-    SolidMenuItem(
-      title: 'Home',
-      icon: Icons.home,
-      child: HomeScreen(), // Direct widget reference
-      tooltip: 'Navigate to home screen',
-    ),
-    SolidMenuItem(
-      title: 'Profile',
-      icon: Icons.person,
-      child: ProfileScreen(userId: currentUserId), // Parameterised widgets
-      tooltip: 'View your profile',
-    ),
-    SolidMenuItem(
-      title: 'Settings',
-      icon: Icons.settings,
-      child: SettingsScreen(
-        onSave: () => print('Settings saved'),
-        theme: currentTheme,
-      ), // Complex widget configuration
-      tooltip: 'Configure application settings',
-    ),
-  ],
-  // No need to manually manage selectedIndex or onMenuSelected
-  // The scaffold automatically handles navigation
-)
+SolidFile({
+  Key? key,
+  
+  // Required
+  required String basePath,
+  
+  // File Browser Configuration
+  String? currentPath,
+  String? friendlyFolderName,
+  bool showBackButton = true,
+  String backButtonText = 'Back to Home Folder',
+  bool? forceWideScreen,
+  double? browserHeight,
+  
+  // File Operations Callbacks
+  VoidCallback? onBackPressed,
+  Function(String fileName, String filePath)? onFileSelected,
+  Function(String fileName, String filePath)? onFileDownload,
+  Function(String fileName, String filePath)? onFileDelete,
+  Function(String path)? onDirectoryChanged,
+  VoidCallback? onClosePreview,
+  Function(String fileName, String filePath)? onImportCsv,
+  
+  // Upload Configuration
+  bool showUpload = true,
+  SolidFileUploadConfig? uploadConfig,
+  SolidFileUploadCallbacks? uploadCallbacks,
+  SolidFileUploadState? uploadState,
+  bool autoConfig = true,
+  
+  // Browser Key for External Control
+  GlobalKey<SolidFileBrowserState>? browserKey,
+})
 ```
 
-**Benefits of the child parameter:**
-
-- **Simplified Configuration**: Each menu item contains its own content widget
-- **Better Organisation**: Menu structure and content are defined together
-- **Reduced Boilerplate**: No need to manually manage selectedIndex or content arrays
-- **Type Safety**: Direct widget references prevent runtime errors
-- **Parameter Passing**: Easy to pass specific parameters to each screen
-
-**Migration from Legacy Approach:**
+### Upload Configuration
 
 ```dart
-class MyPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SolidScaffold(
-      menu: [
-        SolidMenuItem(
-          title: 'Home',
-          icon: Icons.home,
-          child: HomeScreen(), // Content defined here
-        ),
-        SolidMenuItem(
-          title: 'Profile',
-          icon: Icons.person,
-          child: ProfileScreen(), // Content defined here
-        ),
-        SolidMenuItem(
-          title: 'Settings',
-          icon: Icons.settings,
-          child: SettingsScreen(), // Content defined here
-        ),
-      ],
-      // Navigation handled automatically
-    );
-  }
+class SolidFileUploadConfig {
+  final bool showCsvButtons;                   // Show CSV import/export buttons (default: false)
+  final bool showProfileButtons;               // Show Profile import/export buttons (default: false)
+  final bool showJsonButtons;                  // Show JSON operations (default: true)
+  final bool showPreviewButtons;               // Show file preview options (default: true)
+  final DataFormatConfig? formatConfig;        // Data format configuration
+  final String uploadButtonText;               // Upload button text (default: 'Upload File')
+  final String? uploadTooltip;                 // Upload tooltip message
+}
+
+class SolidFileUploadCallbacks {
+  final VoidCallback? onUpload;                // File upload callback
+  final VoidCallback? onImportCsv;             // CSV import callback
+  final VoidCallback? onExportCsv;             // CSV export callback
+  final Function(String importType)? onImportSuccess; // Import success callback
+  final VoidCallback? onImportProfile;         // Profile import callback
+  final VoidCallback? onExportProfile;         // Profile export callback
+  final VoidCallback? onVisualiseJson;         // JSON visualisation callback
+  final VoidCallback? onSelectLocalJson;       // Local JSON selection callback
+  final VoidCallback? onPreviewFile;           // File preview callback
+  final VoidCallback? onConvertToJson;         // PDF to JSON conversion callback
+}
+
+class SolidFileUploadState {
+  final bool isUploading;                      // Upload in progress (default: false)
+  final double uploadProgress;                 // Upload progress 0.0-1.0 (default: 0.0)
+  final String? uploadStatus;                  // Upload status message
+  final bool showPreview;                      // Show file preview (default: false)
+  final String? previewContent;                // Preview content
 }
 ```
 
-### Scaffold Compatibility Mode
-
-**SolidScaffold can be used as a drop-in replacement for Flutter's
-standard Scaffold.** When no `menu` parameter is provided,
-SolidScaffold behaves exactly like a standard Scaffold:
+### Data Format Configuration
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:solidui/solidui.dart';
-
-class StandardScaffoldReplacement extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SolidScaffold(
-      // Standard Scaffold parameters work exactly the same
-      scaffoldAppBar: AppBar(
-        title: Text('Compatibility Mode'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 64),
-            SizedBox(height: 16),
-            Text('SolidScaffold in Compatibility Mode'),
-            Text('Works exactly like standard Scaffold!'),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => print('FAB pressed'),
-        child: Icon(Icons.add),
-      ),
-      // All standard Scaffold parameters are supported:
-      // drawer, endDrawer, bottomNavigationBar, bottomSheet,
-      // persistentFooterButtons, resizeToAvoidBottomInset, etc.
-    );
-  }
+class DataFormatConfig {
+  final String title;                          // Required: Format title
+  final List<String> requiredFields;           // Required: List of required fields
+  final List<String> optionalFields;           // Optional fields (default: [])
+  final bool isJson;                           // JSON format flag (default: false)
+  final String? description;                   // Format description
 }
 ```
 
-**Migration from Scaffold to SolidScaffold:**
+### Example Usage
 
 ```dart
-// Before (standard Scaffold)
-return Scaffold(
-  appBar: AppBar(title: Text('My App')),
-  body: MyContent(),
-  floatingActionButton: FloatingActionButton(...),
-);
-
-// After (SolidScaffold - identical behavior)
-return SolidScaffold(
-  scaffoldAppBar: AppBar(title: Text('My App')),
-  body: MyContent(),
-  floatingActionButton: FloatingActionButton(...),
-);
-```
-
-## Components Reference
-
-### SolidScaffold
-
-The main navigation component that automatically switches between navigation
-rail and drawer based on screen width.
-
-**Key Features:**
-
-- Responsive design (rail on wide screens, drawer on narrow screens)
-- Integrated AppBar support with theme toggle
-- Status bar integration
-- User information display
-- Logout functionality
-- Built-in light/dark theme switching
-
-**Parameters:**
-
-**SolidUI-specific parameters:**
-
-- `menu` - List of menu items (optional, when null enables
-  compatibility mode)
-- `child` - Main content area for SolidUI layout (optional)
-- `appBar` - SolidUI AppBar configuration (optional)
-- `statusBar` - Optional status bar configuration
-- `userInfo` - Optional user information
-- `onLogout` - Optional logout callback
-- `themeToggle` - Optional theme toggle configuration
-- `aboutConfig` - Optional About dialogue configuration
-- `narrowScreenThreshold` - Width threshold for layout switching
-  (default: NavigationConstants.narrowScreenThreshold)
-
-**Standard Scaffold compatibility parameters:**
-
-- `body` - Standard Scaffold body content (used when `child` is null)
-- `scaffoldAppBar` - Standard Scaffold AppBar (used when `appBar` is null)
-- `drawer` - Standard Scaffold drawer
-- `endDrawer` - Standard Scaffold endDrawer
-- `bottomNavigationBar` - Standard Scaffold bottomNavigationBar
-- `bottomSheet` - Standard Scaffold bottomSheet
-- `persistentFooterButtons` - Standard Scaffold persistentFooterButtons
-- `resizeToAvoidBottomInset` - Standard Scaffold resizeToAvoidBottomInset
-- `backgroundColor` - Background color (works in both modes)
-- `floatingActionButton` - Floating action button (works in both modes)
-
-### SolidAppBarConfig
-
-Configuration for the application bar with responsive action buttons.
-
-**Features:**
-
-- Action buttons with responsive visibility
-- Overflow menu for narrow screens
-- Theme toggle integration
-- Customisable tooltips
-
-### SolidStatusBarConfig
-
-Configuration for the bottom status bar showing server and user information.
-
-**Features:**
-
-- Server information display
-- Login status indication
-- Security key status
-- Custom status items
-- Responsive layout (narrow/medium/wide)
-
-### Security Key Management
-
-**Automatic security key management** integrated directly into SolidScaffold.
-No need for separate components or custom dialogues.
-
-#### Simple Usage of Security Key Management
-
-```dart
-SolidScaffold(
-  // ... other configuration.
-
-  statusBar: SolidStatusBarConfig(
-    securityKeyStatus: SolidSecurityKeyStatus(
-      isKeySaved: _isKeySaved,
-
-      // SolidScaffold automatically handles the security key dialogue.
-
-      tooltip: 'Manage security keys',
-    ),
-  ),
-)
-```
-
-#### Advanced Usage with Custom Configuration
-
-```dart
-SolidScaffold(
-  // ... other configuration.
-
-  statusBar: SolidStatusBarConfig(
-    securityKeyStatus: SolidSecurityKeyStatus(
-      isKeySaved: _isKeySaved,
-      customTitle: 'My App Security Keys',
-      appWidget: MyAppWidget(), // Optional: custom app widget for the dialogue
-      onKeyStatusChanged: (bool hasKey) {
-        // Optional: handle key status changes.
-
-        print('Security key status: ${hasKey ? "saved" : "not saved"}');
-      },
-      tooltip: 'Manage your security keys for data encryption',
-    ),
-  ),
-)
-```
-
-#### Manual Management (Advanced)
-
-For custom implementations, you can still use the components directly:
-
-```dart
-SolidSecurityKeyManager(
-  config: SolidSecurityKeyManagerConfig(
-    customTitle: 'Security Keys',
-    appWidget: MyAppWidget(),
-  ),
-  onKeyStatusChanged: (hasKey) {
-    // Handle key status changes.
-  },
-)
-```
-
-### File Management
-
-**SolidFile provides comprehensive file management** with automatic
-configuration based on the file path. It handles file upload, download,
-browsing, and data format operations.
-
-#### Simple Usage of File Management
-
-```dart
-SolidFile(
-  basePath: 'myapp/data',
-  currentPath: 'myapp/data/health',
-  onFileSelected: (fileName, filePath) {
-    print('Selected: $fileName');
-  },
-  onFileDownload: (fileName, filePath) {
-    print('Download: $fileName');
-  },
-)
-```
-
-#### Automatic Configuration
-
-SolidFile automatically detects file types and configures appropriate buttons:
-
-```dart
-SolidFile(
-  basePath: 'healthapp/data',
-  currentPath: 'healthapp/data/bp',        // Blood pressure data
-  // Automatically shows CSV import/export buttons
-  // Automatically sets friendlyFolderName to "Blood Pressure Data"
-  // Automatically configures data format for blood pressure
-)
-
-SolidFile(
-  basePath: 'healthapp/data',
-  currentPath: 'healthapp/data/profile',   // Profile data
-  // Automatically shows Profile import/export buttons
-  // Automatically sets friendlyFolderName to "Profile Data"
-  // Automatically configures data format for profile
-)
-```
-
-#### With Upload Callbacks
-
-```dart
+// Basic file management
 SolidFile(
   basePath: 'myapp/data',
   currentPath: 'myapp/data/documents',
+  onFileSelected: (fileName, filePath) {
+    print('File selected: $fileName at $filePath');
+  },
+  onFileDownload: (fileName, filePath) {
+    print('Download requested: $fileName');
+  },
+)
+
+// With upload configuration
+SolidFile(
+  basePath: 'healthapp/data',
+  currentPath: 'healthapp/data/bloodpressure',
+  uploadConfig: SolidFileUploadConfig(
+    showCsvButtons: true,
+    showJsonButtons: true,
+    formatConfig: DataFormatConfig(
+      title: 'Blood Pressure Data',
+      requiredFields: ['date', 'systolic', 'diastolic'],
+      optionalFields: ['heartRate', 'notes'],
+    ),
+  ),
   uploadCallbacks: SolidFileUploadCallbacks(
-    onUpload: () {
-      // Handle file upload
-    },
     onImportCsv: () {
       // Handle CSV import
     },
     onExportCsv: () {
       // Handle CSV export
     },
+    onUpload: () {
+      // Handle file upload
+    },
   ),
 )
-```
 
-#### Manual Configuration (Advanced)
-
-For custom upload configurations, disable auto-config:
-
-```dart
+// Manual configuration (disable auto-config)
 SolidFile(
   basePath: 'myapp/data',
   currentPath: 'myapp/data/custom',
-  autoConfig: false,  // Disable automatic configuration
+  autoConfig: false,
   uploadConfig: SolidFileUploadConfig(
-    showCsvButtons: true,
-    showJsonButtons: false,
-    formatConfig: myCustomFormat,
+    showCsvButtons: false,
+    showJsonButtons: true,
+    uploadButtonText: 'Upload Custom File',
   ),
-  friendlyFolderName: 'Custom Data Folder',
+  friendlyFolderName: 'Custom Data',
 )
 ```
 
-## Responsive Design
+## Authentication and Login Detection
 
-SolidUI components automatically adapt to different screen sizes:
+SolidUI provides dynamic login status detection and management through integration with the SolidPOD library.
 
-- **Wide screens (>800px)**: Navigation rail with full status bar
-- **Medium screens (400-800px)**: Drawer navigation with compact status bar
-- **Narrow screens (<400px)**: Drawer navigation with minimal status bar
+### SolidDynamicLoginStatus
 
-## Theming
-
-SolidUI components integrate with Flutter's theme system and support
-light, dark, and system themes with intelligent icon switching:
+Automatically detects and updates login status based on actual Solid POD authentication state.
 
 ```dart
-MaterialApp(
-  theme: ThemeData.light(),
-  darkTheme: ThemeData.dark(),
-  themeMode: ThemeMode.system,
-  home:
-    YourSolidApp(),
+class SolidDynamicLoginStatus extends StatefulWidget {
+  final SolidStatusBarConfig baseConfig;       // Required: Base status bar configuration
+  final VoidCallback? onTap;                   // Login/logout tap handler
+  final VoidCallback? onLogin;                 // Custom login handler for logged out state
+  final String? loggedInText;                  // Custom logged in text
+  final String? loggedOutText;                 // Custom logged out text
+  final String? loggedInTooltip;               // Logged in tooltip
+  final String? loggedOutTooltip;              // Logged out tooltip
+}
+```
+
+### Example Usage
+
+```dart
+SolidDynamicLoginStatus(
+  baseConfig: SolidStatusBarConfig(
+    serverInfo: SolidServerInfo(
+      serverUri: 'https://solidcommunity.net',
+    ),
+  ),
+  onTap: () {
+    // Handle login/logout based on current state
+    if (isLoggedIn) {
+      performLogout();
+    } else {
+      showLoginDialog();
+    }
+  },
+  loggedInText: 'Connected',
+  loggedOutText: 'Disconnected',
 )
 ```
 
-## Version Management
+### Login Status Methods
 
-SolidUI provides automatic version management that loads version
-information directly from your app's `pubspec.yaml`.
+The following methods are available for checking authentication status:
 
-### Zero-Config Usage
+- `getWebId()`: Returns the current WebID if logged in, null otherwise
+- `checkLoggedIn()`: Verifies the current login status with the POD server
+
+## Security Key Management
+
+SolidUI provides comprehensive security key management for encryption in Solid POD applications.
+
+### SolidSecurityKeyService
+
+Central service for managing security key operations and status.
 
 ```dart
-appBar: SolidAppBarConfig(
-  title: 'My App',
-  versionConfig: SolidVersionConfig(),
-),
+class SolidSecurityKeyService extends ChangeNotifier {
+  Future<bool> isKeySaved();                   // Check if security key exists
+  Future<bool> fetchKeySavedStatus([Function(bool)? onKeyStatusChanged]); // Fetch status with callback
+  Future<void> refreshKeyStatus();             // Force refresh of key status
+  Future<bool> refreshAndNotify([Function(bool)? onKeyStatusChanged]); // Refresh and notify
+  Future<bool> isSecurityKeyNeeded();          // Check if security key is needed
+}
 ```
 
-This will:
+### SolidSecurityKeyStatus
 
-- Automatically read version from `pubspec.yaml`
-- Display version in the format `1.0.0+1`
-- Show loading state until version is loaded
-- Provide default tooltip with version information
-
-### Advanced Configuration
+Status bar component for displaying security key information.
 
 ```dart
-appBar: SolidAppBarConfig(
-  title: 'My App',
-  versionConfig: SolidVersionConfig(
-    changelogUrl: 'https://github.com/user/repo/blob/main/CHANGELOG.md',
-    showDate: true,
-    tooltip: 'Custom version tooltip',
-  ),
-),
+class SolidSecurityKeyStatus {
+  final bool? isKeySaved;                      // Current key status
+  final VoidCallback? onTap;                   // Tap callback (null for automatic management)
+  final Function(bool)? onKeyStatusChanged;    // Status change callback
+  final String? title;                         // Custom dialogue title
+  final Widget? appWidget;                     // Custom app widget for dialogues
+  final String? tooltip;                       // Custom tooltip message
+}
 ```
 
-### Manual Version Override
+### SolidSecurityKeyManager
+
+Advanced component for custom security key management implementations.
 
 ```dart
-appBar: SolidAppBarConfig(
-  title: 'My App',
-  versionConfig: SolidVersionConfig(
-    version: '2.0.0-beta.1', // Manual override
-    changelogUrl: 'https://github.com/user/repo/blob/main/CHANGELOG.md',
-  ),
-),
+class SolidSecurityKeyManagerConfig {
+  final Widget appWidget;                      // Required: App widget for change key popup
+  final String? title;                         // Custom manager title
+  final bool showViewKeyButton;                // Show view key button (default: true)
+  final bool showForgetKeyButton;              // Show forget key button (default: true)
+}
+
+class SolidSecurityKeyManager extends StatefulWidget {
+  final SolidSecurityKeyManagerConfig config; // Required: Manager configuration
+  final Function(bool) onKeyStatusChanged;     // Required: Status change callback
+}
 ```
 
-## About Dialogue Configuration
-
-SolidUI provides an integrated About dialogue system that
-automatically displays application information with sensible defaults.
-
-### Automatic About Button
-
-By default, SolidScaffold automatically adds an About button (ℹ️ icon)
-to the AppBar. The button will:
-
-- **Auto-detect application name and version** from `pubspec.yaml`
-- **Show default copyright notice** with current year
-- **Display in AppBar actions** with responsive behaviour
-- **Provide standard About dialogue** with application information
-
-### Zero-Config Usage (Default Behavior)
+### Example Usage
 
 ```dart
-SolidScaffold(
-  menu: menuItems,
-  appBar: SolidAppBarConfig(title: 'My App'),
-  child: content,
-  // About button automatically appears with default content
-)
-```
-
-### Basic Customisation
-
-```dart
-SolidScaffold(
-  menu: menuItems,
-  appBar: SolidAppBarConfig(title: 'My App'),
-  aboutConfig: SolidAboutConfig(
-    applicationName: 'My Custom App',
-    applicationVersion: '2.0.0',
-    applicationIcon: Icon(Icons.star, size: 64, color: Colors.blue),
-    applicationLegalese: '''© 2025 Custom Company''',
-    text: '''
-
-A powerful application for managing your workflow.
-
-**Features:**
-
-• Feature 1
-
-• Feature 2
-
-• Feature 3
-
-Visit our [support page](https://example.com/support) for help.
-
-''',
-  ),
-  child: content,
-)
-```
-
-### Advanced Customisation
-
-```dart
-SolidScaffold(
-  aboutConfig: SolidAboutConfig(
-    applicationName: 'Enterprise App',
-    applicationIcon: Image.asset('assets/app_icon.png', width: 64, height: 64),
-    applicationLegalese: '''© 2025 My Company Ltd.''',
-    text: '''
-
-Enterprise-grade application for business workflows.
-
-**Licensing:**
-Licensed under MIT License.
-
-This software includes third-party libraries.
-See NOTICE file for attribution details.
-
-**Support:**
-
-Visit [our website](https://mycompany.com) for support and documentation.
-
-''',
-    showOnVeryNarrowScreen: true, // Show even on very narrow screens
-    tooltip: 'Learn more about this application',
-  ),
-  child: content,
-)
-```
-
-### Custom About Action
-
-```dart
-SolidScaffold(
-  aboutConfig: SolidAboutConfig(
-    onPressed: () {
-      // Custom action instead of showing standard dialogue
-      Navigator.push(context, MaterialPageRoute(
-        builder: (context) => CustomAboutPage(),
-      ));
+// Automatic security key management in status bar
+SolidStatusBarConfig(
+  securityKeyStatus: SolidSecurityKeyStatus(
+    title: 'My App Security Keys',
+    onKeyStatusChanged: (bool hasKey) {
+      print('Security key status: ${hasKey ? "saved" : "not saved"}');
     },
+    tooltip: 'Manage encryption keys',
   ),
-  child: content,
 )
+
+// Manual security key management
+SolidSecurityKeyManager(
+  config: SolidSecurityKeyManagerConfig(
+    appWidget: MyAppWidget(),
+    title: 'Encryption Key Management',
+    showViewKeyButton: true,
+    showForgetKeyButton: true,
+  ),
+  onKeyStatusChanged: (hasKey) {
+    setState(() {
+      _securityKeyExists = hasKey;
+    });
+  },
+)
+
+// Using the security key service
+final securityKeyService = SolidSecurityKeyService();
+
+// Check current status
+bool hasKey = await securityKeyService.isKeySaved();
+
+// Listen for changes
+securityKeyService.addListener(() {
+  // Handle security key status changes
+});
+
+// Refresh status
+await securityKeyService.refreshKeyStatus();
 ```
 
-### Disabling About Button
+## API Reference
+
+### Responsive Design System
+
+SolidUI implements a comprehensive responsive design system that automatically adapts to different screen sizes:
+
+#### Screen Size Breakpoints
 
 ```dart
-SolidScaffold(
-  aboutConfig: SolidAboutConfig(
-    enabled: false, // Completely disable About button
-  ),
-  child: content,
-)
+class NavigationConstants {
+  static const double narrowScreenThreshold = 800.0;     // Navigation rail → drawer transition
+  static const double veryNarrowScreenThreshold = 400.0; // Very narrow screen threshold
+  static const double statusBarHeight = 32.0;            // Default status bar height
+  static const double navRailWidth = 72.0;               // Navigation rail width
+  static const double navRailExtendedWidth = 256.0;      // Extended navigation rail width
+}
 ```
 
-### Programmatic About Dialogue
+#### Responsive Behaviour Summary
 
-You can also show About dialogues programmatically:
+| Screen Width | Navigation | App Bar Actions | Status Bar | File Layout |
+|--------------|------------|-----------------|------------|-------------|
+| ≥800px | Navigation Rail (SolidNavBar) | All actions visible | Full status display | Side-by-side |
+| 400-799px | Navigation Drawer (SolidNavDrawer) | Selected actions + overflow | Compact display | Stacked |
+| <400px | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |
+
+#### Automatic Adaptations
+
+- **Navigation**: SolidNavBar automatically becomes SolidNavDrawer when screen width < 800px
+- **App Bar**: Action buttons move to overflow menu based on `showOnNarrowScreen` and `showOnVeryNarrowScreen` settings
+- **Status Bar**: Layout and visibility adapt based on `showOnNarrowScreens` configuration
+- **File Management**: SolidFile switches between wide and narrow layouts automatically
+- **Theme Controls**: Theme toggle and about buttons adjust their placement responsively
+
+### File Operations
+
+SolidUI includes comprehensive file operation utilities:
+
+- `SolidFileOperations`: General file operations for Solid PODs
+- `SolidFileUploadOperations`: Specialised upload operations
+- `SolidFileDownloadOperations`: Download operation helpers
+- `SolidFileDeleteOperations`: Delete operation helpers
+
+### Theme Management
 
 ```dart
-// Show with custom configuration using text parameter
-SolidAbout.show(context, SolidAboutConfig(
-  applicationName: 'My App',
-  applicationLegalese: '© 2025 My Company',
-  text: '''
-Custom about content with **Markdown** support.
+class SolidThemeNotifier extends ChangeNotifier {
+  ThemeMode get themeMode;                     // Current theme mode
+  Future<void> initialize();                   // Initialize theme notifier
+  Future<void> setThemeMode(ThemeMode mode);   // Set theme mode
+  void toggleTheme();                          // Toggle between light/dark modes
+}
 
-Visit our [website](https://example.com) for more information.
-''',
-));
-
-// Show with minimal configuration
-SolidAbout.showDefault(context,
-  applicationName: 'Quick App',
-  applicationLegalese: '© 2025 Quick Company',
-);
+class SolidThemeApp extends StatefulWidget {
+  // MaterialApp wrapper with integrated theme management
+}
 ```
 
-## Advanced Usage
+## Examples
 
-## Application Examples
-
-### Basic Application Usage
-
-#### Simplest Implementation
+### Complete Application Example
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:solidui/solidui.dart';
 
-class MyApp extends StatefulWidget {
+class CompleteExampleApp extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  _CompleteExampleAppState createState() => _CompleteExampleAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class _CompleteExampleAppState extends State<CompleteExampleApp> {
+  String? _webId;
+  bool _isKeySaved = false;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return SolidThemeApp(
+      title: 'Complete SolidUI Example',
       home: SolidScaffold(
         menu: [
           SolidMenuItem(
-            title: 'Home',
-            icon: Icons.home,
-            child: HomeDashboard(),
-            tooltip: 'Home page',
+            title: 'Dashboard',
+            icon: Icons.dashboard,
+            child: DashboardPage(),
+            tooltip: 'Application dashboard',
+          ),
+          SolidMenuItem(
+            title: 'Files',
+            icon: Icons.folder,
+            child: SolidFile(
+              basePath: 'myapp/data',
+              currentPath: 'myapp/data',
+              onFileSelected: (fileName, filePath) {
+                print('File selected: $fileName');
+              },
+            ),
+            tooltip: 'File management',
           ),
           SolidMenuItem(
             title: 'Settings',
             icon: Icons.settings,
-            child: AppSettings(),
-            tooltip: 'Settings',
-          ),
-          SolidMenuItem(
-            title: 'Profile',
-            icon: Icons.person,
-            child: UserProfile(),
-            tooltip: 'User profile',
+            child: SettingsPage(),
+            tooltip: 'Application settings',
           ),
         ],
-      ),
-    );
-  }
-}
-```
-
-#### With AppBar Configuration
-
-```dart
-SolidScaffold(
-  menu: [
-    SolidMenuItem(
-      title: 'Home',
-      icon: Icons.home,
-      child: HomeScreen(),
-    ),
-    SolidMenuItem(
-      title: 'Settings',
-      icon: Icons.settings,
-      child: SettingsScreen(),
-    ),
-  ],
-  appBar: SolidAppBarConfig(
-    title: 'My Application',
-    actions: [
-      SolidAppBarAction(
-        icon: Icons.search,
-        onPressed: () => print('Search'),
-        tooltip: 'Search',
-      ),
-      SolidAppBarAction(
-        icon: Icons.notifications,
-        onPressed: () => print('Notifications'),
-        tooltip: 'Notifications',
-        showOnNarrowScreen: false,
-      ),
-    ],
-    overflowItems: [
-      SolidOverflowMenuItem(
-        id: 'help',
-        icon: Icons.help,
-        label: 'Help',
-        onSelected: () => print('Help'),
-      ),
-    ],
-  ),
-  child: Center(
-    child: Text('Main content area'),
-  ),
-)
-```
-
-#### With Status Bar
-
-```dart
-SolidScaffold(
-  menu: [
-    SolidMenuItem(
-      title: 'Home',
-      icon: Icons.home,
-      child: HomeScreen(),
-    ),
-  ],
-  statusBar: SolidStatusBarConfig(
-    serverInfo: SolidServerInfo(
-      serverUri: 'https://example.com',
-      tooltip: 'Server status',
-    ),
-    loginStatus: SolidLoginStatus(
-      webId: 'user@example.com',
-      onTap: () => print('Login/Logout'),
-      loggedInTooltip: 'Click to log out',
-      loggedOutTooltip: 'Click to log in',
-    ),
-  ),
-  child: Text('Content'),
-)
-```
-
-#### Complete Configuration Example
-
-```dart
-class FullExampleApp extends StatefulWidget {
-  @override
-  _FullExampleAppState createState() => _FullExampleAppState();
-}
-
-class _FullExampleAppState extends State<FullExampleApp> {
-  int _selectedIndex = 0;
-  String? _webId;
-
-  @override
-  Widget build(BuildContext context) {
-    return SolidScaffold(
-      menu: [
-        SolidMenuItem(
-          title: 'Dashboard',
-          icon: Icons.dashboard,
-          child: DashboardScreen(),
-          tooltip: 'Dashboard',
-          onTap: (context) {
-            print('Switch to dashboard');
-          },
-        ),
-        SolidMenuItem(
-          title: 'Projects',
-          icon: Icons.work,
-          child: ProjectsScreen(),
-          tooltip: 'Project management',
-          color: Colors.blue,
-        ),
-        SolidMenuItem(
-          title: 'Team',
-          icon: Icons.people,
-          child: TeamScreen(),
-          tooltip: 'Team management',
-        ),
-        SolidMenuItem(
-          title: 'About',
-          icon: Icons.info,
-          child: AboutScreen(),
-          tooltip: 'About us',
-          message: 'This is a sample application built using SolidScaffold',
-          dialogTitle: 'About',
-        ),
-      ],
-      appBar: SolidAppBarConfig(
-        title: 'Project Management System',
-        backgroundColor: Colors.blue[800],
-        actions: [
-          SolidAppBarAction(
-            icon: Icons.search,
-            onPressed: () => _showSearch(context),
-            tooltip: 'Search',
+        appBar: SolidAppBarConfig(
+          title: 'My Solid Application',
+          actions: [
+            SolidAppBarAction(
+              icon: Icons.refresh,
+              onPressed: _handleRefresh,
+              tooltip: 'Refresh data',
+            ),
+            SolidAppBarAction(
+              icon: Icons.notifications,
+              onPressed: _showNotifications,
+              tooltip: 'View notifications',
+              showOnVeryNarrowScreen: false,
+            ),
+          ],
+          versionConfig: SolidVersionConfig(
+            changelogUrl: 'https://github.com/myorg/myapp/blob/main/CHANGELOG.md',
+            showDate: true,
           ),
-          SolidAppBarAction(
-            icon: Icons.notifications,
-            onPressed: () => _showNotifications(context),
-            tooltip: 'Notifications',
-            showOnNarrowScreen: false,
-          ),
-          SolidAppBarAction(
-            icon: Icons.account_circle,
-            onPressed: () => _showProfile(context),
-            tooltip: 'User profile',
-            showOnVeryNarrowScreen: false,
-          ),
-        ],
-        overflowItems: [
-          SolidOverflowMenuItem(
-            id: 'help',
-            icon: Icons.help,
-            label: 'Help',
-            onSelected: () => _showHelp(context),
-          ),
-          SolidOverflowMenuItem(
-            id: 'settings',
-            icon: Icons.settings,
-            label: 'Settings',
-            onSelected: () => _showSettings(context),
-          ),
-        ],
-      ),
-      statusBar: SolidStatusBarConfig(
-        serverInfo: SolidServerInfo(
-          serverUri: 'https://api.example.com',
-          displayText: 'API Server',
-          tooltip: 'Click to access API documentation',
         ),
-        loginStatus: SolidLoginStatus(
+        statusBar: SolidStatusBarConfig(
+          serverInfo: SolidServerInfo(
+            serverUri: 'https://solidcommunity.net',
+            tooltip: 'Connected to Solid Community server',
+          ),
+          loginStatus: SolidLoginStatus(
+            webId: _webId,
+            onTap: _handleLoginLogout,
+            loggedInText: 'Authenticated',
+            loggedOutText: 'Not Connected',
+          ),
+          securityKeyStatus: SolidSecurityKeyStatus(
+            isKeySaved: _isKeySaved,
+            title: 'Application Security Keys',
+            onKeyStatusChanged: (hasKey) {
+              setState(() {
+                _isKeySaved = hasKey;
+              });
+            },
+          ),
+        ),
+        userInfo: SolidNavUserInfo(
+          userName: _webId != null ? 'User' : 'Not logged in',
           webId: _webId,
-          onTap: _toggleLogin,
-          loggedInText: 'Logged In',
-          loggedOutText: 'Not Logged In',
-          loggedInTooltip: 'Click to log out',
-          loggedOutTooltip: 'Click to log in',
+          showWebId: true,
         ),
-        customItems: [
-          SolidCustomStatusBarItem(
-            id: 'version',
-            widget: Text('v1.0.0'),
-            priority: 1,
-          ),
-        ],
-      ),
-      userInfo: SolidNavUserInfo(
-        userName: _webId != null ? 'User' : 'Not logged in',
-        webId: _webId,
-        showWebId: true,
-      ),
-      onLogout: _webId != null ? _logout : null,
-      onShowAlert: _showAlert,
-      themeToggle: const SolidThemeToggleConfig(
-        enabled: true,
-        showInAppBarActions: true,
-        showOnVeryNarrowScreen: false,
-        tooltip: '''
-**Theme Toggle**
-
-Switch between light and dark modes for optimal viewing experience.
-
-🌙 **Dark Mode**: Better for low-light environments
-
-☀️ **Light Mode**: Better for bright environments
-
-        ''',
-      ),
-      aboutConfig: SolidAboutConfig(
-        applicationName: 'Project Management System',
-        applicationIcon: Icon(Icons.work, size: 64, color: Colors.blue),
-        applicationLegalese: '''© 2025 Example Company''',
-        text: '''
-
-A comprehensive project management solution built with Flutter and SolidUI.
-
-Manage your projects efficiently with our comprehensive project management system.
-
-**Key Features:**
-
-• Project tracking and task management
-
-• Team collaboration tools
-
-• Gantt charts and timeline views
-
-• Real-time progress monitoring
-
-• Solid POD integration for secure data storage
-
-**Licensing:**
-Licensed under MIT License.
-
-**Support:**
-For support and documentation, visit [our website](https://example.com).
-
-''',
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addNewItem,
-        tooltip: 'Add new project',
-        child: Icon(Icons.add),
-      ),
-      child: _buildMainContent(),
-    );
-  }
-
-  Widget _buildMainContent() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.work,
-            size: 100,
-            color: Colors.grey[400],
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Welcome to Project Management System',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Select from the menu on the left to get started',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showSearch(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Search'),
-        content: TextField(
-          decoration: InputDecoration(hintText: 'Enter search keywords'),
+        themeToggle: SolidThemeToggleConfig(
+          enabled: true,
+          tooltip: 'Switch between light and dark themes',
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Search'),
-          ),
-        ],
+        aboutConfig: SolidAboutConfig(
+          applicationName: 'My Solid Application',
+          applicationIcon: Icon(Icons.apps, size: 64),
+          applicationLegalese: '© 2025 My Organisation',
+          text: '''
+          A comprehensive Solid application built with SolidUI.
+          
+          This application demonstrates the complete capabilities of the SolidUI library,
+          including responsive navigation, file management, and security features.
+          ''',
+        ),
+        onLogout: _webId != null ? (context) => _handleLogout() : null,
       ),
     );
   }
 
-  void _showNotifications(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('No new notifications')),
-    );
+  void _handleRefresh() {
+    // Implement refresh logic
   }
 
-  void _showProfile(BuildContext context) {
-    print('Show user profile');
+  void _showNotifications() {
+    // Implement notifications display
   }
 
-  void _showHelp(BuildContext context) {
-    print('Show help');
+  void _handleLoginLogout() {
+    // Implement login/logout logic
   }
 
-  void _showSettings(BuildContext context) {
-    print('Show settings');
-  }
-
-  void _toggleLogin() {
-    setState(() {
-      _webId = _webId == null ? 'user@example.com' : null;
-    });
-  }
-
-  void _logout(BuildContext context) {
+  void _handleLogout() {
     setState(() {
       _webId = null;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Logged out')),
-    );
-  }
-
-  void _showAlert(BuildContext context, String message, String? title) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: title != null ? Text(title) : null,
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _addNewItem() {
-    print('Add new project');
   }
 }
 ```
-
-## Key Features
-
-### Responsive UI Design
-
-- Automatically switches layout based on screen width
-- Customisable narrow screen threshold
-
-### Simplified Menu Configuration
-
-- Only requires defining a `SolidMenuItem` list
-- Supports icons, titles, tooltips, colours, etc.
-
-### Optional AppBar
-
-- Supports action button lists
-- Automatically handles overflow menu
-- Responsive button show/hide
-
-### Optional Status Bar
-
-- Displays server information, login status, etc.
-- Supports custom status items
-- Responsive layout
-
-### User Information Support
-
-- Displays user information in drawer
-- Supports logout functionality
-
-### Theme Toggle Integration
-
-- Built-in light/dark mode switching
-- Responsive placement (AppBar actions or overflow menu)
-- Customisable icons, tooltips, and behaviour
-- Automatic theme state indication
-
-## Parameter Reference
-
-### SolidScaffold Main Parameters
-
-- `menu`: List of menu items (required)
-- `child`: Main content area (required)
-- `appBar`: AppBar configuration (optional)
-- `statusBar`: Status bar configuration (optional)
-- `userInfo`: User information configuration (optional)
-- `onLogout`: Logout callback (optional)
-- `onShowAlert`: Alert dialogue callback (optional)
-- `narrowScreenThreshold`: Narrow screen threshold (default 800)
-- `backgroundColor`: Background colour (optional)
-- `floatingActionButton`: Floating action button (optional)
-- `initialIndex`: Initial selected menu index (default 0)
-- `themeToggle`: Theme toggle configuration (optional)
-- `aboutConfig`: About dialogue configuration (optional)
-
-### SolidMenuItem Parameters
-
-- `title`: Menu title (required)
-- `icon`: Menu icon (required)
-- `color`: Icon colour (optional)
-- `child`: Child widget displayed when menu item is selected (optional)
-- `tooltip`: Tooltip (optional)
-- `message`: Message dialogue content (optional)
-- `dialogTitle`: Dialogue title (optional)
-- `onTap`: Tap callback (optional)
-
-### SolidThemeToggleConfig Parameters
-
-When both `onToggleTheme` and `currentThemeMode` are null (default), SolidUI
-automatically manages theme state using `SolidThemeNotifier`:
-
-- `enabled`: Whether theme toggle is enabled (default true)
-- `showInAppBarActions`: Show in AppBar actions vs overflow menu (default true)
-- `lightModeIcon`: Custom light mode icon (optional, defaults to Icons.light_mode)
-- `darkModeIcon`: Custom dark mode icon (optional, defaults to Icons.dark_mode)
-- `systemModeIcon`: Custom system mode icon (optional, defaults to Icons.computer)
-- `tooltip`: Custom tooltip text (optional, auto-generated)
-- `label`: Label for overflow menu (default 'Toggle Theme')
-- `showOnNarrowScreen`: Show on narrow screens (default true)
-- `showOnVeryNarrowScreen`: Show on very narrow screens (default true)
-
-#### External State Management
-
-For custom theme state management, provide both parameters:
-
-- `currentThemeMode`: Current theme mode for state indication
-  (required for external management)
-- `onToggleTheme`: Theme toggle callback (required for external
-  management)
-- All parameters from automatic management above
-
-### SolidAboutConfig Parameters
-
-- `enabled`: Whether the About button is enabled (default true)
-- `icon`: Custom icon for the About button (default
-  Icons.info_outline)
-- `applicationName`: Application name displayed in dialogue
-  (auto-detected if not provided)
-- `applicationVersion`: Application version displayed in dialogue
-  (auto-detected if not provided)
-- `applicationIcon`: Application icon displayed in dialogue (optional)
-- `applicationLegalese`: Application legal notice/copyright
-  information (optional)
-- `text`: Main text content for the About dialogue (supports Markdown,
-  with automatic word wrapping) (optional)
-- `customContent`: Custom dialogue content widget (replaces default
-  dialogue if provided)
-- `children`: Additional widgets to show in the About dialogue
-  (optional, ignored if `text` is provided)
-- `showOnNarrowScreen`: Show About button on narrow screens (default
-  true)
-- `showOnVeryNarrowScreen`: Show About button on very narrow screens
-  (default false)
-- `priority`: Priority for ordering in AppBar actions (default 999)
-- `tooltip`: Custom tooltip text (auto-generated if not provided)
-- `onPressed`: Custom callback when About button is pressed (optional)
-
-The new `SolidScaffold` component greatly simplifies navigation usage,
-allowing you to create feature-rich responsive navigation interfaces
-with built-in theme switching, About dialogues, and minimal code.
-
-## Development Status
-
-SolidUI is currently in active development as part of the Solid ecosystem
-projects.
 
 ## Licence
 
@@ -1249,29 +852,9 @@ Copyright (C) 2025, Software Innovation Institute, ANU.
 
 Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 ## Authors
 
 - Graham Williams
 - Tony Chen
 
----
-
-For more information about Solid and PODs,
-visit [solidproject.org](https://solidproject.org).
+For more information about Solid and PODs, visit [solidproject.org](https://solidproject.org).

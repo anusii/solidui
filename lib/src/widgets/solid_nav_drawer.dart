@@ -108,17 +108,14 @@ class SolidNavDrawer extends StatelessWidget {
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         children: <Widget>[
           // User info header (if provided).
-
           if (userInfo != null) _buildUserInfoHeader(context, theme),
 
           // Navigation items.
-
           Container(
             padding: const EdgeInsets.all(NavigationConstants.navDrawerPadding),
             child: Column(
               children: [
                 // Main navigation tabs.
-
                 ...tabs.asMap().entries.map((entry) {
                   final index = entry.key;
                   final tab = entry.value;
@@ -142,8 +139,9 @@ class SolidNavDrawer extends StatelessWidget {
                       ),
                     ),
                     selected: index == selectedIndex,
-                    selectedTileColor:
-                        theme.colorScheme.primary.withValues(alpha: 0.1),
+                    selectedTileColor: theme.colorScheme.primary.withValues(
+                      alpha: 0.1,
+                    ),
                     onTap: () {
                       onTabSelected(index);
                       Navigator.of(context).pop(); // Close drawer.
@@ -152,11 +150,9 @@ class SolidNavDrawer extends StatelessWidget {
                 }),
 
                 // Additional menu items (if provided).
-
                 if (additionalMenuItems != null) ...additionalMenuItems!,
 
                 // Divider and logout option.
-
                 if (showLogout && onLogout != null) ...[
                   Divider(
                     height: NavigationConstants.navDividerHeight,
@@ -202,13 +198,10 @@ class SolidNavDrawer extends StatelessWidget {
             MediaQuery.of(context).padding.top,
         bottom: NavigationConstants.userHeaderBottomPadding,
       ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-      ),
+      decoration: BoxDecoration(color: theme.colorScheme.primaryContainer),
       child: Column(
         children: [
           // User avatar.
-
           user.avatar ??
               Icon(
                 user.avatarIcon ?? Icons.account_circle,
@@ -219,7 +212,6 @@ class SolidNavDrawer extends StatelessWidget {
           Gap(NavigationConstants.userInfoSpacing),
 
           // User name.
-
           Text(
             user.userName.isNotEmpty ? user.userName : 'Not logged in',
             style: TextStyle(
@@ -230,7 +222,6 @@ class SolidNavDrawer extends StatelessWidget {
           ),
 
           // WebID (if enabled and available).
-
           if (user.showWebId &&
               user.webId != null &&
               user.webId!.isNotEmpty) ...[
@@ -242,8 +233,9 @@ class SolidNavDrawer extends StatelessWidget {
               child: Text(
                 _getSimplifiedUrl(user.webId!),
                 style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer
-                      .withValues(alpha: 0.8),
+                  color: theme.colorScheme.onPrimaryContainer.withValues(
+                    alpha: 0.8,
+                  ),
                   fontSize: NavigationConstants.webIdFontSize,
                 ),
                 textAlign: TextAlign.center,

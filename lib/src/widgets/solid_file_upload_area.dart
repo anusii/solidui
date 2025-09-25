@@ -84,48 +84,35 @@ class SolidFileUploadArea extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Custom header.
-
-          if (header != null) ...[
-            header!,
-            const SizedBox(height: 16),
-          ],
+          if (header != null) ...[header!, const SizedBox(height: 16)],
 
           // Title.
-
           const Text(
             'Upload Files',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
           // Display preview card if enabled.
-
           _buildPreviewCard(),
           if (state.showPreview) const SizedBox(height: 16),
 
           // Show selected file info.
-
           if (state.uploadedFilePath != null) ...[
             _buildSelectedFileCard(context),
             const SizedBox(height: 16),
           ],
 
           // Upload and operation buttons row.
-
           _buildMainButtonsRow(context),
 
           // Display format information card.
-
           if (config.formatConfig != null) ...[
             const SizedBox(height: 16),
             SolidFormatInfoCard(config: config.formatConfig!),
           ],
 
           // Additional buttons (Visualise JSON, Preview File, Convert to JSON).
-
           if (config.showJsonButtons ||
               (state.uploadedFilePath != null &&
                   config.showPreviewButtons)) ...[
@@ -134,11 +121,7 @@ class SolidFileUploadArea extends StatelessWidget {
           ],
 
           // Custom footer.
-
-          if (footer != null) ...[
-            const SizedBox(height: 16),
-            footer!,
-          ],
+          if (footer != null) ...[const SizedBox(height: 16), footer!],
         ],
       ),
     );
@@ -201,7 +184,6 @@ class SolidFileUploadArea extends StatelessWidget {
   Widget _buildMainButtonsRow(BuildContext context) {
     final buttons = <Widget>[
       // Main upload button.
-
       Expanded(
         child: SolidFileUploadButtons.buildUploadButton(
           context: context,

@@ -52,10 +52,7 @@ class SolidTheme {
 
   /// Creates a light theme with optional customisation.
 
-  static ThemeData lightTheme({
-    Color? primaryColor,
-    ColorScheme? colorScheme,
-  }) {
+  static ThemeData lightTheme({Color? primaryColor, ColorScheme? colorScheme}) {
     final seedColor = primaryColor ?? SolidTheme.primaryColor;
 
     return ThemeData(
@@ -65,10 +62,7 @@ class SolidTheme {
             seedColor: seedColor,
             brightness: Brightness.light,
           ),
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-      ),
+      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -97,10 +91,7 @@ class SolidTheme {
 
   /// Creates a dark theme with optional customisation.
 
-  static ThemeData darkTheme({
-    Color? primaryColor,
-    ColorScheme? colorScheme,
-  }) {
+  static ThemeData darkTheme({Color? primaryColor, ColorScheme? colorScheme}) {
     final seedColor = primaryColor ?? SolidTheme.primaryColor;
 
     return ThemeData(
@@ -110,10 +101,7 @@ class SolidTheme {
             seedColor: seedColor,
             brightness: Brightness.dark,
           ),
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-      ),
+      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -176,13 +164,9 @@ class SolidThemeConfig {
 
   /// Creates light and dark themes based on this configuration.
 
-  ThemeData get lightTheme => SolidTheme.lightTheme(
-        primaryColor: primaryColor,
-      );
+  ThemeData get lightTheme => SolidTheme.lightTheme(primaryColor: primaryColor);
 
   /// Creates dark theme based on this configuration.
 
-  ThemeData get darkTheme => SolidTheme.darkTheme(
-        primaryColor: primaryColor,
-      );
+  ThemeData get darkTheme => SolidTheme.darkTheme(primaryColor: primaryColor);
 }

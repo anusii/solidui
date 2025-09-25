@@ -154,10 +154,7 @@ class SolidFileOperations {
       final outputFileHandle = File(outputFile);
       await outputFileHandle.writeAsString(fileContent);
 
-      return newState.copyWith(
-        downloadDone: true,
-        downloadInProgress: false,
-      );
+      return newState.copyWith(downloadDone: true, downloadInProgress: false);
     } catch (e) {
       debugPrint('Download error: $e');
       return fileState.copyWith(downloadInProgress: false);
@@ -223,10 +220,7 @@ class SolidFileOperations {
       return newState.copyWith(deleteDone: false, deleteInProgress: false);
     } catch (e) {
       debugPrint('Delete error: $e');
-      return fileState.copyWith(
-        deleteDone: false,
-        deleteInProgress: false,
-      );
+      return fileState.copyWith(deleteDone: false, deleteInProgress: false);
     }
   }
 

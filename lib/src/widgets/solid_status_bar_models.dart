@@ -448,8 +448,4 @@ class SolidStatusBarConfig {
 
 /// Layout mode for the status bar based on screen width.
 
-enum SolidStatusBarLayout {
-  narrow,
-  medium,
-  wide,
-}
+enum SolidStatusBarLayout { narrow, medium, wide }

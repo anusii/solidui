@@ -123,9 +123,7 @@ class SolidSecurityKeyManagerHelpers {
         color:
             isDestructive ? theme.colorScheme.error : theme.colorScheme.primary,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
     );
   }
@@ -140,9 +138,7 @@ class SolidSecurityKeyManagerHelpers {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: Text(title),
         content: Text(message),
         actions: [
@@ -169,9 +165,7 @@ class SolidSecurityKeyManagerHelpers {
         content: Text(message),
         backgroundColor: theme.colorScheme.error,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -185,9 +179,7 @@ class SolidSecurityKeyManagerHelpers {
         content: Text(message),
         backgroundColor: theme.colorScheme.tertiary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -292,8 +284,10 @@ class SolidSecurityKeyManagerHelpers {
             const SizedBox(height: 16),
             TextField(
               controller: confirmKeyController,
-              decoration:
-                  getInputDecoration('Confirm Security Key', ThemeData()),
+              decoration: getInputDecoration(
+                'Confirm Security Key',
+                ThemeData(),
+              ),
               obscureText: true,
             ),
           ],

@@ -28,6 +28,7 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
@@ -248,7 +249,7 @@ class SolidScaffoldInternalConfig {
     this.userInfo,
     this.onLogout,
     this.onShowAlert,
-    this.narrowScreenThreshold = 800,
+    this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,
     this.floatingActionButton,
     this.floatingActionButtonLocation,

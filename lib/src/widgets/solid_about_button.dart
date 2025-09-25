@@ -47,11 +47,7 @@ class SolidAboutButton extends StatefulWidget {
 
   final Color? color;
 
-  const SolidAboutButton({
-    super.key,
-    required this.config,
-    this.color,
-  });
+  const SolidAboutButton({super.key, required this.config, this.color});
 
   @override
   State<SolidAboutButton> createState() => _SolidAboutButtonState();

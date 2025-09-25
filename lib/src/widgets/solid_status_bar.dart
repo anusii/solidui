@@ -43,10 +43,7 @@ class SolidStatusBar extends StatelessWidget {
 
   final SolidStatusBarConfig config;
 
-  const SolidStatusBar({
-    super.key,
-    required this.config,
-  });
+  const SolidStatusBar({super.key, required this.config});
 
   /// Determines the layout mode based on screen width.
 
@@ -96,10 +93,7 @@ class SolidStatusBar extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Text(
-        text,
-        style: style ?? defaultStyle,
-      ),
+      child: Text(text, style: style ?? defaultStyle),
     );
   }
 
@@ -295,10 +289,7 @@ class SolidStatusBar extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (serverInfo != null) ...[
-                  serverInfo,
-                  Gap(4),
-                ],
+                if (serverInfo != null) ...[serverInfo, Gap(4)],
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(

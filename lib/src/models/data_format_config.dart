@@ -110,13 +110,7 @@ class SolidFileDataFormats {
 
   static const medication = DataFormatConfig(
     title: 'Medication CSV Format',
-    requiredFields: [
-      'timestamp',
-      'name',
-      'dosage',
-      'frequency',
-      'start_date',
-    ],
+    requiredFields: ['timestamp', 'name', 'dosage', 'frequency', 'start_date'],
     optionalFields: ['notes'],
   );
 

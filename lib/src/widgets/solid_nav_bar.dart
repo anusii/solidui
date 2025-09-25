@@ -176,11 +176,7 @@ class SolidNavBar extends StatelessWidget {
     // Handle special tab actions.
 
     if (tab.message != null && onShowAlert != null) {
-      onShowAlert!(
-        context,
-        tab.message!,
-        tab.dialogTitle,
-      );
+      onShowAlert!(context, tab.message!, tab.dialogTitle);
     } else if (tab.action != null) {
       tab.action!(context);
     }

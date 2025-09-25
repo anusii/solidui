@@ -90,12 +90,7 @@ class _SolidSecurityKeyViewState extends State<SolidSecurityKeyView> {
       return DataRow(
         cells: [
           DataCell(
-            Text(
-              entry.key as String,
-              style: const TextStyle(
-                fontSize: 12,
-              ),
-            ),
+            Text(entry.key as String, style: const TextStyle(fontSize: 12)),
           ),
           DataCell(
             SizedBox(
@@ -103,9 +98,7 @@ class _SolidSecurityKeyViewState extends State<SolidSecurityKeyView> {
               child: Text(
                 entry.value[1] as String,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12,
-                ),
+                style: const TextStyle(fontSize: 12),
               ),
             ),
           ),
@@ -127,19 +120,13 @@ class _SolidSecurityKeyViewState extends State<SolidSecurityKeyView> {
                 DataColumn(
                   label: Text(
                     'Parameter',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn(
                   label: Text(
                     'Value',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],

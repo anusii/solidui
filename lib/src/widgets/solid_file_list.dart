@@ -75,7 +75,6 @@ class FileList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section header for files.
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
@@ -89,7 +88,6 @@ class FileList extends StatelessWidget {
         ),
 
         // List of file items.
-
         ...files.map(
           (file) => FileListItem(
             file: file,

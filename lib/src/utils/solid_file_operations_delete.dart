@@ -49,9 +49,7 @@ class SolidFileDeleteOperations {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Confirm Delete'),
-            content: Text(
-              'Are you sure you want to delete "$fileName"?',
-            ),
+            content: Text('Are you sure you want to delete "$fileName"?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
@@ -59,9 +57,7 @@ class SolidFileDeleteOperations {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
                 child: const Text('Delete'),
               ),
             ],
