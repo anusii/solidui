@@ -10,12 +10,15 @@
 [![GitHub Commit Activity (main)](https://img.shields.io/github/commit-activity/w/anusii/solidui/main)](https://github.com/anusii/solidui/commits/dev/)
 [![GitHub Issues](https://img.shields.io/github/issues/anusii/solidui)](https://github.com/anusii/solidui/issues)
 
-A comprehensive UI library for building Solid applications with Flutter. SolidUI provides responsive navigation components, file management capabilities, security key handling, and authentication features specifically designed for Solid POD applications.
+A comprehensive UI library for building Solid applications with
+Flutter. SolidUI provides responsive navigation components, file
+management capabilities, security key handling, and authentication
+features specifically designed for Solid POD applications.
 
 ## Table of Contents
 
 - [Installation](#installation)
-- [Requirements](#requirements) 
+- [Requirements](#requirements)
 - [SolidScaffold](#solidscaffold)
 - [SolidFile](#solidfile)
 - [Authentication and Login Detection](#authentication-and-login-detection)
@@ -46,7 +49,7 @@ SolidUI requires the following dependencies:
 
 - `solidpod`: Solid POD integration
 - `flutter_markdown`: Markdown rendering support
-- `file_picker`: File selection functionality  
+- `file_picker`: File selection functionality
 - `shared_preferences`: Local storage for settings
 - `package_info_plus`: Application metadata access
 - `url_launcher`: URL launching capabilities
@@ -58,31 +61,42 @@ SolidUI requires the following dependencies:
 
 ## SolidScaffold
 
-The primary component for building Solid applications with responsive navigation, app bar, status bar, and integrated functionality. SolidScaffold automatically adapts its layout based on screen size, providing an optimal user experience across different devices.
+The primary component for building Solid applications with responsive
+navigation, app bar, status bar, and integrated
+functionality. SolidScaffold automatically adapts its layout based on
+screen size, providing an optimal user experience across different
+devices.
 
 ### Responsive Navigation Behaviour
 
-SolidScaffold intelligently switches between different navigation modes based on screen width:
+SolidScaffold intelligently switches between different navigation
+modes based on screen width:
 
-- **Wide screens (≥800px)**: Displays a vertical navigation rail (SolidNavBar) on the left side
-- **Narrow screens (<800px)**: Uses a collapsible navigation drawer (SolidNavDrawer) accessible via hamburger menu
-- **Custom threshold**: The breakpoint can be customised using the `narrowScreenThreshold` parameter
+- **Wide screens (≥800px)**: Displays a vertical navigation rail
+  (SolidNavBar) on the left side
+- **Narrow screens (<800px)**: Uses a collapsible navigation drawer
+  (SolidNavDrawer) accessible via hamburger menu
+- **Custom threshold**: The breakpoint can be customised using the
+  `narrowScreenThreshold` parameter
 
-This responsive behaviour ensures that your application provides an optimal navigation experience whether users are on desktop computers, tablets, or mobile devices. The transition between navigation modes is seamless and automatic.
+This responsive behaviour ensures that your application provides an
+optimal navigation experience whether users are on desktop computers,
+tablets, or mobile devices. The transition between navigation modes is
+seamless and automatic.
 
 ### Constructor Parameters
 
 ```dart
 SolidScaffold({
   Key? key,
-  
+
   // Navigation
   List<SolidMenuItem>? menu,
   Widget? child,
   int initialIndex = 0,
   void Function(int)? onMenuSelected,
   int? selectedIndex,
-  
+
   // Scaffold Compatibility
   Widget? body,
   PreferredSizeWidget? scaffoldAppBar,
@@ -92,27 +106,27 @@ SolidScaffold({
   Widget? bottomSheet,
   List<Widget>? persistentFooterButtons,
   bool? resizeToAvoidBottomInset,
-  
+
   // SolidUI Components
   dynamic appBar,
   SolidStatusBarConfig? statusBar,
   SolidNavUserInfo? userInfo,
   SolidThemeToggleConfig? themeToggle,
   SolidAboutConfig? aboutConfig,
-  
+
   // Callbacks
   void Function(BuildContext)? onLogout,
   void Function(BuildContext, String, String?)? onShowAlert,
-  
+
   // Layout Configuration
   double narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
   Color? backgroundColor,
-  
+
   // Floating Action Button
   Widget? floatingActionButton,
   FloatingActionButtonLocation? floatingActionButtonLocation,
   FloatingActionButtonAnimator? floatingActionButtonAnimator,
-  
+
   // Drawer Configuration
   DrawerCallback? onDrawerChanged,
   DrawerCallback? onEndDrawerChanged,
@@ -121,7 +135,7 @@ SolidScaffold({
   bool endDrawerEnableOpenDragGesture = true,
   Color? drawerScrimColor,
   double? drawerEdgeDragWidth,
-  
+
   // Other Properties
   bool primary = true,
   bool extendBody = false,
@@ -147,7 +161,9 @@ class SolidMenuItem {
 
 ### App Bar Configuration
 
-The app bar provides application title, action buttons, and overflow menu items. Action buttons automatically move to an overflow menu on smaller screens to maintain usability.
+The app bar provides application title, action buttons, and overflow
+menu items. Action buttons automatically move to an overflow menu on
+smaller screens to maintain usability.
 
 ```dart
 class SolidAppBarConfig {
@@ -160,64 +176,77 @@ class SolidAppBarConfig {
 ```
 
 **App Bar Responsive Features:**
-- **Action overflow**: Buttons automatically move to overflow menu when screen width decreases
-- **Visibility control**: Individual actions can be configured to hide on narrow or very narrow screens
-- **Theme integration**: Theme toggle and about buttons automatically adapt their placement
-- **Version display**: Version information adjusts its display format based on available space
 
+- **Action overflow**: Buttons automatically move to overflow menu
+  when screen width decreases
+- **Visibility control**: Individual actions can be configured to hide
+  on narrow or very narrow screens
+- **Theme integration**: Theme toggle and about buttons automatically
+  adapt their placement
+- **Version display**: Version information adjusts its display format
+  based on available space
+
+```dart
 class SolidAppBarAction {
-  final IconData icon;                    // Required: Button icon
-  final VoidCallback onPressed;           // Required: Press callback
-  final String? tooltip;                  // Optional: Tooltip message
-  final Color? color;                     // Optional: Icon colour
-  final bool showOnNarrowScreen;          // Show on narrow screens (default: true)
-  final bool showOnVeryNarrowScreen;      // Show on very narrow screens (default: true)
+  final IconData icon;               // Required: Button icon
+  final VoidCallback onPressed;      // Required: Press callback
+  final String? tooltip;             // Optional: Tooltip message
+  final Color? color;                // Optional: Icon colour
+  final bool showOnNarrowScreen;     // Narrow screens (default: true)
+  final bool showOnVeryNarrowScreen; // Very narrow screens (default: true)
 }
 
 class SolidOverflowMenuItem {
-  final String id;                        // Required: Unique identifier
-  final IconData icon;                    // Required: Menu icon
-  final String label;                     // Required: Menu label
-  final VoidCallback onSelected;          // Required: Selection callback
-  final bool showInOverflow;              // Show in overflow menu (default: true)
+  final String id;                   // Required: Unique identifier
+  final IconData icon;               // Required: Menu icon
+  final String label;                // Required: Menu label
+  final VoidCallback onSelected;     // Required: Selection callback
+  final bool showInOverflow;         // Show in overflow menu (default: true)
 }
 ```
 
 ### Status Bar Configuration
 
-The status bar provides real-time information about server connectivity, login status, and security key state. It adapts its layout and content based on screen size.
+The status bar provides real-time information about server
+connectivity, login status, and security key state. It adapts its
+layout and content based on screen size.
 
 ```dart
 class SolidStatusBarConfig {
-  final SolidServerInfo? serverInfo;           // Server information display
-  final SolidLoginStatus? loginStatus;         // Login status display
+  final SolidServerInfo? serverInfo;       // Server information display
+  final SolidLoginStatus? loginStatus;     // Login status display
   final SolidSecurityKeyStatus? securityKeyStatus; // Security key status
   final List<SolidCustomStatusBarItem>? customItems; // Custom status items
-  final bool showOnNarrowScreens;              // Show on narrow screens (default: true)
-  final SolidStatusBarLayout layout;           // Layout configuration
+  final bool showOnNarrowScreens;          // Narrow screens (default: true)
+  final SolidStatusBarLayout layout;       // Layout configuration
 }
 ```
 
 **Status Bar Responsive Behaviour:**
-- **Wide screens**: All status items displayed with full text and icons
-- **Medium screens**: Condensed layout with essential information
-- **Narrow screens**: Can be hidden entirely or show minimal status information
-- **Custom items**: Support priority-based display for responsive layouts
 
+- **Wide screens**: All status items displayed with full text and
+  icons
+- **Medium screens**: Condensed layout with essential information
+- **Narrow screens**: Can be hidden entirely or show minimal status
+  information
+- **Custom items**: Support priority-based display for responsive
+  layouts
+
+```dart
 class SolidServerInfo {
-  final String serverUri;                      // Required: Server URI
-  final String? displayText;                   // Optional: Custom display text
-  final String? tooltip;                       // Optional: Tooltip message
-  final bool isClickable;                      // Clickable to open in browser (default: true)
+  final String serverUri;          // Required: Server URI
+  final String? displayText;       // Optional: Custom display text
+  final String? tooltip;           // Optional: Tooltip message
+  final bool isClickable;          // Clickable to open in browser (default: true)
 }
 
 class SolidLoginStatus {
-  final String? webId;                         // Current WebID (null if not logged in)
-  final VoidCallback onTap;                    // Required: Tap callback
-  final String? loggedInText;                  // Custom logged in text
-  final String? loggedOutText;                 // Custom logged out text
-  final String? loggedInTooltip;               // Logged in tooltip
-  final String? loggedOutTooltip;              // Logged out tooltip
+  final String? webId;             // Current WebID (null if not logged in)
+  final VoidCallback onTap;        // Required: Tap callback
+  final String? loggedInText;      // Custom logged in text
+  final String? loggedOutText;     // Custom logged out text
+  final String? loggedInTooltip;   // Logged in tooltip
+  final String? loggedOutTooltip;  // Logged out tooltip
 }
 ```
 
@@ -262,19 +291,30 @@ class SolidAboutConfig {
 
 ### Navigation Components
 
-**SolidNavBar**: Navigation rail for wide screens with vertical menu layout. Provides always-visible navigation with icon and text labels, suitable for desktop and tablet landscape orientations.
+**SolidNavBar**: Navigation rail for wide screens with vertical menu
+layout. Provides always-visible navigation with icon and text labels,
+suitable for desktop and tablet landscape orientations.
 
-**SolidNavDrawer**: Navigation drawer for narrow screens with collapsible menu. Slides in from the left side when triggered by the hamburger menu button, maximising screen space on mobile devices.
+**SolidNavDrawer**: Navigation drawer for narrow screens with
+collapsible menu. Slides in from the left side when triggered by the
+hamburger menu button, maximising screen space on mobile devices.
 
-**SolidNavUserInfo**: User information display in navigation drawer. Shows user avatar, name, and optionally the WebID, appearing at the top of the navigation drawer.
+**SolidNavUserInfo**: User information display in navigation
+drawer. Shows user avatar, name, and optionally the WebID, appearing
+at the top of the navigation drawer.
 
 ### Responsive Features
 
-- **Automatic Layout Switching**: SolidScaffold monitors screen width and automatically switches between navigation rail and drawer modes
-- **Threshold Customisation**: Default breakpoint is 800px, but can be customised via `narrowScreenThreshold`
-- **Preserved State**: Navigation state and selected menu item are preserved during layout transitions
-- **Touch-Friendly**: Navigation drawer includes swipe gestures and appropriate touch targets for mobile use
-- **Accessibility**: Both navigation modes support proper focus management and screen reader accessibility
+- **Automatic Layout Switching**: SolidScaffold monitors screen width
+  and automatically switches between navigation rail and drawer modes
+- **Threshold Customisation**: Default breakpoint is 800px, but can be
+  customised via `narrowScreenThreshold`
+- **Preserved State**: Navigation state and selected menu item are
+  preserved during layout transitions
+- **Touch-Friendly**: Navigation drawer includes swipe gestures and
+  appropriate touch targets for mobile use
+- **Accessibility**: Both navigation modes support proper focus
+  management and screen reader accessibility
 
 ```dart
 class SolidNavUserInfo {
@@ -350,35 +390,48 @@ class MyApp extends StatelessWidget {
 
 ## SolidFile
 
-Comprehensive file management widget for Solid POD integration with upload, download, and browser functionality. SolidFile provides a complete file management solution with responsive layout and automatic configuration based on file paths.
+Comprehensive file management widget for Solid POD integration with
+upload, download, and browser functionality. SolidFile provides a
+complete file management solution with responsive layout and automatic
+configuration based on file paths.
 
 ### Responsive File Management
 
-SolidFile adapts its layout based on screen size to provide optimal file management experience:
+SolidFile adapts its layout based on screen size to provide optimal
+file management experience:
 
-- **Wide screen layout**: File browser and upload area displayed side-by-side for efficient workflow
-- **Narrow screen layout**: Stacked vertical layout with file browser above upload controls
-- **Auto-detection**: Automatically detects screen size and applies appropriate layout
-- **Force override**: Use `forceWideScreen` parameter to override automatic detection
+- **Wide screen layout**: File browser and upload area displayed
+  side-by-side for efficient workflow
+- **Narrow screen layout**: Stacked vertical layout with file browser
+  above upload controls
+- **Auto-detection**: Automatically detects screen size and applies
+  appropriate layout
+- **Force override**: Use `forceWideScreen` parameter to override
+  automatic detection
 
 ### Automatic Configuration
 
-SolidFile can automatically configure upload settings and folder names based on file paths:
+SolidFile can automatically configure upload settings and folder names
+based on file paths:
 
-- **Path-based configuration**: Automatically detects data types (blood pressure, medication, etc.) from folder names
-- **Format detection**: Configures appropriate data formats and import/export options
-- **Friendly naming**: Generates user-friendly folder names from technical paths
-- **Manual override**: Disable with `autoConfig: false` for custom configurations
+- **Path-based configuration**: Automatically detects data types
+  (blood pressure, medication, etc.) from folder names
+- **Format detection**: Configures appropriate data formats and
+  import/export options
+- **Friendly naming**: Generates user-friendly folder names from
+  technical paths
+- **Manual override**: Disable with `autoConfig: false` for custom
+  configurations
 
 ### Constructor Parameters
 
 ```dart
 SolidFile({
   Key? key,
-  
+
   // Required
   required String basePath,
-  
+
   // File Browser Configuration
   String? currentPath,
   String? friendlyFolderName,
@@ -386,7 +439,7 @@ SolidFile({
   String backButtonText = 'Back to Home Folder',
   bool? forceWideScreen,
   double? browserHeight,
-  
+
   // File Operations Callbacks
   VoidCallback? onBackPressed,
   Function(String fileName, String filePath)? onFileSelected,
@@ -395,14 +448,14 @@ SolidFile({
   Function(String path)? onDirectoryChanged,
   VoidCallback? onClosePreview,
   Function(String fileName, String filePath)? onImportCsv,
-  
+
   // Upload Configuration
   bool showUpload = true,
   SolidFileUploadConfig? uploadConfig,
   SolidFileUploadCallbacks? uploadCallbacks,
   SolidFileUploadState? uploadState,
   bool autoConfig = true,
-  
+
   // Browser Key for External Control
   GlobalKey<SolidFileBrowserState>? browserKey,
 })
@@ -512,11 +565,13 @@ SolidFile(
 
 ## Authentication and Login Detection
 
-SolidUI provides dynamic login status detection and management through integration with the SolidPOD library.
+SolidUI provides dynamic login status detection and management through
+integration with the SolidPOD library.
 
 ### SolidDynamicLoginStatus
 
-Automatically detects and updates login status based on actual Solid POD authentication state.
+Automatically detects and updates login status based on actual Solid
+POD authentication state.
 
 ```dart
 class SolidDynamicLoginStatus extends StatefulWidget {
@@ -554,14 +609,17 @@ SolidDynamicLoginStatus(
 
 ### Login Status Methods
 
-The following methods are available for checking authentication status:
+The following methods are available for checking authentication
+status:
 
 - `getWebId()`: Returns the current WebID if logged in, null otherwise
-- `checkLoggedIn()`: Verifies the current login status with the POD server
+- `checkLoggedIn()`: Verifies the current login status with the POD
+  server
 
 ## Security Key Management
 
-SolidUI provides comprehensive security key management for encryption in Solid POD applications.
+SolidUI provides comprehensive security key management for encryption
+in Solid POD applications.
 
 ### SolidSecurityKeyService
 
@@ -658,7 +716,8 @@ await securityKeyService.refreshKeyStatus();
 
 ### Responsive Design System
 
-SolidUI implements a comprehensive responsive design system that automatically adapts to different screen sizes:
+SolidUI implements a comprehensive responsive design system that
+automatically adapts to different screen sizes:
 
 #### Screen Size Breakpoints
 
@@ -682,11 +741,16 @@ class NavigationConstants {
 
 #### Automatic Adaptations
 
-- **Navigation**: SolidNavBar automatically becomes SolidNavDrawer when screen width < 800px
-- **App Bar**: Action buttons move to overflow menu based on `showOnNarrowScreen` and `showOnVeryNarrowScreen` settings
-- **Status Bar**: Layout and visibility adapt based on `showOnNarrowScreens` configuration
-- **File Management**: SolidFile switches between wide and narrow layouts automatically
-- **Theme Controls**: Theme toggle and about buttons adjust their placement responsively
+- **Navigation**: SolidNavBar automatically becomes SolidNavDrawer
+  when screen width < 800px
+- **App Bar**: Action buttons move to overflow menu based on
+  `showOnNarrowScreen` and `showOnVeryNarrowScreen` settings
+- **Status Bar**: Layout and visibility adapt based on
+  `showOnNarrowScreens` configuration
+- **File Management**: SolidFile switches between wide and narrow
+  layouts automatically
+- **Theme Controls**: Theme toggle and about buttons adjust their
+  placement responsively
 
 ### File Operations
 
@@ -816,7 +880,7 @@ class _CompleteExampleAppState extends State<CompleteExampleApp> {
           applicationLegalese: '© 2025 My Organisation',
           text: '''
           A comprehensive Solid application built with SolidUI.
-          
+
           This application demonstrates the complete capabilities of the SolidUI library,
           including responsive navigation, file management, and security features.
           ''',
@@ -857,4 +921,5 @@ Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 - Graham Williams
 - Tony Chen
 
-For more information about Solid and PODs, visit [solidproject.org](https://solidproject.org).
+For more information about Solid and PODs, visit
+[solidproject.org](https://solidproject.org).
