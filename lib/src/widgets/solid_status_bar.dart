@@ -334,7 +334,11 @@ class SolidStatusBar extends StatelessWidget {
           padding: config.padding,
           child: Row(
             children: [
-              if (serverInfo != null) Expanded(child: serverInfo),
+              // Always use Expanded to push right items to the right side.
+
+              Expanded(
+                child: serverInfo ?? const SizedBox.shrink(),
+              ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: rightItems

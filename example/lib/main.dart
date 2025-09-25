@@ -317,11 +317,18 @@ class _HomePageState extends State<HomePage> {
       ),
       statusBar: SolidStatusBarConfig(
         serverInfo: _webId != null
-            ? SolidServerInfo.fromWebId(_webId!)
-            : const SolidServerInfo(
-                serverUri: 'https://pods.solidcommunity.au',
-                displayText: 'Demo POD Server: pods.solidcommunity.au',
-              ),
+            ? SolidServerInfo.fromWebId(
+                _webId!,
+                tooltip: '''
+
+**WebID:** This is your complete WebID including both server and username
+where your data is stored securely.
+
+Tap to visit your server in the browser.
+
+''',
+              )
+            : null,
         loginStatus: SolidLoginStatus(
           webId: _webId,
           loggedInText: 'Logged in',
