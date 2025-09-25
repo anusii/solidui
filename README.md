@@ -7,7 +7,7 @@
 [![GitHub Version](https://img.shields.io/badge/dynamic/yaml?url=https://raw.githubusercontent.com/anusii/solidui/master/pubspec.yaml&query=$.version&label=version&logo=github)](https://github.com/anusii/solidui/blob/dev/CHANGELOG.md)
 [![Pub Version](https://img.shields.io/pub/v/solidui?label=pub.dev&labelColor=333940&logo=flutter)](https://pub.dev/packages/solidui)
 [![GitHub Last Updated](https://img.shields.io/github/last-commit/anusii/solidui?label=last%20updated)](https://github.com/anusii/solidui/commits/dev/)
-[![GitHub Commit Activity (main)](https://img.shields.io/github/commit-activity/w/anusii/solidui/main)](https://github.com/anusii/solidui/commits/dev/)
+[![GitHub Commit Activity (dev)](https://img.shields.io/github/commit-activity/w/anusii/solidui/dev)](https://github.com/anusii/solidui/commits/dev/)
 [![GitHub Issues](https://img.shields.io/github/issues/anusii/solidui)](https://github.com/anusii/solidui/issues)
 
 A comprehensive UI library for building Solid applications with
