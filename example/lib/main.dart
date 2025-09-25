@@ -32,7 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:solidpod/solidpod.dart' show getWebId, logoutPopup;
+import 'package:solidpod/solidpod.dart' show getWebId;
 import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -191,6 +191,21 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    
+    // Configure the integrated authentication handler.
+
+    SolidAuthHandler.instance.configure(
+      SolidAuthConfig(
+        loginPageBuilder: (context) => createSolidLogin(context, widget.prefs!),
+        defaultServerUrl: 'https://pods.dev.solidcommunity.au',
+        appTitle: 'SolidUI Example',
+        appDirectory: 'solidui_example',
+        appImage: const AssetImage('assets/images/app_image.jpg'),
+        appLogo: const AssetImage('assets/images/app_icon.png'),
+        appLink: 'https://github.com/anusii/solidui',
+      ),
+    );
+    
     _loadUserInfo();
   }
 
@@ -298,14 +313,7 @@ class _HomePageState extends State<HomePage> {
             ''',
           ),
         ],
-        overflowItems: [
-          SolidOverflowMenuItem(
-            id: 'login',
-            icon: _webId != null ? Icons.logout : Icons.login,
-            label: _webId != null ? 'Logout' : 'Login',
-            onSelected: _toggleLogin,
-          ),
-        ],
+        overflowItems: [],
       ),
       statusBar: SolidStatusBarConfig(
         serverInfo: _webId != null
@@ -316,7 +324,6 @@ class _HomePageState extends State<HomePage> {
               ),
         loginStatus: SolidLoginStatus(
           webId: _webId,
-          onTap: _toggleLogin,
           loggedInText: 'Logged in',
           loggedOutText: 'Not logged in',
         ),
@@ -330,7 +337,6 @@ class _HomePageState extends State<HomePage> {
         showOnNarrowScreens: false,
       ),
       userInfo: userInfo,
-      onLogout: _webId != null ? (context) => _logout() : null,
       themeToggle: const SolidThemeToggleConfig(
         enabled: true,
         showInAppBarActions: true,
@@ -551,70 +557,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// Toggle login status.
-
-  void _toggleLogin() {
-    if (_webId != null) {
-      _logout();
-    } else {
-      _showLoginDialog();
-    }
-  }
-
-  /// Show login dialogue.
-
-  void _showLoginDialog() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => createSolidLogin(
-          context,
-          widget.prefs!,
-        ),
-      ),
-    );
-  }
-
-  /// Logout user using SolidPod logout.
-
-  Future<void> _logout() async {
-    try {
-      // Use logoutPopup to show logout confirmation and redirect to login.
-
-      if (widget.prefs != null) {
-        await logoutPopup(
-          context,
-          createSolidLogin(context, widget.prefs!),
-        );
-
-        // Check if user is still logged in after popup.
-
-        try {
-          final webId = await getWebId();
-          if (mounted) {
-            setState(() {
-              _webId = webId;
-            });
-            if (webId == null) {
-              _showMessage('Logged out successfully');
-            }
-          }
-        } catch (e) {
-          // Logout was successful.
-
-          if (mounted) {
-            setState(() {
-              _webId = null;
-            });
-            _showMessage('Logged out successfully');
-          }
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        _showMessage('Logout failed: $e');
-      }
-    }
-  }
 
   /// Show a simple message.
 

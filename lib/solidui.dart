@@ -30,6 +30,9 @@ library;
 
 export 'src/constants/about.dart';
 export 'src/constants/navigation.dart';
+
+export 'src/handlers/solid_auth_handler.dart';
+
 export 'src/widgets/solid_nav_bar.dart';
 export 'src/widgets/solid_nav_drawer.dart';
 export 'src/widgets/solid_nav_models.dart';
@@ -40,6 +43,7 @@ export 'src/widgets/solid_scaffold_models.dart';
 export 'src/widgets/solid_status_bar.dart';
 export 'src/widgets/solid_status_bar_models.dart';
 export 'src/widgets/solid_dynamic_login_status.dart';
+export 'src/widgets/solid_default_login.dart';
 
 export 'src/widgets/solid_theme_models.dart';
 export 'src/widgets/solid_theme_notifier.dart';
