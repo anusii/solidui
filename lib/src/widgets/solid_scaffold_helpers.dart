@@ -190,10 +190,7 @@ class SolidScaffoldHelpers {
         onPressed: item.onSelected,
       );
 
-      iconButton = MarkdownTooltip(
-        message: item.label,
-        child: iconButton,
-      );
+      iconButton = MarkdownTooltip(message: item.label, child: iconButton);
 
       buttons.add(iconButton);
     }

@@ -66,11 +66,12 @@ class SolidSecurityKeyManagerUI {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Header.
-
             Container(
               color: Theme.of(context).colorScheme.surface,
-              padding:
-                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 16.0,
+                horizontal: 24.0,
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -87,7 +88,6 @@ class SolidSecurityKeyManagerUI {
             ),
 
             // Interactive options.
-
             Container(
               padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 32.0),
               child: isLoading
@@ -103,14 +103,14 @@ class SolidSecurityKeyManagerUI {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: hasExistingKey
                                     ? Theme.of(context).colorScheme.surface
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
                                 foregroundColor: hasExistingKey
                                     ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                 side: BorderSide(
                                   color: hasExistingKey
                                       ? Theme.of(context).colorScheme.primary
@@ -130,10 +130,12 @@ class SolidSecurityKeyManagerUI {
                           height: 44,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.surface,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.primary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.surface,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                               side: BorderSide(
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -153,10 +155,12 @@ class SolidSecurityKeyManagerUI {
                             height: 44,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.surface,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.error,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.surface,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
                                 side: BorderSide(
                                   color: Theme.of(context).colorScheme.error,
                                 ),
@@ -186,8 +190,10 @@ class SolidSecurityKeyManagerUI {
   ) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding:
-          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 24.0,
+      ),
       child: FutureBuilder<({String name, String? webId})>(
         future: _getInfo(),
         builder: (context, snapshot) {
@@ -229,10 +235,7 @@ class SolidSecurityKeyManagerUI {
             ),
             title: const Text(
               'Confirm Delete',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             content: const Column(
               mainAxisSize: MainAxisSize.min,
@@ -256,10 +259,7 @@ class SolidSecurityKeyManagerUI {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(fontSize: 16),
-                ),
+                child: const Text('Cancel', style: TextStyle(fontSize: 16)),
               ),
               ElevatedButton(
                 style: SolidSecurityKeyManagerHelpers.getButtonStyle(
@@ -267,10 +267,7 @@ class SolidSecurityKeyManagerUI {
                   isDestructive: true,
                 ),
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(fontSize: 16),
-                ),
+                child: const Text('Delete', style: TextStyle(fontSize: 16)),
               ),
             ],
           ),

@@ -35,10 +35,7 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 class SolidFileHelpers {
   /// Determines if we should use wide screen layout.
 
-  static bool shouldUseWideScreen(
-    BuildContext context,
-    bool? forceWideScreen,
-  ) {
+  static bool shouldUseWideScreen(BuildContext context, bool? forceWideScreen) {
     if (forceWideScreen != null) {
       return forceWideScreen;
     }
@@ -47,10 +44,7 @@ class SolidFileHelpers {
 
   /// Gets the effective browser height.
 
-  static double getBrowserHeight(
-    BuildContext context,
-    double? browserHeight,
-  ) {
+  static double getBrowserHeight(BuildContext context, double? browserHeight) {
     if (browserHeight != null) {
       return browserHeight;
     }

@@ -46,20 +46,15 @@ class SolidFileLayoutBuilder {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // File browser on the left.
-
         Expanded(
           flex: 2,
           child: Card(
             margin: const EdgeInsets.only(left: 16, right: 8),
-            child: SizedBox(
-              height: browserHeight,
-              child: fileBrowser,
-            ),
+            child: SizedBox(height: browserHeight, child: fileBrowser),
           ),
         ),
 
         // Upload section on the right.
-
         if (showUpload && uploadConfig != null)
           Expanded(
             flex: 1,
@@ -96,7 +91,6 @@ class SolidFileLayoutBuilder {
     return Column(
       children: [
         // File browser on top.
-
         Card(
           margin: const EdgeInsets.all(16),
           child: SizedBox(
@@ -106,7 +100,6 @@ class SolidFileLayoutBuilder {
         ),
 
         // Upload section below.
-
         if (showUpload && uploadConfig != null)
           Card(
             margin: const EdgeInsets.all(16),

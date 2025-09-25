@@ -136,8 +136,12 @@ class SolidSecurityKeyManagerDialogs {
       final filePath = await getEncKeyPath();
       if (!context.mounted) return;
 
-      final fileContent =
-          await readPod(filePath, context, appWidget, basePath: '');
+      final fileContent = await readPod(
+        filePath,
+        context,
+        appWidget,
+        basePath: '',
+      );
       if (!context.mounted) return;
 
       if (fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
@@ -156,10 +160,8 @@ class SolidSecurityKeyManagerDialogs {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => SolidSecurityKeyView(
-              title: title,
-              keyInfo: fileContent,
-            ),
+            builder: (context) =>
+                SolidSecurityKeyView(title: title, keyInfo: fileContent),
           ),
         );
       } else {

@@ -56,9 +56,7 @@ class SolidFileUploadButtons {
         padding: const EdgeInsets.symmetric(vertical: 16),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
 
@@ -100,9 +98,7 @@ class SolidFileUploadButtons {
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
           foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -139,9 +135,7 @@ This button allows you to export your health data to a CSV file:
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
           foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -162,9 +156,7 @@ This button allows you to export your health data to a CSV file:
         padding: const EdgeInsets.symmetric(vertical: 16),
         backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
         foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -184,9 +176,7 @@ This button allows you to export your health data to a CSV file:
         padding: const EdgeInsets.symmetric(vertical: 16),
         backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
         foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -207,17 +197,12 @@ This button allows you to export your health data to a CSV file:
       label: Text(label),
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         minimumSize: const Size(160, 40),
       ),
     );
 
-    return MarkdownTooltip(
-      message: tooltip,
-      child: textButton,
-    );
+    return MarkdownTooltip(message: tooltip, child: textButton);
   }
 
   /// Builds a full-width button with accent background.
@@ -236,20 +221,16 @@ This button allows you to export your health data to a CSV file:
       label: Text(label),
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        backgroundColor:
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.1),
       ),
     );
 
     return SizedBox(
       width: double.infinity,
-      child: MarkdownTooltip(
-        message: tooltip,
-        child: textButton,
-      ),
+      child: MarkdownTooltip(message: tooltip, child: textButton),
     );
   }
 }

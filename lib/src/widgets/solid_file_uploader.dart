@@ -72,8 +72,9 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
 
   Future<void> handlePreview(String filePath) async {
     try {
-      final content =
-          await SolidFileUploaderHelpers.generateFilePreview(filePath);
+      final content = await SolidFileUploaderHelpers.generateFilePreview(
+        filePath,
+      );
       setState(() {
         filePreview = content;
         showPreview = true;
@@ -151,29 +152,27 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
               const SizedBox(height: 16),
 
               // Display preview card if enabled.
-
               _buildPreviewCard(),
               if (showPreview) const SizedBox(height: 16),
 
               // Selected file indicator.
-
               if (widget.fileState.remoteFileName != null &&
                   widget.fileState.remoteFileName != 'remoteFileName')
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.15),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8.0),
                     border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -205,7 +204,6 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                 ),
 
               // Upload button.
-
               ElevatedButton.icon(
                 onPressed: widget.fileState.uploadInProgress
                     ? null
@@ -230,7 +228,6 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
               const SizedBox(height: 12),
 
               // Visualise JSON button.
-
               SizedBox(
                 width: double.infinity,
                 child: TextButton.icon(
@@ -253,16 +250,14 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.1),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                   ),
                 ),
               ),
 
               // Preview button.
-
               if (widget.fileState.uploadFile != null) ...[
                 const SizedBox(height: 12),
                 TextButton.icon(
@@ -285,10 +280,9 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.1),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                   ),
                 ),
               ],

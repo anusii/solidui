@@ -82,25 +82,18 @@ class PathBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       elevation: 2,
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 8.0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title bar with back button, friendly name, and refresh button.
-
             Row(
               children: [
                 // Back button (only shown if there's history).
-
                 if (pathHistory.length > 1)
                   IconButton(
                     icon: Icon(
@@ -115,7 +108,6 @@ class PathBar extends StatelessWidget {
                 if (pathHistory.length > 1) const SizedBox(width: 12),
 
                 // Path text display.
-
                 Expanded(
                   child: Text(
                     friendlyFolderName,
@@ -128,7 +120,6 @@ class PathBar extends StatelessWidget {
                 ),
 
                 // File and directory counts.
-
                 Row(
                   children: [
                     Text(
@@ -151,7 +142,6 @@ class PathBar extends StatelessWidget {
                 const SizedBox(width: 12),
 
                 // Refresh button.
-
                 IconButton(
                   icon: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
@@ -180,7 +170,6 @@ class PathBar extends StatelessWidget {
             const SizedBox(height: 8),
 
             // Full current path with horizontal scrolling.
-
             SizedBox(
               height: 20,
               child: SingleChildScrollView(

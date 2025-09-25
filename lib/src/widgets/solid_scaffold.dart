@@ -312,8 +312,9 @@ class SolidScaffoldState extends State<SolidScaffold> {
         (hasKey) {
           if (mounted && hasKey != _isKeySaved) {
             setState(() => _isKeySaved = hasKey);
-            widget.statusBar?.securityKeyStatus?.onKeyStatusChanged
-                ?.call(hasKey);
+            widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(
+              hasKey,
+            );
           }
         },
       );
@@ -331,12 +332,14 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (_securityKeyService == null) return;
 
     try {
-      final hasKey =
-          await _securityKeyService!.refreshAndNotify((bool keyStatus) {
+      final hasKey = await _securityKeyService!.refreshAndNotify((
+        bool keyStatus,
+      ) {
         if (mounted && keyStatus != _isKeySaved) {
           setState(() => _isKeySaved = keyStatus);
-          widget.statusBar?.securityKeyStatus?.onKeyStatusChanged
-              ?.call(keyStatus);
+          widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(
+            keyStatus,
+          );
         }
       });
 
@@ -374,10 +377,8 @@ class SolidScaffoldState extends State<SolidScaffold> {
     }
   }
 
-  bool _isWideScreen(BuildContext context) => SolidScaffoldHelpers.isWideScreen(
-        context,
-        widget.narrowScreenThreshold,
-      );
+  bool _isWideScreen(BuildContext context) =>
+      SolidScaffoldHelpers.isWideScreen(context, widget.narrowScreenThreshold);
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
   int get _currentSelectedIndex => widget.selectedIndex ?? _selectedIndex;

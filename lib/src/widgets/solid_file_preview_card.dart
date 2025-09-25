@@ -68,10 +68,7 @@ class SolidFilePreviewCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildHeader(context),
-          _buildContent(context),
-        ],
+        children: [_buildHeader(context), _buildContent(context)],
       ),
     );
   }
@@ -123,10 +120,7 @@ class SolidFilePreviewCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       constraints: BoxConstraints(maxHeight: maxHeight),
       child: SingleChildScrollView(
-        child: Text(
-          content,
-          style: const TextStyle(fontFamily: 'monospace'),
-        ),
+        child: Text(content, style: const TextStyle(fontFamily: 'monospace')),
       ),
     );
   }

@@ -122,8 +122,9 @@ class SolidFileDefaultCallbacks {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                const Text('Profile import: please implement custom handler'),
+            content: const Text(
+              'Profile import: please implement custom handler',
+            ),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             duration: const Duration(seconds: 2),
           ),
@@ -134,8 +135,9 @@ class SolidFileDefaultCallbacks {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                const Text('Profile export: please implement custom handler'),
+            content: const Text(
+              'Profile export: please implement custom handler',
+            ),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             duration: const Duration(seconds: 2),
           ),

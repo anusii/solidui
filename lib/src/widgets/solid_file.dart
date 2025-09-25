@@ -243,7 +243,6 @@ class _SolidFileState extends State<SolidFile> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Back button to root folder.
-
         if (widget.showBackButton)
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
@@ -266,12 +265,10 @@ class _SolidFileState extends State<SolidFile> {
           ),
 
         // Main content area.
-
         Expanded(
           child: Column(
             children: [
               // File browser and upload area.
-
               Expanded(
                 child: SingleChildScrollView(
                   child: isWideScreen

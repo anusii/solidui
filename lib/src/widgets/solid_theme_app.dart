@@ -104,11 +104,7 @@ class _SolidThemeAppState extends State<SolidThemeApp> {
             (widget.themeConfig?.darkTheme ?? SolidTheme.darkTheme()),
         themeMode: ThemeMode.system, // Use system theme as fallback
         debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
-        home: const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
       );
     }
 

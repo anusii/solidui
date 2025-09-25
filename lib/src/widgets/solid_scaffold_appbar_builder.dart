@@ -50,8 +50,10 @@ class SolidScaffoldAppBarBuilder {
     SolidAboutConfig aboutConfig,
     double narrowScreenThreshold,
   ) {
-    final isWideScreen =
-        SolidScaffoldHelpers.isWideScreen(context, narrowScreenThreshold);
+    final isWideScreen = SolidScaffoldHelpers.isWideScreen(
+      context,
+      narrowScreenThreshold,
+    );
     final screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
 
