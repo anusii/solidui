@@ -126,9 +126,9 @@ class SolidThemeToggleConfig {
 ☀️ **Light Mode** (Current)
 
 Light Mode is best for viewing in light conditions. Tap here to switch to Dark
-Mode for low light conditions and then again for your System Mode.
+Mode for low light conditions.
 
-Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
+Toggle: ☀️ Light ⇄ 🌙 Dark
 ''';
       case ThemeMode.dark:
         return '''
@@ -137,9 +137,9 @@ Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 🌙 **Dark Mode** (Current)
 
 Dark Mode is best for viewing in low light conditions. Tap here to switch to
-System Mode to follow your device settings and then again for Light Mode.
+Light Mode for bright viewing conditions.
 
-Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
+Toggle: ☀️ Light ⇄ 🌙 Dark
 ''';
       case ThemeMode.system:
         return '''
@@ -147,10 +147,11 @@ Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
 
 🖥️ **System Mode** (Current)
 
-System Mode follows your device settings. Tap here to switch to Light Mode and
-then again for Dark mode.
+System Mode follows your device settings. This is the initial mode. Tap here to
+switch to Light Mode, and afterwards toggle between Light and Dark modes.
 
-Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
+First Switch: 🖥️ System → ☀️ Light
+Then Toggle: ☀️ Light ⇄ 🌙 Dark
 ''';
     }
   }
@@ -175,7 +176,7 @@ Cycle: ☀️ Light → 🌙 Dark → 🖥️ System
       case ThemeMode.light:
         return darkModeIcon ?? Icons.dark_mode;
       case ThemeMode.dark:
-        return systemModeIcon ?? Icons.computer;
+        return lightModeIcon ?? Icons.light_mode;
       case ThemeMode.system:
         return lightModeIcon ?? Icons.light_mode;
     }
@@ -208,10 +209,10 @@ Next: 🌙 **Dark Mode**
 
 🌙 **Dark Mode** (Current)
 
-Dark Mode is best for viewing in low light conditions. Tap here to switch to
-System Mode to follow your device settings.
+Dark Mode is best for viewing in low light conditions. Tap here to switch back
+to Light Mode for bright viewing conditions.
 
-Next: 🖥️ **System Mode**
+Next: ☀️ **Light Mode**
 ''';
       case ThemeMode.system:
         return '''
@@ -219,8 +220,8 @@ Next: 🖥️ **System Mode**
 
 🖥️ **System Mode** (Current)
 
-System Mode follows your device settings. Tap here to switch to Light Mode for
-bright viewing conditions.
+System Mode follows your device settings. This is the initial mode. Tap here to
+switch to Light Mode and begin toggling between Light and Dark modes.
 
 Next: ☀️ **Light Mode**
 ''';
@@ -234,7 +235,7 @@ Next: ☀️ **Light Mode**
       case ThemeMode.light:
         return 'Switch to Dark Mode 🌙';
       case ThemeMode.dark:
-        return 'Switch to System Mode 🖥️';
+        return 'Switch to Light Mode ☀️';
       case ThemeMode.system:
         return 'Switch to Light Mode ☀️';
     }
