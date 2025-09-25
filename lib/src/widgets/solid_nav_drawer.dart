@@ -259,19 +259,63 @@ class SolidNavDrawer extends StatelessWidget {
   /// Simplifies the WebID URL for display purposes.
 
   String _getSimplifiedUrl(String webId) {
-    const suffix = 'profile/card#me';
-    String url = webId;
-    if (url.endsWith(suffix)) {
-      url = url.substring(0, url.length - suffix.length);
-    }
+    try {
+      final uri = Uri.parse(webId);
 
-    // Remove protocol for cleaner display
+      // Get the host (server domain).
 
-    if (url.startsWith('https://')) {
-      url = url.substring(8);
-    } else if (url.startsWith('http://')) {
-      url = url.substring(7);
+      String host = uri.host;
+
+      // Extract username from the path.
+
+      String username = '';
+      final pathSegments = uri.pathSegments;
+
+      // Typical webID format: /username/profile/card#me
+      // So the username is usually the first path segment.
+
+      if (pathSegments.isNotEmpty) {
+        username = pathSegments.first;
+      }
+
+      // Return formatted display string.
+
+      if (username.isNotEmpty) {
+        return '$host/$username';
+      } else {
+        // Fallback to just the host if no username found.
+
+        return host;
+      }
+    } catch (e) {
+      // Fallback parsing for malformed URLs.
+
+      try {
+        // Remove common prefixes and suffixes.
+
+        String cleaned = webId;
+
+        // Remove protocol.
+
+        if (cleaned.startsWith('https://')) {
+          cleaned = cleaned.substring(8);
+        } else if (cleaned.startsWith('http://')) {
+          cleaned = cleaned.substring(7);
+        }
+
+        // Remove common webID suffix.
+
+        const suffix = '/profile/card#me';
+        if (cleaned.endsWith(suffix)) {
+          cleaned = cleaned.substring(0, cleaned.length - suffix.length);
+        }
+
+        return cleaned;
+      } catch (e2) {
+        // Final fallback: return original webID.
+
+        return webId;
+      }
     }
-    return url;
   }
 }
