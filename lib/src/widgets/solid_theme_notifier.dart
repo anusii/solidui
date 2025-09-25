@@ -130,7 +130,9 @@ class SolidThemeNotifier extends ChangeNotifier {
     await _saveThemeMode();
   }
 
-  /// Toggles between theme modes in the cycle: System → Light → Dark → System.
+  /// Toggles between theme modes.
+  /// On first toggle from System mode, switches to Light mode.
+  /// Afterwards, toggles only between Light and Dark modes.
 
   Future<void> toggleTheme() async {
     switch (_themeMode) {
@@ -141,7 +143,7 @@ class SolidThemeNotifier extends ChangeNotifier {
         await setThemeMode(ThemeMode.dark);
         break;
       case ThemeMode.dark:
-        await setThemeMode(ThemeMode.system);
+        await setThemeMode(ThemeMode.light);
         break;
     }
   }
