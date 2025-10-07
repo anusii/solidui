@@ -10,10 +10,10 @@ utilised by the flutter version_widget package.
 The package is available from https://pub.dev/packages/solidui.
 
 Coding documentation is available from [solid community
-au](https://solidcommunity.au/docs/bookoflife)
+au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
 + Update version widget dependency [0.0.3 20251008 gjw]
 + EXAMPLE: Add demo of getting version [0.0.2 20250820 gjw]
-+ CHANGELOG: Initialise [0.0.1 20250819 tchen]
++ CHANGELOG: Initial release [0.0.1 20250819 tchen]
