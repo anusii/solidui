@@ -32,6 +32,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
@@ -134,7 +135,8 @@ class SolidStatusBar extends StatelessWidget {
       child: _createInteractiveText(
         context: context,
         text: 'Login Status: ${loginStatus.displayText}',
-        onTap: loginStatus.onTap,
+        onTap: loginStatus.onTap ??
+            () => SolidAuthHandler.instance.handleAuthAction(context),
         style: theme.textTheme.bodyMedium?.copyWith(
           color: loginStatus.isLoggedIn
               ? theme.colorScheme.tertiary
@@ -332,7 +334,11 @@ class SolidStatusBar extends StatelessWidget {
           padding: config.padding,
           child: Row(
             children: [
-              if (serverInfo != null) Expanded(child: serverInfo),
+              // Always use Expanded to push right items to the right side.
+
+              Expanded(
+                child: serverInfo ?? const SizedBox.shrink(),
+              ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: rightItems

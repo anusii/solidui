@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getWebId, checkLoggedIn;
 
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
@@ -131,17 +132,14 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
     if (isCurrentlyLoggedIn) {
       if (widget.onTap != null) {
         widget.onTap!.call();
+      } else {
+        SolidAuthHandler.instance.handleLogout(context);
       }
     } else {
       if (widget.onLogin != null) {
         widget.onLogin!.call();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot log in: No login interface available'),
-            duration: Duration(seconds: 3),
-          ),
-        );
+        SolidAuthHandler.instance.handleLogin(context);
       }
     }
 

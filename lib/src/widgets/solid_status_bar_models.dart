@@ -210,7 +210,7 @@ class SolidLoginStatus {
 
   /// Callback when login/logout is tapped.
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   /// Custom text for logged in state (if null, uses default).
 
@@ -230,7 +230,7 @@ class SolidLoginStatus {
 
   const SolidLoginStatus({
     this.webId,
-    required this.onTap,
+    this.onTap,
     this.loggedInText,
     this.loggedOutText,
     this.loggedInTooltip,

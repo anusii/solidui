@@ -144,13 +144,13 @@ SolidScaffold({
 
 ```dart
 class SolidMenuItem {
-  final String title;               // Required: Menu display title
-  final IconData icon;              // Required: Menu icon
-  final Color? color;               // Optional: Icon colour
-  final Widget? child;              // Optional: Content widget when selected
-  final String? tooltip;            // Optional: Tooltip message (supports Markdown)
-  final String? message;            // Optional: Dialogue message content
-  final String? dialogTitle;        // Optional: Dialogue title
+  final String title;        // Required: Menu display title
+  final IconData icon;       // Required: Menu icon
+  final Color? color;        // Optional: Icon colour
+  final Widget? child;       // Optional: Content widget when selected
+  final String? tooltip;     // Optional: Tooltip message (supports Markdown)
+  final String? message;     // Optional: Dialogue message content
+  final String? dialogTitle; // Optional: Dialogue title
   final void Function(BuildContext)? onTap; // Optional: Tap callback
 }
 ```
@@ -163,11 +163,11 @@ smaller screens to maintain usability.
 
 ```dart
 class SolidAppBarConfig {
-  final String title;                           // App bar title
-  final List<SolidAppBarAction>? actions;       // Action buttons
+  final String title;                         // App bar title
+  final List<SolidAppBarAction>? actions;     // Action buttons
   final List<SolidOverflowMenuItem>? overflowItems; // Overflow menu items
-  final Color? backgroundColor;                 // Background colour
-  final SolidVersionConfig? versionConfig;      // Version display configuration
+  final Color? backgroundColor;               // Background colour
+  final SolidVersionConfig? versionConfig;    // Version display configuration
 }
 ```
 
@@ -230,10 +230,10 @@ class SolidStatusBarConfig {
 
 ```dart
 class SolidServerInfo {
-  final String serverUri;          // Required: Server URI
-  final String? displayText;       // Optional: Custom display text
-  final String? tooltip;           // Optional: Tooltip message
-  final bool isClickable;          // Clickable to open in browser (default: true)
+  final String serverUri;     // Required: Server URI
+  final String? displayText;  // Optional: Custom display text
+  final String? tooltip;      // Optional: Tooltip message
+  final bool isClickable;     // Clickable to open in browser (default: true)
 }
 
 class SolidLoginStatus {
@@ -250,17 +250,18 @@ class SolidLoginStatus {
 
 ```dart
 class SolidThemeToggleConfig {
-  final bool enabled;                          // Enable theme toggle (default: true)
-  final IconData? lightModeIcon;               // Custom light mode icon
-  final IconData? darkModeIcon;                // Custom dark mode icon
-  final IconData? systemModeIcon;              // Custom system mode icon
-  final VoidCallback? onToggleTheme;           // Custom toggle callback
-  final ThemeMode? currentThemeMode;           // Current theme for external management
-  final bool showInAppBarActions;              // Show in app bar actions (default: true)
-  final String? tooltip;                       // Custom tooltip
-  final String label;                          // Overflow menu label (default: 'Toggle Theme')
-  final bool showOnNarrowScreen;               // Show on narrow screens (default: true)
-  final bool showOnVeryNarrowScreen;           // Show on very narrow screens (default: true)
+  final bool enabled; // Enable theme toggle (default: true)
+  final IconData? lightModeIcon;     // Custom light mode icon
+  final IconData? darkModeIcon;      // Custom dark mode icon
+  final IconData? systemModeIcon;    // Custom system mode icon
+  final VoidCallback? onToggleTheme; // Custom toggle callback
+  final ThemeMode? currentThemeMode; // Current theme for external management
+  final bool showInAppBarActions;    // Show in app bar actions (default: true)
+  final String? tooltip;             // Custom tooltip
+  final String label; // Overflow menu label (default: 'Toggle Theme')
+  final bool showOnNarrowScreen;     // Show on narrow screens (default: true)
+  final bool showOnVeryNarrowScreen; // Show on very narrow screens
+                                     // (default: true)
 }
 ```
 
@@ -268,20 +269,23 @@ class SolidThemeToggleConfig {
 
 ```dart
 class SolidAboutConfig {
-  final bool enabled;                          // Enable about button (default: true)
-  final IconData? icon;                        // Custom about icon
-  final String? applicationName;               // Application name (auto-detected if null)
-  final String? applicationVersion;            // Application version (auto-detected if null)
-  final Widget? applicationIcon;               // Application icon widget
-  final String? applicationLegalese;           // Legal notice/copyright
-  final String? text;                          // Main content text (supports Markdown)
-  final Widget? customContent;                 // Custom dialogue content
-  final List<Widget>? children;                // Additional child widgets
-  final bool showOnNarrowScreen;               // Show on narrow screens (default: true)
-  final bool showOnVeryNarrowScreen;           // Show on very narrow screens (default: false)
-  final int priority;                          // App bar action priority (default: 999)
-  final String? tooltip;                       // Custom tooltip
-  final VoidCallback? onPressed;               // Custom press callback
+  final bool enabled;                // Enable about button (default: true)
+  final IconData? icon;              // Custom about icon
+  final String? applicationName;     // Application name
+                                     // (auto-detected if null)
+  final String? applicationVersion;  // Application version
+                                     // (auto-detected if null)
+  final Widget? applicationIcon;     // Application icon widget
+  final String? applicationLegalese; // Legal notice/copyright
+  final String? text;                // Main content text (supports Markdown)
+  final Widget? customContent;       // Custom dialogue content
+  final List<Widget>? children;      // Additional child widgets
+  final bool showOnNarrowScreen;     // Show on narrow screens (default: true)
+  final bool showOnVeryNarrowScreen; // Show on very narrow screens
+                                     // (default: false)
+  final int priority;                // App bar action priority (default: 999)
+  final String? tooltip;             // Custom tooltip
+  final VoidCallback? onPressed;     // Custom press callback
 }
 ```
 
@@ -314,12 +318,12 @@ at the top of the navigation drawer.
 
 ```dart
 class SolidNavUserInfo {
-  final String userName;                       // Required: User display name
-  final String? webId;                         // Optional: User WebID
-  final bool showWebId;                        // Show WebID in drawer (default: false)
-  final Widget? avatar;                        // Custom avatar widget
-  final IconData? avatarIcon;                  // Avatar icon (if no custom widget)
-  final double? avatarSize;                    // Custom avatar size
+  final String userName;        // Required: User display name
+  final String? webId;          // Optional: User WebID
+  final bool showWebId;         // Show WebID in drawer (default: false)
+  final Widget? avatar;         // Custom avatar widget
+  final IconData? avatarIcon;   // Avatar icon (if no custom widget)
+  final double? avatarSize;     // Custom avatar size
 }
 ```
 
@@ -419,7 +423,7 @@ based on file paths:
 - **Manual override**: Disable with `autoConfig: false` for custom
   configurations
 
-### Constructor Parameters
+### Constructor Parameters of SolidFile
 
 ```dart
 SolidFile({
@@ -461,34 +465,38 @@ SolidFile({
 
 ```dart
 class SolidFileUploadConfig {
-  final bool showCsvButtons;                   // Show CSV import/export buttons (default: false)
-  final bool showProfileButtons;               // Show Profile import/export buttons (default: false)
-  final bool showJsonButtons;                  // Show JSON operations (default: true)
-  final bool showPreviewButtons;               // Show file preview options (default: true)
-  final DataFormatConfig? formatConfig;        // Data format configuration
-  final String uploadButtonText;               // Upload button text (default: 'Upload File')
-  final String? uploadTooltip;                 // Upload tooltip message
+  final bool showCsvButtons;            // Show CSV import/export buttons 
+                                        // (default: false)
+  final bool showProfileButtons;        // Show Profile import/export buttons
+                                        // (default: false)
+  final bool showJsonButtons;           // Show JSON operations (default: true)
+  final bool showPreviewButtons;        // Show file preview options
+                                        // (default: true)
+  final DataFormatConfig? formatConfig; // Data format configuration
+  final String uploadButtonText;        // Upload button text
+                                        // (default: 'Upload File')
+  final String? uploadTooltip;          // Upload tooltip message
 }
 
 class SolidFileUploadCallbacks {
-  final VoidCallback? onUpload;                // File upload callback
-  final VoidCallback? onImportCsv;             // CSV import callback
-  final VoidCallback? onExportCsv;             // CSV export callback
+  final VoidCallback? onUpload;             // File upload callback
+  final VoidCallback? onImportCsv;          // CSV import callback
+  final VoidCallback? onExportCsv;          // CSV export callback
   final Function(String importType)? onImportSuccess; // Import success callback
-  final VoidCallback? onImportProfile;         // Profile import callback
-  final VoidCallback? onExportProfile;         // Profile export callback
-  final VoidCallback? onVisualiseJson;         // JSON visualisation callback
-  final VoidCallback? onSelectLocalJson;       // Local JSON selection callback
-  final VoidCallback? onPreviewFile;           // File preview callback
-  final VoidCallback? onConvertToJson;         // PDF to JSON conversion callback
+  final VoidCallback? onImportProfile;      // Profile import callback
+  final VoidCallback? onExportProfile;      // Profile export callback
+  final VoidCallback? onVisualiseJson;      // JSON visualisation callback
+  final VoidCallback? onSelectLocalJson;    // Local JSON selection callback
+  final VoidCallback? onPreviewFile;        // File preview callback
+  final VoidCallback? onConvertToJson;      // PDF to JSON conversion callback
 }
 
 class SolidFileUploadState {
-  final bool isUploading;                      // Upload in progress (default: false)
-  final double uploadProgress;                 // Upload progress 0.0-1.0 (default: 0.0)
-  final String? uploadStatus;                  // Upload status message
-  final bool showPreview;                      // Show file preview (default: false)
-  final String? previewContent;                // Preview content
+  final bool isUploading;         // Upload in progress (default: false)
+  final double uploadProgress;    // Upload progress 0.0-1.0 (default: 0.0)
+  final String? uploadStatus;     // Upload status message
+  final bool showPreview;         // Show file preview (default: false)
+  final String? previewContent;   // Preview content
 }
 ```
 
@@ -496,15 +504,15 @@ class SolidFileUploadState {
 
 ```dart
 class DataFormatConfig {
-  final String title;                          // Required: Format title
-  final List<String> requiredFields;           // Required: List of required fields
-  final List<String> optionalFields;           // Optional fields (default: [])
-  final bool isJson;                           // JSON format flag (default: false)
-  final String? description;                   // Format description
+  final String title;                 // Required: Format title
+  final List<String> requiredFields;  // Required: List of required fields
+  final List<String> optionalFields;  // Optional fields (default: [])
+  final bool isJson;                  // JSON format flag (default: false)
+  final String? description;          // Format description
 }
 ```
 
-### Example Usage
+### Example Usage of SolidFile
 
 ```dart
 // Basic file management
@@ -571,17 +579,18 @@ POD authentication state.
 
 ```dart
 class SolidDynamicLoginStatus extends StatefulWidget {
-  final SolidStatusBarConfig baseConfig;       // Required: Base status bar configuration
-  final VoidCallback? onTap;                   // Login/logout tap handler
-  final VoidCallback? onLogin;                 // Custom login handler for logged out state
-  final String? loggedInText;                  // Custom logged in text
-  final String? loggedOutText;                 // Custom logged out text
-  final String? loggedInTooltip;               // Logged in tooltip
-  final String? loggedOutTooltip;              // Logged out tooltip
+  final SolidStatusBarConfig baseConfig; // Required: Base status bar
+                                         // configuration
+  final VoidCallback? onTap;             // Login/logout tap handler
+  final VoidCallback? onLogin; // Custom login handler for logged out state
+  final String? loggedInText;            // Custom logged in text
+  final String? loggedOutText;           // Custom logged out text
+  final String? loggedInTooltip;         // Logged in tooltip
+  final String? loggedOutTooltip;        // Logged out tooltip
 }
 ```
 
-### Example Usage
+### Example Usage of SolidDynamicLoginStatus
 
 ```dart
 SolidDynamicLoginStatus(
@@ -623,11 +632,16 @@ Central service for managing security key operations and status.
 
 ```dart
 class SolidSecurityKeyService extends ChangeNotifier {
-  Future<bool> isKeySaved();                   // Check if security key exists
-  Future<bool> fetchKeySavedStatus([Function(bool)? onKeyStatusChanged]); // Fetch status with callback
-  Future<void> refreshKeyStatus();             // Force refresh of key status
-  Future<bool> refreshAndNotify([Function(bool)? onKeyStatusChanged]); // Refresh and notify
-  Future<bool> isSecurityKeyNeeded();          // Check if security key is needed
+  // Check if security key exists
+  Future<bool> isKeySaved();
+  // Fetch status with callback
+  Future<bool> fetchKeySavedStatus([Function(bool)? onKeyStatusChanged]);
+  // Force refresh of key status
+  Future<void> refreshKeyStatus();
+  // Refresh and notify
+  Future<bool> refreshAndNotify([Function(bool)? onKeyStatusChanged]);
+  // Check if security key is needed
+  Future<bool> isSecurityKeyNeeded();
 }
 ```
 
@@ -637,12 +651,13 @@ Status bar component for displaying security key information.
 
 ```dart
 class SolidSecurityKeyStatus {
-  final bool? isKeySaved;                      // Current key status
-  final VoidCallback? onTap;                   // Tap callback (null for automatic management)
-  final Function(bool)? onKeyStatusChanged;    // Status change callback
-  final String? title;                         // Custom dialogue title
-  final Widget? appWidget;                     // Custom app widget for dialogues
-  final String? tooltip;                       // Custom tooltip message
+  final bool? isKeySaved;                   // Current key status
+  final VoidCallback? onTap;                // Tap callback
+                                            // (null for automatic management)
+  final Function(bool)? onKeyStatusChanged; // Status change callback
+  final String? title;                      // Custom dialogue title
+  final Widget? appWidget;                  // Custom app widget for dialogues
+  final String? tooltip;                    // Custom tooltip message
 }
 ```
 
@@ -652,19 +667,19 @@ Advanced component for custom security key management implementations.
 
 ```dart
 class SolidSecurityKeyManagerConfig {
-  final Widget appWidget;                      // Required: App widget for change key popup
-  final String? title;                         // Custom manager title
-  final bool showViewKeyButton;                // Show view key button (default: true)
-  final bool showForgetKeyButton;              // Show forget key button (default: true)
+  final Widget appWidget;         // Required: App widget for change key popup
+  final String? title;            // Custom manager title
+  final bool showViewKeyButton;   // Show view key button (default: true)
+  final bool showForgetKeyButton; // Show forget key button (default: true)
 }
 
 class SolidSecurityKeyManager extends StatefulWidget {
   final SolidSecurityKeyManagerConfig config; // Required: Manager configuration
-  final Function(bool) onKeyStatusChanged;     // Required: Status change callback
+  final Function(bool) onKeyStatusChanged; // Required: Status change callback
 }
 ```
 
-### Example Usage
+### Example Usage of SolidSecurityKeyStatus and SolidSecurityKeyManager
 
 ```dart
 // Automatic security key management in status bar
@@ -719,21 +734,24 @@ automatically adapts to different screen sizes:
 
 ```dart
 class NavigationConstants {
-  static const double narrowScreenThreshold = 800.0;     // Navigation rail → drawer transition
-  static const double veryNarrowScreenThreshold = 400.0; // Very narrow screen threshold
-  static const double statusBarHeight = 32.0;            // Default status bar height
-  static const double navRailWidth = 72.0;               // Navigation rail width
-  static const double navRailExtendedWidth = 256.0;      // Extended navigation rail width
+  // Navigation rail → drawer transition
+  static const double narrowScreenThreshold = 800.0;
+  // Very narrow screen threshold
+  static const double veryNarrowScreenThreshold = 400.0;
+  static const double statusBarHeight = 32.0; // Default status bar height
+  static const double navRailWidth = 72.0; // Navigation rail width
+  static const double navRailExtendedWidth = 256.0; // Extended navigation 
+  rail width
 }
 ```
 
 #### Responsive Behaviour Summary
 
-| Screen Width | Navigation | App Bar Actions | Status Bar | File Layout |
-|--------------|------------|-----------------|------------|-------------|
-| ≥800px | Navigation Rail (SolidNavBar) | All actions visible | Full status display | Side-by-side |
-| 400-799px | Navigation Drawer (SolidNavDrawer) | Selected actions + overflow | Compact display | Stacked |
-| <400px | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |
+| Screen Width (px) | Navigation | App Bar Actions | Status Bar | File Layout |
+|------|------------|-----------------|-----------|-------------|
+| ≥800 | SolidNavBar | All actions visible | Full status | Side-by-side |
+| 400-799 | SolidNavDrawer | Selected actions + overflow | Compact | Stacked |
+| <400 | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |
 
 #### Automatic Adaptations
 
@@ -761,10 +779,10 @@ SolidUI includes comprehensive file operation utilities:
 
 ```dart
 class SolidThemeNotifier extends ChangeNotifier {
-  ThemeMode get themeMode;                     // Current theme mode
-  Future<void> initialize();                   // Initialize theme notifier
-  Future<void> setThemeMode(ThemeMode mode);   // Set theme mode
-  void toggleTheme();                          // Toggle between light/dark modes
+  ThemeMode get themeMode; // Current theme mode
+  Future<void> initialize(); // Initialise theme notifier
+  Future<void> setThemeMode(ThemeMode mode); // Set theme mode
+  void toggleTheme(); // Toggle between light/dark modes
 }
 
 class SolidThemeApp extends StatefulWidget {
@@ -836,7 +854,8 @@ class _CompleteExampleAppState extends State<CompleteExampleApp> {
             ),
           ],
           versionConfig: SolidVersionConfig(
-            changelogUrl: 'https://github.com/myorg/myapp/blob/main/CHANGELOG.md',
+            changelogUrl: 'https://github.com/myorg/myapp/'
+                          'blob/main/CHANGELOG.md',
             showDate: true,
           ),
         ),
@@ -877,8 +896,9 @@ class _CompleteExampleAppState extends State<CompleteExampleApp> {
           text: '''
           A comprehensive Solid application built with SolidUI.
 
-          This application demonstrates the complete capabilities of the SolidUI library,
-          including responsive navigation, file management, and security features.
+          This application demonstrates the complete capabilities of the
+          SolidUI library, including responsive navigation, file management, 
+          and security features.
           ''',
         ),
         onLogout: _webId != null ? (context) => _handleLogout() : null,
