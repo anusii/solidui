@@ -28,7 +28,6 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
@@ -39,7 +38,7 @@ import 'package:solidui/src/widgets/solid_nav_models.dart';
 /// This widget provides a collapsible navigation drawer that displays
 /// when the screen is narrow, replacing the navigation rail.
 
-class SolidNavDrawer extends StatefulWidget {
+class SolidNavDrawer extends StatelessWidget {
   /// User information to display in the drawer header.
 
   final SolidNavUserInfo? userInfo;
@@ -95,54 +94,11 @@ class SolidNavDrawer extends StatefulWidget {
   });
 
   @override
-  State<SolidNavDrawer> createState() => _SolidNavDrawerState();
-}
-
-class _SolidNavDrawerState extends State<SolidNavDrawer> {
-  String? _appVersion;
-  bool _isVersionLoaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.userInfo?.versionConfig != null) {
-      _loadAppVersion();
-    }
-  }
-
-  Future<void> _loadAppVersion() async {
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      if (mounted) {
-        setState(() {
-          _appVersion = packageInfo.version;
-          _isVersionLoaded = true;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading app version: $e');
-      if (mounted) {
-        setState(() {
-          _appVersion = null;
-          _isVersionLoaded = true;
-        });
-      }
-    }
-  }
-
-  String _getVersionToDisplay() {
-    if (_isVersionLoaded && _appVersion != null && _appVersion!.isNotEmpty) {
-      return _appVersion!;
-    }
-    return '0.0.0+0';
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Drawer(
-      shape: widget.drawerShape ??
+      shape: drawerShape ??
           const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(0),
@@ -153,7 +109,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         children: <Widget>[
           // User info header (if provided).
-          if (widget.userInfo != null) _buildUserInfoHeader(context, theme),
+          if (userInfo != null) _buildUserInfoHeader(context, theme),
 
           // Navigation items.
           Container(
@@ -161,58 +117,57 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
             child: Column(
               children: [
                 // Main navigation tabs.
-                ...widget.tabs.asMap().entries.map((entry) {
+                ...tabs.asMap().entries.map((entry) {
                   final index = entry.key;
                   final tab = entry.value;
 
                   return ListTile(
                     leading: Icon(
                       tab.icon,
-                      color: index == widget.selectedIndex
+                      color: index == selectedIndex
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                     title: Text(
                       tab.title,
                       style: TextStyle(
-                        fontWeight: index == widget.selectedIndex
+                        fontWeight: index == selectedIndex
                             ? FontWeight.w600
                             : FontWeight.w400,
-                        color: index == widget.selectedIndex
+                        color: index == selectedIndex
                             ? theme.colorScheme.primary
                             : theme.colorScheme.onSurface,
                       ),
                     ),
-                    selected: index == widget.selectedIndex,
+                    selected: index == selectedIndex,
                     selectedTileColor: theme.colorScheme.primary.withValues(
                       alpha: 0.1,
                     ),
                     onTap: () {
-                      widget.onTabSelected(index);
+                      onTabSelected(index);
                       Navigator.of(context).pop(); // Close drawer.
                     },
                   );
                 }),
 
                 // Additional menu items (if provided).
-                if (widget.additionalMenuItems != null)
-                  ...widget.additionalMenuItems!,
+                if (additionalMenuItems != null) ...additionalMenuItems!,
 
                 // Divider and logout option.
-                if (widget.showLogout && widget.onLogout != null) ...[
+                if (showLogout && onLogout != null) ...[
                   Divider(
                     height: NavigationConstants.navDividerHeight,
                     color: theme.dividerColor,
                   ),
                   ListTile(
                     leading: Icon(
-                      widget.logoutIcon ?? Icons.logout,
+                      logoutIcon ?? Icons.logout,
                       color: _canLogout()
                           ? theme.colorScheme.error
                           : theme.disabledColor,
                     ),
                     title: Text(
-                      widget.logoutText ?? 'Logout',
+                      logoutText ?? 'Logout',
                       style: TextStyle(
                         color: _canLogout()
                             ? theme.colorScheme.error
@@ -222,7 +177,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                     onTap: _canLogout()
                         ? () {
                             Navigator.of(context).pop(); // Close drawer first.
-                            widget.onLogout!(context);
+                            onLogout!(context);
                           }
                         : null,
                   ),
@@ -236,13 +191,19 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
   }
 
   Widget _buildUserInfoHeader(BuildContext context, ThemeData theme) {
-    final user = widget.userInfo!;
+    final user = userInfo!;
+
+    final bool willShowVersion = user.versionConfig != null;
+
+    final double adjustedBottomPadding = willShowVersion
+        ? NavigationConstants.userHeaderBottomPadding - 16.0
+        : NavigationConstants.userHeaderBottomPadding;
 
     return Container(
       padding: EdgeInsets.only(
         top: NavigationConstants.userHeaderTopPadding +
             MediaQuery.of(context).padding.top,
-        bottom: NavigationConstants.userHeaderBottomPadding,
+        bottom: adjustedBottomPadding,
       ),
       decoration: BoxDecoration(color: theme.colorScheme.primaryContainer),
       child: Column(
@@ -289,31 +250,21 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
             ),
           ],
 
-          if (user.versionConfig != null &&
-              _isVersionLoaded &&
-              _appVersion != null &&
-              _appVersion!.isNotEmpty) ...[
+          if (user.versionConfig != null) ...[
             Gap(NavigationConstants.webIdSpacing),
-            _buildVersionInfo(context, theme, user.versionConfig!),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: NavigationConstants.webIdHorizontalPadding,
+              ),
+              child: VersionWidget(
+                version: user.versionConfig!.version ?? '0.0.0',
+                changelogUrl: user.versionConfig!.changelogUrl,
+                showDate: user.versionConfig!.showDate,
+              ),
+            ),
           ],
         ],
       ),
-    );
-  }
-
-  /// Builds the version information widget.
-
-  Widget _buildVersionInfo(
-    BuildContext context,
-    ThemeData theme,
-    SolidVersionConfig versionConfig,
-  ) {
-    final versionString = versionConfig.version ?? _getVersionToDisplay();
-
-    return VersionWidget(
-      version: versionString,
-      changelogUrl: versionConfig.changelogUrl,
-      showDate: versionConfig.showDate,
     );
   }
 
@@ -323,7 +274,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
     // Logout is available if onLogout callback is provided and showLogout is
     // true.
 
-    return widget.showLogout && widget.onLogout != null;
+    return showLogout && onLogout != null;
   }
 
   /// Simplifies the WebID URL for display purposes.
