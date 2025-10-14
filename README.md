@@ -318,12 +318,13 @@ at the top of the navigation drawer.
 
 ```dart
 class SolidNavUserInfo {
-  final String userName;        // Required: User display name
-  final String? webId;          // Optional: User WebID
-  final bool showWebId;         // Show WebID in drawer (default: false)
-  final Widget? avatar;         // Custom avatar widget
-  final IconData? avatarIcon;   // Avatar icon (if no custom widget)
-  final double? avatarSize;     // Custom avatar size
+  final String userName;              // Required: User display name
+  final String? webId;                // Optional: User WebID
+  final bool showWebId;               // Show WebID in drawer (default: false)
+  final Widget? avatar;               // Custom avatar widget
+  final IconData? avatarIcon;         // Avatar icon (if no custom widget)
+  final double? avatarSize;           // Custom avatar size
+  final SolidVersionConfig? versionConfig;  // Optional: Version display config
 }
 ```
 

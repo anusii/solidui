@@ -103,6 +103,10 @@ class SolidNavUserInfo {
 
   final double? avatarSize;
 
+  /// Version configuration for displaying version information in the drawer.
+
+  final SolidVersionConfig? versionConfig;
+
   const SolidNavUserInfo({
     required this.userName,
     this.webId,
@@ -110,6 +114,7 @@ class SolidNavUserInfo {
     this.avatar,
     this.avatarIcon,
     this.avatarSize,
+    this.versionConfig,
   });
 }
 
