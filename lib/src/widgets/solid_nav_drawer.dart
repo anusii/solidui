@@ -187,11 +187,6 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                     selectedTileColor: theme.colorScheme.primary.withValues(
                       alpha: 0.1,
                     ),
-                    visualDensity: const VisualDensity(vertical: -2.0),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 4.0,
-                    ),
                     onTap: () {
                       widget.onTabSelected(index);
                       Navigator.of(context).pop(); // Close drawer.
@@ -223,11 +218,6 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                             ? theme.colorScheme.error
                             : theme.disabledColor,
                       ),
-                    ),
-                    visualDensity: const VisualDensity(vertical: -2.0),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 4.0,
                     ),
                     onTap: _canLogout()
                         ? () {
