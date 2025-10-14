@@ -221,9 +221,9 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                     ),
                     onTap: _canLogout()
                         ? () {
-                            Navigator.of(context).pop(); // Close drawer first.
-                            widget.onLogout!(context);
-                          }
+                      Navigator.of(context).pop(); // Close drawer first.
+                      widget.onLogout!(context);
+                    }
                         : null,
                   ),
                 ],
@@ -300,7 +300,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                 _appVersion!.isNotEmpty)
               _buildVersionInfo(context, theme, user.versionConfig!)
             else
-              // The offset of drawer menu entry background block.
+            // The offset of drawer menu entry background block.
 
               const SizedBox(height: 23.0),
           ],
@@ -312,14 +312,14 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
   /// Builds the version information widget.
 
   Widget _buildVersionInfo(
-    BuildContext context,
-    ThemeData theme,
-    SolidVersionConfig versionConfig,
-  ) {
+      BuildContext context,
+      ThemeData theme,
+      SolidVersionConfig versionConfig,
+      ) {
     final versionString =
-        (versionConfig.version != null && versionConfig.version!.isNotEmpty)
-            ? versionConfig.version!
-            : _getVersionToDisplay();
+    (versionConfig.version != null && versionConfig.version!.isNotEmpty)
+        ? versionConfig.version!
+        : _getVersionToDisplay();
 
     return VersionWidget(
       version: versionString,
