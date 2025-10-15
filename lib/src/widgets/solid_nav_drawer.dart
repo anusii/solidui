@@ -209,7 +209,7 @@ class SolidNavDrawer extends StatelessWidget {
                 color: theme.colorScheme.onPrimaryContainer,
               ),
 
-          Gap(NavigationConstants.userInfoSpacing),
+          const Gap(NavigationConstants.userInfoSpacing),
 
           // User name.
           Text(
@@ -225,7 +225,7 @@ class SolidNavDrawer extends StatelessWidget {
           if (user.showWebId &&
               user.webId != null &&
               user.webId!.isNotEmpty) ...[
-            Gap(NavigationConstants.webIdSpacing),
+            const Gap(NavigationConstants.webIdSpacing),
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: NavigationConstants.webIdHorizontalPadding,
