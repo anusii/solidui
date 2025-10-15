@@ -263,7 +263,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
 
           // User name.
           Text(
-            user.userName.isNotEmpty ? user.userName : 'Not logged in',
+            user.effectiveUserName,
             style: TextStyle(
               color: theme.colorScheme.onPrimaryContainer,
               fontSize: NavigationConstants.userNameFontSize,

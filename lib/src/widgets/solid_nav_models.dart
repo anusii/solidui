@@ -79,9 +79,10 @@ class SolidNavTab {
 /// User information configuration for the navigation drawer.
 
 class SolidNavUserInfo {
-  /// The user's display name.
+  /// The user's display name. If null and webId is provided,
+  /// the username will be automatically extracted from the WebID.
 
-  final String userName;
+  final String? userName;
 
   /// The user's WebID (optional).
 
@@ -108,7 +109,7 @@ class SolidNavUserInfo {
   final SolidVersionConfig? versionConfig;
 
   const SolidNavUserInfo({
-    required this.userName,
+    this.userName,
     this.webId,
     this.showWebId = false,
     this.avatar,
@@ -116,6 +117,76 @@ class SolidNavUserInfo {
     this.avatarSize,
     this.versionConfig,
   });
+
+  /// Extracts username from WebID URL.
+  /// 
+  /// Attempts to extract the username from the last segment of the WebID path.
+  /// For example, "https://example.com/username/profile/card#me" becomes "username".
+  /// 
+  /// Returns the extracted username or an empty string if extraction fails.
+
+  static String _extractUsernameFromWebId(String webId) {
+    try {
+      final uri = Uri.parse(webId);
+      final pathSegments = uri.pathSegments;
+      
+      // Find the username segment (typically the first non-empty path segment)
+      for (final segment in pathSegments) {
+        if (segment.isNotEmpty && 
+            segment != 'profile' && 
+            segment != 'card' &&
+            !segment.startsWith('#')) {
+          return segment;
+        }
+      }
+      
+      // Fallback: try to extract from the last slash in the full URL
+      final lastSlashIndex = webId.lastIndexOf('/');
+      if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
+        String candidate = webId.substring(lastSlashIndex + 1);
+        
+        // Remove common suffixes
+        const suffixes = ['profile', 'card#me', '#me'];
+        for (final suffix in suffixes) {
+          if (candidate.endsWith(suffix)) {
+            candidate = candidate.substring(0, candidate.length - suffix.length);
+            if (candidate.endsWith('/')) {
+              candidate = candidate.substring(0, candidate.length - 1);
+            }
+          }
+        }
+        
+        if (candidate.isNotEmpty) {
+          return candidate;
+        }
+      }
+      
+      return '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  /// Gets the effective display name, extracting from WebID if necessary.
+  /// 
+  /// If userName is provided, returns it as-is.
+  /// If userName is null but webId is provided, extracts username from WebID.
+  /// If both are null or extraction fails, returns 'Not logged in'.
+
+  String get effectiveUserName {
+    if (userName != null && userName!.isNotEmpty) {
+      return userName!;
+    }
+    
+    if (webId != null && webId!.isNotEmpty) {
+      final extracted = _extractUsernameFromWebId(webId!);
+      if (extracted.isNotEmpty) {
+        return extracted;
+      }
+    }
+    
+    return 'Not logged in';
+  }
 }
 
 /// Configuration for an AppBar action button.
