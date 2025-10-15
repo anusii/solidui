@@ -119,48 +119,45 @@ class SolidNavUserInfo {
   });
 
   /// Extracts username from WebID URL.
-  /// 
-  /// Attempts to extract the username from the last segment of the WebID path.
-  /// For example, "https://example.com/username/profile/card#me" becomes "username".
-  /// 
-  /// Returns the extracted username or an empty string if extraction fails.
 
   static String _extractUsernameFromWebId(String webId) {
     try {
       final uri = Uri.parse(webId);
       final pathSegments = uri.pathSegments;
-      
-      // Find the username segment (typically the first non-empty path segment)
+
+      // Find the username segment (typically the first non-empty path segment).
+
       for (final segment in pathSegments) {
-        if (segment.isNotEmpty && 
-            segment != 'profile' && 
+        if (segment.isNotEmpty &&
+            segment != 'profile' &&
             segment != 'card' &&
             !segment.startsWith('#')) {
           return segment;
         }
       }
-      
+
       // Fallback: try to extract from the last slash in the full URL
       final lastSlashIndex = webId.lastIndexOf('/');
       if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
         String candidate = webId.substring(lastSlashIndex + 1);
-        
+
         // Remove common suffixes
         const suffixes = ['profile', 'card#me', '#me'];
         for (final suffix in suffixes) {
           if (candidate.endsWith(suffix)) {
-            candidate = candidate.substring(0, candidate.length - suffix.length);
+            candidate =
+                candidate.substring(0, candidate.length - suffix.length);
             if (candidate.endsWith('/')) {
               candidate = candidate.substring(0, candidate.length - 1);
             }
           }
         }
-        
+
         if (candidate.isNotEmpty) {
           return candidate;
         }
       }
-      
+
       return '';
     } catch (e) {
       return '';
@@ -168,23 +165,19 @@ class SolidNavUserInfo {
   }
 
   /// Gets the effective display name, extracting from WebID if necessary.
-  /// 
-  /// If userName is provided, returns it as-is.
-  /// If userName is null but webId is provided, extracts username from WebID.
-  /// If both are null or extraction fails, returns 'Not logged in'.
 
   String get effectiveUserName {
     if (userName != null && userName!.isNotEmpty) {
       return userName!;
     }
-    
+
     if (webId != null && webId!.isNotEmpty) {
       final extracted = _extractUsernameFromWebId(webId!);
       if (extracted.isNotEmpty) {
         return extracted;
       }
     }
-    
+
     return 'Not logged in';
   }
 }

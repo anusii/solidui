@@ -270,7 +270,6 @@ class _HomePageState extends State<HomePage> {
     // Create user info.
 
     final userInfo = SolidNavUserInfo(
-      userName: _webId != null ? 'Demo User' : 'Not logged in',
       webId: _webId,
       showWebId: true,
       avatarIcon: Icons.account_circle,
