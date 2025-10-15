@@ -7,7 +7,8 @@ description of the update. Updates in the 0.0.n series are heading
 toward a 0.1 release. The `[version timestamp user]` string is
 utilised by the flutter version_widget package.
 
-The package is available from https://pub.dev/packages/solidui.
+The package is available from
+[pub.dev](https://pub.dev/packages/solidui).
 
 Coding documentation is available from [solid community
 au](https://solidcommunity.au/docs/solidui)
