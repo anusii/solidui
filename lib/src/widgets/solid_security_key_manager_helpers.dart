@@ -159,29 +159,52 @@ class SolidSecurityKeyManagerHelpers {
   /// Shows a snack bar with an error message.
 
   static void showErrorSnackBar(BuildContext context, String message) {
-    final theme = Theme.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: theme.colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
+    try {
+      final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+      if (scaffoldMessenger != null) {
+        final theme = Theme.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: theme.colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      } else {
+        showErrorDialog(context, 'Error', message);
+      }
+    } catch (e) {
+      debugPrint('Error showing snackbar: $e');
+      showErrorDialog(context, 'Error', message);
+    }
   }
 
   /// Shows success snack bar.
 
   static void showSuccessSnackBar(BuildContext context, String message) {
-    final theme = Theme.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: theme.colorScheme.tertiary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
+    // Try to find a valid Scaffold, otherwise show a dialog
+    try {
+      final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+      if (scaffoldMessenger != null) {
+        final theme = Theme.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: theme.colorScheme.tertiary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      } else {
+        // Fallback to dialog if no Scaffold is available
+        showErrorDialog(context, 'Success', message);
+      }
+    } catch (e) {
+      debugPrint('Error showing snackbar: $e');
+      // Fallback to dialog
+      showErrorDialog(context, 'Success', message);
+    }
   }
 
   /// Handles key submission validation and setting.
@@ -214,11 +237,16 @@ class SolidSecurityKeyManagerHelpers {
       bool keySetSuccessfully = false;
       try {
         final filePath = await getEncKeyPath();
+        debugPrint('Security key storage path: $filePath');
         final fileContent = await readFunction(filePath);
 
         keySetSuccessfully = fileContent.isNotEmpty &&
             fileContent != SolidFunctionCallStatus.notLoggedIn.toString() &&
             fileContent != SolidFunctionCallStatus.fail.toString();
+        
+        if (keySetSuccessfully) {
+          debugPrint('Security key successfully saved to POD at: $filePath');
+        }
       } catch (verifyError) {
         debugPrint('Key verification failed: $verifyError');
         keySetSuccessfully = false;

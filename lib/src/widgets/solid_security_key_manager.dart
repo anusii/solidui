@@ -162,9 +162,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
           await _checkKeyStatus();
           if (!mounted) return;
           widget.onKeyStatusChanged(true);
+          if (context.mounted) Navigator.of(context).pop();
         },
       );
-      if (context.mounted) Navigator.of(context).pop();
       return;
     }
     return _showNewKeyDialog(context);
@@ -179,6 +179,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         await _checkKeyStatus();
         if (!mounted) return;
         widget.onKeyStatusChanged(true);
+        if (context.mounted) Navigator.of(context).pop();
       },
       (key, confirmKey) async {
         return await SolidSecurityKeyManagerHelpers.handleKeySubmission(
