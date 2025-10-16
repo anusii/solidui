@@ -259,7 +259,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                 color: theme.colorScheme.onPrimaryContainer,
               ),
 
-          Gap(NavigationConstants.userInfoSpacing),
+          const Gap(NavigationConstants.userInfoSpacing),
 
           // User name.
           Text(
@@ -275,7 +275,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
           if (user.showWebId &&
               user.webId != null &&
               user.webId!.isNotEmpty) ...[
-            Gap(NavigationConstants.webIdSpacing),
+            const Gap(NavigationConstants.webIdSpacing),
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: NavigationConstants.webIdHorizontalPadding,
