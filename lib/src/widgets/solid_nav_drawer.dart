@@ -28,6 +28,9 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -37,7 +40,7 @@ import 'package:solidui/src/widgets/solid_nav_models.dart';
 /// This widget provides a collapsible navigation drawer that displays
 /// when the screen is narrow, replacing the navigation rail.
 
-class SolidNavDrawer extends StatelessWidget {
+class SolidNavDrawer extends StatefulWidget {
   /// User information to display in the drawer header.
 
   final SolidNavUserInfo? userInfo;
@@ -93,11 +96,54 @@ class SolidNavDrawer extends StatelessWidget {
   });
 
   @override
+  State<SolidNavDrawer> createState() => _SolidNavDrawerState();
+}
+
+class _SolidNavDrawerState extends State<SolidNavDrawer> {
+  String? _appVersion;
+  bool _isVersionLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.userInfo?.versionConfig != null) {
+      _loadAppVersion();
+    }
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _appVersion = packageInfo.version;
+          _isVersionLoaded = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading app version: $e');
+      if (mounted) {
+        setState(() {
+          _appVersion = null;
+          _isVersionLoaded = true;
+        });
+      }
+    }
+  }
+
+  String _getVersionToDisplay() {
+    if (_isVersionLoaded && _appVersion != null && _appVersion!.isNotEmpty) {
+      return _appVersion!;
+    }
+    return '0.0.0+0';
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Drawer(
-      shape: drawerShape ??
+      shape: widget.drawerShape ??
           const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(0),
@@ -108,7 +154,7 @@ class SolidNavDrawer extends StatelessWidget {
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         children: <Widget>[
           // User info header (if provided).
-          if (userInfo != null) _buildUserInfoHeader(context, theme),
+          if (widget.userInfo != null) _buildUserInfoHeader(context, theme),
 
           // Navigation items.
           Container(
@@ -116,57 +162,58 @@ class SolidNavDrawer extends StatelessWidget {
             child: Column(
               children: [
                 // Main navigation tabs.
-                ...tabs.asMap().entries.map((entry) {
+                ...widget.tabs.asMap().entries.map((entry) {
                   final index = entry.key;
                   final tab = entry.value;
 
                   return ListTile(
                     leading: Icon(
                       tab.icon,
-                      color: index == selectedIndex
+                      color: index == widget.selectedIndex
                           ? theme.colorScheme.primary
                           : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                     title: Text(
                       tab.title,
                       style: TextStyle(
-                        fontWeight: index == selectedIndex
+                        fontWeight: index == widget.selectedIndex
                             ? FontWeight.w600
                             : FontWeight.w400,
-                        color: index == selectedIndex
+                        color: index == widget.selectedIndex
                             ? theme.colorScheme.primary
                             : theme.colorScheme.onSurface,
                       ),
                     ),
-                    selected: index == selectedIndex,
+                    selected: index == widget.selectedIndex,
                     selectedTileColor: theme.colorScheme.primary.withValues(
                       alpha: 0.1,
                     ),
                     onTap: () {
-                      onTabSelected(index);
+                      widget.onTabSelected(index);
                       Navigator.of(context).pop(); // Close drawer.
                     },
                   );
                 }),
 
                 // Additional menu items (if provided).
-                if (additionalMenuItems != null) ...additionalMenuItems!,
+                if (widget.additionalMenuItems != null)
+                  ...widget.additionalMenuItems!,
 
                 // Divider and logout option.
-                if (showLogout && onLogout != null) ...[
+                if (widget.showLogout && widget.onLogout != null) ...[
                   Divider(
                     height: NavigationConstants.navDividerHeight,
                     color: theme.dividerColor,
                   ),
                   ListTile(
                     leading: Icon(
-                      logoutIcon ?? Icons.logout,
+                      widget.logoutIcon ?? Icons.logout,
                       color: _canLogout()
                           ? theme.colorScheme.error
                           : theme.disabledColor,
                     ),
                     title: Text(
-                      logoutText ?? 'Logout',
+                      widget.logoutText ?? 'Logout',
                       style: TextStyle(
                         color: _canLogout()
                             ? theme.colorScheme.error
@@ -176,7 +223,7 @@ class SolidNavDrawer extends StatelessWidget {
                     onTap: _canLogout()
                         ? () {
                             Navigator.of(context).pop(); // Close drawer first.
-                            onLogout!(context);
+                            widget.onLogout!(context);
                           }
                         : null,
                   ),
@@ -190,13 +237,17 @@ class SolidNavDrawer extends StatelessWidget {
   }
 
   Widget _buildUserInfoHeader(BuildContext context, ThemeData theme) {
-    final user = userInfo!;
+    final user = widget.userInfo!;
+    final bool willShowVersion = user.versionConfig != null;
+    final double bottomPadding = willShowVersion
+        ? 8.0 // Add spacing below version
+        : NavigationConstants.userHeaderBottomPadding;
 
     return Container(
       padding: EdgeInsets.only(
         top: NavigationConstants.userHeaderTopPadding +
             MediaQuery.of(context).padding.top,
-        bottom: NavigationConstants.userHeaderBottomPadding,
+        bottom: bottomPadding,
       ),
       decoration: BoxDecoration(color: theme.colorScheme.primaryContainer),
       child: Column(
@@ -213,7 +264,7 @@ class SolidNavDrawer extends StatelessWidget {
 
           // User name.
           Text(
-            user.userName.isNotEmpty ? user.userName : 'Not logged in',
+            user.effectiveUserName,
             style: TextStyle(
               color: theme.colorScheme.onPrimaryContainer,
               fontSize: NavigationConstants.userNameFontSize,
@@ -230,20 +281,54 @@ class SolidNavDrawer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 horizontal: NavigationConstants.webIdHorizontalPadding,
               ),
-              child: Text(
-                _getSimplifiedUrl(user.webId!),
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer.withValues(
-                    alpha: 0.8,
+              child: InkWell(
+                onTap: () => _launchProfileUrl(user.webId!),
+                child: Text(
+                  _getSimplifiedUrl(user.webId!),
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimaryContainer.withValues(
+                      alpha: 0.8,
+                    ),
+                    fontSize: NavigationConstants.webIdFontSize,
                   ),
-                  fontSize: NavigationConstants.webIdFontSize,
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           ],
+
+          if (user.versionConfig != null) ...[
+            const Gap(NavigationConstants.webIdSpacing),
+            if (_isVersionLoaded &&
+                _appVersion != null &&
+                _appVersion!.isNotEmpty)
+              _buildVersionInfo(context, theme, user.versionConfig!)
+            else
+              // The offset of drawer menu entry background block.
+
+              const SizedBox(height: 23.0),
+          ],
         ],
       ),
+    );
+  }
+
+  /// Builds the version information widget.
+
+  Widget _buildVersionInfo(
+    BuildContext context,
+    ThemeData theme,
+    SolidVersionConfig versionConfig,
+  ) {
+    final versionString =
+        (versionConfig.version != null && versionConfig.version!.isNotEmpty)
+            ? versionConfig.version!
+            : _getVersionToDisplay();
+
+    return VersionWidget(
+      version: versionString,
+      changelogUrl: versionConfig.changelogUrl,
+      showDate: versionConfig.showDate,
     );
   }
 
@@ -253,45 +338,24 @@ class SolidNavDrawer extends StatelessWidget {
     // Logout is available if onLogout callback is provided and showLogout is
     // true.
 
-    return showLogout && onLogout != null;
+    return widget.showLogout && widget.onLogout != null;
   }
 
   /// Simplifies the WebID URL for display purposes.
+  /// Returns only the domain name for display.
 
   String _getSimplifiedUrl(String webId) {
     try {
       final uri = Uri.parse(webId);
 
-      // Get the host (server domain).
+      // Return only the host (domain).
 
-      String host = uri.host;
-
-      // Extract username from the path.
-
-      String username = '';
-      final pathSegments = uri.pathSegments;
-
-      // Typical webID format: /username/profile/card#me
-      // So the username is usually the first path segment.
-
-      if (pathSegments.isNotEmpty) {
-        username = pathSegments.first;
-      }
-
-      // Return formatted display string.
-
-      if (username.isNotEmpty) {
-        return '$host/$username';
-      } else {
-        // Fallback to just the host if no username found.
-
-        return host;
-      }
+      return uri.host;
     } catch (e) {
       // Fallback parsing for malformed URLs.
 
       try {
-        // Remove common prefixes and suffixes.
+        // Remove common prefixes.
 
         String cleaned = webId;
 
@@ -303,11 +367,11 @@ class SolidNavDrawer extends StatelessWidget {
           cleaned = cleaned.substring(7);
         }
 
-        // Remove common webID suffix.
+        // Extract only the domain (remove path).
 
-        const suffix = '/profile/card#me';
-        if (cleaned.endsWith(suffix)) {
-          cleaned = cleaned.substring(0, cleaned.length - suffix.length);
+        final slashIndex = cleaned.indexOf('/');
+        if (slashIndex > 0) {
+          cleaned = cleaned.substring(0, slashIndex);
         }
 
         return cleaned;
@@ -316,6 +380,52 @@ class SolidNavDrawer extends StatelessWidget {
 
         return webId;
       }
+    }
+  }
+
+  /// Gets the complete profile card URL from a WebID.
+
+  String _getProfileCardUrl(String webId) {
+    try {
+      final uri = Uri.parse(webId);
+
+      // Get the scheme, host, and path segments.
+
+      final scheme = uri.scheme;
+      final host = uri.host;
+      final pathSegments = uri.pathSegments;
+
+      // Typical webID format: /username/profile/card#me
+      // We want to construct: https://host/username/profile/card#
+
+      if (pathSegments.isNotEmpty) {
+        final username = pathSegments.first;
+        return '$scheme://$host/$username/profile/card#';
+      } else {
+        // Fallback: return the original webId.
+
+        return webId;
+      }
+    } catch (e) {
+      // Fallback: return original webID.
+
+      return webId;
+    }
+  }
+
+  /// Launches the profile card URL in a browser.
+
+  Future<void> _launchProfileUrl(String webId) async {
+    try {
+      final profileUrl = _getProfileCardUrl(webId);
+      final uri = Uri.parse(profileUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        debugPrint('Cannot launch URL: $profileUrl');
+      }
+    } catch (e) {
+      debugPrint('Error launching profile URL: $e');
     }
   }
 }
