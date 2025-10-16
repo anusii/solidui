@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
@@ -280,21 +281,24 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
               padding: const EdgeInsets.symmetric(
                 horizontal: NavigationConstants.webIdHorizontalPadding,
               ),
-              child: Text(
-                _getSimplifiedUrl(user.webId!),
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer.withValues(
-                    alpha: 0.8,
+              child: InkWell(
+                onTap: () => _launchProfileUrl(user.webId!),
+                child: Text(
+                  _getSimplifiedUrl(user.webId!),
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimaryContainer.withValues(
+                      alpha: 0.8,
+                    ),
+                    fontSize: NavigationConstants.webIdFontSize,
                   ),
-                  fontSize: NavigationConstants.webIdFontSize,
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           ],
 
           if (user.versionConfig != null) ...[
-            Gap(NavigationConstants.webIdSpacing),
+            const Gap(NavigationConstants.webIdSpacing),
             if (_isVersionLoaded &&
                 _appVersion != null &&
                 _appVersion!.isNotEmpty)
@@ -338,41 +342,20 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
   }
 
   /// Simplifies the WebID URL for display purposes.
+  /// Returns only the domain name for display.
 
   String _getSimplifiedUrl(String webId) {
     try {
       final uri = Uri.parse(webId);
 
-      // Get the host (server domain).
+      // Return only the host (domain).
 
-      String host = uri.host;
-
-      // Extract username from the path.
-
-      String username = '';
-      final pathSegments = uri.pathSegments;
-
-      // Typical webID format: /username/profile/card#me
-      // So the username is usually the first path segment.
-
-      if (pathSegments.isNotEmpty) {
-        username = pathSegments.first;
-      }
-
-      // Return formatted display string.
-
-      if (username.isNotEmpty) {
-        return '$host/$username';
-      } else {
-        // Fallback to just the host if no username found.
-
-        return host;
-      }
+      return uri.host;
     } catch (e) {
       // Fallback parsing for malformed URLs.
 
       try {
-        // Remove common prefixes and suffixes.
+        // Remove common prefixes.
 
         String cleaned = webId;
 
@@ -384,11 +367,11 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
           cleaned = cleaned.substring(7);
         }
 
-        // Remove common webID suffix.
+        // Extract only the domain (remove path).
 
-        const suffix = '/profile/card#me';
-        if (cleaned.endsWith(suffix)) {
-          cleaned = cleaned.substring(0, cleaned.length - suffix.length);
+        final slashIndex = cleaned.indexOf('/');
+        if (slashIndex > 0) {
+          cleaned = cleaned.substring(0, slashIndex);
         }
 
         return cleaned;
@@ -397,6 +380,52 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
 
         return webId;
       }
+    }
+  }
+
+  /// Gets the complete profile card URL from a WebID.
+
+  String _getProfileCardUrl(String webId) {
+    try {
+      final uri = Uri.parse(webId);
+
+      // Get the scheme, host, and path segments.
+
+      final scheme = uri.scheme;
+      final host = uri.host;
+      final pathSegments = uri.pathSegments;
+
+      // Typical webID format: /username/profile/card#me
+      // We want to construct: https://host/username/profile/card#
+
+      if (pathSegments.isNotEmpty) {
+        final username = pathSegments.first;
+        return '$scheme://$host/$username/profile/card#';
+      } else {
+        // Fallback: return the original webId.
+
+        return webId;
+      }
+    } catch (e) {
+      // Fallback: return original webID.
+
+      return webId;
+    }
+  }
+
+  /// Launches the profile card URL in a browser.
+
+  Future<void> _launchProfileUrl(String webId) async {
+    try {
+      final profileUrl = _getProfileCardUrl(webId);
+      final uri = Uri.parse(profileUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        debugPrint('Cannot launch URL: $profileUrl');
+      }
+    } catch (e) {
+      debugPrint('Error launching profile URL: $e');
     }
   }
 }
