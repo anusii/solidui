@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Add webid to an info header in navdrawer [0.0.4 20251017 tchen]
 + Update version widget dependency [0.0.3 20251008 gjw]
 + EXAMPLE: Add demo of getting version [0.0.2 20250820 gjw]
 + CHANGELOG: Initial release [0.0.1 20250819 tchen]
