@@ -1,6 +1,6 @@
 /// Solid Navigation Drawer.
 ///
-// Time-stamp: <Wednesday 2025-08-06 16:30:00 +1000 Tony Chen>
+// Time-stamp: <Friday 2025-10-17 10:33:35 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -401,11 +401,11 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
       final pathSegments = uri.pathSegments;
 
       // Typical webID format: /username/profile/card#me
-      // We want to construct: https://host/username/profile/card#
+      // We want to construct: https: //host/username/profile/card#
 
       if (pathSegments.isNotEmpty) {
         final username = pathSegments.first;
-        return '$scheme://$host/$username/profile/card#';
+        return '$scheme:' '//$host/$username/profile/card#';
       } else {
         // Fallback: return the original webId.
 
