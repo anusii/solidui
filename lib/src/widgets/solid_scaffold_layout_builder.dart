@@ -203,6 +203,6 @@ class SolidNavButtonStartTopLocation extends FloatingActionButtonLocation {
     const double leftPadding = 16.0;
     const double topPadding = 16.0;
 
-    return Offset(leftPadding, topPadding);
+    return const Offset(leftPadding, topPadding);
   }
 }

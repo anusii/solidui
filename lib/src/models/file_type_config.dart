@@ -93,7 +93,7 @@ class FileTypeConfig {
 
   static FileTypeConfig fromPath(String currentPath, [String? basePath]) {
     if (currentPath.contains('/blood_pressure')) {
-      return FileTypeConfig(
+      return const FileTypeConfig(
         type: SolidFileType.bloodPressure,
         displayName: 'Blood Pressure Data',
         showCsvButtons: true,
@@ -105,7 +105,7 @@ class FileTypeConfig {
 ''',
       );
     } else if (currentPath.contains('/vaccination')) {
-      return FileTypeConfig(
+      return const FileTypeConfig(
         type: SolidFileType.vaccination,
         displayName: 'Vaccination Data',
         showCsvButtons: true,
@@ -117,7 +117,7 @@ class FileTypeConfig {
 ''',
       );
     } else if (currentPath.contains('/medication')) {
-      return FileTypeConfig(
+      return const FileTypeConfig(
         type: SolidFileType.medication,
         displayName: 'Medication Data',
         showCsvButtons: true,
@@ -129,7 +129,7 @@ class FileTypeConfig {
 ''',
       );
     } else if (currentPath.contains('/diary')) {
-      return FileTypeConfig(
+      return const FileTypeConfig(
         type: SolidFileType.diary,
         displayName: 'Appointments Data',
         showCsvButtons: true,
@@ -141,7 +141,7 @@ class FileTypeConfig {
 ''',
       );
     } else if (currentPath.contains('/profile')) {
-      return FileTypeConfig(
+      return const FileTypeConfig(
         type: SolidFileType.profile,
         displayName: 'Profile Data',
         showProfileButtons: true,

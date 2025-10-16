@@ -211,7 +211,8 @@ class SolidStatusBar extends StatelessWidget {
       // Send a notification to trigger status refresh
       // Note: We don't know the exact status here, so the parent will
       // refresh and get the current status from the service
-      SecurityKeyStatusChangedNotification(isKeySaved: true).dispatch(context);
+      const SecurityKeyStatusChangedNotification(isKeySaved: true)
+          .dispatch(context);
     } catch (e) {
       debugPrint('Could not refresh parent security key status: $e');
     }
@@ -255,7 +256,7 @@ class SolidStatusBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: items
-                  .expand((item) => [item, Gap(2)])
+                  .expand((item) => [item, const Gap(2)])
                   .take(items.length * 2 - 1)
                   .toList(),
             ),
@@ -291,7 +292,7 @@ class SolidStatusBar extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (serverInfo != null) ...[serverInfo, Gap(4)],
+                if (serverInfo != null) ...[serverInfo, const Gap(4)],
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(

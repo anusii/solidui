@@ -138,7 +138,7 @@ linux_config:
 	flutter config --enable-linux-desktop
 
 .PHONY: prep
-prep: analyze fix import_order_fix format dcm ignore license todo locmax markdown lychee depend bakfind
+prep: analyze fix import_order_fix format dcm ignore license todo locmax markdown lychee depend bakfind test
 	@echo "ADVISORY: make tests docs"
 	@echo $(SEPARATOR)
 
@@ -165,7 +165,7 @@ pubspec.actual:
 .PHONY: fix
 fix:
 	@echo "Dart: FIX"
-	dart fix --apply lib
+	dart fix --apply
 	@echo $(SEPARATOR)
 
 .PHONY: format
@@ -270,7 +270,7 @@ locmax-enforce:
 .PHONY: markdown
 markdown:
 	@echo "Markdown: MARKDOWN FORMAT CHECK."
-	-markdownlint --disable MD036 -- *.md lib assets installers
+	-markdownlint *.md lib assets installers
 	@echo
 	@echo $(SEPARATOR)
 
@@ -333,7 +333,7 @@ desktops:
 .PHONY: test
 test:
 	@echo "Unit TEST:"
-	@-if [ -d test ]; then flutter test test; else echo "\nNo test folder found."; fi
+	@-if [ -d test ]; then flutter test; else echo "\nNo test folder found."; fi
 	@echo $(SEPARATOR)
 
 # For a specific interactive test we think of it as providing a
@@ -371,7 +371,7 @@ qtest:
 		echo "No desktop device found. Please ensure you have the correct desktop platform enabled."; \
 		exit 1; \
 	fi; \
-	for t in integration_test/*.dart; do \
+	for t in $$(find integration_test -name "*_test.dart" | sort); do \
 		echo "========================================"; \
 		echo $$t; /bin/echo -n $$t >&2; \
 		echo "========================================"; \
@@ -522,7 +522,7 @@ docs::
 
 .PHONY: versions
 versions:
-	if [ -d snap ]; then perl -pi -e 's|^version:.*|version: "$(VER)"|' snap/snapcraft.yaml; fi
+	if [ -d snap ]; then perl -pi -e 's|^version:.*|version: $(VER)|' snap/snapcraft.yaml; fi
 
 .PHONY: loc
 loc: lib/*.dart

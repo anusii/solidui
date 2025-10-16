@@ -169,7 +169,7 @@ class SolidScaffoldHelpers {
             children: [
               Icon(aboutConfig.effectiveIcon),
               const SizedBox(width: 8),
-              Text('About'),
+              const Text('About'),
             ],
           ),
         ),
