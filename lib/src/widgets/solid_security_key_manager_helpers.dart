@@ -13,7 +13,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show KeyManager, SolidFunctionCallStatus, getEncKeyPath;
+    show KeyManager, SolidFunctionCallStatus, getEncKeyPath, writePod;
 
 /// Helper class for Security Key Manager operations.
 
@@ -25,49 +25,75 @@ class SolidSecurityKeyManagerHelpers {
     Future<String> Function(String filePath) readFunction,
   ) async {
     try {
-      final hasKeyInMemory = await KeyManager.hasSecurityKey();
-
-      if (!hasKeyInMemory) {
-        return false;
-      }
-
-      // Verify the file actually exists.
+      // Try to check if the key file exists in POD.
 
       try {
         final filePath = await getKeyPathFunction();
         final fileContent = await readFunction(filePath);
 
-        // Check if we got valid content.
+        // Check if we got valid content from POD.
 
         final hasValidKeyFile = fileContent.isNotEmpty &&
             fileContent != SolidFunctionCallStatus.notLoggedIn.toString() &&
             fileContent != SolidFunctionCallStatus.fail.toString();
 
-        // If KeyManager thinks there's a key but file doesn't exist,
-        // clear the KeyManager state.
+        if (hasValidKeyFile) {
+          // Key file exists in POD.
 
-        if (!hasValidKeyFile && hasKeyInMemory) {
-          debugPrint(
-            'KeyManager has key but file missing, clearing KeyManager state',
-          );
-          await KeyManager.forgetSecurityKey();
+          debugPrint('Security key file found in POD at: $filePath');
+
+          // Check if it's also in memory.
+
+          final hasKeyInMemory = await KeyManager.hasSecurityKey();
+
+          if (!hasKeyInMemory) {
+            // File exists but not in memory - try to load it into memory.
+
+            debugPrint(
+                'Key found in POD but not in memory, attempting to load...');
+            try {
+              // Try to set the key in memory from the file content.
+
+              await KeyManager.setSecurityKey(fileContent);
+              debugPrint('Successfully loaded key from POD into memory');
+            } catch (e) {
+              debugPrint('Could not load key into memory: $e');
+            }
+          }
+
+          return true;
+        } else {
+          // No valid key file in POD.
+
+          debugPrint('No valid security key file found in POD');
+
+          // Clear memory if it thinks there's a key.
+
+          final hasKeyInMemory = await KeyManager.hasSecurityKey();
+          if (hasKeyInMemory) {
+            debugPrint('Clearing stale key from memory');
+            await KeyManager.forgetSecurityKey();
+          }
+
+          return false;
         }
-
-        return hasValidKeyFile;
       } catch (e) {
-        // File check failed, assume no valid key.
+        // File check failed - could be network issue or not logged in.
 
         debugPrint('Key file verification failed: $e');
 
-        // Clear KeyManager state if file is missing.
+        // As fallback, check memory status.
 
-        if (hasKeyInMemory) {
-          try {
-            await KeyManager.forgetSecurityKey();
-          } catch (clearError) {
-            debugPrint('Failed to clear KeyManager state: $clearError');
+        try {
+          final hasKeyInMemory = await KeyManager.hasSecurityKey();
+          if (hasKeyInMemory) {
+            debugPrint('Key file check failed but key exists in memory');
+            return true;
           }
+        } catch (memError) {
+          debugPrint('Memory check also failed: $memError');
         }
+
         return false;
       }
     } catch (e) {
@@ -159,52 +185,13 @@ class SolidSecurityKeyManagerHelpers {
   /// Shows a snack bar with an error message.
 
   static void showErrorSnackBar(BuildContext context, String message) {
-    try {
-      final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-      if (scaffoldMessenger != null) {
-        final theme = Theme.of(context);
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: theme.colorScheme.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        );
-      } else {
-        showErrorDialog(context, 'Error', message);
-      }
-    } catch (e) {
-      debugPrint('Error showing snackbar: $e');
-      showErrorDialog(context, 'Error', message);
-    }
+    showErrorDialog(context, 'Error', message);
   }
 
   /// Shows success snack bar.
 
   static void showSuccessSnackBar(BuildContext context, String message) {
-    // Try to find a valid Scaffold, otherwise show a dialog
-    try {
-      final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
-      if (scaffoldMessenger != null) {
-        final theme = Theme.of(context);
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: theme.colorScheme.tertiary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        );
-      } else {
-        // Fallback to dialog if no Scaffold is available
-        showErrorDialog(context, 'Success', message);
-      }
-    } catch (e) {
-      debugPrint('Error showing snackbar: $e');
-      // Fallback to dialog
-      showErrorDialog(context, 'Success', message);
-    }
+    showErrorDialog(context, 'Success', message);
   }
 
   /// Handles key submission validation and setting.
@@ -214,8 +201,10 @@ class SolidSecurityKeyManagerHelpers {
     String confirmKey,
     Future<String> Function(String filePath) readFunction,
     void Function(String message) showErrorFunction,
-    void Function(String message) showSuccessFunction,
-  ) async {
+    void Function(String message) showSuccessFunction, {
+    BuildContext? context,
+    Widget? appWidget,
+  }) async {
     if (key.isEmpty || confirmKey.isEmpty) {
       showErrorFunction('Please enter both keys');
       return false;
@@ -227,25 +216,66 @@ class SolidSecurityKeyManagerHelpers {
     }
 
     try {
-      // Attempt to initialise POD keys.
+      // Get the encryption key path where it should be stored in the POD.
 
-      await KeyManager.initPodKeys(key);
+      final filePath = await getEncKeyPath();
+      debugPrint('Security key will be stored at POD path: $filePath');
+
+      // If context and appWidget are provided, write the key directly to POD
+      // first.
+
+      if (context != null && appWidget != null) {
+        if (!context.mounted) {
+          showErrorFunction('Context not available for POD write');
+          return false;
+        }
+
+        // Write the key directly to POD without encryption.
+
+        final result = await writePod(
+          filePath,
+          key,
+          context,
+          appWidget,
+          encrypted: true,
+        );
+
+        if (result != SolidFunctionCallStatus.success) {
+          throw Exception('Failed to write security key to POD');
+        }
+
+        debugPrint('Security key successfully written to POD at: $filePath');
+
+        // Now initialise the KeyManager with the key to generate verification keys.
+        // This will set up the key in memory and create verification data.
+
+        try {
+          await KeyManager.initPodKeys(key);
+          debugPrint('KeyManager initialised with the security key');
+        } catch (e) {
+          debugPrint('KeyManager initialisation warning (may be ok): $e');
+        }
+      } else {
+        // Fallback to original method if context not provided.
+
+        debugPrint('Using legacy key storage method');
+        await KeyManager.initPodKeys(key);
+      }
 
       // Verify the key was actually set by checking the file.
+
       await Future.delayed(const Duration(milliseconds: 500));
 
       bool keySetSuccessfully = false;
       try {
-        final filePath = await getEncKeyPath();
-        debugPrint('Security key storage path: $filePath');
         final fileContent = await readFunction(filePath);
 
         keySetSuccessfully = fileContent.isNotEmpty &&
             fileContent != SolidFunctionCallStatus.notLoggedIn.toString() &&
             fileContent != SolidFunctionCallStatus.fail.toString();
-        
+
         if (keySetSuccessfully) {
-          debugPrint('Security key successfully saved to POD at: $filePath');
+          debugPrint('Security key verified in POD storage at: $filePath');
         }
       } catch (verifyError) {
         debugPrint('Key verification failed: $verifyError');
@@ -267,19 +297,34 @@ class SolidSecurityKeyManagerHelpers {
       debugPrint('Error setting security key: $e');
       String errorMessage = 'Failed to set security key.';
 
-      if (e.toString().contains('not logged in') ||
-          e.toString().contains('authentication')) {
+      final errorStr = e.toString().toLowerCase();
+
+      if (errorStr.contains('not logged in') ||
+          errorStr.contains('authentication')) {
         errorMessage = 'You must be logged in to set a security key.';
-      } else if (e.toString().contains('network') ||
-          e.toString().contains('connection')) {
+      } else if (errorStr.contains('network') ||
+          errorStr.contains('connection')) {
         errorMessage =
             'Network error. Please check your connection and try again.';
-      } else if (e.toString().contains('permission')) {
+      } else if (errorStr.contains('permission')) {
         errorMessage =
             'Permission denied. Please check your POD access rights.';
+      } else if (errorStr.contains('verify')) {
+        errorMessage = 'Key verification issue. The key was written to POD but '
+            'verification failed. Please try logging out and back in.';
+      } else {
+        // Include part of the actual error for debugging.
+
+        errorMessage =
+            'Failed to set security key: ${e.toString().split('\n').first}';
       }
 
-      showErrorFunction(errorMessage);
+      try {
+        showErrorFunction(errorMessage);
+      } catch (displayError) {
+        debugPrint('Error displaying error message: $displayError');
+      }
+
       return false;
     }
   }

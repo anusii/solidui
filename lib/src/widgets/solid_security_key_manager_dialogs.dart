@@ -140,7 +140,6 @@ class SolidSecurityKeyManagerDialogs {
         filePath,
         context,
         appWidget,
-        basePath: '',
       );
       if (!context.mounted) return;
 
