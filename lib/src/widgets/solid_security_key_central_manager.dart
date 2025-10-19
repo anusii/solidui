@@ -1,6 +1,6 @@
 /// Central key manager to prevent multiple security key prompts.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU
+/// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///

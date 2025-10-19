@@ -4,22 +4,27 @@
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
-/// Licensed under the GNU General Public License, Version 3 (the "License").
+/// Licensed under the MIT License (the "License").
 ///
-/// License: https://www.gnu.org/licenses/gpl-3.0.en.html.
+/// License: https://choosealicense.com/licenses/mit/.
 //
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU General Public License as published by the Free Software
-// Foundation, either version 3 of the License, or (at your option) any later
-// version.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-// details.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// You should have received a copy of the GNU General Public License along with
-// this program.  If not, see <https://www.gnu.org/licenses/>.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 ///
 /// Authors: Tony Chen
 
@@ -79,9 +84,10 @@ class SolidNavTab {
 /// User information configuration for the navigation drawer.
 
 class SolidNavUserInfo {
-  /// The user's display name.
+  /// The user's display name. If null and webId is provided,
+  /// the username will be automatically extracted from the WebID.
 
-  final String userName;
+  final String? userName;
 
   /// The user's WebID (optional).
 
@@ -103,14 +109,82 @@ class SolidNavUserInfo {
 
   final double? avatarSize;
 
+  /// Version configuration for displaying version information in the drawer.
+
+  final SolidVersionConfig? versionConfig;
+
   const SolidNavUserInfo({
-    required this.userName,
+    this.userName,
     this.webId,
     this.showWebId = false,
     this.avatar,
     this.avatarIcon,
     this.avatarSize,
+    this.versionConfig,
   });
+
+  /// Extracts username from WebID URL.
+
+  static String _extractUsernameFromWebId(String webId) {
+    try {
+      final uri = Uri.parse(webId);
+      final pathSegments = uri.pathSegments;
+
+      // Find the username segment (typically the first non-empty path segment).
+
+      for (final segment in pathSegments) {
+        if (segment.isNotEmpty &&
+            segment != 'profile' &&
+            segment != 'card' &&
+            !segment.startsWith('#')) {
+          return segment;
+        }
+      }
+
+      // Fallback: try to extract from the last slash in the full URL
+      final lastSlashIndex = webId.lastIndexOf('/');
+      if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
+        String candidate = webId.substring(lastSlashIndex + 1);
+
+        // Remove common suffixes
+        const suffixes = ['profile', 'card#me', '#me'];
+        for (final suffix in suffixes) {
+          if (candidate.endsWith(suffix)) {
+            candidate =
+                candidate.substring(0, candidate.length - suffix.length);
+            if (candidate.endsWith('/')) {
+              candidate = candidate.substring(0, candidate.length - 1);
+            }
+          }
+        }
+
+        if (candidate.isNotEmpty) {
+          return candidate;
+        }
+      }
+
+      return '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  /// Gets the effective display name, extracting from WebID if necessary.
+
+  String get effectiveUserName {
+    if (userName != null && userName!.isNotEmpty) {
+      return userName!;
+    }
+
+    if (webId != null && webId!.isNotEmpty) {
+      final extracted = _extractUsernameFromWebId(webId!);
+      if (extracted.isNotEmpty) {
+        return extracted;
+      }
+    }
+
+    return 'Not logged in';
+  }
 }
 
 /// Configuration for an AppBar action button.
