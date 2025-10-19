@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart'
     show KeyManager, deleteFile, getEncKeyPath, readPod;
 
+import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_helpers.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_ui.dart';
@@ -126,6 +127,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       },
     );
 
+    securityKeyNotifier.updateStatus(hasValidKey);
+    
     widget.onKeyStatusChanged(hasValidKey);
     setState(() {
       _hasExistingKey = hasValidKey;
@@ -161,7 +164,6 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         () async {
           await _checkKeyStatus();
           if (!mounted) return;
-          widget.onKeyStatusChanged(true);
           if (context.mounted) Navigator.of(context).pop();
         },
       );
@@ -178,7 +180,6 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       () async {
         await _checkKeyStatus();
         if (!mounted) return;
-        widget.onKeyStatusChanged(true);
         if (context.mounted) Navigator.of(context).pop();
       },
       (key, confirmKey) async {
@@ -250,10 +251,12 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       if (!mounted) return;
 
-      widget.onKeyStatusChanged(false);
+      await Future.delayed(const Duration(milliseconds: 200));
       await _checkKeyStatus();
+      await securityKeyNotifier.refreshStatus();
       msg = 'Successfully forgot local security key.';
     } on Exception catch (e) {
+      debugPrint('Error forgetting key: $e');
       msg = 'Failed to forget local security key: $e';
     }
 

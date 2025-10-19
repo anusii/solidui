@@ -100,7 +100,7 @@ class SolidScaffoldLayoutBuilder {
     if (config.securityKeyStatus != null) {
       final originalStatus = config.securityKeyStatus!;
       final updatedStatus = SolidSecurityKeyStatus(
-        isKeySaved: originalStatus.isKeySaved ?? isKeySaved,
+        isKeySaved: isKeySaved,
         onTap: originalStatus.onTap,
         onKeyStatusChanged: originalStatus.onKeyStatusChanged,
         title: originalStatus.title,
@@ -117,6 +117,13 @@ class SolidScaffoldLayoutBuilder {
         securityKeyStatus: updatedStatus,
         customItems: config.customItems,
         showOnNarrowScreens: config.showOnNarrowScreens,
+        narrowScreenThreshold: config.narrowScreenThreshold,
+        backgroundColor: config.backgroundColor,
+        narrowLayoutHeight: config.narrowLayoutHeight,
+        mediumLayoutHeight: config.mediumLayoutHeight,
+        wideLayoutHeight: config.wideLayoutHeight,
+        padding: config.padding,
+        itemSpacing: config.itemSpacing,
       );
     }
 

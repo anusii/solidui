@@ -194,7 +194,7 @@ class SolidStatusBar extends StatelessWidget {
         ),
         onKeyStatusChanged: (bool hasKey) {
           config.onKeyStatusChanged?.call(hasKey);
-          _refreshParentSecurityKeyStatus(context);
+          _refreshParentSecurityKeyStatus(context, hasKey);
 
           debugPrint('Security key status changed: $hasKey');
         },
@@ -203,15 +203,12 @@ class SolidStatusBar extends StatelessWidget {
   }
 
   /// Refreshes the security key status in the parent SolidScaffold.
-  ///
-  /// This method sends a notification to trigger a refresh of the
-  /// security key status after a key operation.
-  void _refreshParentSecurityKeyStatus(BuildContext context) {
+
+  void _refreshParentSecurityKeyStatus(BuildContext context, bool isKeySaved) {
     try {
-      // Send a notification to trigger status refresh
-      // Note: We don't know the exact status here, so the parent will
-      // refresh and get the current status from the service
-      const SecurityKeyStatusChangedNotification(isKeySaved: true)
+      // Send a notification to trigger status refresh with actual key status.
+
+      SecurityKeyStatusChangedNotification(isKeySaved: isKeySaved)
           .dispatch(context);
     } catch (e) {
       debugPrint('Could not refresh parent security key status: $e');
