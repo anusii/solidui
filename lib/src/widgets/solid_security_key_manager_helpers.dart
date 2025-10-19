@@ -388,6 +388,8 @@ class _SetKeyDialog extends StatefulWidget {
 
 class _SetKeyDialogState extends State<_SetKeyDialog> {
   bool _isLoading = false;
+  bool _obscureKey = true;
+  bool _obscureConfirmKey = true;
 
   Future<void> _handleSetKey() async {
     if (widget.keyController.text != widget.confirmKeyController.text) {
@@ -466,8 +468,19 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
                 decoration: SolidSecurityKeyManagerHelpers.getInputDecoration(
                   'Enter Security Key',
                   ThemeData(),
+                ).copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureKey ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureKey = !_obscureKey;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
+                obscureText: _obscureKey,
               ),
               const SizedBox(height: 16),
               TextField(
@@ -475,8 +488,21 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
                 decoration: SolidSecurityKeyManagerHelpers.getInputDecoration(
                   'Confirm Security Key',
                   ThemeData(),
+                ).copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmKey
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmKey = !_obscureConfirmKey;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
+                obscureText: _obscureConfirmKey,
               ),
             ] else ...[
               const SizedBox(height: 20),
