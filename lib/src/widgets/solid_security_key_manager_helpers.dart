@@ -100,7 +100,32 @@ class SolidSecurityKeyManagerHelpers {
 
         debugPrint('Key file verification failed: $e');
 
-        // As fallback, check memory status.
+        // Check if this is a "not found" error (file doesn't exist).
+
+        final errorStr = e.toString().toLowerCase();
+        final isFileNotFound = errorStr.contains('404') ||
+            errorStr.contains('notfound') ||
+            errorStr.contains('not found');
+
+        if (isFileNotFound) {
+          // File definitely doesn't exist - ensure memory is also cleared.
+
+          debugPrint('Key file not found in POD, clearing memory state');
+
+          try {
+            final hasKeyInMemory = await KeyManager.hasSecurityKey();
+            if (hasKeyInMemory) {
+              await KeyManager.forgetSecurityKey();
+              debugPrint('Cleared stale key from memory');
+            }
+          } catch (memError) {
+            debugPrint('Error clearing memory: $memError');
+          }
+
+          return false;
+        }
+
+        // For other errors (network, auth), check memory as fallback.
 
         try {
           final hasKeyInMemory = await KeyManager.hasSecurityKey();
@@ -248,7 +273,7 @@ class SolidSecurityKeyManagerHelpers {
           return false;
         }
 
-        // Write the key directly to POD without encryption.
+        // Write the key directly to POD with encryption.
 
         final result = await writePod(
           filePath,
@@ -280,37 +305,10 @@ class SolidSecurityKeyManagerHelpers {
         await KeyManager.initPodKeys(key);
       }
 
-      // Verify the key was actually set by checking the file.
+      // Key is now set in memory and written to POD.
 
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      bool keySetSuccessfully = false;
-      try {
-        final fileContent = await readFunction(filePath);
-
-        keySetSuccessfully = fileContent.isNotEmpty &&
-            fileContent != SolidFunctionCallStatus.notLoggedIn.toString() &&
-            fileContent != SolidFunctionCallStatus.fail.toString();
-
-        if (keySetSuccessfully) {
-          debugPrint('Security key verified in POD storage at: $filePath');
-        }
-      } catch (verifyError) {
-        debugPrint('Key verification failed: $verifyError');
-        keySetSuccessfully = false;
-      }
-
-      if (keySetSuccessfully) {
-        // Success - show success message.
-
-        showSuccessFunction('Security key set and verified successfully');
-        return true;
-      } else {
-        // Key was set in memory but file verification failed.
-
-        showErrorFunction('Key set but not verified in your POD storage.');
-        return true; // Still update status as key is at least in memory
-      }
+      debugPrint('Security key successfully set in memory and written to POD');
+      return true;
     } catch (e) {
       debugPrint('Error setting security key: $e');
       String errorMessage = 'Failed to set security key.';
@@ -358,7 +356,102 @@ class SolidSecurityKeyManagerHelpers {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (context) => _SetKeyDialog(
+        keyController: keyController,
+        confirmKeyController: confirmKeyController,
+        onKeyChanged: onKeyChanged,
+        handleSubmissionFunction: handleSubmissionFunction,
+      ),
+    );
+  }
+}
+
+/// Dialog for setting a new security key with loading state.
+
+class _SetKeyDialog extends StatefulWidget {
+  final TextEditingController keyController;
+  final TextEditingController confirmKeyController;
+  final Future<void> Function() onKeyChanged;
+  final Future<bool> Function(String key, String confirmKey)
+      handleSubmissionFunction;
+
+  const _SetKeyDialog({
+    required this.keyController,
+    required this.confirmKeyController,
+    required this.onKeyChanged,
+    required this.handleSubmissionFunction,
+  });
+
+  @override
+  State<_SetKeyDialog> createState() => _SetKeyDialogState();
+}
+
+class _SetKeyDialogState extends State<_SetKeyDialog> {
+  bool _isLoading = false;
+
+  Future<void> _handleSetKey() async {
+    if (widget.keyController.text != widget.confirmKeyController.text) {
+      SolidSecurityKeyManagerHelpers.showErrorSnackBar(
+        context,
+        'Keys do not match',
+      );
+      return;
+    }
+    if (widget.keyController.text.length < 6) {
+      SolidSecurityKeyManagerHelpers.showErrorSnackBar(
+        context,
+        'Key must be at least 6 characters',
+      );
+      return;
+    }
+
+    // Show loading state
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final success = await widget.handleSubmissionFunction(
+        widget.keyController.text,
+        widget.confirmKeyController.text,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        // Close the dialog immediately while still showing loading.
+
+        Navigator.of(context).pop();
+
+        // Update the key status.
+
+        await widget.onKeyChanged();
+      } else {
+        // Only hide loading if operation failed (to allow retry).
+
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      SolidSecurityKeyManagerHelpers.showErrorSnackBar(
+        context,
+        'Failed to set key: $e',
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: !_isLoading,
+      child: AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: const Text(
           'Set Security Key',
@@ -367,50 +460,51 @@ class SolidSecurityKeyManagerHelpers {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: keyController,
-              decoration: getInputDecoration('Enter Security Key', ThemeData()),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: confirmKeyController,
-              decoration: getInputDecoration(
-                'Confirm Security Key',
-                ThemeData(),
+            if (!_isLoading) ...[
+              TextField(
+                controller: widget.keyController,
+                decoration: SolidSecurityKeyManagerHelpers.getInputDecoration(
+                  'Enter Security Key',
+                  ThemeData(),
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
-            ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: widget.confirmKeyController,
+                decoration: SolidSecurityKeyManagerHelpers.getInputDecoration(
+                  'Confirm Security Key',
+                  ThemeData(),
+                ),
+                obscureText: true,
+              ),
+            ] else ...[
+              const SizedBox(height: 20),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 20),
+              const Text(
+                'Setting security key...',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+            ],
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (keyController.text != confirmKeyController.text) {
-                showErrorSnackBar(context, 'Keys do not match');
-                return;
-              }
-              if (keyController.text.length < 6) {
-                showErrorSnackBar(context, 'Key must be at least 6 characters');
-                return;
-              }
-              Navigator.of(context).pop();
-              final success = await handleSubmissionFunction(
-                keyController.text,
-                confirmKeyController.text,
-              );
-              if (success) {
-                await onKeyChanged();
-              }
-            },
-            style: getButtonStyle(ThemeData()),
-            child: const Text('Set Key'),
-          ),
-        ],
+        actions: _isLoading
+            ? []
+            : [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: _handleSetKey,
+                  style: SolidSecurityKeyManagerHelpers.getButtonStyle(
+                    ThemeData(),
+                  ),
+                  child: const Text('Set Key'),
+                ),
+              ],
       ),
     );
   }

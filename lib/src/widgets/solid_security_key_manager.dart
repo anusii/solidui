@@ -96,7 +96,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   // Indicates if a security key exists for the user.
 
-  bool _hasExistingKey = false;
+  // Initialise with the current notifier status to avoid showing wrong state.
+
+  late bool _hasExistingKey;
 
   // Controllers for input fields used in dialogues.
 
@@ -106,6 +108,10 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   @override
   void initState() {
     super.initState();
+
+    // Initialise with current notifier status to avoid flashing wrong UI.
+
+    _hasExistingKey = securityKeyNotifier.isKeySaved;
     _checkKeyStatus();
   }
 
@@ -117,8 +123,32 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   }
 
   /// Checks if a security key exists.
+  ///
+  /// If [forceCheck] is true, always performs a full check regardless of
+  /// the notifier state. This is used after setting a new key.
 
-  Future<void> _checkKeyStatus() async {
+  Future<void> _checkKeyStatus({bool forceCheck = false}) async {
+    // First check the global notifier state.
+    // This avoids race conditions where we just deleted the key.
+
+    final currentNotifierStatus = securityKeyNotifier.isKeySaved;
+
+    // If notifier says no key and we're not forcing a check, trust it.
+    // This prevents re-checking after deletion.
+
+    if (!currentNotifierStatus && !forceCheck) {
+      debugPrint('Notifier indicates no key, skipping file check');
+      if (mounted) {
+        setState(() {
+          _hasExistingKey = false;
+        });
+      }
+      widget.onKeyStatusChanged(false);
+      return;
+    }
+
+    // Perform a full check.
+
     final hasValidKey = await SolidSecurityKeyManagerHelpers.checkKeyStatus(
       () async => await getEncKeyPath(),
       (filePath) async {
@@ -127,8 +157,11 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       },
     );
 
+    // Update all states with the verified status, but check mounted first.
+
+    if (!mounted) return;
+
     securityKeyNotifier.updateStatus(hasValidKey);
-    
     widget.onKeyStatusChanged(hasValidKey);
     setState(() {
       _hasExistingKey = hasValidKey;
@@ -162,9 +195,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         context,
         widget.config.appWidget,
         () async {
-          await _checkKeyStatus();
-          if (!mounted) return;
-          if (context.mounted) Navigator.of(context).pop();
+          // Update status immediately after changing key.
+
+          _updateKeyStatusAfterSet();
         },
       );
       return;
@@ -178,9 +211,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       _keyController,
       _confirmKeyController,
       () async {
-        await _checkKeyStatus();
-        if (!mounted) return;
-        if (context.mounted) Navigator.of(context).pop();
+        // Update status immediately after setting new key.
+
+        _updateKeyStatusAfterSet();
       },
       (key, confirmKey) async {
         return await SolidSecurityKeyManagerHelpers.handleKeySubmission(
@@ -207,6 +240,29 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         );
       },
     );
+  }
+
+  /// Updates the key status immediately after setting a key.
+  /// This avoids async checks that might fail if the widget is disposed.
+
+  void _updateKeyStatusAfterSet() {
+    if (!mounted) return;
+
+    // Immediately update all states to true.
+
+    setState(() {
+      _hasExistingKey = true;
+    });
+
+    // Update global notifier.
+
+    securityKeyNotifier.updateStatus(true);
+
+    // Notify parent widget.
+
+    widget.onKeyStatusChanged(true);
+
+    debugPrint('Security key status updated to saved');
   }
 
   Future<void> _showKeyFileNotFoundDialog(BuildContext context) async {
@@ -244,20 +300,43 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     if (!confirmed || !mounted) return;
 
     late String msg;
+    bool success = false;
+
     try {
+      // Clear the key from memory.
+
       await KeyManager.forgetSecurityKey();
+
+      // Delete the key file from POD.
+
       final encKeyPath = await getEncKeyPath();
       await deleteFile(encKeyPath);
 
-      if (!mounted) return;
-
-      await Future.delayed(const Duration(milliseconds: 200));
-      await _checkKeyStatus();
-      await securityKeyNotifier.refreshStatus();
+      success = true;
       msg = 'Successfully forgot local security key.';
     } on Exception catch (e) {
       debugPrint('Error forgetting key: $e');
       msg = 'Failed to forget local security key: $e';
+    }
+
+    if (!mounted) return;
+
+    // Force update all states to false immediately.
+
+    if (success) {
+      // Update local widget state.
+
+      setState(() {
+        _hasExistingKey = false;
+      });
+
+      // Update global notifier - this will trigger UI updates.
+
+      securityKeyNotifier.updateStatus(false);
+
+      // Notify parent widget.
+
+      widget.onKeyStatusChanged(false);
     }
 
     if (!mounted) return;
