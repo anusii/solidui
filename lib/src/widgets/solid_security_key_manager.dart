@@ -35,9 +35,9 @@ import 'package:solidpod/solidpod.dart'
 
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
+import 'package:solidui/src/widgets/solid_security_key_manager_ui.dart';
 import 'package:solidui/src/widgets/solid_security_key_operations.dart';
 import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
-import 'package:solidui/src/widgets/solid_security_key_manager_ui.dart';
 
 /// Configuration for the Security Key Manager.
 
