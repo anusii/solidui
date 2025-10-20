@@ -35,7 +35,8 @@ import 'package:solidpod/solidpod.dart'
 
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
-import 'package:solidui/src/widgets/solid_security_key_manager_helpers.dart';
+import 'package:solidui/src/widgets/solid_security_key_operations.dart';
+import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_ui.dart';
 
 /// Configuration for the Security Key Manager.
@@ -149,7 +150,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     // Perform a full check.
 
-    final hasValidKey = await SolidSecurityKeyManagerHelpers.checkKeyStatus(
+    final hasValidKey = await SecurityKeyOperations.checkKeyStatus(
       () async => await getEncKeyPath(),
       (filePath) async {
         if (!mounted) return '';
@@ -216,7 +217,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         _updateKeyStatusAfterSet();
       },
       (key, confirmKey) async {
-        return await SolidSecurityKeyManagerHelpers.handleKeySubmission(
+        return await SecurityKeyOperations.handleKeySubmission(
           key,
           confirmKey,
           (filePath) async {
@@ -227,11 +228,11 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
               const SizedBox(),
             );
           },
-          (message) => SolidSecurityKeyManagerHelpers.showErrorSnackBar(
+          (message) => SecurityKeyUIHelpers.showErrorSnackBar(
             context,
             message,
           ),
-          (message) => SolidSecurityKeyManagerHelpers.showSuccessSnackBar(
+          (message) => SecurityKeyUIHelpers.showSuccessSnackBar(
             context,
             message,
           ),
@@ -266,7 +267,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   }
 
   Future<void> _showKeyFileNotFoundDialog(BuildContext context) async {
-    await SolidSecurityKeyManagerHelpers.showErrorDialog(
+    await SecurityKeyUIHelpers.showErrorDialog(
       context,
       'Security Key File Not Found',
       'The security key file could not be found. '
@@ -347,7 +348,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     // Show the notice dialog.
 
-    await SolidSecurityKeyManagerHelpers.showErrorDialog(
+    await SecurityKeyUIHelpers.showErrorDialog(
       context,
       'Notice',
       msg,

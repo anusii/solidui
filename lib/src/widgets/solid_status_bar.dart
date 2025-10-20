@@ -190,7 +190,7 @@ class SolidStatusBar extends StatelessWidget {
   ) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (BuildContext context) => SolidSecurityKeyManager(
         config: SolidSecurityKeyManagerConfig(
           appWidget: config.appWidget ??
