@@ -421,13 +421,29 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
       if (!mounted) return;
 
       if (success) {
-        // Close the dialog immediately while still showing loading.
+        // Update the key status first.
+
+        await widget.onKeyChanged();
+
+        if (!mounted) return;
+
+        // Close the Set Key dialog.
 
         Navigator.of(context).pop();
 
-        // Update the key status.
+        if (!mounted) return;
 
-        await widget.onKeyChanged();
+        // Close the Security Key Manager dialog.
+
+        Navigator.of(context).pop();
+
+        // Show success dialog.
+
+        await SolidSecurityKeyManagerHelpers.showErrorDialog(
+          context,
+          'Success',
+          'Security key has been set successfully.',
+        );
       } else {
         // Only hide loading if operation failed (to allow retry).
 

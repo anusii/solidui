@@ -341,6 +341,12 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     if (!mounted) return;
 
+    // Close the security key manager dialog first.
+
+    Navigator.of(context).pop();
+
+    // Show the notice dialog.
+
     await SolidSecurityKeyManagerHelpers.showErrorDialog(
       context,
       'Notice',
