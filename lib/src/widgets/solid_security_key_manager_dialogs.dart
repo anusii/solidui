@@ -217,6 +217,51 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
   bool _isLoading = false;
   bool _obscureKey = true;
   bool _obscureConfirmKey = true;
+  String? _keyErrorText;
+  String? _confirmKeyErrorText;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.keyController.addListener(_validateKeyInput);
+    widget.confirmKeyController.addListener(_validateConfirmKeyInput);
+  }
+
+  @override
+  void dispose() {
+    widget.keyController.removeListener(_validateKeyInput);
+    widget.confirmKeyController.removeListener(_validateConfirmKeyInput);
+    super.dispose();
+  }
+
+  void _validateKeyInput() {
+    setState(() {
+      if (widget.keyController.text.isEmpty) {
+        _keyErrorText = null;
+      } else if (widget.keyController.text.length < 6) {
+        _keyErrorText = 'Key must be at least 6 characters';
+      } else {
+        _keyErrorText = null;
+      }
+    });
+  }
+
+  void _validateConfirmKeyInput() {
+    setState(() {
+      if (widget.confirmKeyController.text.isEmpty) {
+        _confirmKeyErrorText = null;
+      } else if (widget.confirmKeyController.text.length < 6) {
+        _confirmKeyErrorText = 'Key must be at least 6 characters';
+      } else {
+        _confirmKeyErrorText = null;
+      }
+    });
+  }
+
+  bool get _isInputValid {
+    return widget.keyController.text.length >= 6 &&
+        widget.confirmKeyController.text.length >= 6;
+  }
 
   Future<void> _handleSetKey() async {
     if (widget.keyController.text != widget.confirmKeyController.text) {
@@ -312,6 +357,7 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
                   'Enter Security Key',
                   ThemeData(),
                 ).copyWith(
+                  errorText: _keyErrorText,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureKey ? Icons.visibility : Icons.visibility_off,
@@ -332,6 +378,7 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
                   'Confirm Security Key',
                   ThemeData(),
                 ).copyWith(
+                  errorText: _confirmKeyErrorText,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureConfirmKey
@@ -367,7 +414,7 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: _handleSetKey,
+                  onPressed: _isInputValid ? _handleSetKey : null,
                   style: SecurityKeyUIHelpers.getButtonStyle(ThemeData()),
                   child: const Text('Set Key'),
                 ),
