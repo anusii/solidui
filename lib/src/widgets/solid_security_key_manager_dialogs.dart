@@ -34,7 +34,7 @@ import 'package:solidpod/solidpod.dart'
     show SolidFunctionCallStatus, changeKeyPopup, getEncKeyPath, readPod;
 
 import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
-import 'package:solidui/src/widgets/solid_security_key_view.dart';
+import 'package:solidui/src/widgets/solid_security_key_utils.dart';
 
 /// Dialog management for Security Key Manager.
 
@@ -164,13 +164,7 @@ class SolidSecurityKeyManagerDialogs {
         return;
       }
       if (fileContent.isNotEmpty) {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                SolidSecurityKeyView(title: title, keyInfo: fileContent),
-          ),
-        );
+        await _showSecurityKeyDialog(context, title, fileContent);
       } else {
         await SecurityKeyUIHelpers.showErrorDialog(
           context,
@@ -190,6 +184,88 @@ class SolidSecurityKeyManagerDialogs {
     } finally {
       setLoading(false);
     }
+  }
+
+  /// Shows the security key data in a dialogue.
+
+  static Future<void> _showSecurityKeyDialog(
+    BuildContext context,
+    String title,
+    String keyInfo,
+  ) async {
+    final encFileData = parseEncKeyContent(keyInfo);
+
+    // Map the data into rows for the DataTable.
+
+    final dataRows = encFileData.entries.map((entry) {
+      return DataRow(
+        cells: [
+          DataCell(
+            Text(entry.key as String, style: const TextStyle(fontSize: 12)),
+          ),
+          DataCell(
+            SizedBox(
+              width: 400,
+              child: Text(
+                entry.value[1] as String,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 3,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ),
+        ],
+      );
+    }).toList();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: DataTable(
+              columnSpacing: 30.0,
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    'Parameter',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Value',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+              rows: dataRows,
+            ),
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -243,43 +319,44 @@ class _SetKeyDialogState extends State<_SetKeyDialog> {
       } else {
         _keyErrorText = null;
       }
+
+      // Also validate confirm key when main key changes.
+
+      _validateConfirmKeyMatch();
     });
   }
 
   void _validateConfirmKeyInput() {
     setState(() {
-      if (widget.confirmKeyController.text.isEmpty) {
-        _confirmKeyErrorText = null;
-      } else if (widget.confirmKeyController.text.length < 6) {
-        _confirmKeyErrorText = 'Key must be at least 6 characters';
-      } else {
-        _confirmKeyErrorText = null;
-      }
+      _validateConfirmKeyMatch();
     });
+  }
+
+  void _validateConfirmKeyMatch() {
+    if (widget.confirmKeyController.text.isEmpty) {
+      _confirmKeyErrorText = null;
+    } else if (widget.keyController.text != widget.confirmKeyController.text) {
+      _confirmKeyErrorText = 'Keys do not match';
+    } else {
+      _confirmKeyErrorText = null;
+    }
   }
 
   bool get _isInputValid {
     return widget.keyController.text.length >= 6 &&
-        widget.confirmKeyController.text.length >= 6;
+        widget.confirmKeyController.text.length >= 6 &&
+        widget.keyController.text == widget.confirmKeyController.text;
   }
 
   Future<void> _handleSetKey() async {
-    if (widget.keyController.text != widget.confirmKeyController.text) {
-      SecurityKeyUIHelpers.showErrorSnackBar(
-        context,
-        'Keys do not match',
-      );
-      return;
-    }
-    if (widget.keyController.text.length < 6) {
-      SecurityKeyUIHelpers.showErrorSnackBar(
-        context,
-        'Key must be at least 6 characters',
-      );
+    // Validation is now done inline, so we can proceed directly.
+
+    if (!_isInputValid) {
       return;
     }
 
-    // Show loading state
+    // Show loading state.
+
     setState(() {
       _isLoading = true;
     });
