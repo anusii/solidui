@@ -48,10 +48,20 @@ class SolidSecurityKeyManagerDialogs {
   ) async {
     try {
       await changeKeyPopup(context, appWidget);
+      if (!context.mounted) return;
       await onKeyChanged();
-    } catch (e) {
-      if (context.mounted) {
-        SecurityKeyUIHelpers.showErrorSnackBar(context, e.toString());
+    } catch (e, stackTrace) {
+      final errorStr = e.toString().toLowerCase();
+      final isScaffoldError = errorStr.contains('scaffold') || 
+                              errorStr.contains('assertion');
+      final isCancellation = errorStr.contains('cancel') || 
+                            errorStr.contains('dismissed');
+      
+      if (!isScaffoldError && !isCancellation && context.mounted) {
+        SecurityKeyUIHelpers.showErrorSnackBar(
+          context,
+          'Failed to change security key: ${e.toString()}',
+        );
       }
     }
   }
