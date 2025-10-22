@@ -50,7 +50,7 @@ class SolidSecurityKeyManagerDialogs {
       await changeKeyPopup(context, appWidget);
       if (!context.mounted) return;
       await onKeyChanged();
-    } catch (e, stackTrace) {
+    } catch (e) {
       final errorStr = e.toString().toLowerCase();
       final isScaffoldError = errorStr.contains('scaffold') || 
                               errorStr.contains('assertion');
