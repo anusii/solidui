@@ -33,7 +33,8 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:solidpod/solidpod.dart';
+
+import 'package:solidui/solidui.dart';
 
 import '../main.dart';
 

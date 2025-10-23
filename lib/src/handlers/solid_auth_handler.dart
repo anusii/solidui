@@ -30,9 +30,10 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show logoutPopup, getWebId;
+import 'package:solidpod/solidpod.dart' show getWebId;
 
-import '../widgets/solid_default_login.dart';
+import 'package:solidui/src/widgets/solid_default_login.dart';
+import 'package:solidui/src/widgets/solid_logout_dialog.dart' show logoutPopup;
 
 /// Configuration for Solid authentication handling.
 
