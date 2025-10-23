@@ -33,8 +33,9 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart'
     show SolidFunctionCallStatus, changeKeyPopup, getEncKeyPath, readPod;
 
-import 'package:solidui/src/widgets/solid_security_key_manager_helpers.dart';
-import 'package:solidui/src/widgets/solid_security_key_view.dart';
+import 'package:solidui/src/widgets/solid_security_key_set_dialog.dart';
+import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
+import 'package:solidui/src/widgets/solid_security_key_utils.dart';
 
 /// Dialog management for Security Key Manager.
 
@@ -48,10 +49,20 @@ class SolidSecurityKeyManagerDialogs {
   ) async {
     try {
       await changeKeyPopup(context, appWidget);
+      if (!context.mounted) return;
       await onKeyChanged();
     } catch (e) {
-      if (context.mounted) {
-        SolidSecurityKeyManagerHelpers.showErrorSnackBar(context, e.toString());
+      final errorStr = e.toString().toLowerCase();
+      final isScaffoldError =
+          errorStr.contains('scaffold') || errorStr.contains('assertion');
+      final isCancellation =
+          errorStr.contains('cancel') || errorStr.contains('dismissed');
+
+      if (!isScaffoldError && !isCancellation && context.mounted) {
+        SecurityKeyUIHelpers.showErrorSnackBar(
+          context,
+          'Failed to change security key: ${e.toString()}',
+        );
       }
     }
   }
@@ -66,12 +77,15 @@ class SolidSecurityKeyManagerDialogs {
     Future<bool> Function(String key, String confirmKey)
         handleSubmissionFunction,
   ) async {
-    await SolidSecurityKeyManagerHelpers.showNewKeyDialog(
-      context,
-      keyController,
-      confirmKeyController,
-      onKeyChanged,
-      handleSubmissionFunction,
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => SetKeyDialog(
+        keyController: keyController,
+        confirmKeyController: confirmKeyController,
+        onKeyChanged: onKeyChanged,
+        handleSubmissionFunction: handleSubmissionFunction,
+      ),
     );
   }
 
@@ -82,7 +96,7 @@ class SolidSecurityKeyManagerDialogs {
     Future<void> Function() checkKeyStatus,
     Future<void> Function(BuildContext) showKeyInputDialog,
   ) async {
-    await SolidSecurityKeyManagerHelpers.showErrorDialog(
+    await SecurityKeyUIHelpers.showErrorDialog(
       context,
       'Security Key File Not Found',
       'The security key file could not be found. Would you like to set a new '
@@ -145,12 +159,11 @@ class SolidSecurityKeyManagerDialogs {
         filePath,
         context,
         appWidget,
-        basePath: '',
       );
       if (!context.mounted) return;
 
       if (fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
-        await SolidSecurityKeyManagerHelpers.showErrorDialog(
+        await SecurityKeyUIHelpers.showErrorDialog(
           context,
           'Not Logged In',
           'You must be logged in to view security keys.',
@@ -162,15 +175,9 @@ class SolidSecurityKeyManagerDialogs {
         return;
       }
       if (fileContent.isNotEmpty) {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                SolidSecurityKeyView(title: title, keyInfo: fileContent),
-          ),
-        );
+        await _showSecurityKeyDialog(context, title, fileContent);
       } else {
-        await SolidSecurityKeyManagerHelpers.showErrorDialog(
+        await SecurityKeyUIHelpers.showErrorDialog(
           context,
           'Empty Key File',
           'The security key file exists but appears to be empty.',
@@ -179,7 +186,7 @@ class SolidSecurityKeyManagerDialogs {
     } catch (e) {
       debugPrint('Exception reading security key: $e');
       if (context.mounted) {
-        await SolidSecurityKeyManagerHelpers.showErrorDialog(
+        await SecurityKeyUIHelpers.showErrorDialog(
           context,
           'Error Reading Key',
           e.toString(),
@@ -188,5 +195,87 @@ class SolidSecurityKeyManagerDialogs {
     } finally {
       setLoading(false);
     }
+  }
+
+  /// Shows the security key data in a dialogue.
+
+  static Future<void> _showSecurityKeyDialog(
+    BuildContext context,
+    String title,
+    String keyInfo,
+  ) async {
+    final encFileData = parseEncKeyContent(keyInfo);
+
+    // Map the data into rows for the DataTable.
+
+    final dataRows = encFileData.entries.map((entry) {
+      return DataRow(
+        cells: [
+          DataCell(
+            Text(entry.key as String, style: const TextStyle(fontSize: 12)),
+          ),
+          DataCell(
+            SizedBox(
+              width: 400,
+              child: Text(
+                entry.value[1] as String,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 3,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ),
+        ],
+      );
+    }).toList();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: DataTable(
+              columnSpacing: 30.0,
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    'Parameter',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Value',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+              rows: dataRows,
+            ),
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 }
