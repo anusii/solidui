@@ -32,8 +32,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart';
-
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/solid_popup_login.dart';
 
@@ -60,7 +58,8 @@ Future<dynamic> loginWebIdInputDialog(
             TextFormField(
               controller: formControllerWebId,
               decoration: const InputDecoration(
-                hintText: 'Eg: https://pods.solidcommunity.au/username/profile/card#me',
+                hintText:
+                    'Eg: https://pods.solidcommunity.au/username/profile/card#me',
               ),
             ),
           ],

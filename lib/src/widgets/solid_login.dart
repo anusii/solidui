@@ -35,8 +35,6 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:solidpod/solidpod.dart'
     show
         checkLoggedIn,
@@ -47,6 +45,7 @@ import 'package:solidpod/solidpod.dart'
         solidAuthenticate,
         initialStructureTest,
         InitialSetupScreen;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
