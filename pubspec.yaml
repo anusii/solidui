@@ -21,7 +21,7 @@ dependencies:
   solidpod:
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: tony/25_solidlogin
+      ref: dev
   url_launcher: ^6.3.1
   version_widget: ^1.0.5
 
