@@ -32,7 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show AppInfo, getWebId;
 
-import 'package:solidui/src/widgets/solid_security_key_manager_helpers.dart';
+import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
 
 /// UI builder for Security Key Manager dialog content.
 
@@ -267,7 +267,7 @@ class SolidSecurityKeyManagerUI {
                 child: const Text('Cancel', style: TextStyle(fontSize: 16)),
               ),
               ElevatedButton(
-                style: SolidSecurityKeyManagerHelpers.getButtonStyle(
+                style: SecurityKeyUIHelpers.getButtonStyle(
                   Theme.of(context),
                   isDestructive: true,
                 ),

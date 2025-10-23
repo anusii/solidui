@@ -346,8 +346,8 @@ Tap to visit your server in the browser.
         securityKeyStatus: SolidSecurityKeyStatus(
           title: 'SolidUI Example Security Keys',
           onKeyStatusChanged: (bool hasKey) {
-            _showMessage(
-                'Security key status changed: ${hasKey ? 'Saved' : 'Not saved'}');
+            // _showMessage('Security key status changed: '
+            //     '${hasKey ? 'Saved' : 'Not saved'}');
           },
         ),
         showOnNarrowScreens: false,

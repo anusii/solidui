@@ -34,6 +34,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
@@ -198,6 +199,7 @@ class SolidScaffold extends StatefulWidget {
   /// Optional About dialogue configuration.
 
   final SolidAboutConfig? aboutConfig;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -237,6 +239,7 @@ class SolidScaffold extends StatefulWidget {
     this.themeToggle,
     this.aboutConfig,
   });
+
   @override
   State<SolidScaffold> createState() => SolidScaffoldState();
 }
@@ -250,6 +253,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   String? _appVersion;
   bool _isVersionLoaded = false;
   bool? _cachedUsesInternalManagement;
+
   @override
   void initState() {
     super.initState();
@@ -267,10 +271,19 @@ class SolidScaffoldState extends State<SolidScaffold> {
       _onThemeChanged,
     );
 
+    // Listen to global security key notifier.
+
+    if (widget.statusBar?.securityKeyStatus != null) {
+      securityKeyNotifier.addListener(_onSecurityKeyNotifierChanged);
+      _isKeySaved = securityKeyNotifier.isKeySaved;
+    }
+
     // Load security key status asynchronously after initialisation.
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadSecurityKeyStatus();
+      if (widget.statusBar?.securityKeyStatus != null) {
+        securityKeyNotifier.refreshStatus();
+      }
     });
   }
 
@@ -280,11 +293,27 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (_getUsesInternalManagement()) {
       solidThemeNotifier.removeListener(_onThemeChanged);
     }
+    if (widget.statusBar?.securityKeyStatus != null) {
+      securityKeyNotifier.removeListener(_onSecurityKeyNotifierChanged);
+    }
     super.dispose();
   }
 
   void _onThemeChanged() {
     if (mounted) setState(() {});
+  }
+
+  /// Callback when global security key notifier changes.
+
+  void _onSecurityKeyNotifierChanged() {
+    if (!mounted) return;
+
+    final newStatus = securityKeyNotifier.isKeySaved;
+
+    if (_isKeySaved != newStatus) {
+      setState(() => _isKeySaved = newStatus);
+      widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(newStatus);
+    }
   }
 
   void _onSecurityKeyChanged() {
@@ -359,8 +388,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   String _getVersionToDisplay() =>
       SolidScaffoldHelpers.getVersionToDisplay(_isVersionLoaded, _appVersion);
+
   bool _shouldShowVersion() =>
       SolidScaffoldHelpers.shouldShowVersion(_isVersionLoaded);
+
   Future<void> _loadAppVersion() async {
     final version = await SolidScaffoldInitHelpers.loadAppVersion(true);
     if (mounted) {
@@ -384,9 +415,12 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   bool _isWideScreen(BuildContext context) =>
       SolidScaffoldHelpers.isWideScreen(context, widget.narrowScreenThreshold);
+
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
+
   int get _currentSelectedIndex => widget.selectedIndex ?? _selectedIndex;
+
   @override
   Widget build(BuildContext context) {
     final isWideScreen = _isWideScreen(context);
@@ -409,7 +443,12 @@ class SolidScaffoldState extends State<SolidScaffold> {
           );
     return NotificationListener<SecurityKeyStatusChangedNotification>(
       onNotification: (notification) {
-        _loadSecurityKeyStatus();
+        // Trigger a refresh on the global notifier
+        // This will automatically update all listeners including this scaffold.
+
+        Future.delayed(const Duration(milliseconds: 300), () {
+          securityKeyNotifier.refreshStatus();
+        });
         return true;
       },
       child: SolidScaffoldWidgetBuilder.buildFromWidget(
