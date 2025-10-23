@@ -1,6 +1,6 @@
 /// A dialog to input Group of WebIDs.
 ///
-// Time-stamp: <Sunday 2024-07-11 12:28:00 +1000 Anushka Vidange>
+// Time-stamp: <Friday 2025-10-24 09:03:05 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -58,8 +58,8 @@ Future<dynamic> loginWebIdInputDialog(
             TextFormField(
               controller: formControllerWebId,
               decoration: const InputDecoration(
-                hintText:
-                    'Eg: https://pods.solidcommunity.au/username/profile/card#me',
+                hintText: 'Eg: https://pods.solidcommunity.au/'
+                    'username/profile/card#me',
               ),
             ),
           ],
