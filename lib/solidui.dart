@@ -30,6 +30,7 @@ library;
 
 export 'src/constants/about.dart';
 export 'src/constants/navigation.dart';
+export 'src/constants/ui.dart';
 
 export 'src/handlers/solid_auth_handler.dart';
 
@@ -44,6 +45,13 @@ export 'src/widgets/solid_status_bar.dart';
 export 'src/widgets/solid_status_bar_models.dart';
 export 'src/widgets/solid_dynamic_login_status.dart';
 export 'src/widgets/solid_default_login.dart';
+
+export 'src/widgets/solid_login.dart';
+export 'src/widgets/solid_popup_login.dart';
+export 'src/widgets/solid_login_webid_input_dialog.dart';
+export 'src/widgets/solid_logout_dialog.dart';
+export 'src/widgets/solid_loading_screen.dart';
+export 'src/widgets/solid_animation_dialog.dart';
 
 export 'src/widgets/solid_theme_models.dart';
 export 'src/widgets/solid_theme_notifier.dart';
@@ -71,9 +79,11 @@ export 'src/models/file_item.dart';
 export 'src/models/file_state.dart';
 export 'src/models/data_format_config.dart';
 export 'src/models/file_type_config.dart';
+export 'src/models/snackbar_config.dart';
 
 export 'src/utils/file_operations.dart';
 export 'src/utils/is_text_file.dart';
 export 'src/utils/solid_file_operations.dart';
+export 'src/utils/solid_alert.dart';
 
 export 'src/widgets/solid_format_info_card.dart';

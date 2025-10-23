@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart';
+import 'package:solidui/src/widgets/solid_login.dart';
 
 /// Default login widget for Solid POD authentication.
 
