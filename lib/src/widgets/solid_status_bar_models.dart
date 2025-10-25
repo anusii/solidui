@@ -1,6 +1,6 @@
 /// Solid Status Bar Models.
 ///
-// Time-stamp: <Monday 2025-08-11 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Saturday 2025-10-25 17:16:44 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -198,10 +198,22 @@ class SolidServerInfo {
     if (tooltip != null) return tooltip!;
 
     if (isClickable) {
-      return 'Server: $serverUri\n\nClick to open server in browser.\n\n'
-          'Manages your personal data POD where your data is stored securely.';
+      return '''
+
+      Your Solid server is $serverUri. You can tap here to open the server in
+      your browser.  The Solid server hosts your Data Vault and manages your
+      personal online datastore (Pod) where your app data is stored securely and
+      often encrypted (depending on your app).
+
+      ''';
     } else {
-      return 'Server: $serverUri.\n\nYour personal data POD server.';
+      return '''
+
+      Your Solid server is $serverUri. The Solid server hosts your Data Vault
+      and manages your personal online datastore (Pod) where your app data is
+      stored securely and often encrypted (depending on your app).
+
+      ''';
     }
   }
 }
@@ -349,8 +361,8 @@ class SolidSecurityKeyStatus {
 
 **Security Key Manager**
 
-Tap here to manage your security key settings, view your current security key 
-status, save a new security key, or remove an existing security key. Your 
+Tap here to manage your security key settings, view your current security key
+status, save a new security key, or remove an existing security key. Your
 security key is essential for encrypting and protecting your data.
 
 ''';
