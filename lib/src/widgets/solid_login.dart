@@ -1,6 +1,6 @@
 /// SolidPod library to support privacy first data store on Solid Servers
 ///
-// Time-stamp: <Monday 2025-08-11 09:38:44 +1000 Graham Williams>
+// Time-stamp: <Saturday 2025-10-25 14:04:59 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -148,7 +148,7 @@ class SolidLogin extends StatefulWidget {
   const SolidLogin({
     // Include the literals here so that they are exposed through the docs.
     required this.child,
-    this.required = true,
+    this.required = false,
     this.appDirectory = '',
     this.image = const AssetImage(
       'assets/images/default_image.jpg',
