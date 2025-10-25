@@ -1,6 +1,6 @@
 /// Solid Status Bar Models.
 ///
-// Time-stamp: <Saturday 2025-10-25 17:16:44 +1100 Graham Williams>
+// Time-stamp: <Saturday 2025-10-25 17:21:50 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -200,18 +200,18 @@ class SolidServerInfo {
     if (isClickable) {
       return '''
 
-      Your Solid server is $serverUri. You can tap here to open the server in
-      your browser.  The Solid server hosts your Data Vault and manages your
-      personal online datastore (Pod) where your app data is stored securely and
-      often encrypted (depending on your app).
+      Your Solid server is located at $serverUri. You can tap here to open the
+      server in your browser.  The Solid server hosts your Data Vault and
+      manages your personal online datastore (Pod) where your app data is stored
+      securely and often encrypted (depending on your app).
 
       ''';
     } else {
       return '''
 
-      Your Solid server is $serverUri. The Solid server hosts your Data Vault
-      and manages your personal online datastore (Pod) where your app data is
-      stored securely and often encrypted (depending on your app).
+      Your Solid server is located at $serverUri. The Solid server hosts your
+      Data Vault and manages your personal online datastore (Pod) where your app
+      data is stored securely and often encrypted (depending on your app).
 
       ''';
     }
