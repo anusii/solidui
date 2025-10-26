@@ -79,7 +79,6 @@ framework for a typical Solid app. The child is the `Home()` widget.
 `home.dart` implements the `Home()` widget as the  main app
 funtionality.
 
-
 ## SolidScaffold
 
 The `SolidScaffold()` is the primary widget for building Solid
@@ -177,7 +176,7 @@ class SolidMenuItem {
   final IconData icon;                      // Required: Menu icon
   final Color? color;                       // Optional: Icon colour
   final Widget? child;                      // Optional: Content widget when selected
-  final String? tooltip;                    // Optional: Tooltip message (supports Markdown)
+  final String? tooltip;                    // Optional: Tooltip message (Markdown)
   final String? message;                    // Optional: Dialogue message content
   final String? dialogTitle;                // Optional: Dialogue title
   final void Function(BuildContext)? onTap; // Optional: Tap callback
