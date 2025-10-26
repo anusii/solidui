@@ -57,28 +57,32 @@ SolidUI requires the following dependencies:
 
 ## SolidScaffold
 
-The primary component for building Solid applications with responsive
-navigation, app bar, status bar, and integrated
-functionality. SolidScaffold automatically adapts its layout based on
-screen size, providing an optimal user experience across different
-devices.
+The `SolidScaffold()` is the primary widget for building Solid
+applications with responsive navigation, an app bar, status bar, and
+integrated functionality. A `SolidScaffold()` automatically adapts its
+layout based on screen size, providing an optimal user experience
+across different devices.
 
 ### Responsive Navigation Behaviour
 
-SolidScaffold intelligently switches between different navigation
-modes based on screen width:
+`SolidScaffold()` intelligently switches between different navigation
+modes based on the screen width:
 
-- **Wide screens (≥800px)**: Displays a vertical navigation rail
-  (SolidNavBar) on the left side
-- **Narrow screens (<800px)**: Uses a collapsible navigation drawer
-  (SolidNavDrawer) accessible via hamburger menu
+- **Wide screens (≥800px)**: Display a vertical navigation rail
+  `SolidNavBar()` on the left side;
+- **Narrow screens (<800px)**: Replace the navigation rail with a
+  collapsible navigation drawer `SolidNavDrawer()` accessible via a
+  hamburger menu;
 - **Custom threshold**: The breakpoint can be customised using the
-  `narrowScreenThreshold` parameter
+  `narrowScreenThreshold` parameter with a value of 0 turning off the
+  hamburger menu and a large value effectively turning off the
+  vertical navigation rail.
 
-This responsive behaviour ensures that your application provides an
+A responsive behaviour ensures that your application provides an
 optimal navigation experience whether users are on desktop computers,
-tablets, or mobile devices. The transition between navigation modes is
-seamless and automatic.
+tablets, or mobile devices, running the app natively or through a
+browser. The transition between navigation modes is seamless and
+automatic.
 
 ### Constructor Parameters
 
@@ -144,13 +148,13 @@ SolidScaffold({
 
 ```dart
 class SolidMenuItem {
-  final String title;        // Required: Menu display title
-  final IconData icon;       // Required: Menu icon
-  final Color? color;        // Optional: Icon colour
-  final Widget? child;       // Optional: Content widget when selected
-  final String? tooltip;     // Optional: Tooltip message (supports Markdown)
-  final String? message;     // Optional: Dialogue message content
-  final String? dialogTitle; // Optional: Dialogue title
+  final String title;                       // Required: Menu display title
+  final IconData icon;                      // Required: Menu icon
+  final Color? color;                       // Optional: Icon colour
+  final Widget? child;                      // Optional: Content widget when selected
+  final String? tooltip;                    // Optional: Tooltip message (supports Markdown)
+  final String? message;                    // Optional: Dialogue message content
+  final String? dialogTitle;                // Optional: Dialogue title
   final void Function(BuildContext)? onTap; // Optional: Tap callback
 }
 ```
@@ -466,7 +470,7 @@ SolidFile({
 
 ```dart
 class SolidFileUploadConfig {
-  final bool showCsvButtons;            // Show CSV import/export buttons 
+  final bool showCsvButtons;            // Show CSV import/export buttons
                                         // (default: false)
   final bool showProfileButtons;        // Show Profile import/export buttons
                                         // (default: false)
@@ -741,7 +745,7 @@ class NavigationConstants {
   static const double veryNarrowScreenThreshold = 400.0;
   static const double statusBarHeight = 32.0; // Default status bar height
   static const double navRailWidth = 72.0; // Navigation rail width
-  static const double navRailExtendedWidth = 256.0; // Extended navigation 
+  static const double navRailExtendedWidth = 256.0; // Extended navigation
   rail width
 }
 ```
@@ -898,7 +902,7 @@ class _CompleteExampleAppState extends State<CompleteExampleApp> {
           A comprehensive Solid application built with SolidUI.
 
           This application demonstrates the complete capabilities of the
-          SolidUI library, including responsive navigation, file management, 
+          SolidUI library, including responsive navigation, file management,
           and security features.
           ''',
         ),
