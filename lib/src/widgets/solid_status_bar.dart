@@ -110,7 +110,7 @@ class SolidStatusBar extends StatelessWidget {
     if (serverInfo == null) return null;
 
     final theme = Theme.of(context);
-    final displayText = serverInfo.displayText ?? serverInfo.serverUri;
+    final displayText = serverInfo.effectiveDisplayText;
 
     return MarkdownTooltip(
       message: serverInfo.tooltipText,
