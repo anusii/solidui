@@ -1,7 +1,7 @@
 # SolidUI Simple Example
 
-A simple example demonstrating how to use SolidScaffold from the SolidUI 
-library.
+A simple example demonstrating how to use SolidScaffold from the
+SolidUI library.
 
 ## What This Example Shows
 
@@ -19,26 +19,32 @@ This application demonstrates:
 ## Running the Example
 
 ### Prerequisites
+
 - Flutter SDK (3.10.0 or later)
 - Dart SDK (3.0.0 or later)
 
 ### Steps
+
 1. Navigate to the examples directory:
-   ```bash
-   cd solidui/examples
-   ```
-   
+
+    ```bash
+    cd solidui/examples
+    ```
+
 2. Create a new Flutter project:
-   ```bash
-   flutter create .
-   ```
+
+    ```bash
+    flutter create .
+    ```
 
 3. Install dependencies:
-   ```bash
-   flutter pub get
-   ```
+
+    ```bash
+    flutter pub get
+    ```
 
 4. Run the application:
-   ```bash
-   flutter run
-   ```
+
+    ```bash
+    flutter run
+    ```

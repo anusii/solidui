@@ -1,6 +1,6 @@
 /// Solid Status Bar Models.
 ///
-// Time-stamp: <Monday 2025-08-11 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Sunday 2025-10-26 13:36:17 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -198,10 +198,23 @@ class SolidServerInfo {
     if (tooltip != null) return tooltip!;
 
     if (isClickable) {
-      return 'Server: $serverUri\n\nClick to open server in browser.\n\n'
-          'Manages your personal data POD where your data is stored securely.';
+      return '''
+
+      $serverUri - this is your selected Solid Server. You can tap here to open
+      the server in your browser.  The Solid Server hosts your Data Vault and
+      manages your personal online datastore (Pod) where your app data is stored
+      securely and often encrypted (depending on your app).
+
+      ''';
     } else {
-      return 'Server: $serverUri.\n\nYour personal data POD server.';
+      return '''
+
+      $serverUri - this is your selected Solid Server. The Solid Server hosts
+      your Data Vault and manages your personal online datastore (Pod) where
+      your app data is stored securely and often encrypted (depending on your
+      app).
+
+      ''';
     }
   }
 }
@@ -266,8 +279,13 @@ class SolidLoginStatus {
   String get loggedInTooltipContent {
     if (loggedInTooltip != null) return loggedInTooltip!;
 
-    return 'Currently Logged In (WebID: $webId). Click to log out.\n\n'
-        'Your data is secure and stored in your personal POD.';
+    return '''
+
+    **Login Status:** You are currently logged in to your Pod on your Solid
+    Server and so your data is privately accessible from your Pod.  Tap here to
+    log out from the Solid Server $webId.
+
+    ''';
   }
 
   /// Gets the logged-out tooltip.
@@ -275,9 +293,13 @@ class SolidLoginStatus {
   String get loggedOutTooltipContent {
     if (loggedOutTooltip != null) return loggedOutTooltip!;
 
-    return 'Login Required.\n\nCurrent status: Not logged in. '
-        'Click to log in to your pod.\n\n'
-        'Access your personal data by connecting to your Solid POD.';
+    return '''
+
+    **Login Status:** You are currently **not** lgged in.  To read and write
+    your private data from your Pod on your Solid Server you need to be logged
+    in. Tap here to log in
+
+    ''';
   }
 }
 
@@ -349,8 +371,8 @@ class SolidSecurityKeyStatus {
 
 **Security Key Manager**
 
-Tap here to manage your security key settings, view your current security key 
-status, save a new security key, or remove an existing security key. Your 
+Tap here to manage your security key settings, view your current security key
+status, save a new security key, or remove an existing security key. Your
 security key is essential for encrypting and protecting your data.
 
 ''';

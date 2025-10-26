@@ -60,7 +60,7 @@ class SolidLogin extends StatefulWidget {
   const SolidLogin({
     // Include the literals here so that they are exposed through the docs.
     required this.child,
-    this.required = true,
+    this.required = false,
     this.appDirectory = '',
     this.image = const AssetImage(
       'assets/images/default_image.jpg',

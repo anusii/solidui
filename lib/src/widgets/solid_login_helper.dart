@@ -78,41 +78,45 @@ const String defaultServerTooltip = '''
 **Solid Server:** This text field contains the Solid server you will connect to
 where your data is hosted. It is also used as the base of the URI (Uniform
 Resource Identifier) that will be used for your WebID. A WebID is a
-decentralized identity that allows you to have a globally unique identifier for
+decentralised identity that allows you to have a globally unique identifier for
 your data store.
 
 ''';
 
 const String defaultLoginTooltip = '''
 
-**Login:** Tap here to log in to a Solid server to access you private data. You
-will be connected to the specified Solid server and you can then log in with
-your username and password. This app does not know your username/password. The
-app will will use a token from the server to establish your secure conenction.
+**Login:** Tap here to log in to a Solid server of your choice to access your
+private data. Through a browser popup you will be connected to the specified
+Solid server and you can then log in with your username and password. This app
+does not need to know your username/password. The app will use a token from the
+server to establish your secure conenction.
 
 ''';
 const String defaultRegisterTooltip = '''
 
-**Register:** Tap here to connect to your Solid server to register for an
-account. Once you have an account you will be able to save data onto your host
-server. You can connect to a Solid server of your choice, including your own, a
-free community supported server, a commercial server, or a government run
-server.
+**Register:** Tap here to connect to your Solid server of choice to register for
+an account. Once you have an account on any Solid server of choice you will be
+able to save data onto your Data Vault on that server. Many Solid servers are
+available, or you can host your own free community supported server. There are
+freely available servers, commercial servers, and government run servers
+available. See https://solidproject.org/get_a_pod for some available Solid
+servers.
 
 ''';
 
 const String defaultInfoTooltip = '''
 
-**Support:** Tap here to be taken to the app help and support documentation.
+**Support:** Tap here to be taken to the app help and support documentation. The
+actual help page navigated to on your browser depends on the particular app.
 
 ''';
 
 const String defaultContinueTooltip = '''
 
-**Continue:** Tap here to continue on to the app without logging into your Solid
+**Continue:** Tap here to continue on to the app without logging into a Solid
 server. The app will generally be able to save data locally or else prompt to
-log in to a Solid server when needed. No data will be shared beyond you local
-device until you connect to a SOlid server hosting your data.
+log in to a Solid server when needed. No data will be shared beyond your local
+device until you connect to a Solid server hosting your Data Vault.
 
 ''';
 
