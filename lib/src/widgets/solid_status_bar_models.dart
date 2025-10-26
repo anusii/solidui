@@ -1,6 +1,6 @@
 /// Solid Status Bar Models.
 ///
-// Time-stamp: <Sunday 2025-10-26 13:21:29 +1100 Graham Williams>
+// Time-stamp: <Sunday 2025-10-26 13:36:17 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -134,7 +134,7 @@ class SolidServerInfo {
   static String _formatWebIdForDisplay(String webId) {
     try {
       final uri = Uri.parse(webId);
-      print(uri);
+
       // Get the host (server domain).
 
       String host = uri.host;
