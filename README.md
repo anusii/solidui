@@ -152,7 +152,7 @@ class SolidMenuItem {
   final IconData icon;                      // Required: Menu icon
   final Color? color;                       // Optional: Icon colour
   final Widget? child;                      // Optional: Content widget when selected
-  final String? tooltip;                    // Optional: Tooltip message (supports Markdown)
+  final String? tooltip;                    // Optional: Tooltip message
   final String? message;                    // Optional: Dialogue message content
   final String? dialogTitle;                // Optional: Dialogue title
   final void Function(BuildContext)? onTap; // Optional: Tap callback
