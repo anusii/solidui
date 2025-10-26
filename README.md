@@ -64,8 +64,9 @@ To create a new Solid-based app named `myapp` and published by
 flutter create --template solidui --domain com.example myapp
 ```
 
-This will create a template app consisting of four files within the
-`lib/` directory.  `main.dart` is the expected main entry point to the
+This will create a template app which we also included here under the
+`example/` directory. The app consists of four files within the `lib/`
+directory.  `main.dart` is the main entry point to the
 app. Its task in our framework is to initialise the appliocation and
 then launch the app itself.  `app.dart` implements the `App()` which
 is typically where we instantiate a `SolidLogin()`, often as the
