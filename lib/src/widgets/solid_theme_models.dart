@@ -1,6 +1,6 @@
 /// Models for theme toggle functionality in Solid applications.
 ///
-// Time-stamp: <Sunday 2025-08-31 11:06:35 +1000 Graham Williams>
+// Time-stamp: <Sunday 2025-10-26 15:12:06 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -126,38 +126,28 @@ class SolidThemeToggleConfig {
     switch (themeMode) {
       case ThemeMode.light:
         return '''
-**Theme Toggle**
 
-☀️ **Light Mode** (Current)
+        **Theme:** Currently Light Mode ☀️ is active.  Light Mode is best for
+        viewing in light conditions. Tap here to switch to Dark Mode 🌙 for low
+        light conditions.
 
-Light Mode is best for viewing in light conditions. Tap here to switch to Dark
-Mode for low light conditions.
-
-Toggle: ☀️ Light ⇄ 🌙 Dark
-''';
+        ''';
       case ThemeMode.dark:
         return '''
-**Theme Toggle**
 
-🌙 **Dark Mode** (Current)
+        **Theme:** Currently Dark Mode 🌙 is active. Dark Mode is best for
+        viewing in low light conditions. Tap here to switch to Light Mode ☀️ for
+        bright viewing conditions.
 
-Dark Mode is best for viewing in low light conditions. Tap here to switch to
-Light Mode for bright viewing conditions.
-
-Toggle: ☀️ Light ⇄ 🌙 Dark
-''';
+        ''';
       case ThemeMode.system:
         return '''
-**Theme Toggle**
 
-🖥️ **System Mode** (Current)
+        **Theme:** Currently System Mode 🖥️ is active. System Mode follows your
+        device settings. This is the initial mode. Tap here to switch to Light
+        Mode ☀️, and afterwards toggle between Light ☀️ and Dark 🌙 modes.
 
-System Mode follows your device settings. This is the initial mode. Tap here to
-switch to Light Mode, and afterwards toggle between Light and Dark modes.
-
-First Switch: 🖥️ System → ☀️ Light
-Then Toggle: ☀️ Light ⇄ 🌙 Dark
-''';
+        ''';
     }
   }
 
@@ -199,37 +189,28 @@ Then Toggle: ☀️ Light ⇄ 🌙 Dark
     switch (themeMode) {
       case ThemeMode.light:
         return '''
-**Theme Toggle**
 
-☀️ **Light Mode** (Current)
+        **Theme:** Currently Light Mode ☀️ is active.  Light Mode is best for
+        viewing in light conditions. Tap here to switch to Dark Mode 🌙 for low
+        light conditions.
 
-Light Mode is best for viewing in bright conditions. Tap here to switch to Dark
-Mode for low light conditions.
-
-Next: 🌙 **Dark Mode**
-''';
+        ''';
       case ThemeMode.dark:
         return '''
-**Theme Toggle**
 
-🌙 **Dark Mode** (Current)
+        **Theme:** Currently Dark Mode 🌙 is active. Dark Mode is best for
+        viewing in low light conditions. Tap here to switch to Light Mode ☀️ for
+        bright viewing conditions.
 
-Dark Mode is best for viewing in low light conditions. Tap here to switch back
-to Light Mode for bright viewing conditions.
-
-Next: ☀️ **Light Mode**
-''';
+        ''';
       case ThemeMode.system:
         return '''
-**Theme Toggle**
 
-🖥️ **System Mode** (Current)
+        **Theme:** Currently System Mode 🖥️ is active. System Mode follows your
+        device settings. This is the initial mode. Tap here to switch to Light
+        Mode ☀️, and afterwards toggle between Light ☀️ and Dark 🌙 modes.
 
-System Mode follows your device settings. This is the initial mode. Tap here to
-switch to Light Mode and begin toggling between Light and Dark modes.
-
-Next: ☀️ **Light Mode**
-''';
+        ''';
     }
   }
 
