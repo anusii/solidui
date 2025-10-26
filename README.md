@@ -57,8 +57,8 @@ SolidUI requires the following dependencies:
 
 ## Quick Start to Create an App
 
-To create a new Solid-based app named `myapp` and published by
-`example.com` begin with:
+To create a new Solid-based app using `solidui` named `myapp` and
+published by `example.com` begin with:
 
 ```bash
 flutter create --template solidui --domain com.example myapp
