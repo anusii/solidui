@@ -1,6 +1,6 @@
 /// Solid Status Bar Models.
 ///
-// Time-stamp: <Saturday 2025-10-25 17:24:50 +1100 Graham Williams>
+// Time-stamp: <Sunday 2025-10-26 13:21:29 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -134,7 +134,7 @@ class SolidServerInfo {
   static String _formatWebIdForDisplay(String webId) {
     try {
       final uri = Uri.parse(webId);
-
+      print(uri);
       // Get the host (server domain).
 
       String host = uri.host;
@@ -200,8 +200,8 @@ class SolidServerInfo {
     if (isClickable) {
       return '''
 
-      $serverUri - this is your selected Solid server. You can tap here to open
-      the server in your browser.  The Solid server hosts your Data Vault and
+      $serverUri - this is your selected Solid Server. You can tap here to open
+      the server in your browser.  The Solid Server hosts your Data Vault and
       manages your personal online datastore (Pod) where your app data is stored
       securely and often encrypted (depending on your app).
 
@@ -209,7 +209,7 @@ class SolidServerInfo {
     } else {
       return '''
 
-      $serverUri - this is your selected Solid server. The Solid server hosts
+      $serverUri - this is your selected Solid Server. The Solid Server hosts
       your Data Vault and manages your personal online datastore (Pod) where
       your app data is stored securely and often encrypted (depending on your
       app).
@@ -279,8 +279,13 @@ class SolidLoginStatus {
   String get loggedInTooltipContent {
     if (loggedInTooltip != null) return loggedInTooltip!;
 
-    return 'Currently Logged In (WebID: $webId). Click to log out.\n\n'
-        'Your data is secure and stored in your personal POD.';
+    return '''
+
+    **Login Status:** You are currently logged in to your Pod on your Solid
+    Server and so your data is privately accessible from your Pod.  Tap here to
+    log out from the Solid Server $webId.
+
+    ''';
   }
 
   /// Gets the logged-out tooltip.
@@ -288,9 +293,13 @@ class SolidLoginStatus {
   String get loggedOutTooltipContent {
     if (loggedOutTooltip != null) return loggedOutTooltip!;
 
-    return 'Login Required.\n\nCurrent status: Not logged in. '
-        'Click to log in to your pod.\n\n'
-        'Access your personal data by connecting to your Solid POD.';
+    return '''
+
+    **Login Status:** You are currently **not** lgged in.  To read and write
+    your private data from your Pod on your Solid Server you need to be logged
+    in. Tap here to log in
+
+    ''';
   }
 }
 
