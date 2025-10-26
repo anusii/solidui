@@ -55,6 +55,30 @@ SolidUI requires the following dependencies:
 - `path`: Path manipulation
 - `version_widget`: Version display widget
 
+## Quick Start to Create an App
+
+To create a new Solid-based app using `solidui` named `myapp` and
+published by `example.com` begin with:
+
+```bash
+flutter create --template solidui --domain com.example myapp
+```
+
+This will create a template app which we also included here under the
+`example/` directory. The app consists of four files within the `lib/`
+directory.  `main.dart` is the main entry point to the
+app. Its task in our framework is to initialise the appliocation and
+then launch the app itself.  `app.dart` implements the `App()` which
+is typically where we instantiate a `SolidLogin()`, often as the
+`child:` of a `SolidThemeApp()`.  The `SolidLogin()` provides the
+login page for the app. After logging in the `AppScaffold()`, as the
+`child:` of the `SolidLogin()`, is instantiated to contain the main
+functionality of the app.  `app_scaffold.dart` implements the
+`AppScaffold()` widget which builds a `SolidScaffold()` to set up the
+framework for a typical Solid app. The child is the `Home()` widget.
+`home.dart` implements the `Home()` widget as the  main app
+funtionality.
+
 ## SolidScaffold
 
 The `SolidScaffold()` is the primary widget for building Solid
@@ -152,7 +176,7 @@ class SolidMenuItem {
   final IconData icon;                      // Required: Menu icon
   final Color? color;                       // Optional: Icon colour
   final Widget? child;                      // Optional: Content widget when selected
-  final String? tooltip;                    // Optional: Tooltip message
+  final String? tooltip;                    // Optional: Tooltip message (Markdown)
   final String? message;                    // Optional: Dialogue message content
   final String? dialogTitle;                // Optional: Dialogue title
   final void Function(BuildContext)? onTap; // Optional: Tap callback
