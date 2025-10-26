@@ -1,6 +1,6 @@
 /// Models for theme toggle functionality in Solid applications.
 ///
-// Time-stamp: <Sunday 2025-10-26 15:26:25 +1100 Graham Williams>
+// Time-stamp: <Sunday 2025-10-26 15:42:49 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -86,6 +86,36 @@ class SolidThemeToggleConfig {
 
   final bool showOnVeryNarrowScreen;
 
+  /// Light mode tooltip.
+
+  final lightModeTooltip = '''
+
+  **Theme:** Currently **Light Mode** is active.  Light Mode is best for
+  viewing in light conditions. Tap here to switch to Dark Mode for low
+  light conditions.
+
+  ''';
+
+  /// Dark mode tooltip.
+
+  final darkModeTooltip = '''
+
+  **Theme:** Currently **Dark Mode** is active. Dark Mode is best for viewing in
+  low light conditions. Tap here to switch to Light Mode for bright viewing
+  conditions.
+
+  ''';
+
+  /// System mode tooltip.
+
+  final systemModeTooltip = '''
+
+  **Theme:** Currently **System Mode** is active. System Mode follows your
+  device settings. This is the initial mode. Tap here to switch to Light Mode,
+  and afterwards toggle between Light and Dark modes.
+
+  ''';
+
   const SolidThemeToggleConfig({
     this.enabled = true,
     this.lightModeIcon,
@@ -125,29 +155,11 @@ class SolidThemeToggleConfig {
 
     switch (themeMode) {
       case ThemeMode.light:
-        return '''
-
-        **Theme:** Currently **Light Mode** is active.  Light Mode is best for
-        viewing in light conditions. Tap here to switch to Dark Mode for low
-        light conditions.
-
-        ''';
+        return lightModeTooltip;
       case ThemeMode.dark:
-        return '''
-
-        **Theme:** Currently **Dark Mode** is active. Dark Mode is best for
-        viewing in low light conditions. Tap here to switch to Light Mode for
-        bright viewing conditions.
-
-        ''';
+        return darkModeTooltip;
       case ThemeMode.system:
-        return '''
-
-        **Theme:** Currently **System Mode** is active. System Mode follows your
-        device settings. This is the initial mode. Tap here to switch to Light
-        Mode, and afterwards toggle between Light and Dark modes.
-
-        ''';
+        return systemModeTooltip;
     }
   }
 
@@ -156,11 +168,11 @@ class SolidThemeToggleConfig {
   String getCurrentOverflowLabel(ThemeMode themeMode) {
     switch (themeMode) {
       case ThemeMode.light:
-        return 'Light Mode ☀️';
+        return 'Light Mode';
       case ThemeMode.dark:
-        return 'Dark Mode 🌙';
+        return 'Dark Mode';
       case ThemeMode.system:
-        return 'System Mode 🖥️';
+        return 'System Mode';
     }
   }
 
@@ -188,29 +200,11 @@ class SolidThemeToggleConfig {
 
     switch (themeMode) {
       case ThemeMode.light:
-        return '''
-
-        **Theme:** Currently **Light Mode** is active.  Light Mode is best for
-        viewing in light conditions. Tap here to switch to Dark Mode for low
-        light conditions.
-
-        ''';
+        return lightModeTooltip;
       case ThemeMode.dark:
-        return '''
-
-        **Theme:** Currently **Dark Mode** is active. Dark Mode is best for
-        viewing in low light conditions. Tap here to switch to Light Mode for
-        bright viewing conditions.
-
-        ''';
+        return darkModeTooltip;
       case ThemeMode.system:
-        return '''
-
-        **Theme:** Currently **System Mode** is active. System Mode follows your
-        device settings. This is the initial mode. Tap here to switch to Light
-        Mode, and afterwards toggle between Light and Dark modes.
-
-        ''';
+        return systemModeTooltip;
     }
   }
 
@@ -219,11 +213,10 @@ class SolidThemeToggleConfig {
   String getNextOverflowLabel(ThemeMode themeMode) {
     switch (themeMode) {
       case ThemeMode.light:
-        return 'Switch to Dark Mode 🌙';
+        return 'Switch to Dark Mode';
       case ThemeMode.dark:
-        return 'Switch to Light Mode ☀️';
       case ThemeMode.system:
-        return 'Switch to Light Mode ☀️';
+        return 'Switch to Light Mode';
     }
   }
 
