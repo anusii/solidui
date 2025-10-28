@@ -31,9 +31,14 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show solidAuthenticate, initPodsIfRequired;
+    show
+        solidAuthenticate,
+        initialStructureTest,
+        generateDefaultFolders,
+        generateDefaultFiles;
 
 import 'package:solidui/src/constants/ui.dart';
+import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_loading_screen.dart';
 
 /// A widget to pop up the login prompt if the user is not logged in.
@@ -60,17 +65,66 @@ class SolidPopupLogin extends StatefulWidget {
 class _SolidPopupLoginState extends State<SolidPopupLogin> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Login and initialise PODs if required.
+  // Login and check POD initialisation status.
+  // If POD structure is incomplete, navigate to InitialSetupScreen.
 
   Future<bool> _loginAndInitPods(String webId, BuildContext context) async {
     try {
       await solidAuthenticate(webId, context);
-      if (context.mounted) await initPodsIfRequired(context);
+      
+      if (context.mounted) {
+        // Check POD structure.
+
+        final defaultFolders = await generateDefaultFolders();
+        final defaultFiles = await generateDefaultFiles();
+        final resCheckList = await initialStructureTest(
+          defaultFolders,
+          defaultFiles,
+        );
+        final allExists = resCheckList.first as bool;
+
+        if (!context.mounted) return false;
+
+        if (!allExists) {
+          // Navigate to initial setup screen if POD structure is incomplete.
+
+          await Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => InitialSetupScreen(
+                resCheckList: resCheckList,
+                child: _successDialog(),
+              ),
+            ),
+          );
+        }
+      }
       return true;
     } on Object catch (e) {
       debugPrint('solidAuthenticate() failed: $e');
       return false;
     }
+  }
+
+  // Build success dialog widget.
+
+  Widget _successDialog() {
+    return AlertDialog(
+      title: const Text('Success'),
+      content: const Text(
+        'You have successfully logged in and/or initialised your PODs',
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+          child: const Text('OK'),
+          onPressed: () {
+            if (mounted) {
+              Navigator.pop(context);
+            }
+          },
+        ),
+      ],
+    );
   }
 
   @override
@@ -97,7 +151,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
   Widget _loadedScreen(bool loginStatus) {
     final dialogTitle = loginStatus ? 'Success' : 'Failed';
     final dialogContent = loginStatus
-        ? 'You have successfully logged in and/or initialised your PODs'
+        ? 'You have successfully logged in'
         : 'You have cancelled the login';
     return AlertDialog(
       title: Text(dialogTitle),
