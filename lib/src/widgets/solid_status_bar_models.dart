@@ -76,7 +76,7 @@ class SolidServerInfo {
 
   final String serverUri;
 
-  /// Optional custom display text (if null, automatically formats serverUri).
+  /// Optional custom display text (if null, uses serverUri).
 
   final String? displayText;
 
@@ -154,8 +154,7 @@ class SolidServerInfo {
       // Return formatted display string.
 
       if (username.isNotEmpty) {
-        final result = '$host/$username';
-        return result;
+        return '$host/$username';
       } else {
         // Fallback to just the host if no username found.
 
@@ -191,17 +190,6 @@ class SolidServerInfo {
         return webId;
       }
     }
-  }
-
-  /// Gets the effective display text, with automatic formatting if not
-  /// provided.
-
-  String get effectiveDisplayText {
-    if (displayText != null) return displayText!;
-
-    // Auto-format serverUri if it looks like a WebID.
-
-    return _formatWebIdForDisplay(serverUri);
   }
 
   /// Gets the tooltip for server info.

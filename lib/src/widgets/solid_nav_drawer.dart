@@ -347,42 +347,20 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
   }
 
   /// Simplifies the WebID URL for display purposes.
-  /// Returns the domain name and username for display.
+  /// Returns only the domain name for display.
 
   String _getSimplifiedUrl(String webId) {
     try {
       final uri = Uri.parse(webId);
 
-      // Get the host (server domain).
+      // Return only the host (domain).
 
-      String host = uri.host;
-
-      // Extract username from the path.
-
-      String username = '';
-      final pathSegments = uri.pathSegments;
-
-      // Typical webID format: /username/profile/card#me
-      // So the username is usually the first path segment.
-
-      if (pathSegments.isNotEmpty) {
-        username = pathSegments.first;
-      }
-
-      // Return formatted display string.
-
-      if (username.isNotEmpty) {
-        return '$host/$username';
-      } else {
-        // Fallback to just the host if no username found.
-
-        return host;
-      }
+      return uri.host;
     } catch (e) {
       // Fallback parsing for malformed URLs.
 
       try {
-        // Remove common prefixes and suffixes.
+        // Remove common prefixes.
 
         String cleaned = webId;
 
@@ -394,11 +372,11 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
           cleaned = cleaned.substring(7);
         }
 
-        // Remove common webID suffix.
+        // Extract only the domain (remove path).
 
-        const suffix = '/profile/card#me';
-        if (cleaned.endsWith(suffix)) {
-          cleaned = cleaned.substring(0, cleaned.length - suffix.length);
+        final slashIndex = cleaned.indexOf('/');
+        if (slashIndex > 0) {
+          cleaned = cleaned.substring(0, slashIndex);
         }
 
         return cleaned;
