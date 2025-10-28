@@ -71,7 +71,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
   Future<bool> _loginAndInitPods(String webId, BuildContext context) async {
     try {
       await solidAuthenticate(webId, context);
-      
+
       if (context.mounted) {
         // Check POD structure.
 
