@@ -88,3 +88,12 @@ export 'src/utils/solid_file_operations.dart';
 export 'src/utils/solid_alert.dart';
 
 export 'src/widgets/solid_format_info_card.dart';
+
+export 'src/widgets/build_message_container.dart';
+
+export 'src/constants/initial_setup.dart';
+export 'src/screens/initial_setup_screen.dart';
+export 'src/screens/initial_setup_screen_body.dart';
+export 'src/screens/initial_setup_widgets/enc_key_input_form.dart';
+export 'src/screens/initial_setup_widgets/initial_setup_welcome.dart';
+export 'src/screens/initial_setup_widgets/res_create_form_submission.dart';
