@@ -178,10 +178,22 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       loggedOutTooltip: widget.loggedOutTooltip,
     );
 
-    // Create the updated status bar configuration with dynamic login status.
+    // Create dynamic server info from webId if available, otherwise use base
+    // config.
+
+    final dynamicServerInfo = _currentWebId != null && _currentWebId!.isNotEmpty
+        ? SolidServerInfo.fromWebId(
+            _currentWebId!,
+            tooltip: widget.baseConfig.serverInfo?.tooltip,
+            isClickable: widget.baseConfig.serverInfo?.isClickable ?? true,
+          )
+        : widget.baseConfig.serverInfo;
+
+    // Create the updated status bar configuration with dynamic login status
+    // and server info.
 
     final updatedConfig = SolidStatusBarConfig(
-      serverInfo: widget.baseConfig.serverInfo,
+      serverInfo: dynamicServerInfo,
       loginStatus: dynamicLoginStatus,
       onLogin: widget.baseConfig.onLogin,
       securityKeyStatus: widget.baseConfig.securityKeyStatus,
