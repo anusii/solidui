@@ -40,11 +40,11 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFiles,
         setAppDirName,
         solidAuthenticate,
-        initialStructureTest,
-        InitialSetupScreen;
+        initialStructureTest;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/models/snackbar_config.dart';
+import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
