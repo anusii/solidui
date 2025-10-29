@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Show username in status bar uri [0.0.8 20251030 tonypioneer]
 + Remove solidui/solidpod circular dependency [0.0.7 20251029 tonypioneer]
 + Refactor SOlidLogin for max 300 loc lint [0.0.6 20251017 cdawei]
 + Fix security key handling [0.0.5 20251027 tchen]
