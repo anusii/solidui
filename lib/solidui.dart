@@ -98,3 +98,6 @@ export 'src/screens/initial_setup_screen_body.dart';
 export 'src/screens/initial_setup_widgets/enc_key_input_form.dart';
 export 'src/screens/initial_setup_widgets/initial_setup_welcome.dart';
 export 'src/screens/initial_setup_widgets/res_create_form_submission.dart';
+
+export 'src/utils/solid_pod_helpers.dart'
+    show loginIfRequired, getKeyFromUserIfRequired;

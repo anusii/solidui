@@ -33,6 +33,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
+import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 /// Central manager for security key operations to prevent duplicate prompts.
 ///

@@ -35,6 +35,7 @@ import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:solidpod/solidpod.dart';
+import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 /// Download operations for SolidUI widgets.
 
