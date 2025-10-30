@@ -31,9 +31,9 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-
 import 'package:solidpod/solidpod.dart'
     show checkLoggedIn, getWebId, KeyManager, verifySecurityKey;
+
 import 'package:solidui/src/widgets/solid_popup_login.dart';
 
 /// Check if the user is logged in and prompt for login if required.

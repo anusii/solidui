@@ -87,6 +87,8 @@ export 'src/utils/file_operations.dart';
 export 'src/utils/is_text_file.dart';
 export 'src/utils/solid_file_operations.dart';
 export 'src/utils/solid_alert.dart';
+export 'src/utils/solid_pod_helpers.dart'
+    show loginIfRequired, getKeyFromUserIfRequired;
 
 export 'src/widgets/solid_format_info_card.dart';
 
@@ -98,6 +100,3 @@ export 'src/screens/initial_setup_screen_body.dart';
 export 'src/screens/initial_setup_widgets/enc_key_input_form.dart';
 export 'src/screens/initial_setup_widgets/initial_setup_welcome.dart';
 export 'src/screens/initial_setup_widgets/res_create_form_submission.dart';
-
-export 'src/utils/solid_pod_helpers.dart'
-    show loginIfRequired, getKeyFromUserIfRequired;
