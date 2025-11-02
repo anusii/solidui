@@ -32,154 +32,80 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidpod/solidpod.dart'
-    show checkLoggedIn, getWebId, KeyManager, verifySecurityKey;
+    show
+        checkLoggedIn,
+        getWebId,
+        KeyManager,
+        verifySecurityKey,
+        SecurityKeyUI,
+        SecurityStrings;
 
-import 'package:solidui/src/widgets/solid_popup_login.dart';
-
-/// Check if the user is logged in and prompt for login if required.
+/// Login if the user has not done so.
 ///
-/// This function checks whether the user is currently logged in to their
-/// Solid Pod. If not logged in, it displays a login dialog to prompt the
-/// user to authenticate.
-///
-/// [context] - The build context for displaying dialogs
-/// [child] - The child widget to return to after login
-///
-/// Returns `true` if the user is logged in or successfully logs in,
-/// `false` if the user cancels the login or login fails.
+/// [context] is the build context.
+/// [loginCallback] is a callback function that handles the login UI.
+/// If no callback is provided, this function simply checks if the user is
+/// logged in.
 
 Future<bool> loginIfRequired(
-  BuildContext context,
-  Widget child,
-) async {
-  if (await checkLoggedIn()) {
-    return true;
+  BuildContext context, {
+  Future<void> Function(BuildContext)? loginCallback,
+}) async {
+  final loggedIn = await checkLoggedIn();
+  if (!loggedIn && context.mounted && loginCallback != null) {
+    await loginCallback(context);
   }
-
-  if (!context.mounted) return false;
-
-  // Show login popup dialog.
-
-  final result = await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) => const SolidPopupLogin(),
-  );
-
-  // Return whether the login was successful.
-
-  return result ?? false;
+  return checkLoggedIn();
 }
 
 /// Ask for the security key from the user if the security key is not available
-/// or cannot be verified using the verification key stored in Pods.
-///
-/// This function checks if a security key is already cached. If not, it prompts
-/// the user to enter their security key and verifies it against the verification
-/// key stored in their Pod.
-///
-/// [context] - The build context for displaying dialogs
-/// [child] - The child widget to return to after entering the key
-///
-/// Returns `true` if the security key is available or successfully entered,
-/// `false` if the user cancels the operation.
+/// or cannot be verfied using the verification key stored in PODs.
 
-Future<bool> getKeyFromUserIfRequired(
+Future<void> getKeyFromUserIfRequired(
   BuildContext context,
   Widget child,
 ) async {
   if (await KeyManager.hasSecurityKey()) {
-    return true;
+    return;
+  } else {
+    final verificationKey = await KeyManager.getVerificationKey();
+    // Get the webId to display in the security key prompt.
+
+    final webId = await getWebId();
+
+    const inputKey = 'security_key';
+    final inputField = (
+      fieldKey: inputKey,
+      fieldLabel: 'Security Key',
+      validateFunc: (key) {
+        assert(key != null);
+        return verifySecurityKey(key as String, verificationKey)
+            ? null
+            : 'Incorrect Security Key';
+      }
+    );
+
+    // Use the unified SecurityKeyUI widget with the appropriate configuration.
+
+    final securityKeyInput = SecurityKeyUI(
+      webId: webId,
+      title: 'Security Key',
+      message: SecurityStrings.securityKeyPrompt,
+      inputFields: [inputField],
+      formKey: GlobalKey<FormBuilderState>(),
+      submitFunc: (formDataMap) async {
+        await KeyManager.setSecurityKey(formDataMap[inputKey].toString());
+        debugPrint('Security key saved');
+        if (context.mounted) Navigator.pop(context);
+      },
+      child: child,
+    );
+
+    if (context.mounted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => securityKeyInput),
+      );
+    }
   }
-
-  final verificationKey = await KeyManager.getVerificationKey();
-
-  // Get the webId to display in the security key prompt.
-
-  final webId = await getWebId();
-
-  if (!context.mounted) return false;
-
-  // Create a simple security key input dialog.
-
-  final keyController = TextEditingController();
-  final formKey = GlobalKey<FormBuilderState>();
-
-  final result = await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('Security Key Required'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Currently logged in as:',
-            style: Theme.of(dialogContext).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            webId ?? 'Not logged in',
-            style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
-                  color: webId != null ? Colors.green : Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Please enter your security key to access encrypted data:',
-          ),
-          const SizedBox(height: 16),
-          FormBuilder(
-            key: formKey,
-            child: FormBuilderTextField(
-              name: 'security_key',
-              controller: keyController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Security Key',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a security key';
-                }
-                if (!verifySecurityKey(value, verificationKey)) {
-                  return 'Incorrect security key';
-                }
-                return null;
-              },
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(dialogContext, false);
-          },
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            if (formKey.currentState?.saveAndValidate() ?? false) {
-              final key = keyController.text;
-              await KeyManager.setSecurityKey(key);
-              if (dialogContext.mounted) {
-                Navigator.pop(dialogContext, true);
-              }
-            }
-          },
-          child: const Text('Submit'),
-        ),
-      ],
-    ),
-  );
-
-  keyController.dispose();
-
-  // Return whether the key was successfully entered.
-
-  return result ?? false;
 }
