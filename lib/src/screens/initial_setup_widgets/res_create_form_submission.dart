@@ -33,7 +33,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:solidpod/solidpod.dart' show KeyManager;
+import 'package:solidpod/solidpod.dart' show initPod;
 
 import 'package:solidui/src/constants/initial_setup.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -167,11 +167,12 @@ ElevatedButton resCreateFormSubmission(
         final securityKey = formData[securityKeyStr].toString();
 
         try {
-          // Initialise the POD with the security key.
-          // Set up the KeyManager and create verification keys.
-
-          await KeyManager.initPodKeys(securityKey);
-          debugPrint('POD initialised with security key');
+          // await _initPodOriginalFunc(securityKey);
+          await initPod(
+            securityKey,
+            dirUrls: resFoldersLink,
+            fileUrls: resFilesLink,
+          );
         } on Exception catch (e) {
           debugPrint('Error initialising POD: $e');
         }
