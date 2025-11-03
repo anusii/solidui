@@ -153,7 +153,7 @@ class SolidAuthHandler {
       appTitle: _config?.appTitle ?? 'Solid App',
       appDirectory: _config?.appDirectory ?? 'solid_app',
       defaultServerUrl:
-          _config?.defaultServerUrl ?? 'https://pods.dev.solidcommunity.au',
+          _config?.defaultServerUrl ?? 'https://solid.dev.empwr.au',
       appImage: _config?.appImage,
       appLogo: _config?.appLogo,
       appLink: _config?.appLink,

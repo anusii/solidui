@@ -202,7 +202,8 @@ class _HomePageState extends State<HomePage> {
     SolidAuthHandler.instance.configure(
       SolidAuthConfig(
         loginPageBuilder: (context) => createSolidLogin(context, widget.prefs!),
-        defaultServerUrl: 'https://pods.dev.solidcommunity.au',
+        // defaultServerUrl: 'https://pods.dev.solidcommunity.au',
+        defaultServerUrl: 'https://solid.dev.empwr.au',
         appTitle: 'SolidUI Example',
         appDirectory: 'solidui_example',
         appImage: const AssetImage('assets/images/app_image.jpg'),
