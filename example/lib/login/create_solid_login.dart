@@ -71,7 +71,7 @@ Widget _buildSolidUILogin(SharedPreferences prefs) {
                 required: false,
                 title: 'SolidUI Example',
                 appDirectory: 'solidui_example',
-                webID: 'https://solid.dev.empwr.au',
+                webID: 'https://pods.dev.solidcommunity.au',
                 image: const AssetImage('assets/images/app_image.jpg'),
                 logo: const AssetImage('assets/images/app_icon.png'),
                 link: 'https://github.com/anusii/solidui',
