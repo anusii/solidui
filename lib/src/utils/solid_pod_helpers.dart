@@ -40,20 +40,21 @@ import 'package:solidpod/solidpod.dart'
         SecurityKeyUI,
         SecurityStrings;
 
-/// Login if the user has not done so.
-///
-/// [context] is the build context.
-/// [loginCallback] is a callback function that handles the login UI.
-/// If no callback is provided, this function simply checks if the user is
-/// logged in.
+import 'package:solidui/src/widgets/solid_login_webid_input_dialog.dart';
 
-Future<bool> loginIfRequired(
-  BuildContext context, {
-  Future<void> Function(BuildContext)? loginCallback,
-}) async {
+/// Login if the user has not done so.
+
+Future<bool> loginIfRequired(BuildContext context) async {
   final loggedIn = await checkLoggedIn();
-  if (!loggedIn && context.mounted && loginCallback != null) {
-    await loginCallback(context);
+  if (!loggedIn && context.mounted) {
+    await loginWebIdInputDialog(
+      context,
+    );
+    // await Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (context) => const SolidPopupLogin(),
+    //     ));
   }
   return checkLoggedIn();
 }
