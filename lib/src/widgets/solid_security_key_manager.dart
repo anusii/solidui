@@ -291,6 +291,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       () async => await _showPrivateData(title, context),
       () async => await _showKeyInputDialog(context),
       _handleForgetKey,
+      () => Navigator.of(context).pop(),
     );
   }
 

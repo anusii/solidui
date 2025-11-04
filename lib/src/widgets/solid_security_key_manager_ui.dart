@@ -49,6 +49,7 @@ class SolidSecurityKeyManagerUI {
     VoidCallback onShowKey,
     VoidCallback onSetChangeKey,
     VoidCallback onForgetKey,
+    VoidCallback onCancel,
   ) {
     const smallGapV = SizedBox(height: 20.0);
 
@@ -178,6 +179,28 @@ class SolidSecurityKeyManagerUI {
                             ),
                           ),
                         ],
+                        smallGapV,
+                        SizedBox(
+                          height: 44,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                              side: BorderSide(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: onCancel,
+                            child: const Text('Cancel'),
+                          ),
+                        ),
                       ],
                     ),
             ),
