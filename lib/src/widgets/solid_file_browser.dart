@@ -183,6 +183,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// Navigates into a subdirectory.
 
   Future<void> navigateToDirectory(String dirName) async {
+    if (!mounted) return;
     setState(() {
       currentPath = '$currentPath/$dirName';
       pathHistory.add(currentPath);
@@ -196,6 +197,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   Future<void> navigateUp() async {
     if (pathHistory.length > 1) {
       pathHistory.removeLast();
+      if (!mounted) return;
       setState(() => currentPath = pathHistory.last);
       widget.onDirectoryChanged.call(currentPath);
       await refreshFiles();
@@ -206,10 +208,11 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   Future<void> refreshFiles() async {
     if (!isLoggedIn) {
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
       return;
     }
 
+    if (!mounted) return;
     setState(() => isLoading = true);
 
     try {
