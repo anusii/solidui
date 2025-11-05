@@ -41,7 +41,8 @@ class SecurityKeyOperations {
     try {
       final hasKey = await KeyManager.hasSecurityKey();
       debugPrint(
-          'Security key status check: ${hasKey ? "exists" : "not found"}');
+        'Security key status check: ${hasKey ? "exists" : "not found"}',
+      );
       return hasKey;
     } catch (e) {
       debugPrint('Error checking key status: $e');
@@ -69,35 +70,10 @@ class SecurityKeyOperations {
     }
 
     try {
-      // Check if verification key exists in POD to determine the scenario.
+      // Use initPodKeys() to re-initialise the security key.
 
-      String verificationKey = '';
-      bool hasVerificationKey = false;
-
-      try {
-        verificationKey = await KeyManager.getVerificationKey();
-        hasVerificationKey = verificationKey.isNotEmpty;
-      } catch (e) {
-        // If getting verification key fails, it means no key file exists yet.
-
-        debugPrint('No verification key found, will initialise new keys: $e');
-        hasVerificationKey = false;
-      }
-
-      if (hasVerificationKey) {
-        // Scenario: User has key file in POD but forgot the key locally.
-        // Use setSecurityKey() to load the existing key into memory.
-
-        await KeyManager.setSecurityKey(key);
-        debugPrint('Security key loaded successfully.');
-      } else {
-        // Scenario: First time setting up security key (no key file in POD).
-        // Use initPodKeys() to create new key files and save to POD.
-
-        await KeyManager.initPodKeys(key);
-        debugPrint('Security key initialised successfully.');
-      }
-
+      await KeyManager.initPodKeys(key);
+      debugPrint('Security key successfully initialised.');
       return true;
     } catch (e) {
       debugPrint('Error setting security key: $e');
@@ -115,9 +91,6 @@ class SecurityKeyOperations {
       } else if (errorStr.contains('permission')) {
         errorMessage =
             'Permission denied. Please check your POD access rights.';
-      } else if (errorStr.contains('verify') ||
-          errorStr.contains('unable to verify')) {
-        errorMessage = 'Incorrect security key. Please check and try again.';
       } else {
         // Include part of the actual error for debugging.
 
