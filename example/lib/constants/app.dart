@@ -1,6 +1,4 @@
-/// SolidUI Template Application
-///
-// Time-stamp: <Monday 2025-09-01 14:40:06 +1000 Graham Williams>
+/// My App - App-wide constants.
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -26,41 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Tony Chen, Graham Williams
+/// Authors: Tony Chen
 
 library;
 
-import 'package:flutter/material.dart';
-
-import 'package:window_manager/window_manager.dart';
-
-import 'app.dart';
-import 'constants/app.dart';
-import 'utils/is_desktop.dart';
-
-/// Main entry point for the [MyApp] application.
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Set window options for desktop platforms (Windows, Linux, macOS).
-
-  if (isDesktop) {
-    await windowManager.ensureInitialized();
-
-    const windowOptions = WindowOptions(
-      title: appTitle,
-      minimumSize: Size(500, 800),
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
-    );
-
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  }
-
-  runApp(const App());
-}
+const String appTitle = 'My App - A SolidUI Template Application';

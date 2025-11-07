@@ -1,6 +1,4 @@
-/// SolidUI Template Application
-///
-// Time-stamp: <Monday 2025-09-01 14:40:06 +1000 Graham Williams>
+/// Check if we are running a desktop (and not a browser).
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -26,41 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Tony Chen, Graham Williams
+/// Authors: Tony Chen
 
 library;
 
-import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
 
-import 'package:window_manager/window_manager.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'app.dart';
-import 'constants/app.dart';
-import 'utils/is_desktop.dart';
+/// Test if we are running on a desktop platform but not in a browser.
 
-/// Main entry point for the [MyApp] application.
+bool get isDesktop {
+  if (kIsWeb) return false;
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Set window options for desktop platforms (Windows, Linux, macOS).
-
-  if (isDesktop) {
-    await windowManager.ensureInitialized();
-
-    const windowOptions = WindowOptions(
-      title: appTitle,
-      minimumSize: Size(500, 800),
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
-    );
-
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  }
-
-  runApp(const App());
+  return Platform.isLinux || Platform.isMacOS || Platform.isWindows;
 }
