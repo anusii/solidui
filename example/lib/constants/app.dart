@@ -1,4 +1,4 @@
-/// My App - App-wide constants.
+/// App-wide constants.
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
