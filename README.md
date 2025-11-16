@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD033 MD045 MD013 -->
+
 # SolidUI
 
 [![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)](https://flutter.dev)
@@ -36,7 +38,7 @@ dart pub add solidui
 
 ## Features
 
-+ [SolidLogin](#login-example) widget supports authentication against a Solid server:
+- **SolidLogin** widget supports authentication against a Solid server.
 
 Default style:
 
@@ -78,11 +80,11 @@ Fine tune to suit the theme of the app:
  alt="KeyPod Login" width="400">
 </div>
 
-+ `SolidPopupLogin` widget supports authentication within an
+- `SolidPopupLogin` widget supports authentication within an
   application. The widget will trigger authentication if a user action
   requires authenticated access.
 
-+ [changeKeyPopup](#change-security-key-example) widget supports
+- [changeKeyPopup](#change-security-key-example) widget supports
   changing the security key (used to make your data private through
   encryption):
 
@@ -92,15 +94,15 @@ Fine tune to suit the theme of the app:
  alt="KeyPod Login" width="400">
 </div>
 
-+ [readPod()](#read-pod-file-example) function reads file content
+- readPod() function reads file content
   (either encrypted or plaintext) from a Pod.
 
-+ [writePod()](#write-to-pod-file-example) function writes content
+- writePod() function writes content
   (either encrypted or plaintext) to a file in a Pod.
 
-+ [GrantPermissionUi](#grant-permission-ui-example) widget supports
+- GrantPermissionUi widget supports
   permission granting/revoking for resources:
-  + For defining specific access mode types or recipient types, use
+  - For defining specific access mode types or recipient types, use
     optional parameters `accessModeList` and `recipientTypeList`.
 
 Granting permission (currently ublished in solidpod):
@@ -117,7 +119,7 @@ Revoking permission:
  alt="KeyPod Login" width="400">
 </div>
 
-+ [SharedResourcesUi](#view-permission-ui-example) widget displays
+- SharedResourcesUi widget displays
   resources shared with a Pod by others (currently published in
   solidpod):
 
@@ -689,6 +691,39 @@ SolidFile(
 )
 ```
 
+## Login Example
+
+A simple login screen to authenticate a user against a Solid server.
+If your own home widget is called `MyHome()` then simply wrap this within
+the `SolidLogin()` widget:
+
+```dart
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'My Pod',
+      home: const SolidLogin(
+        child: Scaffold(body: MyHome()),
+      ),
+    );
+  }
+```
+
+## Change Security Key Example
+
+Wrap the `changeKeyPopup()` function within a button widget. Parameters
+include the `BuildContext` and the widget that you need to return to
+after changing the key.
+
+```dart
+ElevatedButton(
+ onPressed: () {
+  changeKeyPopup(context, ReturnPage());
+ },
+ child: const Text('Change Security Key on Pod')
+)
+```
+
 ## Authentication and Login Detection
 
 SolidUI provides dynamic login status detection and management through
@@ -1070,7 +1105,7 @@ issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
 The authors of the package will respond to issues as best we can but.
 
 <!-- markdownlint-disable MD036 -->
-*Time-stamp: <Monday 2025-11-17 10:05:36 +1100 Graham Williams>*
+*Time-stamp: <Monday 2025-11-17 10:30:22 +1100 Graham Williams>*
 <!-- markdownlint-enable MD036 -->
 
 <!-- markdownlint-disable MD053 -->
