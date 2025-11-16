@@ -34,6 +34,99 @@ Add SolidUI to your `pubspec.yaml`:
 dart pub add solidui
 ```
 
+## Features
+
++ [SolidLogin](#login-example) widget supports authentication against a Solid server:
+
+Default style:
+
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/solid_login.png"
+ alt="Solid Login" width="400">
+</div>
+
+Optional version and visit link:
+
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/podnotes_login.png"
+ alt="Solid Login" width="400">
+</div>
+
+Changing the image, logo, login text, colour scheme:
+
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/tomy_login.png"
+ alt="KeyPod Login" width="400">
+</div>
+
+Change the image, logo, login text, button style, colour scheme:
+
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/keypod_login.png"
+ alt="KeyPod Login" width="400">
+</div>
+
+Fine tune to suit the theme of the app:
+
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/innerpod_login.png"
+ alt="KeyPod Login" width="400">
+</div>
+
++ `SolidPopupLogin` widget supports authentication within an
+  application. The widget will trigger authentication if a user action
+  requires authenticated access.
+
++ [changeKeyPopup](#change-security-key-example) widget supports
+  changing the security key (used to make your data private through
+  encryption):
+
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/change_security_key.png"
+ alt="KeyPod Login" width="400">
+</div>
+
++ [readPod()](#read-pod-file-example) function reads file content
+  (either encrypted or plaintext) from a Pod.
+
++ [writePod()](#write-to-pod-file-example) function writes content
+  (either encrypted or plaintext) to a file in a Pod.
+
++ [GrantPermissionUi](#grant-permission-ui-example) widget supports
+  permission granting/revoking for resources:
+  + For defining specific access mode types or recipient types, use
+    optional parameters `accessModeList` and `recipientTypeList`.
+
+Granting permission (currently ublished in solidpod):
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/grant_permission.png"
+ alt="KeyPod Login" width="400">
+</div>
+
+Revoking permission:
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/revoke_permission.png"
+ alt="KeyPod Login" width="400">
+</div>
+
++ [SharedResourcesUi](#view-permission-ui-example) widget displays
+  resources shared with a Pod by others (currently published in
+  solidpod):
+
+<div align="center">
+ <img
+ src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/view_permission.png"
+ alt="KeyPod Login" width="400">
+</div>
+
 ## Requirements
 
 - Flutter SDK: `>=3.2.3 <4.0.0`
@@ -968,3 +1061,20 @@ Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 For more information about Solid and PODs, visit
 [solidproject.org](https://solidproject.org).
+
+## Additional information
+
+The source code can be accessed via the [GitHub
+repository](https://github.com/anusii/solidui).  You can also file
+issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
+The authors of the package will respond to issues as best we can but.
+
+<!-- markdownlint-disable MD036 -->
+*Time-stamp: <Monday 2025-11-17 10:05:36 +1100 Graham Williams>*
+<!-- markdownlint-enable MD036 -->
+
+<!-- markdownlint-disable MD053 -->
+[comment]: # (Local Variables:)
+[comment]: # (time-stamp-line-limit: -8)
+[comment]: # (End:)
+<!-- markdownlint-enable MD053 -->
