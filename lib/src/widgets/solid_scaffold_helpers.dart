@@ -107,13 +107,32 @@ class SolidScaffoldHelpers {
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
   ) {
+    // Determine the tooltip message.
+
+    String tooltipMessage;
+    if (themeConfig.tooltip != null) {
+      tooltipMessage = themeConfig.tooltip!;
+    } else {
+      switch (currentThemeMode) {
+        case ThemeMode.light:
+          tooltipMessage = themeConfig.lightModeTooltip;
+          break;
+        case ThemeMode.dark:
+          tooltipMessage = themeConfig.darkModeTooltip;
+          break;
+        case ThemeMode.system:
+          tooltipMessage = themeConfig.systemModeTooltip;
+          break;
+      }
+    }
+
     Widget themeButton = IconButton(
       icon: Icon(themeConfig.getNextIcon(currentThemeMode)),
       onPressed: themeToggleCallback,
     );
 
     return MarkdownTooltip(
-      message: themeConfig.getNextTooltip(currentThemeMode),
+      message: tooltipMessage,
       child: themeButton,
     );
   }
@@ -150,6 +169,19 @@ class SolidScaffoldHelpers {
     // Add theme toggle to overflow menu if configured.
 
     if (hasThemeToggleInOverflow && themeToggle != null) {
+      // Determine the label text.
+
+      String labelText;
+      switch (currentThemeMode) {
+        case ThemeMode.light:
+          labelText = 'Switch to Dark Mode';
+          break;
+        case ThemeMode.dark:
+        case ThemeMode.system:
+          labelText = 'Switch to Light Mode';
+          break;
+      }
+
       overflowMenuItems.add(
         PopupMenuItem<String>(
           value: 'theme_toggle',
@@ -157,7 +189,7 @@ class SolidScaffoldHelpers {
             children: [
               Icon(themeToggle.getNextIcon(currentThemeMode)),
               const SizedBox(width: 8),
-              Text(themeToggle.getNextOverflowLabel(currentThemeMode)),
+              Text(labelText),
             ],
           ),
         ),

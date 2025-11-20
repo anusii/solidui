@@ -131,51 +131,6 @@ class SolidThemeToggleConfig {
     this.showOnVeryNarrowScreen = true,
   });
 
-  /// Returns the appropriate icon based on current theme mode.
-
-  IconData getCurrentIcon(ThemeMode themeMode) {
-    switch (themeMode) {
-      case ThemeMode.light:
-        return lightModeIcon ?? Icons.light_mode;
-      case ThemeMode.dark:
-        return darkModeIcon ?? Icons.dark_mode;
-      case ThemeMode.system:
-        return systemModeIcon ?? Icons.computer;
-    }
-  }
-
-  /// Returns tooltip text based on current theme mode.
-
-  String getCurrentTooltip(ThemeMode themeMode) {
-    // If a custom tooltip is provided, use it instead of the default one.
-
-    if (tooltip != null) return tooltip!;
-
-    // Return responsive tooltip based on current theme mode.
-
-    switch (themeMode) {
-      case ThemeMode.light:
-        return lightModeTooltip;
-      case ThemeMode.dark:
-        return darkModeTooltip;
-      case ThemeMode.system:
-        return systemModeTooltip;
-    }
-  }
-
-  /// Returns overflow menu label based on current theme mode.
-
-  String getCurrentOverflowLabel(ThemeMode themeMode) {
-    switch (themeMode) {
-      case ThemeMode.light:
-        return 'Light Mode';
-      case ThemeMode.dark:
-        return 'Dark Mode';
-      case ThemeMode.system:
-        return 'System Mode';
-    }
-  }
-
   /// Returns the appropriate icon for the next theme mode.
 
   IconData getNextIcon(ThemeMode themeMode) {
@@ -186,37 +141,6 @@ class SolidThemeToggleConfig {
         return lightModeIcon ?? Icons.light_mode;
       case ThemeMode.system:
         return lightModeIcon ?? Icons.light_mode;
-    }
-  }
-
-  /// Returns tooltip text for switching to the next theme mode.
-
-  String getNextTooltip(ThemeMode themeMode) {
-    // If a custom tooltip is provided, use it instead of the default one.
-
-    if (tooltip != null) return tooltip!;
-
-    // Return responsive tooltip based on next theme mode.
-
-    switch (themeMode) {
-      case ThemeMode.light:
-        return lightModeTooltip;
-      case ThemeMode.dark:
-        return darkModeTooltip;
-      case ThemeMode.system:
-        return systemModeTooltip;
-    }
-  }
-
-  /// Returns overflow menu label for the next theme mode.
-
-  String getNextOverflowLabel(ThemeMode themeMode) {
-    switch (themeMode) {
-      case ThemeMode.light:
-        return 'Switch to Dark Mode';
-      case ThemeMode.dark:
-      case ThemeMode.system:
-        return 'Switch to Light Mode';
     }
   }
 
