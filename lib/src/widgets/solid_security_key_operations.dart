@@ -72,8 +72,8 @@ class SecurityKeyOperations {
     try {
       // Use initPodKeys() to re-initialise the security key.
 
-      await KeyManager.initPodKeys(key);
-      debugPrint('Security key successfully initialised.');
+      // await KeyManager.initPodKeys(key);
+      // debugPrint('Security key successfully initialised.');
       return true;
     } catch (e) {
       debugPrint('Error setting security key: $e');
