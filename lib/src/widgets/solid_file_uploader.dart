@@ -80,6 +80,7 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
       final content = await SolidFileUploaderHelpers.generateFilePreview(
         filePath,
       );
+      if (!mounted) return;
       setState(() {
         filePreview = content;
         showPreview = true;
@@ -98,6 +99,7 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
       if (!context.mounted) return;
       await widget.onUpload();
       widget.onFileSelected(null);
+      if (!mounted) return;
       setState(() {
         filePreview = null;
         showPreview = false;
