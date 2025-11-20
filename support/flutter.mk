@@ -25,6 +25,7 @@ flutter:
   emu	    Run with the android emulator;
   linux     Run with the linux device;
   qlinux    Run with the linux device and debugPrint() turned off;
+  macos     Run with the macos device;
 
   prep      Prep for PR by running tests, checks, docs.
   push      Do a git push and bump the build number if there is one.
@@ -57,8 +58,12 @@ flutter:
   desktops  Set up for all desktop platforms (linux, windows, macos)
 
   distributions
-    apk	    Builds installers/$(APP).apk
-    tgz     Builds installers/$(APP).tar.gz
+    apk	          Builds installers/$(APP).apk.
+    tgz           Builds installers/$(APP).tar.gz.
+    dmg-unsigned  Builds unsigned macos app.
+    dmg-dev       Builds macos app with development certificate.
+    dmg-staging   Builds macos app with distribution certificate.
+                  (TODO convert to dmg).
 
   publish   Publish a package to pub.dev
 
@@ -220,7 +225,7 @@ locmax:
 		| egrep -v '^ *$$' \
 		| egrep -v '^ *[)},]+, *$$' \
 		| wc -l \
-		| numfmt --grouping); \
+		| numfmt --format "%'f"); \
 	numf=$$(find lib -name "*.dart" -type f | wc -l); \
 	output=$$(find lib -name "*.dart" -exec sh -c ' \
 		lines=$$(bash $(LOC) "$$1"); \

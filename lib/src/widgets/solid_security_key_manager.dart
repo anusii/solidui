@@ -31,7 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show KeyManager, deleteFile, getEncKeyPath, readPod;
+    show KeyManager, deleteFile, getEncKeyPath;
 
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
@@ -150,13 +150,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     // Perform a full check.
 
-    final hasValidKey = await SecurityKeyOperations.checkKeyStatus(
-      () async => await getEncKeyPath(),
-      (filePath) async {
-        if (!mounted) return '';
-        return await readPod(filePath, context, widget, basePath: '');
-      },
-    );
+    final hasValidKey = await SecurityKeyOperations.checkKeyStatus();
 
     // Update all states with the verified status, but check mounted first.
 
@@ -220,25 +214,10 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         return await SecurityKeyOperations.handleKeySubmission(
           key,
           confirmKey,
-          (filePath) async {
-            if (!mounted) return '';
-            return await readPod(
-              filePath,
-              context,
-              const SizedBox(),
-              basePath: '',
-            );
-          },
           (message) => SecurityKeyUIHelpers.showErrorSnackBar(
             context,
             message,
           ),
-          (message) => SecurityKeyUIHelpers.showSuccessSnackBar(
-            context,
-            message,
-          ),
-          context: context,
-          appWidget: widget.config.appWidget,
         );
       },
     );
@@ -292,6 +271,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       () async => await _showPrivateData(title, context),
       () async => await _showKeyInputDialog(context),
       _handleForgetKey,
+      () => Navigator.of(context).pop(),
     );
   }
 
