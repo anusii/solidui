@@ -160,19 +160,20 @@ flutter create --template solidui --domain com.example myapp
 ```
 
 This will create a template app which we also included here under the
-`example/` directory. The app consists of four files within the `lib/`
-directory.  `main.dart` is the main entry point to the
-app. Its task in our framework is to initialise the appliocation and
-then launch the app itself.  `app.dart` implements the `App()` which
-is typically where we instantiate a `SolidLogin()`, often as the
-`child:` of a `SolidThemeApp()`.  The `SolidLogin()` provides the
-login page for the app. After logging in the `AppScaffold()`, as the
-`child:` of the `SolidLogin()`, is instantiated to contain the main
-functionality of the app.  `app_scaffold.dart` implements the
-`AppScaffold()` widget which builds a `SolidScaffold()` to set up the
-framework for a typical Solid app. The child is the `Home()` widget.
-`home.dart` implements the `Home()` widget as the  main app
-funtionality.
+`example/` directory. The app consists of several files within the
+`lib/` directory.  `main.dart` is the main entry point to the app. Its
+task in our framework is to initialise the application and then launch
+the app itself.  `app.dart` implements the `App()` which is typically
+where we instantiate a `SolidLogin()`, often as the `child:` of a
+`SolidThemeApp()`.  The `SolidLogin()` provides the login page for the
+app. After logging in the `AppScaffold()`, as the `child:` of the
+`SolidLogin()`, is instantiated to contain the main functionality of
+the app.  `app_scaffold.dart` implements the `AppScaffold()` widget
+which builds a `SolidScaffold()` to set up the framework for a typical
+Solid app. The child is the `Home()` widget. `home.dart` implements
+the `Home()` widget as the main app functionality. Constants are
+defined in `constants/app.dart` and utilities such as desktop platform
+detection are in `utils/is_desktop.dart`.
 
 ## SolidScaffold
 

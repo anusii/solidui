@@ -1,6 +1,4 @@
-/// SolidUI Template Application
-///
-// Time-stamp: <Monday 2025-09-01 14:40:06 +1000 Graham Williams>
+/// The primary App widget.
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -26,41 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Tony Chen, Graham Williams
+/// Authors: Tony Chen
 
 library;
 
 import 'package:flutter/material.dart';
 
-import 'package:window_manager/window_manager.dart';
+import 'package:solidui/solidui.dart';
 
-import 'app.dart';
+import 'app_scaffold.dart';
 import 'constants/app.dart';
-import 'utils/is_desktop.dart';
 
-/// Main entry point for the [MyApp] application.
+class App extends StatelessWidget {
+  const App({super.key});
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Set window options for desktop platforms (Windows, Linux, macOS).
-
-  if (isDesktop) {
-    await windowManager.ensureInitialized();
-
-    const windowOptions = WindowOptions(
+  @override
+  Widget build(BuildContext context) {
+    return SolidThemeApp(
+      debugShowCheckedModeBanner: false,
       title: appTitle,
-      minimumSize: Size(500, 800),
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: SolidLogin(
+        image: const AssetImage('assets/images/app_image.jpg'),
+        logo: const AssetImage('assets/images/app_icon.png'),
+        child: appScaffold,
+      ),
     );
-
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
   }
-
-  runApp(const App());
 }

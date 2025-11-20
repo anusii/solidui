@@ -57,7 +57,13 @@ class FileOperations {
     // Process each file in the directory.
 
     final processedFiles = <FileItem>[];
-    for (var fileName in resources.files) {
+    for (var fileUrl in resources.files) {
+      // Extract the file name from the URL if it's a full URL.
+
+      final fileName = fileUrl.contains('/')
+          ? Uri.parse(fileUrl).pathSegments.last
+          : fileUrl;
+
       // Skip non-TTL files. Include both .enc.ttl and .ttl files.
 
       if (!fileName.endsWith('.enc.ttl') && !fileName.endsWith('.ttl')) {

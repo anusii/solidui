@@ -1,5 +1,5 @@
-name: solidui_example
-description: A simple example demonstrating SolidScaffold usage.
+name: myapp
+description: My App - A SolidUI Template Application
 publish_to: 'none'
 version: 0.0.4+0
 
