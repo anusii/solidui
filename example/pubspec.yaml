@@ -13,7 +13,6 @@ dependencies:
   markdown_tooltip: any
   shared_preferences: ^2.5.3
   solidpod: ^0.8.0
-  # solidui: ^0.0.4
   solidui:
     path: ../
   window_manager: ^0.4.3
