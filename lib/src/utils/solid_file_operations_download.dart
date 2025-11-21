@@ -49,7 +49,7 @@ class SolidFileDownloadOperations {
     BuildContext context,
     String fileName,
     String filePath, {
-    String? basePath,
+    FilePathType? pathType,
   }) async {
     try {
       // Let user choose where to save the file.
@@ -85,6 +85,8 @@ class SolidFileDownloadOperations {
       try {
         // Get security key if required.
 
+        if (!context.mounted) return;
+
         await getKeyFromUserIfRequired(
           context,
           const Text('Please enter your security key to download the file'),
@@ -94,10 +96,11 @@ class SolidFileDownloadOperations {
 
         // Read file content from POD.
 
+        print('filePath: $filePath');
+
         final fileContent = await readPod(
-          filePath,
-          context,
-          const Text('Downloading'),
+          [filePath, fileName].join('/'),
+          pathType: pathType ?? FilePathType.relativeToData,
         );
 
         if (!context.mounted) return;
