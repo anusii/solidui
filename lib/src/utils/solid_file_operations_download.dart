@@ -96,8 +96,6 @@ class SolidFileDownloadOperations {
 
         // Read file content from POD.
 
-        print('filePath: $filePath');
-
         final fileContent = await readPod(
           [filePath, fileName].join('/'),
           pathType: pathType ?? FilePathType.relativeToData,
