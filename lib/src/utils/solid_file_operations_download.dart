@@ -49,7 +49,7 @@ class SolidFileDownloadOperations {
     BuildContext context,
     String fileName,
     String filePath, {
-    FilePathType? pathType,
+    PathType? pathType,
   }) async {
     try {
       // Let user choose where to save the file.
@@ -98,7 +98,7 @@ class SolidFileDownloadOperations {
 
         final fileContent = await readPod(
           [filePath, fileName].join('/'),
-          pathType: pathType ?? FilePathType.relativeToData,
+          pathType: pathType ?? PathType.relativeToData,
         );
 
         if (!context.mounted) return;

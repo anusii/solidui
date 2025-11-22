@@ -66,8 +66,7 @@ class SolidFileBrowserBuilder {
               browserKey.currentContext!,
               fileName,
               filePath,
-              pathType:
-                  basePath.trim().isEmpty ? FilePathType.relativeToPod : null,
+              pathType: basePath.trim().isEmpty ? PathType.relativeToPod : null,
             );
           },
       onFileDelete: onFileDelete ??

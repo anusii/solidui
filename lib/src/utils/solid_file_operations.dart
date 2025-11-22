@@ -47,7 +47,7 @@ class SolidFileOperations {
     BuildContext context,
     String fileName,
     String filePath, {
-    FilePathType? pathType,
+    PathType? pathType,
   }) =>
       SolidFileDownloadOperations.downloadFile(
         context,

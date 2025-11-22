@@ -82,7 +82,7 @@ class FileOperations {
 
       final metadata = await readPod(
         fileUrl,
-        pathType: FilePathType.absoluteUrl,
+        pathType: PathType.absoluteUrl,
       );
 
       // Add valid files to the processed list.

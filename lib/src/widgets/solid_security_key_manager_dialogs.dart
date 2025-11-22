@@ -32,7 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
     show
-        FilePathType,
+        PathType,
         SolidFunctionCallStatus,
         changeKeyPopup,
         getEncKeyPath,
@@ -162,7 +162,7 @@ class SolidSecurityKeyManagerDialogs {
 
       final fileContent = await readPod(
         filePath,
-        pathType: FilePathType.relativeToPod,
+        pathType: PathType.relativeToPod,
       );
       if (!context.mounted) return;
 
