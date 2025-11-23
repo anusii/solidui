@@ -20,7 +20,10 @@ dependencies:
   path: ^1.9.1
   rdflib: ^0.2.12
   shared_preferences: ^2.3.3
-  solidpod: ^0.8.3
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: dev
   url_launcher: ^6.3.1
   version_widget: ^1.0.6
 

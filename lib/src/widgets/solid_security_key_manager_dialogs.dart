@@ -31,7 +31,12 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show SolidFunctionCallStatus, changeKeyPopup, getEncKeyPath, readPod;
+    show
+        PathType,
+        SolidFunctionCallStatus,
+        changeKeyPopup,
+        getEncKeyPath,
+        readPod;
 
 import 'package:solidui/src/widgets/solid_security_key_set_dialog.dart';
 import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
@@ -157,8 +162,7 @@ class SolidSecurityKeyManagerDialogs {
 
       final fileContent = await readPod(
         filePath,
-        context,
-        appWidget,
+        pathType: PathType.relativeToPod,
       );
       if (!context.mounted) return;
 

@@ -12,7 +12,10 @@ dependencies:
     sdk: flutter
   markdown_tooltip: any
   shared_preferences: ^2.5.3
-  solidpod: ^0.8.0
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: dc/481_read_write_pathtype
   solidui:
     path: ../
   window_manager: ^0.4.3

@@ -72,16 +72,17 @@ class FileOperations {
 
       // Construct full path.
 
-      final relativePath = '$currentPath/$fileName';
+      // dc 20251122: the line below adds unnecessary leading `/' when `currentPath' is empty
+      // final relativePath = '$currentPath/$fileName';
+      final relativePath = [currentPath, fileName].join('/');
 
       if (!context.mounted) continue;
 
       // Read file metadata.
 
       final metadata = await readPod(
-        relativePath,
-        context,
-        const Text('Reading file info'),
+        fileUrl,
+        pathType: PathType.absoluteUrl,
       );
 
       // Add valid files to the processed list.

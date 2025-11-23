@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart';
+
 import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
@@ -65,7 +67,7 @@ class SolidFileBrowserBuilder {
               browserKey.currentContext!,
               fileName,
               filePath,
-              basePath: basePath,
+              pathType: basePath.trim().isEmpty ? PathType.relativeToPod : null,
             );
           },
       onFileDelete: onFileDelete ??
