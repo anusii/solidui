@@ -23,7 +23,7 @@ dependencies:
   solidpod:
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: dc/481_read_write_pathtype
+      ref: dev
   url_launcher: ^6.3.1
   version_widget: ^1.0.6
 
