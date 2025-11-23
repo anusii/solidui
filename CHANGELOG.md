@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Update to flutter_markdown_plus [0.0.10 20251124 gjw]
 + Updated readPod and writePod [0.0.9 20251123 cdawei]
 + Show username in status bar uri [0.0.8 20251030 tonypioneer]
 + Remove solidui/solidpod circular dependency [0.0.7 20251029 tonypioneer]
