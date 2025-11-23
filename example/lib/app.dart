@@ -35,18 +35,23 @@ import 'package:solidui/solidui.dart';
 import 'app_scaffold.dart';
 import 'constants/app.dart';
 
+// This widget is the root of the application.
+
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SolidThemeApp(
+      // Turn off debug banner for now.
       debugShowCheckedModeBanner: false,
       title: appTitle,
+
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
+
       home: SolidLogin(
         image: const AssetImage('assets/images/app_image.jpg'),
         logo: const AssetImage('assets/images/app_icon.png'),

@@ -1,7 +1,5 @@
 /// SolidUI Template Application
 ///
-// Time-stamp: <Monday 2025-09-01 14:40:06 +1000 Graham Williams>
-///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
