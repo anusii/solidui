@@ -159,7 +159,6 @@ class SolidLoginPanel {
     required Widget panelDecor,
     required SolidLoginThemeMode currentTheme,
   }) {
-
     // TODO 20231228 gjw SOMEONE PLEASE EXPLAIN THE RATIONALE BEHIND THE LOGIC
     // HERE FOR THE PANEL WIDTH.
 
