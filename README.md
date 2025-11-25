@@ -204,6 +204,33 @@ tablets, or mobile devices, running the app natively or through a
 browser. The transition between navigation modes is seamless and
 automatic.
 
+### Subpage Navigation
+
+SolidScaffold supports navigation to subpages that are not in the main
+navigation menu using the `bodyOverride` parameter. This is useful for
+applications that need to display detail pages (e.g. individual notes
+in NotePod) whilst maintaining the SolidScaffold frame. When
+`bodyOverride` is provided, it takes precedence over menu-based
+navigation.
+
+The `onClearBodyOverride` callback is automatically invoked when a menu
+item is tapped whilst a subpage is displayed, making navigation simple:
+
+```dart
+class _MyAppState extends State<MyApp> {
+  Widget? _subpage;
+
+  @override
+  Widget build(BuildContext context) {
+    return SolidScaffold(
+      menu: [...],
+      bodyOverride: _subpage,
+      onClearBodyOverride: () => setState(() => _subpage = null),
+    );
+  }
+}
+```
+
 ### Constructor Parameters
 
 ```dart
@@ -213,6 +240,7 @@ SolidScaffold({
   // Navigation
   List<SolidMenuItem>? menu,
   Widget? child,
+  Widget? bodyOverride,
   int initialIndex = 0,
   void Function(int)? onMenuSelected,
   int? selectedIndex,

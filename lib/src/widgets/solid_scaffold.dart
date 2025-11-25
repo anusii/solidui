@@ -67,6 +67,23 @@ class SolidScaffold extends StatefulWidget {
 
   final Widget? body;
 
+  /// Optional body override for displaying subpages not in the menu.
+  /// When provided, this takes precedence over menu-based navigation.
+  /// This is useful for navigating to detail pages (e.g. individual notes)
+  /// whilst maintaining the SolidScaffold frame (AppBar, navigation drawer).
+  ///
+  /// When using bodyOverride, provide [onClearBodyOverride] callback to
+  /// automatically clear it when user taps a menu item.
+
+  final Widget? bodyOverride;
+
+  /// Callback invoked when bodyOverride should be cleared.
+  /// Automatically called when a menu item is tapped whilst bodyOverride is
+  /// set. Use this to clear your subpage state: `setState(() => _subpage =
+  /// null)`
+
+  final VoidCallback? onClearBodyOverride;
+
   /// Standard Scaffold appBar for compatibility.
   /// Used when SolidUI `appBar` config is null.
 
@@ -205,6 +222,8 @@ class SolidScaffold extends StatefulWidget {
     this.menu,
     this.child,
     this.body,
+    this.bodyOverride,
+    this.onClearBodyOverride,
     this.scaffoldAppBar,
     this.drawer,
     this.endDrawer,
@@ -403,6 +422,12 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   void _onMenuSelected(int index) {
+    // Clear bodyOverride automatically if set.
+
+    if (widget.bodyOverride != null && widget.onClearBodyOverride != null) {
+      widget.onClearBodyOverride!();
+    }
+
     if (widget.onMenuSelected != null) {
       widget.onMenuSelected!(index);
     } else {
@@ -437,6 +462,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
               _currentSelectedIndex,
               widget.child,
               widget.body,
+              widget.bodyOverride,
             ),
             _onMenuSelected,
             widget.onShowAlert,

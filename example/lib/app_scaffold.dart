@@ -34,115 +34,146 @@ import 'package:solidui/solidui.dart';
 
 import 'constants/app.dart';
 import 'home.dart';
+import 'screens/settings_page.dart';
 
-var appScaffold = SolidScaffold(
-  // MENU.
+/// App scaffold widget with subpage navigation support.
 
-  menu: const [
-    SolidMenuItem(
-      icon: Icons.home,
-      title: 'Home',
-      tooltip: '''
+class AppScaffold extends StatefulWidget {
+  const AppScaffold({super.key});
+
+  @override
+  State<AppScaffold> createState() => _AppScaffoldState();
+}
+
+class _AppScaffoldState extends State<AppScaffold> {
+  Widget? _currentSubpage;
+
+  void _navigateToSettings() {
+    setState(() {
+      _currentSubpage = const SettingsPage();
+    });
+  }
+
+  void _clearSubpage() {
+    // Called automatically by SolidScaffold when menu item is tapped.
+
+    setState(() {
+      _currentSubpage = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SolidScaffold(
+      // MENU.
+
+      menu: const [
+        SolidMenuItem(
+          icon: Icons.home,
+          title: 'Home',
+          tooltip: '''
 
             **Home:** Tap here to return to the main page for the app.
 
             ''',
-      child: Home(title: appTitle),
-    ),
-    SolidMenuItem(
-      icon: Icons.folder,
-      title: 'Files',
-      tooltip: '''
+          child: Home(title: appTitle),
+        ),
+        SolidMenuItem(
+          icon: Icons.folder,
+          title: 'Files',
+          tooltip: '''
 
             **Files:** Tap here to browse the files on your POD.
 
             ''',
-      child: SolidFile(basePath: ''),
-    ),
-    SolidMenuItem(
-      icon: Icons.info,
-      title: 'About',
-      tooltip: '''
+          child: SolidFile(basePath: ''),
+        ),
+        SolidMenuItem(
+          icon: Icons.info,
+          title: 'About',
+          tooltip: '''
 
             **About:** Tap here to learn more about this application.
 
             ''',
-      child: Center(
-        child: Text('About Page', style: TextStyle(fontSize: 24)),
+          child: Center(
+            child: Text('About Page', style: TextStyle(fontSize: 24)),
+          ),
+        ),
+      ],
+
+      // BODY OVERRIDE.
+
+      bodyOverride: _currentSubpage,
+
+      // Automatically clear subpage when menu item is tapped.
+
+      onClearBodyOverride: _clearSubpage,
+
+      // APP BAR.
+
+      appBar: SolidAppBarConfig(
+        title: appTitle.split('-')[0],
+
+        // VERSION WIDGET.
+
+        versionConfig: const SolidVersionConfig(
+          changelogUrl: 'https://github.com/anusii/solidui/blob/dev/'
+              'CHANGELOG.md',
+          showDate: true,
+        ),
+
+        actions: [
+          SolidAppBarAction(
+            icon: Icons.search,
+            onPressed: () => debugPrint('Search'),
+            tooltip: 'Search',
+          ),
+          SolidAppBarAction(
+            icon: Icons.notifications,
+            onPressed: () => debugPrint('Notifications'),
+            tooltip: 'Notifications',
+          ),
+          SolidAppBarAction(
+            icon: Icons.settings,
+            onPressed: _navigateToSettings,
+            tooltip: 'Settings',
+          ),
+        ],
+        overflowItems: [
+          SolidOverflowMenuItem(
+            id: 'help',
+            icon: Icons.help,
+            label: 'Help',
+            onSelected: () => debugPrint('Help'),
+          ),
+        ],
       ),
-    ),
-    SolidMenuItem(
-      icon: Icons.settings,
-      title: 'Settings',
-      tooltip: '''
 
-            **Settings:** Tap here to configure application settings.
+      // STATUS BAR.
 
-            ''',
-      child: Center(
-        child: Text('Settings Page', style: TextStyle(fontSize: 24)),
+      statusBar: const SolidStatusBarConfig(
+        serverInfo:
+            SolidServerInfo(serverUri: 'https://pods.solidcommunity.au'),
+        loginStatus: SolidLoginStatus(),
+        securityKeyStatus: SolidSecurityKeyStatus(),
       ),
-    ),
-  ],
 
-  // APP BAR.
+      // ABOUT.
 
-  appBar: SolidAppBarConfig(
-    title: appTitle.split('-')[0],
-
-    // VERSION WIDGET.
-
-    versionConfig: const SolidVersionConfig(
-      changelogUrl: 'https://github.com/anusii/solidui/blob/dev/'
-          'CHANGELOG.md',
-      showDate: true,
-    ),
-
-    actions: [
-      SolidAppBarAction(
-        icon: Icons.search,
-        onPressed: () => debugPrint('Search'),
-        tooltip: 'Search',
-      ),
-      SolidAppBarAction(
-        icon: Icons.notifications,
-        onPressed: () => debugPrint('Notifications'),
-        tooltip: 'Notifications',
-      ),
-    ],
-    overflowItems: [
-      SolidOverflowMenuItem(
-        id: 'help',
-        icon: Icons.help,
-        label: 'Help',
-        onSelected: () => debugPrint('Help'),
-      ),
-    ],
-  ),
-
-  // STATUS BAR.
-
-  statusBar: const SolidStatusBarConfig(
-    serverInfo: SolidServerInfo(serverUri: 'https://pods.solidcommunity.au'),
-    loginStatus: SolidLoginStatus(),
-    securityKeyStatus: SolidSecurityKeyStatus(),
-  ),
-
-  // ABOUT.
-
-  aboutConfig: SolidAboutConfig(
-    applicationName: appTitle.split(' - ')[0],
-    applicationIcon: Image.asset(
-      'assets/images/app_icon.png',
-      width: 64,
-      height: 64,
-    ),
-    applicationLegalese: '''
+      aboutConfig: SolidAboutConfig(
+        applicationName: appTitle.split(' - ')[0],
+        applicationIcon: Image.asset(
+          'assets/images/app_icon.png',
+          width: 64,
+          height: 64,
+        ),
+        applicationLegalese: '''
 
         © 2025 Software Innovation Institute, the Australian National University
 
         ''',
-    text: '''
+        text: '''
 
         This template app demonstrates the following key SolidUI features:
         🧭 Responsive navigation (rail ↔ drawer);
@@ -158,14 +189,16 @@ var appScaffold = SolidScaffold(
         [Australian Solid Community](https://solidcommunity.au) web site.
 
         ''',
-  ),
+      ),
 
-  // THEME DARK/LIGHT Mode.
+      // THEME DARK/LIGHT Mode.
 
-  themeToggle: const SolidThemeToggleConfig(
-    enabled: true,
-    showInAppBarActions: true,
-  ),
+      themeToggle: const SolidThemeToggleConfig(
+        enabled: true,
+        showInAppBarActions: true,
+      ),
 
-  child: const Home(title: appTitle),
-);
+      child: const Home(title: appTitle),
+    );
+  }
+}

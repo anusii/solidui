@@ -242,18 +242,36 @@ class SolidScaffoldHelpers {
   }
 
   /// Gets effective child widget.
+  ///
+  /// Priority order:
+  /// 1. bodyOverride (for subpages not in menu)
+  /// 2. menu[selectedIndex].child (for menu-based navigation)
+  /// 3. child (fallback)
+  /// 4. body (final fallback)
 
   static Widget? getEffectiveChild(
     List<SolidMenuItem>? menu,
     int currentSelectedIndex,
     Widget? child,
     Widget? body,
+    Widget? bodyOverride,
   ) {
+    // First priority: bodyOverride for subpages.
+
+    if (bodyOverride != null) {
+      return bodyOverride;
+    }
+
+    // Second priority: menu-based navigation.
+
     if (menu != null &&
         currentSelectedIndex < menu.length &&
         currentSelectedIndex >= 0) {
       return menu[currentSelectedIndex].child;
     }
+
+    // Fallback to child or body.
+
     return child ?? body;
   }
 
