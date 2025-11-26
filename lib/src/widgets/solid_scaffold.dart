@@ -39,6 +39,7 @@ import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_scaffold_controller.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_init_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
@@ -66,6 +67,28 @@ class SolidScaffold extends StatefulWidget {
   /// Used when `child` is null.
 
   final Widget? body;
+
+  /// Optional controller for simplified subpage navigation management.
+  /// When provided, handles all subpage state automatically.
+  /// Use `controller.navigateToSubpage(widget)` to show a subpage.
+  ///
+  /// Example:
+  /// ```dart
+  /// final controller = SolidScaffoldController();
+  /// SolidScaffold(
+  ///   controller: controller,
+  ///   appBar: SolidAppBarConfig(
+  ///     actions: [
+  ///       SolidAppBarAction(
+  ///         icon: Icons.settings,
+  ///         onPressed: () => controller.navigateToSubpage(SettingsPage()),
+  ///       ),
+  ///     ],
+  ///   ),
+  /// )
+  /// ```
+
+  final SolidScaffoldController? controller;
 
   /// Optional body override for displaying subpages not in the menu.
   /// When provided, this takes precedence over menu-based navigation.
@@ -222,6 +245,7 @@ class SolidScaffold extends StatefulWidget {
     this.menu,
     this.child,
     this.body,
+    this.controller,
     this.bodyOverride,
     this.onClearBodyOverride,
     this.scaffoldAppBar,
@@ -304,6 +328,12 @@ class SolidScaffoldState extends State<SolidScaffold> {
         securityKeyNotifier.refreshStatus();
       }
     });
+
+    // Listen to controller changes.
+
+    if (widget.controller != null) {
+      widget.controller!.addListener(_onControllerChanged);
+    }
   }
 
   @override
@@ -315,7 +345,14 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (widget.statusBar?.securityKeyStatus != null) {
       securityKeyNotifier.removeListener(_onSecurityKeyNotifierChanged);
     }
+    if (widget.controller != null) {
+      widget.controller!.removeListener(_onControllerChanged);
+    }
     super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onThemeChanged() {
@@ -422,6 +459,12 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   void _onMenuSelected(int index) {
+    // Clear controller's subpage if using controller.
+
+    if (widget.controller != null && widget.controller!.hasSubpage) {
+      widget.controller!.clearSubpage();
+    }
+
     // Clear bodyOverride automatically if set.
 
     if (widget.bodyOverride != null && widget.onClearBodyOverride != null) {
@@ -462,7 +505,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
               _currentSelectedIndex,
               widget.child,
               widget.body,
-              widget.bodyOverride,
+              widget.bodyOverride ?? widget.controller?.currentSubpage,
             ),
             _onMenuSelected,
             widget.onShowAlert,
