@@ -24,7 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Graham Williams, Anushka Vidanage, Ashley Tang, Dawei Chen
+/// Authors: Graham Williams, Anushka Vidanage, Ashley Tang, Dawei Chen, Tony
+/// Chen
 
 library;
 
