@@ -1,0 +1,104 @@
+/// Button builders for Solid login screen.
+///
+/// Copyright (C) 2025, Software Innovation Institute, ANU.
+///
+/// Licensed under the MIT License (the "License").
+///
+/// License: https://choosealicense.com/licenses/mit/.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+///
+/// Authors: Graham Williams, Anushka Vidanage, Ashley Tang, Dawei Chen, Tony
+/// Chen
+
+library;
+
+// ignore_for_file: public_member_api_docs
+
+import 'package:flutter/material.dart';
+
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:solidui/src/widgets/solid_login_helper.dart';
+
+/// Builder class for creating login screen buttons.
+
+class SolidLoginButtons {
+  /// Creates a REGISTER button that launches the registration page.
+
+  static Widget buildRegisterButton({
+    required RegisterButtonStyle style,
+    required String webId,
+  }) {
+    return PodButton(
+      text: style.text,
+      background: style.background,
+      foreground: style.foreground,
+      tooltip: style.tooltip,
+      onPressed: () {
+        launchUrl(Uri.parse('$webId/.account/login/password/register/'));
+      },
+    );
+  }
+
+  /// Creates a LOGIN button that handles authentication.
+
+  static Widget buildLoginButton({
+    required LoginButtonStyle style,
+    required VoidCallback onPressed,
+  }) {
+    return PodButton(
+      text: style.text,
+      background: style.background,
+      foreground: style.foreground,
+      tooltip: style.tooltip,
+      onPressed: onPressed,
+    );
+  }
+
+  /// Creates a CONTINUE button that skips authentication.
+
+  static Widget buildContinueButton({
+    required ContinueButtonStyle style,
+    required VoidCallback onPressed,
+  }) {
+    return PodButton(
+      text: style.text,
+      background: style.background,
+      foreground: style.foreground,
+      tooltip: style.tooltip,
+      onPressed: onPressed,
+    );
+  }
+
+  /// Creates an INFO button that opens an information link.
+
+  static Widget buildInfoButton({
+    required InfoButtonStyle style,
+    required String link,
+  }) {
+    return PodButton(
+      text: style.text,
+      background: style.background,
+      foreground: style.foreground,
+      tooltip: style.tooltip,
+      onPressed: () => launchUrl(Uri.parse(link)),
+    );
+  }
+}
