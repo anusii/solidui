@@ -58,11 +58,33 @@ class FileOperations {
 
     final processedFiles = <FileItem>[];
     for (var fileUrl in resources.files) {
-      // Extract the file name from the URL if it's a full URL.
+      // Extract the file name from the URL/path.
+      // Handle both full URLs, relative paths, and plain filenames.
 
-      final fileName = fileUrl.contains('/')
-          ? Uri.parse(fileUrl).pathSegments.last
-          : fileUrl;
+      String fileName;
+      try {
+        if (fileUrl.contains('://')) {
+          // It's a full URL.
+
+          final uri = Uri.parse(fileUrl);
+          fileName = uri.pathSegments.isNotEmpty
+              ? uri.pathSegments.last
+              : fileUrl;
+        } else if (fileUrl.contains('/')) {
+          // It's a relative path, extract the last component.
+
+          fileName = fileUrl.split('/').last;
+        } else {
+          // It's just a filename.
+
+          fileName = fileUrl;
+        }
+      } catch (e) {
+        // If parsing fails, use the original as filename.
+
+        debugPrint('Error parsing fileUrl $fileUrl: $e');
+        fileName = fileUrl;
+      }
 
       // Skip non-TTL files. Include both .enc.ttl and .ttl files.
 
@@ -78,11 +100,14 @@ class FileOperations {
 
       if (!context.mounted) continue;
 
-      // Read file metadata.
+      // Read file metadata using relative path from pod root.
+      // Note: currentPath already contains the full path from pod root
+      // (e.g., "healthpod/data/pathology"), so we use relativeToPod to avoid
+      // path duplication.
 
       final metadata = await readPod(
-        fileUrl,
-        pathType: PathType.absoluteUrl,
+        relativePath,
+        pathType: PathType.relativeToPod,
       );
 
       // Add valid files to the processed list.

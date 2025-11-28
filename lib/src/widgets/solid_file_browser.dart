@@ -227,12 +227,32 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
       setState(() {
         directories = resources.subDirs.map((dirUrl) {
-          // Extract the directory name from the URL if it's a full URL.
+          // Extract the directory name from URL/path.
+          // Handle both full URLs, relative paths, and plain directory names.
 
-          if (dirUrl.contains('/')) {
-            return Uri.parse(dirUrl).pathSegments.last;
+          try {
+            if (dirUrl.contains('://')) {
+              // It's a full URL.
+
+              final uri = Uri.parse(dirUrl);
+              return uri.pathSegments.isNotEmpty
+                  ? uri.pathSegments.last
+                  : dirUrl;
+            } else if (dirUrl.contains('/')) {
+              // It's a relative path, extract the last component.
+
+              return dirUrl.split('/').last;
+            } else {
+              // It's just a directory name.
+
+              return dirUrl;
+            }
+          } catch (e) {
+            // If parsing fails, use the original.
+
+            debugPrint('Error parsing dirUrl $dirUrl: $e');
+            return dirUrl;
           }
-          return dirUrl;
         }).toList();
         currentDirDirectoryCount = directories.length;
       });
