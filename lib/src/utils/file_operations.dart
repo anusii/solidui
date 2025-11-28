@@ -37,6 +37,54 @@ import 'package:solidui/src/models/file_item.dart';
 /// A utility class for performing file system operations in the POD.
 
 class FileOperations {
+  /// Extracts the resource name (file or directory) from a URL, path, or plain
+  /// name.
+  ///
+  /// Handles three cases:
+  /// - Full URLs (containing `://`): Extracts the last path segment
+  /// - Relative paths (containing `/`): Extracts the last component
+  /// - Plain names: Returns as-is
+  ///
+  /// Parameters:
+  /// - [resourceUrl]: The URL, path, or name to process
+  ///
+  /// Returns the extracted resource name. If parsing fails, returns the
+  /// original input.
+  ///
+  /// Examples:
+  /// ```dart
+  /// extractResourceName('file.txt') // Returns: 'file.txt'
+  /// extractResourceName('folder/file.txt') // Returns: 'file.txt'
+  /// extractResourceName('https://example.com/path/file.txt') // Returns:
+  /// 'file.txt'
+  /// ```
+
+  static String extractResourceName(String resourceUrl) {
+    try {
+      if (resourceUrl.contains('://')) {
+        // It's a full URL.
+
+        final uri = Uri.parse(resourceUrl);
+        return uri.pathSegments.isNotEmpty
+            ? uri.pathSegments.last
+            : resourceUrl;
+      } else if (resourceUrl.contains('/')) {
+        // It's a relative path, extract the last component.
+
+        return resourceUrl.split('/').last;
+      } else {
+        // It's just a resource name.
+
+        return resourceUrl;
+      }
+    } catch (e) {
+      // If parsing fails, use the original as resource name.
+
+      debugPrint('Error parsing resourceUrl $resourceUrl: $e');
+      return resourceUrl;
+    }
+  }
+
   /// Retrieves and processes files from the specified directory.
   ///
   /// Parameters:
@@ -59,32 +107,8 @@ class FileOperations {
     final processedFiles = <FileItem>[];
     for (var fileUrl in resources.files) {
       // Extract the file name from the URL/path.
-      // Handle both full URLs, relative paths, and plain filenames.
 
-      String fileName;
-      try {
-        if (fileUrl.contains('://')) {
-          // It's a full URL.
-
-          final uri = Uri.parse(fileUrl);
-          fileName = uri.pathSegments.isNotEmpty
-              ? uri.pathSegments.last
-              : fileUrl;
-        } else if (fileUrl.contains('/')) {
-          // It's a relative path, extract the last component.
-
-          fileName = fileUrl.split('/').last;
-        } else {
-          // It's just a filename.
-
-          fileName = fileUrl;
-        }
-      } catch (e) {
-        // If parsing fails, use the original as filename.
-
-        debugPrint('Error parsing fileUrl $fileUrl: $e');
-        fileName = fileUrl;
-      }
+      final fileName = extractResourceName(fileUrl);
 
       // Skip non-TTL files. Include both .enc.ttl and .ttl files.
 
