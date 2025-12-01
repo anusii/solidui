@@ -34,8 +34,13 @@ import 'package:solidui/solidui.dart';
 
 import 'constants/app.dart';
 import 'home.dart';
+import 'screens/settings_page.dart';
 
-var appScaffold = SolidScaffold(
+final _scaffoldController = SolidScaffoldController();
+
+final appScaffold = SolidScaffold(
+  controller: _scaffoldController,
+
   // MENU.
 
   menu: const [
@@ -71,18 +76,6 @@ var appScaffold = SolidScaffold(
         child: Text('About Page', style: TextStyle(fontSize: 24)),
       ),
     ),
-    SolidMenuItem(
-      icon: Icons.settings,
-      title: 'Settings',
-      tooltip: '''
-
-            **Settings:** Tap here to configure application settings.
-
-            ''',
-      child: Center(
-        child: Text('Settings Page', style: TextStyle(fontSize: 24)),
-      ),
-    ),
   ],
 
   // APP BAR.
@@ -108,6 +101,13 @@ var appScaffold = SolidScaffold(
         icon: Icons.notifications,
         onPressed: () => debugPrint('Notifications'),
         tooltip: 'Notifications',
+      ),
+      SolidAppBarAction(
+        icon: Icons.settings,
+        onPressed: () => _scaffoldController.navigateToSubpage(
+          const SettingsPage(),
+        ),
+        tooltip: 'Settings',
       ),
     ],
     overflowItems: [

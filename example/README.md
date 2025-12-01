@@ -65,6 +65,15 @@ This application demonstrates:
 - **Security key management** integration
 - **File browser** for Solid POD file management
 
+### Additional Examples
+
+This package also includes:
+
+- **subpage_navigation_example.dart**: Demonstrates the `bodyOverride` feature for
+  navigating to detail pages (subpages) that are not in the main navigation menu.
+  This is useful for applications like NotePod where you need to navigate from a
+  list view to individual items whilst maintaining the SolidScaffold frame.
+
 ## Running the Application
 
 ### Prerequisites

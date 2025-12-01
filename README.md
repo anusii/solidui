@@ -204,6 +204,50 @@ tablets, or mobile devices, running the app natively or through a
 browser. The transition between navigation modes is seamless and
 automatic.
 
+### Subpage Navigation
+
+SolidScaffold supports navigation to subpages that are not in the main
+navigation menu. This is useful for applications that need to display
+detail pages (e.g. individual notes in NotePod) whilst maintaining the
+SolidScaffold frame.
+
+**Recommended approach using SolidScaffoldController** (no StatefulWidget
+needed):
+
+```dart
+final controller = SolidScaffoldController();
+
+final appScaffold = SolidScaffold(
+  controller: controller,
+  menu: [...],
+  appBar: SolidAppBarConfig(
+    actions: [
+      SolidAppBarAction(
+        icon: Icons.settings,
+        onPressed: () => controller.navigateToSubpage(SettingsPage()),
+      ),
+    ],
+  ),
+);
+```
+
+**Alternative approach using bodyOverride** (requires setState):
+
+```dart
+class _MyAppState extends State<MyApp> {
+  Widget? _subpage;
+
+  @override
+  Widget build(BuildContext context) {
+    return SolidScaffold(
+      menu: [...],
+      bodyOverride: _subpage,
+      onClearBodyOverride: () => setState(() => _subpage = null),
+    );
+  }
+}
+```
+
 ### Constructor Parameters
 
 ```dart
@@ -213,6 +257,7 @@ SolidScaffold({
   // Navigation
   List<SolidMenuItem>? menu,
   Widget? child,
+  Widget? bodyOverride,
   int initialIndex = 0,
   void Function(int)? onMenuSelected,
   int? selectedIndex,

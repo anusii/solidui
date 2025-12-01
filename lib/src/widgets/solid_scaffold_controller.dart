@@ -1,4 +1,4 @@
-/// The primary App widget.
+/// Solid Scaffold Controller for managing subpage navigation.
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -30,34 +30,59 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/solidui.dart';
+/// Controller for managing SolidScaffold subpage navigation.
+///
+/// Provides a simple API for navigating to subpages without requiring
+/// the user to manage state manually.
+///
+/// Example:
+/// ```dart
+/// final controller = SolidScaffoldController();
+///
+/// SolidScaffold(
+///   controller: controller,
+///   appBar: SolidAppBarConfig(
+///     actions: [
+///       SolidAppBarAction(
+///         icon: Icons.settings,
+///         onPressed: () => controller.navigateToSubpage(SettingsPage()),
+///       ),
+///     ],
+///   ),
+/// )
+/// ```
 
-import 'app_scaffold.dart';
-import 'constants/app.dart';
+class SolidScaffoldController extends ChangeNotifier {
+  Widget? _currentSubpage;
 
-// This widget is the root of the application.
+  /// Get the current subpage being displayed.
 
-class App extends StatelessWidget {
-  const App({super.key});
+  Widget? get currentSubpage => _currentSubpage;
+
+  /// Navigate to a subpage.
+  ///
+  /// The subpage will be displayed using bodyOverride, taking precedence
+  /// over menu-based navigation.
+
+  void navigateToSubpage(Widget subpage) {
+    _currentSubpage = subpage;
+    notifyListeners();
+  }
+
+  /// Clear the current subpage and return to menu navigation.
+
+  void clearSubpage() {
+    _currentSubpage = null;
+    notifyListeners();
+  }
+
+  /// Check if a subpage is currently displayed.
+
+  bool get hasSubpage => _currentSubpage != null;
 
   @override
-  Widget build(BuildContext context) {
-    return SolidThemeApp(
-      // Turn off debug banner for now.
-
-      debugShowCheckedModeBanner: false,
-      title: appTitle,
-
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-
-      home: SolidLogin(
-        image: const AssetImage('assets/images/app_image.jpg'),
-        logo: const AssetImage('assets/images/app_icon.png'),
-        child: appScaffold,
-      ),
-    );
+  void dispose() {
+    _currentSubpage = null;
+    super.dispose();
   }
 }

@@ -105,6 +105,15 @@ class SolidScaffoldInternalConfig {
 
   final Widget? body;
 
+  /// Optional body override for displaying subpages not in the menu.
+  /// When provided, this takes precedence over menu-based navigation.
+
+  final Widget? bodyOverride;
+
+  /// Callback invoked when bodyOverride should be cleared.
+
+  final VoidCallback? onClearBodyOverride;
+
   /// Standard Scaffold appBar for compatibility.
   /// Used when SolidUI `appBar` config is null.
 
@@ -242,6 +251,8 @@ class SolidScaffoldInternalConfig {
     this.menu,
     this.child,
     this.body,
+    this.bodyOverride,
+    this.onClearBodyOverride,
     this.scaffoldAppBar,
     this.drawer,
     this.endDrawer,
