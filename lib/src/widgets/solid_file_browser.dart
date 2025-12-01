@@ -226,14 +226,9 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       // Update directories list.
 
       setState(() {
-        directories = resources.subDirs.map((dirUrl) {
-          // Extract the directory name from the URL if it's a full URL.
-
-          if (dirUrl.contains('/')) {
-            return Uri.parse(dirUrl).pathSegments.last;
-          }
-          return dirUrl;
-        }).toList();
+        directories = resources.subDirs
+            .map((dirUrl) => FileOperations.extractResourceName(dirUrl))
+            .toList();
         currentDirDirectoryCount = directories.length;
       });
 
