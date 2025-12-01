@@ -15,6 +15,8 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Support navigation to subpages [0.0.12 20251202 tonypioneer]
++ readPod improvements for resource handling [0.0.11 20251202 tonypioneer]
 + Update to flutter_markdown_plus [0.0.10 20251124 gjw]
 + Updated readPod and writePod [0.0.9 20251123 cdawei]
 + Show username in status bar uri [0.0.8 20251030 tonypioneer]
