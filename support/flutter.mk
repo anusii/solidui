@@ -464,6 +464,25 @@ realclean::
 	flutter clean
 	flutter pub get
 
+# Create a macos app
+# [20251029 jesscmoore] TODO: add converting to dmg
+# Build unsigned macos app
+dmg-unsigned::
+	flutter clean
+	flutter build macos --release --flavor unsigned
+
+# Build macos app signed with development certificate for testing
+# by App Developer Program togaware registered devices
+dmg-dev::
+	flutter clean
+	flutter build macos --release --flavor dev
+
+# Build macos app signed with app store distribution for testing
+# on Testflight or publishing
+dmg-staging:
+	flutter clean
+	flutter build macos --release --flavor staging
+
 # For the `dev` branch only, update the version sequence number prior
 # to a push (relies on the git.mk being loaded after this
 # flutter.mk). This is only undertaken through `make push` rather than
