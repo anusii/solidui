@@ -1,6 +1,6 @@
 # SolidUI Changelog
 
-Noted here are the high level changes for the SolidUI package.
+Noted here are the high level changes for the package.
 
 Guide: Each version update is recorded here with a short user-oriented
 description of the update. Updates in the 0.0.n series are heading
