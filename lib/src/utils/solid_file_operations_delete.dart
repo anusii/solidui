@@ -91,11 +91,17 @@ class SolidFileDeleteOperations {
       );
 
       try {
+        // Construct the full file path by combining directory path and
+        // filename. The filePath already contains the full path from pod root
+        // (e.g., "healthpod/data/pathology").
+
+        final fullFilePath = [filePath, fileName].join('/');
+
         // Delete the main file.
 
         bool mainFileDeleted = false;
         try {
-          await deleteFile(filePath);
+          await deleteFile(fullFilePath);
           mainFileDeleted = true;
         } catch (e) {
           // Only rethrow if it's not a 404 error.
@@ -112,7 +118,7 @@ class SolidFileDeleteOperations {
 
         if (mainFileDeleted) {
           try {
-            await deleteFile('$filePath.acl');
+            await deleteFile('$fullFilePath.acl');
           } catch (e) {
             // ACL files are optional and may not exist.
             // We ignore 404 errors for ACL files.
