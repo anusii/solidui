@@ -92,8 +92,7 @@ class SolidFileDeleteOperations {
 
       try {
         // Construct the full file path by combining directory path and
-        // filename. The filePath already contains the full path from pod root
-        // (e.g., "healthpod/data/pathology").
+        // filename.
 
         final fullFilePath = [filePath, fileName].join('/');
 
