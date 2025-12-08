@@ -91,36 +91,21 @@ class SolidFileDeleteOperations {
       );
 
       try {
-        // Delete the main file.
+        // Construct the full file path by combining directory path and
+        // filename.
 
-        bool mainFileDeleted = false;
+        final fullFilePath = [filePath, fileName].join('/');
+
+        // Delete the file (this also handles the ACL file automatically).
+
         try {
-          await deleteFile(filePath);
-          mainFileDeleted = true;
+          await deleteFile(fullFilePath);
         } catch (e) {
           // Only rethrow if it's not a 404 error.
 
           if (!e.toString().contains('404') &&
               !e.toString().contains('NotFoundHttpError')) {
             rethrow;
-          }
-        }
-
-        if (!context.mounted) return;
-
-        // Try to delete the ACL file if main file deletion succeeded.
-
-        if (mainFileDeleted) {
-          try {
-            await deleteFile('$filePath.acl');
-          } catch (e) {
-            // ACL files are optional and may not exist.
-            // We ignore 404 errors for ACL files.
-
-            if (!e.toString().contains('404') &&
-                !e.toString().contains('NotFoundHttpError')) {
-              debugPrint('Warning: Could not delete ACL file: $e');
-            }
           }
         }
 

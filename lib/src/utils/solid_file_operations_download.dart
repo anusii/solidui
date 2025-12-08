@@ -98,7 +98,7 @@ class SolidFileDownloadOperations {
 
         final fileContent = await readPod(
           [filePath, fileName].join('/'),
-          pathType: pathType ?? PathType.relativeToData,
+          pathType: pathType ?? PathType.relativeToPod,
         );
 
         if (!context.mounted) return;
