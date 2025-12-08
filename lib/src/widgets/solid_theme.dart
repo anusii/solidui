@@ -67,7 +67,7 @@ class SolidTheme {
             seedColor: seedColor,
             brightness: Brightness.light,
           ),
-      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+      appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0),
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -106,7 +106,7 @@ class SolidTheme {
             seedColor: seedColor,
             brightness: Brightness.dark,
           ),
-      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+      appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0),
       cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
