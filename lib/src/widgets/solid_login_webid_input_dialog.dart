@@ -32,6 +32,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/solid_popup_login.dart';
 
@@ -43,7 +44,7 @@ Future<dynamic> loginWebIdInputDialog(
   BuildContext context,
 ) {
   final formControllerWebId = TextEditingController()
-    ..text = 'https://pods.solidcommunity.au/';
+    ..text = SolidConfig.defaultServerUrl;
   return showDialog(
     context: context,
     builder: (context) {
@@ -58,7 +59,7 @@ Future<dynamic> loginWebIdInputDialog(
             TextFormField(
               controller: formControllerWebId,
               decoration: const InputDecoration(
-                hintText: 'Eg: https://pods.solidcommunity.au/'
+                hintText: '${SolidConfig.defaultServerUrl}/'
                     'username/profile/card#me',
               ),
             ),

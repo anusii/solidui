@@ -39,7 +39,9 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFolders,
         generateDefaultFiles,
         setAppDirName;
+import 'package:url_launcher/url_launcher.dart';
 
+import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
@@ -69,7 +71,7 @@ class SolidLogin extends StatefulWidget {
       package: 'solidpod',
     ),
     this.title = 'Log in to your Solid Pod',
-    this.webID = 'https://pods.solidcommunity.au',
+    this.webID = SolidConfig.defaultServerUrl,
     this.link = 'https://solidproject.org',
     this.continueButtonStyle = const ContinueButtonStyle(),
     this.infoButtonStyle = const InfoButtonStyle(),
@@ -314,21 +316,26 @@ class _SolidLoginState extends State<SolidLogin> {
 
     final webIdController = TextEditingController()..text = widget.webID;
 
-    // Get the pod server from text field or use default.
-
-    final podServer =
-        webIdController.text.isNotEmpty ? webIdController.text : widget.webID;
-
     // Build all buttons using the button builder.
+    // User input from text field will override the default server URL.
 
     final registerButton = SolidLoginButtons.buildRegisterButton(
       style: widget.registerButtonStyle,
-      webId: podServer,
+      onPressed: () {
+        final webId = webIdController.text.trim().isNotEmpty
+            ? webIdController.text.trim()
+            : SolidConfig.defaultServerUrl;
+        launchUrl(Uri.parse('$webId/.account/login/password/register/'));
+      },
     );
 
     final loginButton = SolidLoginButtons.buildLoginButton(
       style: widget.loginButtonStyle,
       onPressed: () async {
+        final podServer = webIdController.text.trim().isNotEmpty
+            ? webIdController.text.trim()
+            : SolidConfig.defaultServerUrl;
+
         isDialogCanceled = false;
         await SolidLoginAuthHandler.handleLogin(
           context: context,

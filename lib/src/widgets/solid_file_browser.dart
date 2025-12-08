@@ -348,57 +348,51 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         return SizedBox(
           width: constraints.maxWidth,
           height: constraints.maxHeight,
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 100,
-                maxHeight: MediaQuery.of(context).size.height - 100,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Navigation and path display bar (only show if logged in).
-                  if (isLoggedIn)
-                    PathBar(
-                      currentPath: currentPath,
-                      pathHistory: pathHistory,
-                      onNavigateUp: navigateUp,
-                      onRefresh: refreshFiles,
-                      isLoading: isLoading,
-                      currentDirFileCount: currentDirFileCount,
-                      currentDirDirectoryCount: currentDirDirectoryCount,
-                      friendlyFolderName: _getEffectiveFriendlyFolderName(),
-                      basePath: widget.basePath,
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Navigation and path display bar (only show if logged in).
 
-                  if (isLoggedIn) const SizedBox(height: 12),
+              if (isLoggedIn)
+                PathBar(
+                  currentPath: currentPath,
+                  pathHistory: pathHistory,
+                  onNavigateUp: navigateUp,
+                  onRefresh: refreshFiles,
+                  isLoading: isLoading,
+                  currentDirFileCount: currentDirFileCount,
+                  currentDirDirectoryCount: currentDirDirectoryCount,
+                  friendlyFolderName: _getEffectiveFriendlyFolderName(),
+                  basePath: widget.basePath,
+                ),
 
-                  // Main content area with conditional rendering.
-                  Expanded(
-                    child: !isLoggedIn
-                        ? _buildNotLoggedInView()
-                        : isLoading
-                            ? const FileBrowserLoadingState()
-                            : directories.isEmpty && files.isEmpty
-                                ? const EmptyDirectoryView()
-                                : FileBrowserContent(
-                                    directories: directories,
-                                    files: files,
-                                    directoryCounts: directoryCounts,
-                                    currentPath: currentPath,
-                                    selectedFile: selectedFile,
-                                    onDirectorySelected: navigateToDirectory,
-                                    onFileSelected: (name, path) {
-                                      setState(() => selectedFile = name);
-                                      widget.onFileSelected.call(name, path);
-                                    },
-                                    onFileDownload: widget.onFileDownload,
-                                    onFileDelete: widget.onFileDelete,
-                                  ),
-                  ),
-                ],
+              if (isLoggedIn) const SizedBox(height: 12),
+
+              // Main content area with conditional rendering.
+
+              Expanded(
+                child: !isLoggedIn
+                    ? _buildNotLoggedInView()
+                    : isLoading
+                        ? const FileBrowserLoadingState()
+                        : directories.isEmpty && files.isEmpty
+                            ? const EmptyDirectoryView()
+                            : FileBrowserContent(
+                                directories: directories,
+                                files: files,
+                                directoryCounts: directoryCounts,
+                                currentPath: currentPath,
+                                selectedFile: selectedFile,
+                                onDirectorySelected: navigateToDirectory,
+                                onFileSelected: (name, path) {
+                                  setState(() => selectedFile = name);
+                                  widget.onFileSelected.call(name, path);
+                                },
+                                onFileDownload: widget.onFileDownload,
+                                onFileDelete: widget.onFileDelete,
+                              ),
               ),
-            ),
+            ],
           ),
         );
       },

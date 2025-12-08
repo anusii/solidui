@@ -30,6 +30,7 @@ library;
 
 export 'src/constants/about.dart';
 export 'src/constants/navigation.dart';
+export 'src/constants/solid_config.dart';
 export 'src/constants/ui.dart';
 
 export 'src/handlers/solid_auth_handler.dart';

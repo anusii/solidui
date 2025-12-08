@@ -37,6 +37,7 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFolders,
         generateDefaultFiles;
 
+import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_loading_screen.dart';
@@ -47,7 +48,7 @@ class SolidPopupLogin extends StatefulWidget {
   /// Constructor for the PopupLogin.
 
   const SolidPopupLogin({
-    this.webId = 'https://pods.solidcommunity.au',
+    this.webId = SolidConfig.defaultServerUrl,
     super.key,
   });
 

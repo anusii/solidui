@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getWebId;
 
+import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/widgets/solid_default_login.dart';
 import 'package:solidui/src/widgets/solid_logout_dialog.dart' show logoutPopup;
 
@@ -153,7 +154,7 @@ class SolidAuthHandler {
       appTitle: _config?.appTitle ?? 'Solid App',
       appDirectory: _config?.appDirectory ?? 'solid_app',
       defaultServerUrl:
-          _config?.defaultServerUrl ?? 'https://pods.dev.solidcommunity.au',
+          _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
       appImage: _config?.appImage,
       appLogo: _config?.appLogo,
       appLink: _config?.appLink,
