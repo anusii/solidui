@@ -40,6 +40,7 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFiles,
         setAppDirName;
 
+import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
@@ -69,7 +70,7 @@ class SolidLogin extends StatefulWidget {
       package: 'solidpod',
     ),
     this.title = 'Log in to your Solid Pod',
-    this.webID = 'https://pods.solidcommunity.au',
+    this.webID = SolidConfig.defaultServerUrl,
     this.link = 'https://solidproject.org',
     this.continueButtonStyle = const ContinueButtonStyle(),
     this.infoButtonStyle = const InfoButtonStyle(),

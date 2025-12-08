@@ -123,7 +123,7 @@ final appScaffold = SolidScaffold(
   // STATUS BAR.
 
   statusBar: const SolidStatusBarConfig(
-    serverInfo: SolidServerInfo(serverUri: 'https://pods.solidcommunity.au'),
+    serverInfo: SolidServerInfo(serverUri: SolidConfig.defaultServerUrl),
     loginStatus: SolidLoginStatus(),
     securityKeyStatus: SolidSecurityKeyStatus(),
   ),
