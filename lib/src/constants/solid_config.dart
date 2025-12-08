@@ -35,18 +35,6 @@ class SolidConfig {
 
   static const String defaultServerUrl = 'https://pods.solidcommunity.au';
 
-  /// Default development Solid POD server URL.
-
-  static const String defaultDevServerUrl = 'https://pods.dev.solidcommunity.au';
-
-  /// Default server URL with trailing slash for input fields.
-
-  static const String defaultServerUrlWithSlash = 'https://pods.solidcommunity.au/';
-
-  /// Hint text for WebID input fields.
-
-  static const String webIdHintText = 'https://pods.solidcommunity.au/';
-
   // Prevent instantiation
 
   SolidConfig._();

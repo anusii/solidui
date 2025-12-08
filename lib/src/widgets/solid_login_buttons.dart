@@ -44,16 +44,14 @@ class SolidLoginButtons {
 
   static Widget buildRegisterButton({
     required RegisterButtonStyle style,
-    required String webId,
+    required VoidCallback onPressed,
   }) {
     return PodButton(
       text: style.text,
       background: style.background,
       foreground: style.foreground,
       tooltip: style.tooltip,
-      onPressed: () {
-        launchUrl(Uri.parse('$webId/.account/login/password/register/'));
-      },
+      onPressed: onPressed,
     );
   }
 

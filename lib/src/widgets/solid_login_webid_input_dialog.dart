@@ -44,7 +44,7 @@ Future<dynamic> loginWebIdInputDialog(
   BuildContext context,
 ) {
   final formControllerWebId = TextEditingController()
-    ..text = SolidConfig.defaultServerUrlWithSlash;
+    ..text = SolidConfig.defaultServerUrl;
   return showDialog(
     context: context,
     builder: (context) {
@@ -59,7 +59,7 @@ Future<dynamic> loginWebIdInputDialog(
             TextFormField(
               controller: formControllerWebId,
               decoration: InputDecoration(
-                hintText: '${SolidConfig.webIdHintText}'
+                hintText: '${SolidConfig.defaultServerUrl}/'
                     'username/profile/card#me',
               ),
             ),
