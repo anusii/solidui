@@ -33,14 +33,13 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:solidpod/solidpod.dart'
     show
         getAppNameVersion,
         generateDefaultFolders,
         generateDefaultFiles,
         setAppDirName;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
@@ -323,8 +322,8 @@ class _SolidLoginState extends State<SolidLogin> {
     final registerButton = SolidLoginButtons.buildRegisterButton(
       style: widget.registerButtonStyle,
       onPressed: () {
-        final webId = webIdController.text.trim().isNotEmpty 
-            ? webIdController.text.trim() 
+        final webId = webIdController.text.trim().isNotEmpty
+            ? webIdController.text.trim()
             : SolidConfig.defaultServerUrl;
         launchUrl(Uri.parse('$webId/.account/login/password/register/'));
       },
@@ -333,10 +332,10 @@ class _SolidLoginState extends State<SolidLogin> {
     final loginButton = SolidLoginButtons.buildLoginButton(
       style: widget.loginButtonStyle,
       onPressed: () async {
-        final podServer = webIdController.text.trim().isNotEmpty 
-            ? webIdController.text.trim() 
+        final podServer = webIdController.text.trim().isNotEmpty
+            ? webIdController.text.trim()
             : SolidConfig.defaultServerUrl;
-        
+
         isDialogCanceled = false;
         await SolidLoginAuthHandler.handleLogin(
           context: context,

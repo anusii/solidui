@@ -58,7 +58,7 @@ Future<dynamic> loginWebIdInputDialog(
 
             TextFormField(
               controller: formControllerWebId,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: '${SolidConfig.defaultServerUrl}/'
                     'username/profile/card#me',
               ),
