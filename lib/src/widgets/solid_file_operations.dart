@@ -187,14 +187,13 @@ class SolidFileOperations {
           ? '$baseDir/${fileState.remoteFileName}'
           : '${fileState.currentPath}/${fileState.remoteFileName}';
 
-      // First try to delete the main file.
+      // Delete the file (this also handles the ACL file automatically).
 
-      bool mainFileDeleted = false;
       try {
         await deleteFile(filePath);
-        mainFileDeleted = true;
+        return newState.copyWith(deleteDone: true, deleteInProgress: false);
       } catch (e) {
-        debugPrint('Error deleting main file: $e');
+        debugPrint('Error deleting file: $e');
 
         // Only rethrow if it's not a 404 error.
 
@@ -202,24 +201,6 @@ class SolidFileOperations {
             !e.toString().contains('NotFoundHttpError')) {
           rethrow;
         }
-      }
-
-      // If main file deletion succeeded, try to delete the ACL file.
-
-      if (mainFileDeleted) {
-        try {
-          await deleteFile('$filePath.acl');
-        } catch (e) {
-          // ACL files are optional and may not exist.
-          if (e.toString().contains('404') ||
-              e.toString().contains('NotFoundHttpError')) {
-            debugPrint('ACL file not found (safe to ignore)');
-          } else {
-            debugPrint('Error deleting ACL file: ${e.toString()}');
-          }
-        }
-
-        return newState.copyWith(deleteDone: true, deleteInProgress: false);
       }
 
       return newState.copyWith(deleteDone: false, deleteInProgress: false);
