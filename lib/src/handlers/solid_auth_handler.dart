@@ -28,6 +28,7 @@
 
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getWebId;
@@ -35,6 +36,9 @@ import 'package:solidpod/solidpod.dart' show getWebId;
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/widgets/solid_default_login.dart';
 import 'package:solidui/src/widgets/solid_logout_dialog.dart' show logoutPopup;
+import 'package:solidui/src/utils/web_reload_stub.dart'
+    if (dart.library.html) 'package:solidui/src/utils/web_reload_web.dart'
+    as web_reload;
 
 /// Configuration for Solid authentication handling.
 
@@ -130,9 +134,20 @@ class SolidAuthHandler {
     // No additional navigation needed.
   }
 
-  /// Handle login functionality by navigating to login page.
+  /// Handle login functionality by reloading the page on web platform.
+  /// On web, this takes the guest user back to homepage to properly authenticate.
+  /// On mobile/desktop, navigates to the login page.
 
   Future<void> handleLogin(BuildContext context) async {
+    // On web platform, reload page to reset state and return to homepage
+    if (kIsWeb) {
+      debugPrint('SolidAuthHandler: Guest user requesting login, reloading page...');
+      await Future.delayed(const Duration(milliseconds: 100));
+      web_reload.reloadPage();
+      return;
+    }
+
+    // On mobile/desktop, navigate to login page
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
