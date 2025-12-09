@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
+import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold.dart';
 import 'package:solidui/src/widgets/solid_scaffold_build_helper.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
@@ -41,6 +42,29 @@ import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 /// Widget builder specifically for SolidScaffold.
 
 class SolidScaffoldWidgetBuilder {
+  /// Builds a default SolidNavUserInfo from available scaffold configuration.
+
+  static SolidNavUserInfo? _buildDefaultUserInfo(
+    SolidScaffold widget,
+    String? currentWebId,
+  ) {
+    SolidVersionConfig? versionConfig;
+    if (widget.appBar is SolidAppBarConfig) {
+      versionConfig = (widget.appBar as SolidAppBarConfig).versionConfig;
+    }
+
+    if (currentWebId == null && versionConfig == null) {
+      return null;
+    }
+
+    return SolidNavUserInfo(
+      webId: currentWebId,
+      showWebId: currentWebId != null && currentWebId.isNotEmpty,
+      avatarIcon: Icons.account_circle,
+      versionConfig: versionConfig,
+    );
+  }
+
   /// Builds scaffold directly from widget parameters.
 
   static Widget buildFromWidget({
@@ -56,6 +80,7 @@ class SolidScaffoldWidgetBuilder {
     required bool Function() getUsesInternalManagement,
     required bool Function() shouldShowVersion,
     required String Function() getVersionToDisplay,
+    String? currentWebId,
   }) {
     return SolidScaffoldBuildHelper.buildScaffold(
       context: context,
@@ -88,12 +113,17 @@ class SolidScaffoldWidgetBuilder {
           widget.narrowScreenThreshold,
           shouldShowVersion,
           getVersionToDisplay,
+          hideNavRail: widget.hideNavRail,
         ),
       ),
       buildDrawer: () {
         if (isWideScreen || widget.menu == null) return null;
+
+        final effectiveUserInfo =
+            widget.userInfo ?? _buildDefaultUserInfo(widget, currentWebId);
+
         return SolidNavDrawer(
-          userInfo: widget.userInfo,
+          userInfo: effectiveUserInfo,
           tabs: SolidScaffoldHelpers.convertToNavTabs(widget.menu),
           selectedIndex: currentSelectedIndex,
           onTabSelected: onMenuSelected,
@@ -108,10 +138,12 @@ class SolidScaffoldWidgetBuilder {
       bodyContent: bodyContent,
       bottomNavigationBar: isCompatibilityMode
           ? widget.bottomNavigationBar
-          : SolidScaffoldLayoutBuilder.buildStatusBar(
-              widget.statusBar,
-              isKeySaved,
-            ),
+          : (widget.hideNavRail
+              ? null
+              : SolidScaffoldLayoutBuilder.buildStatusBar(
+                  widget.statusBar,
+                  isKeySaved,
+                )),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,

@@ -247,6 +247,11 @@ class SolidScaffoldInternalConfig {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Option to force the navigation rail to be hidden and display a
+  /// hamburger menu button instead.
+
+  final bool hideNavRail;
+
   const SolidScaffoldInternalConfig({
     this.menu,
     this.child,
@@ -286,5 +291,6 @@ class SolidScaffoldInternalConfig {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.hideNavRail = false,
   });
 }

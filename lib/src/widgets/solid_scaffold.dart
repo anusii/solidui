@@ -33,6 +33,8 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart' show getWebId, checkLoggedIn;
+
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
@@ -240,6 +242,11 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Option to force the navigation rail to be hidden and display a
+  /// hamburger menu button instead.
+
+  final bool hideNavRail;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -281,6 +288,7 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.hideNavRail = false,
   });
 
   @override
@@ -296,6 +304,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   String? _appVersion;
   bool _isVersionLoaded = false;
   bool? _cachedUsesInternalManagement;
+  String? _currentWebId;
 
   @override
   void initState() {
@@ -333,6 +342,42 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
     if (widget.controller != null) {
       widget.controller!.addListener(_onControllerChanged);
+    }
+
+    // Load the current webId for navigation drawer user info display.
+
+    _loadCurrentWebId();
+  }
+
+  /// Loads the current webId from Solid POD authentication state.
+  /// This is used to display user information in the navigation drawer header.
+
+  Future<void> _loadCurrentWebId() async {
+    try {
+      final webId = await getWebId();
+
+      if (webId == null || webId.isEmpty) {
+        if (mounted && _currentWebId != null) {
+          setState(() => _currentWebId = null);
+        }
+        return;
+      }
+
+      // Verify if the user is actually logged in.
+
+      final isLoggedIn = await checkLoggedIn();
+
+      if (mounted) {
+        final newWebId = isLoggedIn ? webId : null;
+        if (_currentWebId != newWebId) {
+          setState(() => _currentWebId = newWebId);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading current webId: $e');
+      if (mounted && _currentWebId != null) {
+        setState(() => _currentWebId = null);
+      }
     }
   }
 
@@ -482,6 +527,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   bool _isWideScreen(BuildContext context) =>
+      !widget.hideNavRail &&
       SolidScaffoldHelpers.isWideScreen(context, widget.narrowScreenThreshold);
 
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
@@ -517,6 +563,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
         Future.delayed(const Duration(milliseconds: 300), () {
           securityKeyNotifier.refreshStatus();
+
+          // Also refresh webId status when security key changes.
+
+          _loadCurrentWebId();
         });
         return true;
       },
@@ -533,6 +583,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
         getUsesInternalManagement: _getUsesInternalManagement,
         shouldShowVersion: _shouldShowVersion,
         getVersionToDisplay: _getVersionToDisplay,
+        currentWebId: _currentWebId,
       ),
     );
   }
