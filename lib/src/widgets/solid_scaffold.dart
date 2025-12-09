@@ -240,6 +240,11 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Option to force the navigation rail to be hidden and display a
+  /// hamburger menu button instead.
+
+  final bool hideNavRail;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -281,6 +286,7 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.hideNavRail = false,
   });
 
   @override
@@ -482,6 +488,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   bool _isWideScreen(BuildContext context) =>
+      !widget.hideNavRail &&
       SolidScaffoldHelpers.isWideScreen(context, widget.narrowScreenThreshold);
 
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=

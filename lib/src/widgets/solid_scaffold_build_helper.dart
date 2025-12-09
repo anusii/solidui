@@ -161,6 +161,7 @@ class SolidScaffoldBuildHelper {
           config.narrowScreenThreshold,
           shouldShowVersion,
           getVersionToDisplay,
+          hideNavRail: config.hideNavRail,
         ),
       ),
       buildDrawer: () {
@@ -181,10 +182,12 @@ class SolidScaffoldBuildHelper {
       bodyContent: bodyContent,
       bottomNavigationBar: isCompatibilityMode
           ? config.bottomNavigationBar
-          : SolidScaffoldLayoutBuilder.buildStatusBar(
-              config.statusBar,
-              isKeySaved,
-            ),
+          : (config.hideNavRail
+              ? null
+              : SolidScaffoldLayoutBuilder.buildStatusBar(
+                  config.statusBar,
+                  isKeySaved,
+                )),
       bottomSheet: config.bottomSheet,
       persistentFooterButtons: config.persistentFooterButtons,
       resizeToAvoidBottomInset: config.resizeToAvoidBottomInset,

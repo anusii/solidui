@@ -88,6 +88,7 @@ class SolidScaffoldWidgetBuilder {
           widget.narrowScreenThreshold,
           shouldShowVersion,
           getVersionToDisplay,
+          hideNavRail: widget.hideNavRail,
         ),
       ),
       buildDrawer: () {
@@ -108,10 +109,12 @@ class SolidScaffoldWidgetBuilder {
       bodyContent: bodyContent,
       bottomNavigationBar: isCompatibilityMode
           ? widget.bottomNavigationBar
-          : SolidScaffoldLayoutBuilder.buildStatusBar(
-              widget.statusBar,
-              isKeySaved,
-            ),
+          : (widget.hideNavRail
+              ? null
+              : SolidScaffoldLayoutBuilder.buildStatusBar(
+                  widget.statusBar,
+                  isKeySaved,
+                )),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,

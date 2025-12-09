@@ -167,5 +167,7 @@ final appScaffold = SolidScaffold(
     showInAppBarActions: true,
   ),
 
+  hideNavRail: false,
+
   child: const Home(title: appTitle),
 );

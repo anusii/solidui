@@ -344,8 +344,9 @@ class SolidScaffoldHelpers {
     SolidAboutConfig aboutConfig,
     double narrowScreenThreshold,
     bool Function() shouldShowVersion,
-    String Function() getVersionToDisplay,
-  ) {
+    String Function() getVersionToDisplay, {
+    bool hideNavRail = false,
+  }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
 
@@ -359,6 +360,7 @@ class SolidScaffoldHelpers {
       themeToggleCallback,
       aboutConfig,
       narrowScreenThreshold,
+      hideNavRail: hideNavRail,
     );
   }
 
