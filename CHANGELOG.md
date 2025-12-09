@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Option to hide menu rail [0.0.14 20251210 gjw]
 + Updated dependencies [0.0.13 20251206 gjw]
 + Support navigation to subpages [0.0.12 20251202 tonypioneer]
 + readPod improvements for resource handling [0.0.11 20251202 tonypioneer]
