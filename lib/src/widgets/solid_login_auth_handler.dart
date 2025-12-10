@@ -31,12 +31,13 @@ library;
 
 // ignore_for_file: public_member_api_docs
 
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
     show checkLoggedIn, solidAuthenticate, initialStructureTest;
 
-import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
@@ -136,28 +137,21 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      // Navigate to the appropriate screen based on structure test.
+      // Navigate to main app immediately after successful authentication
+      // This provides instant user feedback and better UX
+      if (!context.mounted) return false;
+      
+      debugPrint('SolidLoginAuthHandler: Authentication successful, navigating to app immediately...');
+      await pushReplacement(context, childWidget);
 
-      final resCheckList = await initialStructureTest(
+      // Check initial structure in background (non-blocking)
+      // If setup is needed, user can access it from the app later
+      unawaited(_checkInitialStructureInBackground(
         defaultFolders,
         defaultFiles,
-      );
-      final allExists = resCheckList.first as bool;
-
-      if (!context.mounted) return false;
-
-      if (!allExists) {
-        await pushReplacement(
-          context,
-          InitialSetupScreen(
-            resCheckList: resCheckList,
-            originalLogin: originalLoginWidget,
-            child: childWidget,
-          ),
-        );
-      } else {
-        await pushReplacement(context, childWidget);
-      }
+        originalLoginWidget,
+        childWidget,
+      ),);
 
       return true;
     } else {
@@ -178,4 +172,39 @@ class SolidLoginAuthHandler {
       return false;
     }
   }
+
+  /// Checks initial POD structure in the background without blocking navigation.
+  /// 
+  /// This allows the user to access the app immediately while structure
+  /// verification happens asynchronously. If setup is needed, it can be
+  /// triggered later from within the app.
+  static Future<void> _checkInitialStructureInBackground(
+    List<String> defaultFolders,
+    Map<dynamic, dynamic> defaultFiles,
+    dynamic originalLoginWidget,
+    Widget childWidget,
+  ) async {
+    try {
+      debugPrint('SolidLoginAuthHandler: Checking initial structure in background...');
+      
+      final resCheckList = await initialStructureTest(
+        defaultFolders,
+        defaultFiles,
+      );
+      
+      final allExists = resCheckList.first as bool;
+      
+      if (allExists) {
+        debugPrint('SolidLoginAuthHandler: Initial structure verified successfully');
+      } else {
+        debugPrint('SolidLoginAuthHandler: Initial structure incomplete - user may need to run setup');
+        // In the future, we could show a notification or prompt here
+        // For now, we just log it and let the user discover setup options in the app
+      }
+    } catch (e) {
+      debugPrint('SolidLoginAuthHandler: Background structure check failed: $e');
+      // Non-critical error - user can still use the app
+    }
+  }
 }
+
