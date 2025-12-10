@@ -34,7 +34,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart' show getWebId;
 
 import 'package:solidui/src/constants/solid_config.dart';
-import 'package:solidui/src/widgets/solid_default_login.dart';
+import 'package:solidui/src/widgets/solid_login.dart';
 import 'package:solidui/src/widgets/solid_logout_dialog.dart' show logoutPopup;
 import 'package:solidui/src/utils/web_reload_stub.dart'
     if (dart.library.html) 'package:solidui/src/utils/web_reload_web.dart'
@@ -157,23 +157,29 @@ class SolidAuthHandler {
   }
 
   /// Build the login page widget.
+  /// 
+  /// Returns the actual login input page (SolidLogin), not the success page.
+  /// This is used when guest users want to authenticate, or after logout.
 
   Widget _buildLoginPage(BuildContext context) {
     if (_config?.loginPageBuilder != null) {
       return _config!.loginPageBuilder!(context);
     }
 
-    // Use default login page.
+    // Use the login input page, not the success page
+    // The loginSuccessWidget (child) will be shown after successful authentication
+    final mainAppWidget = _config?.loginSuccessWidget ?? 
+        const Center(child: Text('Authentication required'));
 
-    return SolidDefaultLogin(
-      appTitle: _config?.appTitle ?? 'Solid App',
+    return SolidLogin(
       appDirectory: _config?.appDirectory ?? 'solid_app',
-      defaultServerUrl:
-          _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
-      appImage: _config?.appImage,
-      appLogo: _config?.appLogo,
-      appLink: _config?.appLink,
-      loginSuccessWidget: _config?.loginSuccessWidget,
+      webID: _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
+      // Use provided images or fallback to SolidLogin's defaults from solidpod package
+      image: _config?.appImage ?? 
+          const AssetImage('assets/images/default_image.jpg', package: 'solidpod'),
+      logo: _config?.appLogo ?? 
+          const AssetImage('assets/images/default_logo.png', package: 'solidpod'),
+      child: mainAppWidget,
     );
   }
 
