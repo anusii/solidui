@@ -26,7 +26,6 @@
 
 library;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getAppNameVersion, logoutPod;
@@ -56,9 +55,9 @@ class _LogoutDialogState extends State<LogoutDialog> {
           child: const Text('OK'),
           onPressed: () async {
             if (await logoutPod()) {
-              // On web, logoutPod() reloads the page, so no navigation needed
-              // On mobile/desktop, navigate to login page
-              if (!kIsWeb && context.mounted) {
+              // Navigate to login page after successful logout
+              // Works consistently across all platforms
+              if (context.mounted) {
                 await Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => widget.child),
