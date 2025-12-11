@@ -141,7 +141,6 @@ class SolidLoginAuthHandler {
       // This provides instant user feedback and better UX
       if (!context.mounted) return false;
       
-      debugPrint('SolidLoginAuthHandler: Authentication successful, navigating to app immediately...');
       await pushReplacement(context, childWidget);
 
       // Check initial structure in background (non-blocking)
