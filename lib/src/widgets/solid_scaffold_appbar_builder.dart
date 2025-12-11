@@ -55,6 +55,7 @@ class SolidScaffoldAppBarBuilder {
     SolidAboutConfig aboutConfig,
     double narrowScreenThreshold, {
     bool hideNavRail = false,
+    void Function(BuildContext)? onLogout,
   }) {
     final isWideScreen = !hideNavRail &&
         SolidScaffoldHelpers.isWideScreen(
@@ -110,6 +111,7 @@ class SolidScaffoldAppBarBuilder {
       themeToggleCallback,
       aboutConfig,
       context,
+      onLogout: onLogout,
     );
 
     return AppBar(
@@ -200,8 +202,9 @@ class SolidScaffoldAppBarBuilder {
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
-    BuildContext context,
-  ) {
+    BuildContext context, {
+    void Function(BuildContext)? onLogout,
+  }) {
     final hasOverflowItems = config.overflowItems.isNotEmpty;
     final hasThemeToggleInOverflow = themeToggle != null &&
         themeToggle.enabled &&
@@ -233,6 +236,14 @@ class SolidScaffoldAppBarBuilder {
       actions.addAll(SolidScaffoldHelpers.buildOverflowIconButtons(config));
     }
 
+    // Add logout button if callback is provided.
+
+    if (onLogout != null) {
+      actions.add(
+        _buildLogoutButton(context, onLogout),
+      );
+    }
+
     // Add About button if it should be shown.
 
     if (aboutConfig.enabled &&
@@ -244,6 +255,21 @@ class SolidScaffoldAppBarBuilder {
         screenWidth >= config.veryNarrowScreenThreshold) {
       actions.add(SolidAboutButton(config: aboutConfig));
     }
+  }
+
+  /// Builds the logout button.
+
+  static Widget _buildLogoutButton(
+    BuildContext context,
+    void Function(BuildContext) onLogout,
+  ) {
+    return MarkdownTooltip(
+      message: 'Log out of the current session',
+      child: IconButton(
+        icon: const Icon(Icons.logout),
+        onPressed: () => onLogout(context),
+      ),
+    );
   }
 
   /// Builds the overflow menu.

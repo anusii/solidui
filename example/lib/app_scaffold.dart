@@ -93,29 +93,11 @@ final appScaffold = SolidScaffold(
 
     actions: [
       SolidAppBarAction(
-        icon: Icons.search,
-        onPressed: () => debugPrint('Search'),
-        tooltip: 'Search',
-      ),
-      SolidAppBarAction(
-        icon: Icons.notifications,
-        onPressed: () => debugPrint('Notifications'),
-        tooltip: 'Notifications',
-      ),
-      SolidAppBarAction(
         icon: Icons.settings,
         onPressed: () => _scaffoldController.navigateToSubpage(
           const SettingsPage(),
         ),
         tooltip: 'Settings',
-      ),
-    ],
-    overflowItems: [
-      SolidOverflowMenuItem(
-        id: 'help',
-        icon: Icons.help,
-        label: 'Help',
-        onSelected: () => debugPrint('Help'),
       ),
     ],
   ),
@@ -168,6 +150,10 @@ final appScaffold = SolidScaffold(
   ),
 
   hideNavRail: false,
+
+  // LOGOUT.
+
+  onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
 
   child: const Home(title: appTitle),
 );

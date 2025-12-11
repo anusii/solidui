@@ -114,6 +114,7 @@ class SolidScaffoldWidgetBuilder {
           shouldShowVersion,
           getVersionToDisplay,
           hideNavRail: widget.hideNavRail,
+          onLogout: widget.onLogout,
         ),
       ),
       buildDrawer: () {
