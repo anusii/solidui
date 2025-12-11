@@ -15,6 +15,8 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Bug fix for LOADING icon background [0.0.16 20251212 tonypioneer]
++ Add LOGOUT to toolbar [0.0.15 20251212 tonypioneer]
 + Option to hide menu rail [0.0.14 20251210 gjw]
 + Updated dependencies [0.0.13 20251206 gjw]
 + Support navigation to subpages [0.0.12 20251202 tonypioneer]
