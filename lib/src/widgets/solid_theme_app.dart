@@ -76,13 +76,32 @@ class SolidThemeApp extends StatefulWidget {
   State<SolidThemeApp> createState() => _SolidThemeAppState();
 }
 
-class _SolidThemeAppState extends State<SolidThemeApp> {
+class _SolidThemeAppState extends State<SolidThemeApp>
+    with WidgetsBindingObserver {
   bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeTheme();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Called when the platform brightness changes (e.g. user switches system
+  /// theme between light and dark mode). Triggers a rebuild to update the
+  /// app theme when in system mode.
+
+  @override
+  void didChangePlatformBrightness() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _initializeTheme() async {

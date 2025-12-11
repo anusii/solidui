@@ -320,8 +320,8 @@ class SolidScaffoldHelpers {
     SolidThemeToggleConfig? themeToggle,
   ) {
     if (usesInternalManagement) {
-      return () async {
-        await solidThemeNotifier.toggleTheme();
+      return () {
+        solidThemeNotifier.toggleTheme();
       };
     }
     return themeToggle?.onToggleTheme;
