@@ -182,12 +182,45 @@ class _SolidLoginState extends State<SolidLogin> {
 
   bool isDarkMode = false;
 
+  // Text controller for the URI of the solid server - should be managed in state
+  late TextEditingController _webIdController;
+
   @override
   void initState() {
     super.initState();
 
+    // Initialize the controller with the widget's webID
+    _webIdController = TextEditingController(text: widget.webID);
+
     // dc 20251022: please explain why calling an async without await.
     _initPackageInfo();
+  }
+
+  @override
+  void didUpdateWidget(SolidLogin oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Always reset the controller text to widget.webID when widget updates
+    // This ensures fresh state when returning from guest mode, even if the user
+    // had manually modified the URL field before leaving
+    // Only skip reset if the current text already matches the intended value
+    if (_webIdController.text != widget.webID) {
+      _webIdController.text = widget.webID;
+    }
+    
+    // CRITICAL: Reset appDirName if appDirectory changed
+    // This fixes the double-slash bug when returning from guest mode
+    // Without this, appDirName stays empty causing paths like //data/places.json
+    if (oldWidget.appDirectory != widget.appDirectory) {
+      setAppDirName(widget.appDirectory);
+    }
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed
+    _webIdController.dispose();
+    super.dispose();
   }
 
   // Fetch the package information.
@@ -311,19 +344,14 @@ class _SolidLoginState extends State<SolidLogin> {
       image: DecorationImage(image: widget.image, fit: BoxFit.cover),
     );
 
-    // Text controller for the URI of the solid server to which an authenticate
-    // request is sent.
-
-    final webIdController = TextEditingController()..text = widget.webID;
-
     // Build all buttons using the button builder.
     // User input from text field will override the default server URL.
 
     final registerButton = SolidLoginButtons.buildRegisterButton(
       style: widget.registerButtonStyle,
       onPressed: () {
-        final webId = webIdController.text.trim().isNotEmpty
-            ? webIdController.text.trim()
+        final webId = _webIdController.text.trim().isNotEmpty
+            ? _webIdController.text.trim()
             : SolidConfig.defaultServerUrl;
         launchUrl(Uri.parse('$webId/.account/login/password/register/'));
       },
@@ -332,8 +360,8 @@ class _SolidLoginState extends State<SolidLogin> {
     final loginButton = SolidLoginButtons.buildLoginButton(
       style: widget.loginButtonStyle,
       onPressed: () async {
-        final podServer = webIdController.text.trim().isNotEmpty
-            ? webIdController.text.trim()
+        final podServer = _webIdController.text.trim().isNotEmpty
+            ? _webIdController.text.trim()
             : SolidConfig.defaultServerUrl;
 
         isDialogCanceled = false;
@@ -368,7 +396,7 @@ class _SolidLoginState extends State<SolidLogin> {
       logo: widget.logo,
       title: widget.title,
       appVersion: appVersion,
-      webIdController: webIdController,
+      webIdController: _webIdController,
       loginButton: loginButton,
       registerButton: registerButton,
       continueButton: continueButton,

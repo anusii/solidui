@@ -171,7 +171,10 @@ class SolidAuthHandler {
     final mainAppWidget = _config?.loginSuccessWidget ?? 
         const Center(child: Text('Authentication required'));
 
+    // Use ValueKey to identify this as a fresh login page instance
+    // This works with didUpdateWidget() to reset state when needed
     return SolidLogin(
+      key: const ValueKey('login_page'),
       appDirectory: _config?.appDirectory ?? 'solid_app',
       webID: _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
       // Use provided images or fallback to SolidLogin's defaults from solidpod package
