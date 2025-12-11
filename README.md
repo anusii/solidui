@@ -12,10 +12,17 @@
 [![GitHub Commit Activity (dev)](https://img.shields.io/github/commit-activity/w/anusii/solidui/dev)](https://github.com/anusii/solidui/commits/dev/)
 [![GitHub Issues](https://img.shields.io/github/issues/anusii/solidui)](https://github.com/anusii/solidui/issues)
 
-A comprehensive UI library for building Solid applications with
-Flutter. SolidUI provides responsive navigation components, file
-management capabilities, security key handling, and authentication
-features specifically designed for Solid POD applications.
+A comprehensive UI library for building
+[Solid](https://solidproject.org) based applications with
+[Flutter](https://flutter.dev). [SolidUI](https://pub.dev/packages/solidui)
+provides a convenient
+[Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html)
+replacement called
+[SolidScaffold](https://pub.dev/documentation/solidui/latest/solidui/SolidScaffold-class.html)
+to wrap the app. It also provides responsive navigation components,
+file management capabilities, security key handling, and
+authentication features specifically designed for Solid applications
+interacting with a user's personal online data store (Pods).
 
 ## Table of Contents
 
@@ -1151,7 +1158,7 @@ issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
 The authors of the package will respond to issues as best we can but.
 
 <!-- markdownlint-disable MD036 -->
-*Time-stamp: <Monday 2025-11-17 10:30:22 +1100 Graham Williams>*
+*Time-stamp: <Friday 2025-12-12 09:44:25 +1100 Graham Williams>*
 <!-- markdownlint-enable MD036 -->
 
 <!-- markdownlint-disable MD053 -->
