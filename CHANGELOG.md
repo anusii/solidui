@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ On startup match THEME with system theme [0.0.17 20251212 tonypioneer]
 + Bug fix for LOADING icon background [0.0.16 20251212 tonypioneer]
 + Add LOGOUT to toolbar [0.0.15 20251212 tonypioneer]
 + Option to hide menu rail [0.0.14 20251210 gjw]
