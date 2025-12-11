@@ -32,18 +32,13 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
+/// Notifier for managing theme state across the application.
 
 class SolidThemeNotifier extends ChangeNotifier {
-  static const String _themeModeKey = 'solid_theme_mode';
-
   ThemeMode _themeMode = ThemeMode.system;
-  SharedPreferences? _prefs;
   bool _isInitialized = false;
 
   /// Creates a new SolidThemeNotifier.
-  ///
-  /// Call [initialize] to load the saved theme mode.
 
   SolidThemeNotifier();
 
@@ -55,100 +50,36 @@ class SolidThemeNotifier extends ChangeNotifier {
 
   bool get isInitialized => _isInitialized;
 
-  /// Initialises the notifier by loading the saved theme mode.
-  ///
-  /// This should be called once during app initialisation.
+  /// Initialises the notifier.
 
   Future<void> initialize() async {
     if (_isInitialized) return;
-
-    try {
-      _prefs = await SharedPreferences.getInstance();
-      await _loadThemeMode();
-      _isInitialized = true;
-    } catch (e) {
-      debugPrint('Error initializing SolidThemeNotifier: $e');
-      _isInitialized = true; // Mark as initialized even if loading failed
-    }
-  }
-
-  /// Loads the theme mode from SharedPreferences.
-
-  Future<void> _loadThemeMode() async {
-    if (_prefs == null) return;
-
-    final String? themeModeString = _prefs!.getString(_themeModeKey);
-    if (themeModeString != null) {
-      final ThemeMode newThemeMode;
-      switch (themeModeString) {
-        case 'light':
-          newThemeMode = ThemeMode.light;
-          break;
-        case 'dark':
-          newThemeMode = ThemeMode.dark;
-          break;
-        case 'system':
-          newThemeMode = ThemeMode.system;
-          break;
-        default:
-          newThemeMode = ThemeMode.system;
-          break;
-      }
-
-      // Only update and notify if the theme mode actually changed.
-
-      if (_themeMode != newThemeMode) {
-        _themeMode = newThemeMode;
-        notifyListeners();
-      }
-    }
-  }
-
-  /// Saves the current theme mode to SharedPreferences.
-
-  Future<void> _saveThemeMode() async {
-    if (_prefs == null) return;
-
-    String themeModeString;
-    switch (_themeMode) {
-      case ThemeMode.light:
-        themeModeString = 'light';
-        break;
-      case ThemeMode.dark:
-        themeModeString = 'dark';
-        break;
-      case ThemeMode.system:
-        themeModeString = 'system';
-        break;
-    }
-
-    await _prefs!.setString(_themeModeKey, themeModeString);
+    _isInitialized = true;
   }
 
   /// Sets a specific theme mode.
 
-  Future<void> setThemeMode(ThemeMode themeMode) async {
+  void setThemeMode(ThemeMode themeMode) {
     if (_themeMode == themeMode) return;
 
     _themeMode = themeMode;
     notifyListeners();
-    await _saveThemeMode();
   }
 
   /// Toggles between theme modes.
   /// On first toggle from System mode, switches to Light mode.
   /// Afterwards, toggles only between Light and Dark modes.
 
-  Future<void> toggleTheme() async {
+  void toggleTheme() {
     switch (_themeMode) {
       case ThemeMode.system:
-        await setThemeMode(ThemeMode.light);
+        setThemeMode(ThemeMode.light);
         break;
       case ThemeMode.light:
-        await setThemeMode(ThemeMode.dark);
+        setThemeMode(ThemeMode.dark);
         break;
       case ThemeMode.dark:
-        await setThemeMode(ThemeMode.light);
+        setThemeMode(ThemeMode.light);
         break;
     }
   }
