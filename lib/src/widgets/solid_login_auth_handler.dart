@@ -100,7 +100,70 @@ class SolidLoginAuthHandler {
     // Perform the actual authentication by contacting the server.
 
     if (!context.mounted) return false;
-    final authResult = await solidAuthenticate(podServer, context);
+    
+    List<dynamic>? authResult;
+    try {
+      authResult = await solidAuthenticate(podServer, context);
+    } catch (e) {
+      // Authentication error - likely server unavailable or network issue
+      debugPrint('SolidLoginAuthHandler: Authentication error: $e');
+      
+      if (!context.mounted) return false;
+      
+      // Close the animation dialog
+      if (!wasAlreadyLoggedIn) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      
+      // Show error dialog with server availability check
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Connection Failed'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Unable to connect to the Solid server.',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Text('Server: $podServer'),
+              const SizedBox(height: 12),
+              const Text('Possible causes:'),
+              const SizedBox(height: 4),
+              const Text('• Server is temporarily unavailable'),
+              const Text('• Network connection issue'),
+              const Text('• Invalid server URL'),
+              const SizedBox(height: 12),
+              Text(
+                'Error: ${e.toString()}',
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      
+      // Navigate back to login screen
+      if (!context.mounted) return false;
+      await pushReplacement(context, originalLoginWidget);
+      return false;
+    }
 
     // If authentication succeeded and the user was already logged in,
     // it means they are using a cached session.
