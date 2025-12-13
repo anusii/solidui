@@ -290,9 +290,11 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       await KeyManager.forgetSecurityKey();
 
       // Delete the key file from POD.
+      // IMPORTANT: Use isKey: true to skip permission revocation
+      // because encryption files are NOT in the data directory
 
       final encKeyPath = await getEncKeyPath();
-      await deleteFile(encKeyPath);
+      await deleteFile(encKeyPath, isKey: true);
 
       success = true;
       msg = 'Successfully forgot local security key.';

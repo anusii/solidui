@@ -232,10 +232,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         currentDirDirectoryCount = directories.length;
       });
 
-      // Count files in current directory.
+      // Count files in current directory (exclude ACL and metadata files).
 
       currentDirFileCount = resources.files
-          .where((f) => f.endsWith('.enc.ttl') || f.endsWith('.ttl'))
+          .where((f) => !f.endsWith('.acl') && !f.endsWith('.meta'))
           .length;
 
       // Get file counts for all subdirectories.
