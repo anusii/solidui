@@ -148,7 +148,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       } else {
         SolidAuthHandler.instance.handleLogin(context);
       }
-      
+
       // Only refresh status for login scenario
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {

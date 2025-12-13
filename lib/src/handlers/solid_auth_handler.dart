@@ -145,7 +145,7 @@ class SolidAuthHandler {
   }
 
   /// Build the login page widget.
-  /// 
+  ///
   /// Returns the actual login input page (SolidLogin), not the success page.
   /// This is used when guest users want to authenticate, or after logout.
 
@@ -156,7 +156,7 @@ class SolidAuthHandler {
 
     // Use the login input page, not the success page
     // The loginSuccessWidget (child) will be shown after successful authentication
-    final mainAppWidget = _config?.loginSuccessWidget ?? 
+    final mainAppWidget = _config?.loginSuccessWidget ??
         const Center(child: Text('Authentication required'));
 
     // Use ValueKey to identify this as a fresh login page instance
@@ -166,10 +166,12 @@ class SolidAuthHandler {
       appDirectory: _config?.appDirectory ?? 'solid_app',
       webID: _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
       // Use provided images or fallback to SolidLogin's defaults from solidpod package
-      image: _config?.appImage ?? 
-          const AssetImage('assets/images/default_image.jpg', package: 'solidpod'),
-      logo: _config?.appLogo ?? 
-          const AssetImage('assets/images/default_logo.png', package: 'solidpod'),
+      image: _config?.appImage ??
+          const AssetImage('assets/images/default_image.jpg',
+              package: 'solidpod'),
+      logo: _config?.appLogo ??
+          const AssetImage('assets/images/default_logo.png',
+              package: 'solidpod'),
       child: mainAppWidget,
     );
   }

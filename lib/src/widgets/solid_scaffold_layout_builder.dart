@@ -68,7 +68,9 @@ class SolidScaffoldLayoutBuilder {
       contentArea = IndexedStack(
         index: selectedIndex.clamp(0, menuItems.length - 1),
         sizing: StackFit.expand,
-        children: menuItems.map((item) => item.child ?? const SizedBox.shrink()).toList(),
+        children: menuItems
+            .map((item) => item.child ?? const SizedBox.shrink())
+            .toList(),
       );
     } else {
       // Fallback to single child if no menu items

@@ -194,7 +194,7 @@ class SolidStatusBar extends StatelessWidget {
     // Check if user is logged in first
     try {
       final webId = await getWebId();
-      
+
       if (webId == null || webId.isEmpty) {
         // Show friendly login prompt
         if (!context.mounted) return;
@@ -233,7 +233,7 @@ class SolidStatusBar extends StatelessWidget {
     }
 
     if (!context.mounted) return;
-    
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.5),

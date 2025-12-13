@@ -100,21 +100,21 @@ class SolidLoginAuthHandler {
     // Perform the actual authentication by contacting the server.
 
     if (!context.mounted) return false;
-    
+
     List<dynamic>? authResult;
     try {
       authResult = await solidAuthenticate(podServer, context);
     } catch (e) {
       // Authentication error - likely server unavailable or network issue
       debugPrint('SolidLoginAuthHandler: Authentication error: $e');
-      
+
       if (!context.mounted) return false;
-      
+
       // Close the animation dialog
       if (!wasAlreadyLoggedIn) {
         Navigator.of(context, rootNavigator: true).pop();
       }
-      
+
       // Show error dialog with server availability check
       await showDialog(
         context: context,
@@ -158,7 +158,7 @@ class SolidLoginAuthHandler {
           ],
         ),
       );
-      
+
       // Navigate back to login screen
       if (!context.mounted) return false;
       await pushReplacement(context, originalLoginWidget);
@@ -203,17 +203,19 @@ class SolidLoginAuthHandler {
       // Navigate to main app immediately after successful authentication
       // This provides instant user feedback and better UX
       if (!context.mounted) return false;
-      
+
       await pushReplacement(context, childWidget);
 
       // Check initial structure in background (non-blocking)
       // If setup is needed, user can access it from the app later
-      unawaited(_checkInitialStructureInBackground(
-        defaultFolders,
-        defaultFiles,
-        originalLoginWidget,
-        childWidget,
-      ),);
+      unawaited(
+        _checkInitialStructureInBackground(
+          defaultFolders,
+          defaultFiles,
+          originalLoginWidget,
+          childWidget,
+        ),
+      );
 
       return true;
     } else {
@@ -236,7 +238,7 @@ class SolidLoginAuthHandler {
   }
 
   /// Checks initial POD structure in the background without blocking navigation.
-  /// 
+  ///
   /// This allows the user to access the app immediately while structure
   /// verification happens asynchronously. If setup is needed, it can be
   /// triggered later from within the app.
@@ -247,26 +249,29 @@ class SolidLoginAuthHandler {
     Widget childWidget,
   ) async {
     try {
-      debugPrint('SolidLoginAuthHandler: Checking initial structure in background...');
-      
+      debugPrint(
+          'SolidLoginAuthHandler: Checking initial structure in background...');
+
       final resCheckList = await initialStructureTest(
         defaultFolders,
         defaultFiles,
       );
-      
+
       final allExists = resCheckList.first as bool;
-      
+
       if (allExists) {
-        debugPrint('SolidLoginAuthHandler: Initial structure verified successfully');
+        debugPrint(
+            'SolidLoginAuthHandler: Initial structure verified successfully');
       } else {
-        debugPrint('SolidLoginAuthHandler: Initial structure incomplete - user may need to run setup');
+        debugPrint(
+            'SolidLoginAuthHandler: Initial structure incomplete - user may need to run setup');
         // In the future, we could show a notification or prompt here
         // For now, we just log it and let the user discover setup options in the app
       }
     } catch (e) {
-      debugPrint('SolidLoginAuthHandler: Background structure check failed: $e');
+      debugPrint(
+          'SolidLoginAuthHandler: Background structure check failed: $e');
       // Non-critical error - user can still use the app
     }
   }
 }
-

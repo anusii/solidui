@@ -199,7 +199,7 @@ class _SolidLoginState extends State<SolidLogin> {
   @override
   void didUpdateWidget(SolidLogin oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Always reset the controller text to widget.webID when widget updates
     // This ensures fresh state when returning from guest mode, even if the user
     // had manually modified the URL field before leaving
@@ -207,7 +207,7 @@ class _SolidLoginState extends State<SolidLogin> {
     if (_webIdController.text != widget.webID) {
       _webIdController.text = widget.webID;
     }
-    
+
     // CRITICAL: Reset appDirName if appDirectory changed
     // This fixes the double-slash bug when returning from guest mode
     // Without this, appDirName stays empty causing paths like //data/places.json
