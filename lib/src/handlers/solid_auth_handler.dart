@@ -167,11 +167,15 @@ class SolidAuthHandler {
       webID: _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
       // Use provided images or fallback to SolidLogin's defaults from solidpod package
       image: _config?.appImage ??
-          const AssetImage('assets/images/default_image.jpg',
-              package: 'solidpod',),
+          const AssetImage(
+            'assets/images/default_image.jpg',
+            package: 'solidpod',
+          ),
       logo: _config?.appLogo ??
-          const AssetImage('assets/images/default_logo.png',
-              package: 'solidpod',),
+          const AssetImage(
+            'assets/images/default_logo.png',
+            package: 'solidpod',
+          ),
       child: mainAppWidget,
     );
   }

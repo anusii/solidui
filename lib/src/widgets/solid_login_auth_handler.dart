@@ -250,7 +250,8 @@ class SolidLoginAuthHandler {
   ) async {
     try {
       debugPrint(
-          'SolidLoginAuthHandler: Checking initial structure in background...',);
+        'SolidLoginAuthHandler: Checking initial structure in background...',
+      );
 
       final resCheckList = await initialStructureTest(
         defaultFolders,
@@ -261,16 +262,19 @@ class SolidLoginAuthHandler {
 
       if (allExists) {
         debugPrint(
-            'SolidLoginAuthHandler: Initial structure verified successfully',);
+          'SolidLoginAuthHandler: Initial structure verified successfully',
+        );
       } else {
         debugPrint(
-            'SolidLoginAuthHandler: Initial structure incomplete - user may need to run setup',);
+          'SolidLoginAuthHandler: Initial structure incomplete - user may need to run setup',
+        );
         // In the future, we could show a notification or prompt here
         // For now, we just log it and let the user discover setup options in the app
       }
     } catch (e) {
       debugPrint(
-          'SolidLoginAuthHandler: Background structure check failed: $e',);
+        'SolidLoginAuthHandler: Background structure check failed: $e',
+      );
       // Non-critical error - user can still use the app
     }
   }
