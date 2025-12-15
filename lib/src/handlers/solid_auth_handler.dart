@@ -168,10 +168,10 @@ class SolidAuthHandler {
       // Use provided images or fallback to SolidLogin's defaults from solidpod package
       image: _config?.appImage ??
           const AssetImage('assets/images/default_image.jpg',
-              package: 'solidpod'),
+              package: 'solidpod',),
       logo: _config?.appLogo ??
           const AssetImage('assets/images/default_logo.png',
-              package: 'solidpod'),
+              package: 'solidpod',),
       child: mainAppWidget,
     );
   }
