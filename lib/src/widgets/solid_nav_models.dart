@@ -275,6 +275,10 @@ class SolidVersionConfig {
 
   final String? tooltip;
 
+  /// Custom text style for the version widget.
+
+  final TextStyle? userTextStyle;
+
   /// Creates version configuration.
 
   const SolidVersionConfig({
@@ -282,6 +286,7 @@ class SolidVersionConfig {
     this.changelogUrl,
     this.showDate = true,
     this.tooltip,
+    this.userTextStyle,
   });
 }
 

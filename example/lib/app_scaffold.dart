@@ -38,93 +38,105 @@ import 'screens/settings_page.dart';
 
 final _scaffoldController = SolidScaffoldController();
 
-final appScaffold = SolidScaffold(
-  controller: _scaffoldController,
+const appScaffold = AppScaffold();
 
-  // MENU.
+class AppScaffold extends StatelessWidget {
+  const AppScaffold({super.key});
 
-  menu: const [
-    SolidMenuItem(
-      icon: Icons.home,
-      title: 'Home',
-      tooltip: '''
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SolidScaffold(
+      controller: _scaffoldController,
+
+      // MENU.
+
+      menu: const [
+        SolidMenuItem(
+          icon: Icons.home,
+          title: 'Home',
+          tooltip: '''
 
             **Home:** Tap here to return to the main page for the app.
 
             ''',
-      child: Home(title: appTitle),
-    ),
-    SolidMenuItem(
-      icon: Icons.folder,
-      title: 'Files',
-      tooltip: '''
+          child: Home(title: appTitle),
+        ),
+        SolidMenuItem(
+          icon: Icons.folder,
+          title: 'Files',
+          tooltip: '''
 
             **Files:** Tap here to browse the files on your POD.
 
             ''',
-      child: SolidFile(basePath: ''),
-    ),
-    SolidMenuItem(
-      icon: Icons.info,
-      title: 'About',
-      tooltip: '''
+          child: SolidFile(basePath: ''),
+        ),
+        SolidMenuItem(
+          icon: Icons.info,
+          title: 'About',
+          tooltip: '''
 
             **About:** Tap here to learn more about this application.
 
             ''',
-      child: Center(
-        child: Text('About Page', style: TextStyle(fontSize: 24)),
-      ),
-    ),
-  ],
-
-  // APP BAR.
-
-  appBar: SolidAppBarConfig(
-    title: appTitle.split('-')[0],
-
-    // VERSION WIDGET.
-
-    versionConfig: const SolidVersionConfig(
-      changelogUrl: 'https://github.com/anusii/solidui/blob/dev/'
-          'CHANGELOG.md',
-      showDate: true,
-    ),
-
-    actions: [
-      SolidAppBarAction(
-        icon: Icons.settings,
-        onPressed: () => _scaffoldController.navigateToSubpage(
-          const SettingsPage(),
+          child: Center(
+            child: Text('About Page', style: TextStyle(fontSize: 24)),
+          ),
         ),
-        tooltip: 'Settings',
+      ],
+
+      // APP BAR.
+
+      appBar: SolidAppBarConfig(
+        title: appTitle.split('-')[0],
+
+        // VERSION WIDGET.
+
+        versionConfig: SolidVersionConfig(
+          changelogUrl: 'https://github.com/anusii/solidui/blob/dev/'
+              'CHANGELOG.md',
+          showDate: true,
+          userTextStyle: TextStyle(
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+
+        actions: [
+          SolidAppBarAction(
+            icon: Icons.settings,
+            onPressed: () => _scaffoldController.navigateToSubpage(
+              const SettingsPage(),
+            ),
+            tooltip: 'Settings',
+          ),
+        ],
       ),
-    ],
-  ),
 
-  // STATUS BAR.
+      // STATUS BAR.
 
-  statusBar: const SolidStatusBarConfig(
-    serverInfo: SolidServerInfo(serverUri: SolidConfig.defaultServerUrl),
-    loginStatus: SolidLoginStatus(),
-    securityKeyStatus: SolidSecurityKeyStatus(),
-  ),
+      statusBar: const SolidStatusBarConfig(
+        serverInfo: SolidServerInfo(serverUri: SolidConfig.defaultServerUrl),
+        loginStatus: SolidLoginStatus(),
+        securityKeyStatus: SolidSecurityKeyStatus(),
+      ),
 
-  // ABOUT.
+      // ABOUT.
 
-  aboutConfig: SolidAboutConfig(
-    applicationName: appTitle.split(' - ')[0],
-    applicationIcon: Image.asset(
-      'assets/images/app_icon.png',
-      width: 64,
-      height: 64,
-    ),
-    applicationLegalese: '''
+      aboutConfig: SolidAboutConfig(
+        applicationName: appTitle.split(' - ')[0],
+        applicationIcon: Image.asset(
+          'assets/images/app_icon.png',
+          width: 64,
+          height: 64,
+        ),
+        applicationLegalese: '''
 
         © 2025 Software Innovation Institute, the Australian National University
 
         ''',
-    text: '''
+        text: '''
 
         This template app demonstrates the following key SolidUI features:
         🧭 Responsive navigation (rail ↔ drawer);
@@ -140,20 +152,22 @@ final appScaffold = SolidScaffold(
         [Australian Solid Community](https://solidcommunity.au) web site.
 
         ''',
-  ),
+      ),
 
-  // THEME DARK/LIGHT Mode.
+      // THEME DARK/LIGHT Mode.
 
-  themeToggle: const SolidThemeToggleConfig(
-    enabled: true,
-    showInAppBarActions: true,
-  ),
+      themeToggle: const SolidThemeToggleConfig(
+        enabled: true,
+        showInAppBarActions: true,
+      ),
 
-  hideNavRail: false,
+      hideNavRail: false,
 
-  // LOGOUT.
+      // LOGOUT.
 
-  onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
+      onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
 
-  child: const Home(title: appTitle),
-);
+      child: const Home(title: appTitle),
+    );
+  }
+}
