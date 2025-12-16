@@ -161,6 +161,32 @@ class SolidStatusBar extends StatelessWidget {
 
     final theme = Theme.of(context);
 
+    // Show loading indicator if status is being loaded
+    if (securityKeyStatus.isLoading) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                theme.colorScheme.primary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            securityKeyStatus.displayText,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ],
+      );
+    }
+
     // Determine the onTap handler.
 
     VoidCallback? onTap = securityKeyStatus.onTap;

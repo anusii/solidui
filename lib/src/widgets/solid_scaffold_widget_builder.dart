@@ -51,6 +51,7 @@ class SolidScaffoldWidgetBuilder {
     required bool isCompatibilityMode,
     required Widget? bodyContent,
     required bool isKeySaved,
+    required bool isLoadingSecurityKey,
     required int currentSelectedIndex,
     required void Function(int) onMenuSelected,
     required bool Function() getUsesInternalManagement,
@@ -111,6 +112,7 @@ class SolidScaffoldWidgetBuilder {
           : SolidScaffoldLayoutBuilder.buildStatusBar(
               widget.statusBar,
               isKeySaved,
+              isLoading: isLoadingSecurityKey,
             ),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,

@@ -113,7 +113,11 @@ class SolidScaffoldLayoutBuilder {
 
   /// Builds the status bar.
 
-  static Widget? buildStatusBar(SolidStatusBarConfig? config, bool isKeySaved) {
+  static Widget? buildStatusBar(
+    SolidStatusBarConfig? config,
+    bool isKeySaved, {
+    bool isLoading = false,
+  }) {
     if (config == null) return null;
 
     // Create a modified config with updated security key status.
@@ -124,12 +128,14 @@ class SolidScaffoldLayoutBuilder {
       final originalStatus = config.securityKeyStatus!;
       final updatedStatus = SolidSecurityKeyStatus(
         isKeySaved: isKeySaved,
+        isLoading: isLoading,
         onTap: originalStatus.onTap,
         onKeyStatusChanged: originalStatus.onKeyStatusChanged,
         title: originalStatus.title,
         appWidget: originalStatus.appWidget,
         keySavedText: originalStatus.keySavedText,
         keyNotSavedText: originalStatus.keyNotSavedText,
+        loadingText: originalStatus.loadingText,
         tooltip: originalStatus.tooltip,
       );
 

@@ -292,6 +292,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   SolidSecurityKeyService? _securityKeyService;
   bool _isKeySaved = false;
+  bool _isLoadingSecurityKeyStatus = false;
   bool _isUpdatingSecurityKeyStatus = false;
   String? _appVersion;
   bool _isVersionLoaded = false;
@@ -380,6 +381,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   Future<void> _updateSecurityKeyStatusFromService() async {
     if (_isUpdatingSecurityKeyStatus) return;
     _isUpdatingSecurityKeyStatus = true;
+    if (mounted) setState(() => _isLoadingSecurityKeyStatus = true);
     try {
       final isKeySaved =
           await SolidScaffoldInitHelpers.updateSecurityKeyStatusFromService(
@@ -388,6 +390,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
       );
       if (mounted) setState(() => _isKeySaved = isKeySaved);
     } finally {
+      if (mounted) setState(() => _isLoadingSecurityKeyStatus = false);
       _isUpdatingSecurityKeyStatus = false;
     }
   }
@@ -395,6 +398,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   Future<void> _loadSecurityKeyStatus() async {
     if (_isUpdatingSecurityKeyStatus) return;
     _isUpdatingSecurityKeyStatus = true;
+    if (mounted) setState(() => _isLoadingSecurityKeyStatus = true);
     try {
       final hasKeyInMemory =
           await SolidScaffoldInitHelpers.loadSecurityKeyStatus(
@@ -412,6 +416,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
     } catch (e) {
       if (mounted) setState(() => _isKeySaved = false);
     } finally {
+      if (mounted) setState(() => _isLoadingSecurityKeyStatus = false);
       _isUpdatingSecurityKeyStatus = false;
     }
   }
@@ -529,6 +534,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
         isCompatibilityMode: isCompatibilityMode,
         bodyContent: bodyContent,
         isKeySaved: _isKeySaved,
+        isLoadingSecurityKey: _isLoadingSecurityKeyStatus,
         currentSelectedIndex: _currentSelectedIndex,
         onMenuSelected: _onMenuSelected,
         getUsesInternalManagement: _getUsesInternalManagement,
