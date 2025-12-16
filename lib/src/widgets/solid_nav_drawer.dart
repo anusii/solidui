@@ -334,6 +334,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
       version: versionString,
       changelogUrl: versionConfig.changelogUrl,
       showDate: versionConfig.showDate,
+      userTextStyle: versionConfig.userTextStyle,
     );
   }
 
