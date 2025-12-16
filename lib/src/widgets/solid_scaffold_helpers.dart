@@ -96,6 +96,7 @@ class SolidScaffoldHelpers {
           version: versionToDisplay,
           changelogUrl: config.versionConfig!.changelogUrl,
           showDate: config.versionConfig!.showDate,
+          userTextStyle: config.versionConfig!.userTextStyle,
         ),
       ),
     );
