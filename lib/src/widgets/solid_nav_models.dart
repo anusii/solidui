@@ -275,7 +275,9 @@ class SolidVersionConfig {
 
   final String? tooltip;
 
-  /// Custom text style for the version widget.
+  /// Custom text style for the version widget. The default text style
+  /// uses color to represent the currency of the app, where blue is
+  /// most recent version, and red is more recent version available.
 
   final TextStyle? userTextStyle;
 
