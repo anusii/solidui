@@ -47,6 +47,7 @@ import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_login_panel.dart';
+import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// A widget to login to a Solid server for a user's token to access their POD.
 ///
@@ -157,7 +158,7 @@ class SolidLogin extends StatefulWidget {
   State<SolidLogin> createState() => _SolidLoginState();
 }
 
-class _SolidLoginState extends State<SolidLogin> {
+class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   // This strings will hold the application version number and app name.
   // Initially, it's an empty string because the actual version number
   // will be obtained asynchronously from the app's package information.
@@ -177,17 +178,54 @@ class _SolidLoginState extends State<SolidLogin> {
 
   Map<dynamic, dynamic> defaultFiles = {};
 
-  // Track the current theme mode.
-  // Always start with light mode regardless of system preference.
-
-  bool isDarkMode = false;
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    solidThemeNotifier.addListener(_onThemeChanged);
 
     // dc 20251022: please explain why calling an async without await.
     _initPackageInfo();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    solidThemeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  /// Called when the platform brightness changes.
+  /// Triggers a rebuild to update the theme when in system mode.
+
+  @override
+  void didChangePlatformBrightness() {
+    if (mounted && solidThemeNotifier.themeMode == ThemeMode.system) {
+      setState(() {});
+    }
+  }
+
+  /// Callback when theme notifier changes.
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Determines if dark mode should be used based on the current theme mode.
+  /// When in system mode, follows the system brightness.
+  /// When explicitly set to light or dark, uses that mode.
+
+  bool get isDarkMode {
+    switch (solidThemeNotifier.themeMode) {
+      case ThemeMode.system:
+        return MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+      case ThemeMode.light:
+        return false;
+      case ThemeMode.dark:
+        return true;
+    }
   }
 
   // Fetch the package information.
@@ -288,12 +326,11 @@ class _SolidLoginState extends State<SolidLogin> {
     );
   }
 
-  // Toggle between light and dark mode.
+  // Toggle between light and dark mode using the global theme notifier.
+  // This ensures consistency with the rest of the app.
 
   void _toggleTheme() {
-    setState(() {
-      isDarkMode = !isDarkMode;
-    });
+    solidThemeNotifier.toggleTheme();
   }
 
   @override
