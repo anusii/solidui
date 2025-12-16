@@ -114,6 +114,32 @@ class SolidAuthHandler {
     _config = config;
   }
 
+  /// Configure default values without overwriting existing configuration.
+  /// This is used by SolidLogin to provide fallback values while preserving
+  /// app-specific settings like onSecurityKeyReset.
+
+  void configureDefaults(SolidAuthConfig defaults) {
+    if (_config == null) {
+      // No existing config, use defaults
+      _config = defaults;
+    } else {
+      // Merge: keep existing non-null values, fill in missing ones from defaults
+      _config = SolidAuthConfig(
+        returnTo: _config!.returnTo ?? defaults.returnTo,
+        loginPageBuilder: _config!.loginPageBuilder ?? defaults.loginPageBuilder,
+        defaultServerUrl: _config!.defaultServerUrl ?? defaults.defaultServerUrl,
+        appTitle: _config!.appTitle ?? defaults.appTitle,
+        appDirectory: _config!.appDirectory ?? defaults.appDirectory,
+        appImage: _config!.appImage ?? defaults.appImage,
+        appLogo: _config!.appLogo ?? defaults.appLogo,
+        appLink: _config!.appLink ?? defaults.appLink,
+        loginSuccessWidget: _config!.loginSuccessWidget ?? defaults.loginSuccessWidget,
+        // IMPORTANT: Preserve app's security key reset callback
+        onSecurityKeyReset: _config!.onSecurityKeyReset ?? defaults.onSecurityKeyReset,
+      );
+    }
+  }
+
   /// Handle logout functionality with confirmation popup.
 
   Future<void> handleLogout(BuildContext context) async {

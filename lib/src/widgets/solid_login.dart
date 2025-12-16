@@ -42,6 +42,7 @@ import 'package:solidpod/solidpod.dart'
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/solid_config.dart';
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
@@ -192,8 +193,30 @@ class _SolidLoginState extends State<SolidLogin> {
     // Initialize the controller with the widget's webID
     _webIdController = TextEditingController(text: widget.webID);
 
+    // Auto-configure SolidAuthHandler with this widget's settings
+    // This ensures the handler works even if the app didn't explicitly configure it
+    // Apps can override this by calling configure() in main.dart before runApp()
+    _autoConfigureSolidAuthHandler();
+
     // dc 20251022: please explain why calling an async without await.
     _initPackageInfo();
+  }
+
+  // Auto-configure SolidAuthHandler if not already configured by the app.
+  void _autoConfigureSolidAuthHandler() {
+    // Use configureDefaults instead of configure to preserve app settings
+    // This provides working defaults while keeping important app-specific
+    // configurations like onSecurityKeyReset callback
+    SolidAuthHandler.instance.configureDefaults(
+      SolidAuthConfig(
+        appDirectory: widget.appDirectory,
+        defaultServerUrl: widget.webID,
+        appImage: widget.image,
+        appLogo: widget.logo,
+        appLink: widget.link,
+        loginSuccessWidget: widget.child,
+      ),
+    );
   }
 
   @override
