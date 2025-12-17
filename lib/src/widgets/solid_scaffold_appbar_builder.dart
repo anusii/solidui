@@ -36,6 +36,9 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidui/src/widgets/solid_about_button.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
+import 'package:solidui/src/widgets/solid_preferences_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
 
@@ -56,6 +59,7 @@ class SolidScaffoldAppBarBuilder {
     double narrowScreenThreshold, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
+    bool showPreferences = true,
   }) {
     final isWideScreen = !hideNavRail &&
         SolidScaffoldHelpers.isWideScreen(
@@ -100,6 +104,12 @@ class SolidScaffoldAppBarBuilder {
       );
     }
 
+    // Add preferences button if enabled and screen is wide enough.
+
+    if (showPreferences && screenWidth >= config.veryNarrowScreenThreshold) {
+      actions.add(_buildPreferencesButton(context, config, themeToggle));
+    }
+
     // Handle overflow menu or regular buttons based on screen width.
 
     _handleOverflowItems(
@@ -112,6 +122,7 @@ class SolidScaffoldAppBarBuilder {
       aboutConfig,
       context,
       onLogout: onLogout,
+      showPreferences: showPreferences,
     );
 
     return AppBar(
@@ -120,6 +131,120 @@ class SolidScaffoldAppBarBuilder {
       automaticallyImplyLeading: !isWideScreen,
       actions: actions.isEmpty ? null : actions,
     );
+  }
+
+  /// Builds the preferences button for AppBar.
+
+  static Widget _buildPreferencesButton(
+    BuildContext context,
+    SolidAppBarConfig config,
+    SolidThemeToggleConfig? themeToggle,
+  ) {
+    return MarkdownTooltip(
+      message: '''
+
+  **Preferences:** Configure appearance and button layout settings.
+  Set which theme modes are available and customise the AppBar button order.
+
+  ''',
+      child: IconButton(
+        icon: const Icon(Icons.tune),
+        onPressed: () => _showPreferencesDialog(context, config, themeToggle),
+      ),
+    );
+  }
+
+  /// Shows the preferences dialogue.
+
+  static void _showPreferencesDialog(
+    BuildContext context,
+    SolidAppBarConfig config,
+    SolidThemeToggleConfig? themeToggle,
+  ) {
+    // Initialise AppBar actions in preferences if not already done.
+
+    _initializeAppBarActionsIfNeeded(config, themeToggle);
+    SolidPreferencesDialog.show(context);
+  }
+
+  /// Initialises AppBar actions in preferences notifier if empty.
+
+  static void _initializeAppBarActionsIfNeeded(
+    SolidAppBarConfig config,
+    SolidThemeToggleConfig? themeToggle,
+  ) {
+    if (solidPreferencesNotifier.appBarActions.isNotEmpty) return;
+
+    final actions = <SolidAppBarActionItem>[];
+    int order = 0;
+
+    // Add theme toggle if enabled.
+
+    if (themeToggle != null && themeToggle.enabled) {
+      actions.add(
+        SolidAppBarActionItem(
+          id: SolidAppBarActionIds.themeToggle,
+          label: 'Theme Toggle',
+          icon: Icons.brightness_6,
+          showInOverflow: !themeToggle.showInAppBarActions,
+          order: order++,
+        ),
+      );
+    }
+
+    // Add custom actions from config.
+
+    for (final action in config.actions) {
+      actions.add(
+        SolidAppBarActionItem(
+          id: 'action_${actions.length}',
+          label: action.tooltip ?? 'Action',
+          icon: action.icon,
+          showInOverflow: !action.showOnNarrowScreen,
+          order: order++,
+        ),
+      );
+    }
+
+    // Add overflow items from config.
+
+    for (final item in config.overflowItems) {
+      actions.add(
+        SolidAppBarActionItem(
+          id: item.id,
+          label: item.label,
+          icon: item.icon,
+          showInOverflow: item.showInOverflow,
+          order: order++,
+        ),
+      );
+    }
+
+    // Add About button.
+
+    actions.add(
+      SolidAppBarActionItem(
+        id: SolidAppBarActionIds.about,
+        label: 'About',
+        icon: Icons.info_outline,
+        showInOverflow: true,
+        order: order++,
+      ),
+    );
+
+    // Add Preferences button.
+
+    actions.add(
+      SolidAppBarActionItem(
+        id: SolidAppBarActionIds.preferences,
+        label: 'Preferences',
+        icon: Icons.tune,
+        showInOverflow: true,
+        order: order++,
+      ),
+    );
+
+    solidPreferencesNotifier.setAppBarActions(actions);
   }
 
   /// Builds regular action buttons.
@@ -204,6 +329,7 @@ class SolidScaffoldAppBarBuilder {
     SolidAboutConfig aboutConfig,
     BuildContext context, {
     void Function(BuildContext)? onLogout,
+    bool showPreferences = true,
   }) {
     final hasOverflowItems = config.overflowItems.isNotEmpty;
     final hasThemeToggleInOverflow = themeToggle != null &&
@@ -214,8 +340,14 @@ class SolidScaffoldAppBarBuilder {
     final hasAboutInOverflow =
         aboutConfig.enabled && screenWidth < config.veryNarrowScreenThreshold;
 
+    final hasPreferencesInOverflow =
+        showPreferences && screenWidth < config.veryNarrowScreenThreshold;
+
     if (screenWidth < config.veryNarrowScreenThreshold &&
-        (hasOverflowItems || hasThemeToggleInOverflow || hasAboutInOverflow)) {
+        (hasOverflowItems ||
+            hasThemeToggleInOverflow ||
+            hasAboutInOverflow ||
+            hasPreferencesInOverflow)) {
       // Add overflow menu.
 
       actions.add(
@@ -228,6 +360,7 @@ class SolidScaffoldAppBarBuilder {
           hasThemeToggleInOverflow,
           hasAboutInOverflow,
           context,
+          hasPreferencesInOverflow: hasPreferencesInOverflow,
         ),
       );
     } else if (screenWidth >= config.veryNarrowScreenThreshold) {
@@ -282,8 +415,9 @@ class SolidScaffoldAppBarBuilder {
     SolidAboutConfig aboutConfig,
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow,
-    BuildContext context,
-  ) {
+    BuildContext context, {
+    bool hasPreferencesInOverflow = false,
+  }) {
     final overflowMenuItems = SolidScaffoldHelpers.buildOverflowMenuItems(
       config,
       themeToggle,
@@ -291,6 +425,7 @@ class SolidScaffoldAppBarBuilder {
       aboutConfig,
       hasThemeToggleInOverflow,
       hasAboutInOverflow,
+      hasPreferencesInOverflow: hasPreferencesInOverflow,
     );
 
     return PopupMenuButton<String>(
@@ -301,10 +436,12 @@ class SolidScaffoldAppBarBuilder {
           if (aboutConfig.onPressed != null) {
             aboutConfig.onPressed!();
           } else {
-            // Show default About dialogue
+            // Show default About dialogue.
 
             SolidAbout.show(context, aboutConfig);
           }
+        } else if (id == 'preferences') {
+          _showPreferencesDialog(context, config, themeToggle);
         } else {
           final item = config.overflowItems.firstWhere((item) => item.id == id);
           item.onSelected();

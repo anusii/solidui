@@ -61,6 +61,10 @@ export 'src/widgets/solid_theme_notifier.dart';
 export 'src/widgets/solid_theme_app.dart';
 export 'src/widgets/solid_theme.dart';
 
+export 'src/widgets/solid_preferences_models.dart';
+export 'src/widgets/solid_preferences_notifier.dart';
+export 'src/widgets/solid_preferences_dialog.dart';
+
 export 'src/widgets/solid_about_models.dart';
 export 'src/widgets/solid_about_button.dart';
 

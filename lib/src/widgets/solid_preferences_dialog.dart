@@ -1,0 +1,377 @@
+/// Preferences dialogue for configuring appearance and AppBar button settings.
+///
+/// Copyright (C) 2025, Software Innovation Institute, ANU.
+///
+/// Licensed under the MIT License (the "License").
+///
+/// License: https://choosealicense.com/licenses/mit/.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+///
+/// Authors: Tony Chen
+
+library;
+
+import 'package:flutter/material.dart';
+
+import 'package:solidui/src/widgets/solid_preferences_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
+
+/// A dialogue widget for configuring user preferences including appearance
+/// settings and AppBar button ordering.
+
+class SolidPreferencesDialog extends StatefulWidget {
+  /// Optional callback when preferences are saved.
+
+  final VoidCallback? onSave;
+
+  /// Optional title for the dialogue.
+
+  final String title;
+
+  const SolidPreferencesDialog({
+    super.key,
+    this.onSave,
+    this.title = 'Preferences',
+  });
+
+  /// Shows the preferences dialogue.
+
+  static Future<void> show(BuildContext context, {VoidCallback? onSave}) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => SolidPreferencesDialog(onSave: onSave),
+    );
+  }
+
+  @override
+  State<SolidPreferencesDialog> createState() => _SolidPreferencesDialogState();
+}
+
+class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
+  late bool _lightModeEnabled;
+  late bool _darkModeEnabled;
+  late bool _systemModeEnabled;
+  late List<SolidAppBarActionItem> _appBarActions;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentPreferences();
+  }
+
+  void _loadCurrentPreferences() {
+    final config = solidPreferencesNotifier.config;
+    _lightModeEnabled = config.themeModeConfig.lightModeEnabled;
+    _darkModeEnabled = config.themeModeConfig.darkModeEnabled;
+    _systemModeEnabled = config.themeModeConfig.systemModeEnabled;
+    _appBarActions = List.from(config.appBarActions);
+  }
+
+  bool get _isAtLeastOneModeEnabled =>
+      _lightModeEnabled || _darkModeEnabled || _systemModeEnabled;
+
+  void _onLightModeChanged(bool? value) {
+    if (value == null) return;
+
+    // Prevent unchecking if it's the last enabled mode.
+
+    if (!value && !_darkModeEnabled && !_systemModeEnabled) {
+      _showMinimumModeWarning();
+      return;
+    }
+
+    setState(() => _lightModeEnabled = value);
+  }
+
+  void _onDarkModeChanged(bool? value) {
+    if (value == null) return;
+
+    // Prevent unchecking if it's the last enabled mode.
+
+    if (!value && !_lightModeEnabled && !_systemModeEnabled) {
+      _showMinimumModeWarning();
+      return;
+    }
+
+    setState(() => _darkModeEnabled = value);
+  }
+
+  void _onSystemModeChanged(bool? value) {
+    if (value == null) return;
+
+    // Prevent unchecking if it's the last enabled mode.
+
+    if (!value && !_lightModeEnabled && !_darkModeEnabled) {
+      _showMinimumModeWarning();
+      return;
+    }
+
+    setState(() => _systemModeEnabled = value);
+  }
+
+  void _showMinimumModeWarning() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('At least one theme mode must be enabled'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final item = _appBarActions.removeAt(oldIndex);
+      _appBarActions.insert(newIndex, item);
+
+      // Update order values.
+
+      for (int i = 0; i < _appBarActions.length; i++) {
+        _appBarActions[i] = _appBarActions[i].copyWith(order: i);
+      }
+    });
+  }
+
+  void _onOverflowChanged(int index, bool? value) {
+    if (value == null) return;
+    setState(() {
+      _appBarActions[index] =
+          _appBarActions[index].copyWith(showInOverflow: value);
+    });
+  }
+
+  void _savePreferences() {
+    final themeModeConfig = SolidThemeModeConfig(
+      lightModeEnabled: _lightModeEnabled,
+      darkModeEnabled: _darkModeEnabled,
+      systemModeEnabled: _systemModeEnabled,
+    );
+
+    final newConfig = SolidPreferencesConfig(
+      themeModeConfig: themeModeConfig,
+      appBarActions: _appBarActions,
+    );
+
+    solidPreferencesNotifier.setConfig(newConfig);
+    widget.onSave?.call();
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          const Icon(Icons.settings),
+          const SizedBox(width: 8),
+          Text(widget.title),
+        ],
+      ),
+      content: SizedBox(
+        width: 400,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Appearance Section.
+
+              _buildSectionHeader(theme, 'Appearance'),
+              const SizedBox(height: 8),
+              _buildAppearanceSection(theme),
+              const SizedBox(height: 24),
+
+              // Button Order Section.
+
+              _buildSectionHeader(theme, 'Button Order'),
+              const SizedBox(height: 8),
+              _buildButtonOrderSection(theme),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _isAtLeastOneModeEnabled ? _savePreferences : null,
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(ThemeData theme, String title) {
+    return Text(
+      title,
+      style: theme.textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _buildAppearanceSection(ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Select which theme modes to include in the toggle cycle:',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            _buildThemeModeCheckbox(
+              icon: Icons.light_mode,
+              label: 'Light Mode',
+              tooltip: 'Include light mode in theme toggle',
+              value: _lightModeEnabled,
+              onChanged: _onLightModeChanged,
+            ),
+            _buildThemeModeCheckbox(
+              icon: Icons.dark_mode,
+              label: 'Dark Mode',
+              tooltip: 'Include dark mode in theme toggle',
+              value: _darkModeEnabled,
+              onChanged: _onDarkModeChanged,
+            ),
+            _buildThemeModeCheckbox(
+              icon: Icons.brightness_auto,
+              label: 'System Mode',
+              tooltip: 'Include system mode (follows device settings) in theme toggle',
+              value: _systemModeEnabled,
+              onChanged: _onSystemModeChanged,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeModeCheckbox({
+    required IconData icon,
+    required String label,
+    required String tooltip,
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: CheckboxListTile(
+        secondary: Icon(icon),
+        title: Text(label),
+        value: value,
+        onChanged: onChanged,
+        controlAffinity: ListTileControlAffinity.leading,
+        dense: true,
+      ),
+    );
+  }
+
+  Widget _buildButtonOrderSection(ThemeData theme) {
+    if (_appBarActions.isEmpty) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'No configurable buttons available.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Drag to reorder buttons. Check the box to move the button '
+              'into the overflow menu on narrow screens:',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: _appBarActions.length * 56.0,
+              child: ReorderableListView.builder(
+                shrinkWrap: true,
+                buildDefaultDragHandles: false,
+                itemCount: _appBarActions.length,
+                onReorder: _onReorder,
+                itemBuilder: (context, index) {
+                  final action = _appBarActions[index];
+                  return _buildReorderableItem(
+                    key: ValueKey(action.id),
+                    index: index,
+                    action: action,
+                    theme: theme,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReorderableItem({
+    required Key key,
+    required int index,
+    required SolidAppBarActionItem action,
+    required ThemeData theme,
+  }) {
+    return Material(
+      key: key,
+      child: ListTile(
+        leading: ReorderableDragStartListener(
+          index: index,
+          child: const Icon(Icons.drag_handle),
+        ),
+        title: Row(
+          children: [
+            Icon(action.icon, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(action.label)),
+          ],
+        ),
+        trailing: Tooltip(
+          message: 'Move to overflow menu on narrow screens',
+          child: Checkbox(
+            value: action.showInOverflow,
+            onChanged: (value) => _onOverflowChanged(index, value),
+          ),
+        ),
+        dense: true,
+      ),
+    );
+  }
+}

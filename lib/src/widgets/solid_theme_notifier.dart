@@ -33,6 +33,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'package:solidui/src/widgets/solid_preferences_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
+
 /// Notifier for managing theme state across the application.
 
 class SolidThemeNotifier extends ChangeNotifier {
@@ -67,30 +70,138 @@ class SolidThemeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Toggles between theme modes.
-  /// On first toggle from System mode, switches to the opposite of the current
-  /// system brightness (i.e., if system is light, switch to dark and vice versa).
-  /// Afterwards, toggles only between Light and Dark modes.
+  /// Gets the enabled theme modes from preferences.
+
+  List<ThemeMode> _getEnabledModes() {
+    return solidPreferencesNotifier.themeModeConfig.enabledModes;
+  }
+
+  /// Toggles between theme modes based on the enabled modes in preferences.
 
   void toggleTheme() {
-    switch (_themeMode) {
-      case ThemeMode.system:
-        // Detect the current system brightness and switch to the opposite mode.
+    final enabledModes = _getEnabledModes();
 
-        final systemBrightness =
-            SchedulerBinding.instance.platformDispatcher.platformBrightness;
-        if (systemBrightness == Brightness.light) {
-          setThemeMode(ThemeMode.dark);
-        } else {
-          setThemeMode(ThemeMode.light);
-        }
-        break;
+    // If no modes are enabled (shouldn't happen), do nothing.
+
+    if (enabledModes.isEmpty) return;
+
+    // If only one mode is enabled, set to that mode.
+
+    if (enabledModes.length == 1) {
+      setThemeMode(enabledModes.first);
+      return;
+    }
+
+    // Find the current mode index in enabled modes.
+
+    final currentIndex = enabledModes.indexOf(_themeMode);
+
+    if (currentIndex == -1) {
+      // Current mode is not enabled, switch to first enabled mode.
+
+      setThemeMode(enabledModes.first);
+      return;
+    }
+
+    // Handle special case for System mode: switch to opposite of system brightness.
+
+    if (_themeMode == ThemeMode.system) {
+      final systemBrightness =
+          SchedulerBinding.instance.platformDispatcher.platformBrightness;
+      final targetMode = systemBrightness == Brightness.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
+
+      // Check if target mode is enabled.
+
+      if (enabledModes.contains(targetMode)) {
+        setThemeMode(targetMode);
+      } else {
+        // Target mode not enabled, go to next enabled mode.
+
+        final nextIndex = (currentIndex + 1) % enabledModes.length;
+        setThemeMode(enabledModes[nextIndex]);
+      }
+      return;
+    }
+
+    // Cycle to the next enabled mode.
+
+    final nextIndex = (currentIndex + 1) % enabledModes.length;
+    setThemeMode(enabledModes[nextIndex]);
+  }
+
+  /// Returns the tooltip message for the current theme mode based on enabled
+  /// modes.
+
+  String getTooltipForCurrentMode(SolidThemeModeConfig config) {
+    final enabledModes = config.enabledModes;
+
+    if (enabledModes.length == 1) {
+      return _getSingleModeTooltip(_themeMode);
+    }
+
+    return _getMultipleModeTooltip(_themeMode, enabledModes);
+  }
+
+  String _getSingleModeTooltip(ThemeMode mode) {
+    switch (mode) {
       case ThemeMode.light:
-        setThemeMode(ThemeMode.dark);
-        break;
+        return '''
+
+  **Theme:** **Light Mode** is active and is the only enabled mode.
+
+  ''';
       case ThemeMode.dark:
-        setThemeMode(ThemeMode.light);
-        break;
+        return '''
+
+  **Theme:** **Dark Mode** is active and is the only enabled mode.
+
+  ''';
+      case ThemeMode.system:
+        return '''
+
+  **Theme:** **System Mode** is active and is the only enabled mode.
+  The theme follows your device settings.
+
+  ''';
+    }
+  }
+
+  String _getMultipleModeTooltip(ThemeMode mode, List<ThemeMode> enabledModes) {
+    final modeNames = enabledModes.map((m) {
+      switch (m) {
+        case ThemeMode.light:
+          return 'Light';
+        case ThemeMode.dark:
+          return 'Dark';
+        case ThemeMode.system:
+          return 'System';
+      }
+    }).join(', ');
+
+    switch (mode) {
+      case ThemeMode.light:
+        return '''
+
+  **Theme:** Currently **Light Mode** is active. Light Mode is best for
+  viewing in light conditions. Tap to toggle between enabled modes: $modeNames.
+
+  ''';
+      case ThemeMode.dark:
+        return '''
+
+  **Theme:** Currently **Dark Mode** is active. Dark Mode is best for viewing in
+  low light conditions. Tap to toggle between enabled modes: $modeNames.
+
+  ''';
+      case ThemeMode.system:
+        return '''
+
+  **Theme:** Currently **System Mode** is active. System Mode follows your
+  device settings. Tap to toggle between enabled modes: $modeNames.
+
+  ''';
     }
   }
 

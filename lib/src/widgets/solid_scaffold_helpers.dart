@@ -36,6 +36,7 @@ import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
@@ -109,27 +110,19 @@ class SolidScaffoldHelpers {
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
   ) {
-    // Determine the tooltip message.
+    // Determine the tooltip message based on enabled modes.
 
+    final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
     String tooltipMessage;
     if (themeConfig.tooltip != null) {
       tooltipMessage = themeConfig.tooltip!;
     } else {
-      switch (currentThemeMode) {
-        case ThemeMode.light:
-          tooltipMessage = themeConfig.lightModeTooltip;
-          break;
-        case ThemeMode.dark:
-          tooltipMessage = themeConfig.darkModeTooltip;
-          break;
-        case ThemeMode.system:
-          tooltipMessage = themeConfig.systemModeTooltip;
-          break;
-      }
+      tooltipMessage =
+          solidThemeNotifier.getTooltipForCurrentMode(themeModeConfig);
     }
 
     Widget themeButton = IconButton(
-      icon: Icon(themeConfig.getNextIcon(currentThemeMode)),
+      icon: Icon(themeConfig.getNextIcon(currentThemeMode, themeModeConfig)),
       onPressed: themeToggleCallback,
     );
 
@@ -147,8 +140,9 @@ class SolidScaffoldHelpers {
     ThemeMode currentThemeMode,
     SolidAboutConfig aboutConfig,
     bool hasThemeToggleInOverflow,
-    bool hasAboutInOverflow,
-  ) {
+    bool hasAboutInOverflow, {
+    bool hasPreferencesInOverflow = false,
+  }) {
     List<PopupMenuItem<String>> overflowMenuItems = [];
 
     // Add regular overflow items.
@@ -171,10 +165,9 @@ class SolidScaffoldHelpers {
     // Add theme toggle to overflow menu if configured.
 
     if (hasThemeToggleInOverflow && themeToggle != null) {
-      // Determine the label text.
-      // For system mode, detect the current system brightness and show the
-      // label for the opposite mode.
+      // Determine the label text based on enabled modes.
 
+      final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
       String labelText;
       switch (currentThemeMode) {
         case ThemeMode.light:
@@ -199,9 +192,26 @@ class SolidScaffoldHelpers {
           value: 'theme_toggle',
           child: Row(
             children: [
-              Icon(themeToggle.getNextIcon(currentThemeMode)),
+              Icon(themeToggle.getNextIcon(currentThemeMode, themeModeConfig)),
               const SizedBox(width: 8),
               Text(labelText),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Add Preferences to overflow menu if configured.
+
+    if (hasPreferencesInOverflow) {
+      overflowMenuItems.add(
+        const PopupMenuItem<String>(
+          value: 'preferences',
+          child: Row(
+            children: [
+              Icon(Icons.tune),
+              SizedBox(width: 8),
+              Text('Preferences'),
             ],
           ),
         ),
@@ -359,6 +369,7 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
+    bool showPreferences = true,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -375,6 +386,7 @@ class SolidScaffoldHelpers {
       narrowScreenThreshold,
       hideNavRail: hideNavRail,
       onLogout: onLogout,
+      showPreferences: showPreferences,
     );
   }
 

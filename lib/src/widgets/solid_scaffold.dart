@@ -41,6 +41,7 @@ import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_controller.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_init_helpers.dart';
@@ -330,6 +331,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
       _isKeySaved = securityKeyNotifier.isKeySaved;
     }
 
+    // Listen to preferences notifier for theme mode changes.
+
+    solidPreferencesNotifier.addListener(_onPreferencesChanged);
+
     // Load security key status asynchronously after initialisation.
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -390,10 +395,15 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (widget.statusBar?.securityKeyStatus != null) {
       securityKeyNotifier.removeListener(_onSecurityKeyNotifierChanged);
     }
+    solidPreferencesNotifier.removeListener(_onPreferencesChanged);
     if (widget.controller != null) {
       widget.controller!.removeListener(_onControllerChanged);
     }
     super.dispose();
+  }
+
+  void _onPreferencesChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onControllerChanged() {

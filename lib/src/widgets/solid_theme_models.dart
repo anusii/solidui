@@ -33,6 +33,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'package:solidui/src/widgets/solid_preferences_models.dart';
+
 /// Configuration for theme toggle functionality in the Solid scaffold.
 
 class SolidThemeToggleConfig {
@@ -136,23 +138,55 @@ class SolidThemeToggleConfig {
   /// Returns the appropriate icon for the next theme mode.
   /// For system mode, detects the current system brightness and shows the icon
   /// for the opposite mode (i.e., if system is light, shows dark mode icon).
+  /// Takes into account which modes are enabled in preferences.
 
-  IconData getNextIcon(ThemeMode themeMode) {
-    switch (themeMode) {
+  IconData getNextIcon(ThemeMode themeMode,
+      [SolidThemeModeConfig? modeConfig]) {
+    final enabledModes = modeConfig?.enabledModes ??
+        [ThemeMode.system, ThemeMode.light, ThemeMode.dark];
+
+    // Find what the next mode will be based on enabled modes.
+
+    final currentIndex = enabledModes.indexOf(themeMode);
+
+    if (currentIndex == -1 || enabledModes.length <= 1) {
+      // Current mode not in enabled list or only one mode, show current mode
+      // icon.
+
+      return _getIconForMode(themeMode);
+    }
+
+    // Special handling for system mode: show opposite of system brightness.
+
+    if (themeMode == ThemeMode.system) {
+      final systemBrightness =
+          SchedulerBinding.instance.platformDispatcher.platformBrightness;
+      final targetMode = systemBrightness == Brightness.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
+
+      if (enabledModes.contains(targetMode)) {
+        return _getIconForMode(targetMode);
+      }
+    }
+
+    // Get the next mode in the cycle.
+
+    final nextIndex = (currentIndex + 1) % enabledModes.length;
+    final nextMode = enabledModes[nextIndex];
+    return _getIconForMode(nextMode);
+  }
+
+  /// Returns the icon for a specific theme mode.
+
+  IconData _getIconForMode(ThemeMode mode) {
+    switch (mode) {
       case ThemeMode.light:
-        return darkModeIcon ?? Icons.dark_mode;
-      case ThemeMode.dark:
         return lightModeIcon ?? Icons.light_mode;
+      case ThemeMode.dark:
+        return darkModeIcon ?? Icons.dark_mode;
       case ThemeMode.system:
-        // Detect current system brightness and show icon for the opposite mode.
-
-        final systemBrightness =
-            SchedulerBinding.instance.platformDispatcher.platformBrightness;
-        if (systemBrightness == Brightness.light) {
-          return darkModeIcon ?? Icons.dark_mode;
-        } else {
-          return lightModeIcon ?? Icons.light_mode;
-        }
+        return systemModeIcon ?? Icons.brightness_auto;
     }
   }
 
