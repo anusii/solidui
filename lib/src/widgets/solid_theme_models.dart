@@ -31,6 +31,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 /// Configuration for theme toggle functionality in the Solid scaffold.
 
@@ -111,8 +112,9 @@ class SolidThemeToggleConfig {
   final systemModeTooltip = '''
 
   **Theme:** Currently **System Mode** is active. System Mode follows your
-  device settings. This is the initial mode. Tap here to switch to Light Mode,
-  and afterwards toggle between Light and Dark modes.
+  device settings. This is the initial mode. Tap here to switch to the opposite
+  of your current system theme, and afterwards toggle between Light and Dark
+  modes.
 
   ''';
 
@@ -132,6 +134,8 @@ class SolidThemeToggleConfig {
   });
 
   /// Returns the appropriate icon for the next theme mode.
+  /// For system mode, detects the current system brightness and shows the icon
+  /// for the opposite mode (i.e., if system is light, shows dark mode icon).
 
   IconData getNextIcon(ThemeMode themeMode) {
     switch (themeMode) {
@@ -140,7 +144,15 @@ class SolidThemeToggleConfig {
       case ThemeMode.dark:
         return lightModeIcon ?? Icons.light_mode;
       case ThemeMode.system:
-        return lightModeIcon ?? Icons.light_mode;
+        // Detect current system brightness and show icon for the opposite mode.
+
+        final systemBrightness =
+            SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        if (systemBrightness == Brightness.light) {
+          return darkModeIcon ?? Icons.dark_mode;
+        } else {
+          return lightModeIcon ?? Icons.light_mode;
+        }
     }
   }
 

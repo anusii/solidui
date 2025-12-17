@@ -29,6 +29,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
@@ -171,6 +172,8 @@ class SolidScaffoldHelpers {
 
     if (hasThemeToggleInOverflow && themeToggle != null) {
       // Determine the label text.
+      // For system mode, detect the current system brightness and show the
+      // label for the opposite mode.
 
       String labelText;
       switch (currentThemeMode) {
@@ -178,8 +181,16 @@ class SolidScaffoldHelpers {
           labelText = 'Switch to Dark Mode';
           break;
         case ThemeMode.dark:
-        case ThemeMode.system:
           labelText = 'Switch to Light Mode';
+          break;
+        case ThemeMode.system:
+          final systemBrightness =
+              SchedulerBinding.instance.platformDispatcher.platformBrightness;
+          if (systemBrightness == Brightness.light) {
+            labelText = 'Switch to Dark Mode';
+          } else {
+            labelText = 'Switch to Light Mode';
+          }
           break;
       }
 

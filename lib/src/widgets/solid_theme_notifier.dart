@@ -31,6 +31,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 /// Notifier for managing theme state across the application.
 
@@ -67,13 +68,22 @@ class SolidThemeNotifier extends ChangeNotifier {
   }
 
   /// Toggles between theme modes.
-  /// On first toggle from System mode, switches to Light mode.
+  /// On first toggle from System mode, switches to the opposite of the current
+  /// system brightness (i.e., if system is light, switch to dark and vice versa).
   /// Afterwards, toggles only between Light and Dark modes.
 
   void toggleTheme() {
     switch (_themeMode) {
       case ThemeMode.system:
-        setThemeMode(ThemeMode.light);
+        // Detect the current system brightness and switch to the opposite mode.
+
+        final systemBrightness =
+            SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        if (systemBrightness == Brightness.light) {
+          setThemeMode(ThemeMode.dark);
+        } else {
+          setThemeMode(ThemeMode.light);
+        }
         break;
       case ThemeMode.light:
         setThemeMode(ThemeMode.dark);
