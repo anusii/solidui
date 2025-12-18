@@ -161,17 +161,19 @@ class SolidScaffoldAppBarBuilder {
   }
 
   /// Initialises AppBar actions in preferences notifier if empty or missing
-  /// items.
+  /// items. Dynamically handles all buttons from config.actions and
+  /// config.overflowItems in addition to standard buttons.
 
   static void _initializeAppBarActionsIfNeeded(
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle,
   ) {
-    // Check if we need to add missing standard buttons.
+    // Check if we need to add missing buttons (standard or custom).
 
     final existingActions = solidPreferencesNotifier.appBarActions;
     final needsInit = existingActions.isEmpty;
-    final needsMerge = !needsInit && _hasMissingStandardButtons(existingActions);
+    final needsMerge =
+        !needsInit && _hasMissingButtons(existingActions, config, themeToggle);
 
     if (!needsInit && !needsMerge) return;
 
@@ -301,21 +303,50 @@ class SolidScaffoldAppBarBuilder {
     }
   }
 
-  /// Checks if standard buttons are missing from existing actions.
-  /// Only checks for buttons that should always exist (logout, about, prefs).
+  /// Checks if any buttons are missing from existing actions.
+  /// Dynamically checks all buttons including custom actions and overflow items.
 
-  static bool _hasMissingStandardButtons(List<SolidAppBarActionItem> actions) {
+  static bool _hasMissingButtons(
+    List<SolidAppBarActionItem> actions,
+    SolidAppBarConfig config,
+    SolidThemeToggleConfig? themeToggle,
+  ) {
     final existingIds = actions.map((a) => a.id).toSet();
-    // Only check for buttons that should always be configurable.
-    // Theme toggle is optional (depends on themeToggle config).
 
-    final requiredIds = [
+    // Collect all expected button IDs.
+
+    final expectedIds = <String>[];
+
+    // Theme toggle (if enabled).
+
+    if (themeToggle != null && themeToggle.enabled) {
+      expectedIds.add(SolidAppBarActionIds.themeToggle);
+    }
+
+    // Custom actions from config.
+
+    for (int i = 0; i < config.actions.length; i++) {
+      final action = config.actions[i];
+      expectedIds.add(action.id ?? 'action_$i');
+    }
+
+    // Overflow items from config.
+
+    for (final item in config.overflowItems) {
+      expectedIds.add(item.id);
+    }
+
+    // Standard buttons that should always exist.
+
+    expectedIds.addAll([
       SolidAppBarActionIds.logout,
       SolidAppBarActionIds.about,
       SolidAppBarActionIds.preferences,
-    ];
+    ]);
 
-    for (final id in requiredIds) {
+    // Check if any expected ID is missing.
+
+    for (final id in expectedIds) {
       if (!existingIds.contains(id)) {
         return true;
       }
@@ -780,10 +811,29 @@ class SolidScaffoldAppBarBuilder {
               _showPreferencesDialog(context, config, themeToggle);
             } else if (id == 'logout') {
               onLogout?.call(context);
+            } else if (id.startsWith('action_')) {
+              // Handle custom actions from config.actions.
+
+              final actionIndex = int.tryParse(id.replaceFirst('action_', ''));
+              if (actionIndex != null && actionIndex < config.actions.length) {
+                config.actions[actionIndex].onPressed();
+              } else {
+                // Try to find by id match if index doesn't work.
+
+                final action = config.actions.cast<SolidAppBarAction?>().firstWhere(
+                  (a) => a?.id == id,
+                  orElse: () => null,
+                );
+                action?.onPressed();
+              }
             } else {
-              final item =
-                  config.overflowItems.firstWhere((item) => item.id == id);
-              item.onSelected();
+              // Handle overflow items from config.overflowItems.
+
+              final item = config.overflowItems.cast<SolidOverflowMenuItem?>().firstWhere(
+                (item) => item?.id == id,
+                orElse: () => null,
+              );
+              item?.onSelected();
             }
           },
           itemBuilder: (BuildContext menuContext) => overflowMenuItems,
