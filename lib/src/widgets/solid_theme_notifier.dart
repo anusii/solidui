@@ -30,6 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:solidui/src/widgets/solid_preferences_models.dart';

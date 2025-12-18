@@ -50,16 +50,16 @@ class SettingsPage extends StatelessWidget {
           Text(
             'Settings',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             'This page is accessed via bodyOverride (subpage navigation)',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontStyle: FontStyle.italic,
-            ),
+                  color: Theme.of(context).colorScheme.primary,
+                  fontStyle: FontStyle.italic,
+                ),
           ),
           const SizedBox(height: 32),
           _buildSettingsSection(
@@ -148,26 +148,26 @@ class SettingsPage extends StatelessWidget {
                       Text(
                         'Subpage Navigation Demo',
                         style:
-                        Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'This Settings page is not in the main navigation menu. '
-                        'It is accessed via the settings icon in the AppBar and '
-                        'displayed using the bodyOverride parameter.\n\n'
-                        'Click any navigation menu item (Home, Files, About) to '
-                        'return to that page. No back button needed!',
+                    'It is accessed via the settings icon in the AppBar and '
+                    'displayed using the bodyOverride parameter.\n\n'
+                    'Click any navigation menu item (Home, Files, About) to '
+                    'return to that page. No back button needed!',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color:
-                      Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
                   ),
                 ],
               ),
@@ -179,10 +179,10 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildSettingsSection(
-      BuildContext context,
-      String title,
-      List<Widget> children,
-      ) {
+    BuildContext context,
+    String title,
+    List<Widget> children,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -191,9 +191,9 @@ class SettingsPage extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
           ),
         ),
         Card(
@@ -206,11 +206,11 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget _buildSettingTile(
-      BuildContext context,
-      String title,
-      String subtitle,
-      IconData icon,
-      ) {
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+  ) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
       title: Text(title),

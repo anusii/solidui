@@ -148,8 +148,7 @@ class SolidThemeModeConfig {
 
   /// Validates that at least one mode is enabled.
 
-  bool get isValid =>
-      lightModeEnabled || darkModeEnabled || systemModeEnabled;
+  bool get isValid => lightModeEnabled || darkModeEnabled || systemModeEnabled;
 }
 
 /// Complete preferences configuration for SolidScaffold.

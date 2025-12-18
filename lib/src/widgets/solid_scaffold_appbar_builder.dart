@@ -820,19 +820,22 @@ class SolidScaffoldAppBarBuilder {
               } else {
                 // Try to find by id match if index doesn't work.
 
-                final action = config.actions.cast<SolidAppBarAction?>().firstWhere(
-                  (a) => a?.id == id,
-                  orElse: () => null,
-                );
+                final action =
+                    config.actions.cast<SolidAppBarAction?>().firstWhere(
+                          (a) => a?.id == id,
+                          orElse: () => null,
+                        );
                 action?.onPressed();
               }
             } else {
               // Handle overflow items from config.overflowItems.
 
-              final item = config.overflowItems.cast<SolidOverflowMenuItem?>().firstWhere(
-                (item) => item?.id == id,
-                orElse: () => null,
-              );
+              final item = config.overflowItems
+                  .cast<SolidOverflowMenuItem?>()
+                  .firstWhere(
+                    (item) => item?.id == id,
+                    orElse: () => null,
+                  );
               item?.onSelected();
             }
           },

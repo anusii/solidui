@@ -183,8 +183,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     }
 
     setState(() {
-      _appBarActions[index] =
-          _appBarActions[index].copyWith(isVisible: value);
+      _appBarActions[index] = _appBarActions[index].copyWith(isVisible: value);
     });
   }
 
