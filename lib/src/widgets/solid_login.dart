@@ -438,10 +438,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         },
         behavior: HitTestBehavior.deferToChild,
-
-        // TODO 20231228 gjw SOMEONE PLEASE EXPLAIN WHY USING A SafeArea
-        // HERE. WHAT MOTIVATED ITS USE?
-
         child: SafeArea(
           child: DecoratedBox(
             decoration:
