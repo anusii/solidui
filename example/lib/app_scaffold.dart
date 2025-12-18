@@ -34,6 +34,7 @@ import 'package:solidui/solidui.dart';
 
 import 'constants/app.dart';
 import 'home.dart';
+import 'screens/settings_page.dart';
 
 final _scaffoldController = SolidScaffoldController();
 
@@ -101,6 +102,16 @@ class AppScaffold extends StatelessWidget {
             color: theme.colorScheme.onSurface,
           ),
         ),
+
+        actions: [
+          SolidAppBarAction(
+            icon: Icons.settings,
+            onPressed: () => _scaffoldController.navigateToSubpage(
+              const SettingsPage(),
+            ),
+            tooltip: 'Settings',
+          ),
+        ],
       ),
 
       // STATUS BAR.
@@ -128,12 +139,19 @@ class AppScaffold extends StatelessWidget {
         text: '''
 
         This template app demonstrates the following key SolidUI features:
+        
         🧭 Responsive navigation (rail ↔ drawer);
+        
         🎨 Theme switching (light/dark/system);
+        
         ℹ️ Customisable About dialogues;
+        
         📋 Version information display;
+        
         🔐 Security key management;
+        
         📊 Status bar integration;
+        
         👤 User information display.
 
         For more information, visit the
