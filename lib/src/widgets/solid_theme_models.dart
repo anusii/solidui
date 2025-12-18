@@ -136,14 +136,14 @@ class SolidThemeToggleConfig {
   });
 
   /// Returns the appropriate icon for the next theme mode.
-  /// For system mode, detects the current system brightness and shows the icon
-  /// for the opposite mode (i.e., if system is light, shows dark mode icon).
-  /// Takes into account which modes are enabled in preferences.
 
-  IconData getNextIcon(ThemeMode themeMode,
-      [SolidThemeModeConfig? modeConfig]) {
+  IconData getNextIcon(
+    ThemeMode themeMode, [
+    SolidThemeModeConfig? modeConfig,
+  ]) {
     final enabledModes = modeConfig?.enabledModes ??
         [ThemeMode.system, ThemeMode.light, ThemeMode.dark];
+    final smartToggle = modeConfig?.smartToggle ?? true;
 
     // Find what the next mode will be based on enabled modes.
 
@@ -156,9 +156,13 @@ class SolidThemeToggleConfig {
       return _getIconForMode(themeMode);
     }
 
-    // Special handling for system mode: show opposite of system brightness.
+    // Special handling for system mode with smart toggle enabled.
+    // Only apply smart logic when all three modes are enabled and smartToggle
+    // is on.
 
-    if (themeMode == ThemeMode.system) {
+    if (themeMode == ThemeMode.system &&
+        smartToggle &&
+        enabledModes.length == 3) {
       final systemBrightness =
           SchedulerBinding.instance.platformDispatcher.platformBrightness;
       final targetMode = systemBrightness == Brightness.light
@@ -170,7 +174,7 @@ class SolidThemeToggleConfig {
       }
     }
 
-    // Get the next mode in the cycle.
+    // Get the next mode in the cycle (sequential toggle).
 
     final nextIndex = (currentIndex + 1) % enabledModes.length;
     final nextMode = enabledModes[nextIndex];

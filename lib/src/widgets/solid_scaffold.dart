@@ -319,10 +319,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (SolidScaffoldInitHelpers.hasVersionConfig(widget.appBar)) {
       _loadAppVersion();
     }
-    SolidScaffoldInitHelpers.initializeThemeNotifier(
-      _getUsesInternalManagement(),
-      _onThemeChanged,
-    );
+
+    // Initialise theme and preferences notifiers asynchronously.
+
+    _initializeNotifiers();
 
     // Listen to global security key notifier.
 
@@ -352,6 +352,16 @@ class SolidScaffoldState extends State<SolidScaffold> {
     // Load the current webId for navigation drawer user info display.
 
     _loadCurrentWebId();
+  }
+
+  /// Initialises theme and preferences notifiers asynchronously.
+
+  Future<void> _initializeNotifiers() async {
+    await SolidScaffoldInitHelpers.initializeThemeNotifier(
+      _getUsesInternalManagement(),
+      _onThemeChanged,
+    );
+    if (mounted) setState(() {});
   }
 
   /// Loads the current webId from Solid POD authentication state.

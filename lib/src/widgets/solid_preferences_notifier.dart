@@ -28,19 +28,40 @@
 
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 
+/// SharedPreferences keys for storing preferences.
+
+class _PreferencesKeys {
+  static const String lightModeEnabled = 'solidui_light_mode_enabled';
+  static const String darkModeEnabled = 'solidui_dark_mode_enabled';
+  static const String systemModeEnabled = 'solidui_system_mode_enabled';
+  static const String smartToggle = 'solidui_smart_toggle';
+  static const String appBarActions = 'solidui_appbar_actions';
+
+  _PreferencesKeys._();
+}
+
 /// Notifier for managing preferences state across the application.
+/// Preferences are automatically persisted to SharedPreferences.
 
 class SolidPreferencesNotifier extends ChangeNotifier {
   SolidPreferencesConfig _config;
+  bool _isInitialized = false;
 
   /// Creates a new SolidPreferencesNotifier with optional initial configuration.
 
   SolidPreferencesNotifier([SolidPreferencesConfig? initialConfig])
       : _config = initialConfig ?? const SolidPreferencesConfig();
+
+  /// Whether the notifier has been initialised from SharedPreferences.
+
+  bool get isInitialized => _isInitialized;
 
   /// The current preferences configuration.
 
@@ -54,11 +75,65 @@ class SolidPreferencesNotifier extends ChangeNotifier {
 
   List<SolidAppBarActionItem> get appBarActions => _config.appBarActions;
 
+  /// Initialises the notifier by loading preferences from SharedPreferences.
+
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Load theme mode configuration.
+
+      final lightModeEnabled =
+          prefs.getBool(_PreferencesKeys.lightModeEnabled) ?? true;
+      final darkModeEnabled =
+          prefs.getBool(_PreferencesKeys.darkModeEnabled) ?? true;
+      final systemModeEnabled =
+          prefs.getBool(_PreferencesKeys.systemModeEnabled) ?? true;
+      final smartToggle = prefs.getBool(_PreferencesKeys.smartToggle) ?? true;
+
+      final themeModeConfig = SolidThemeModeConfig(
+        lightModeEnabled: lightModeEnabled,
+        darkModeEnabled: darkModeEnabled,
+        systemModeEnabled: systemModeEnabled,
+        smartToggle: smartToggle,
+      );
+
+      // Load AppBar actions if stored.
+
+      List<SolidAppBarActionItem> appBarActions = [];
+      final actionsJson = prefs.getString(_PreferencesKeys.appBarActions);
+      if (actionsJson != null) {
+        try {
+          final List<dynamic> actionsList = jsonDecode(actionsJson);
+          appBarActions = actionsList
+              .map((json) => _appBarActionItemFromJson(json))
+              .toList();
+        } catch (e) {
+          debugPrint('Error parsing stored AppBar actions: $e');
+        }
+      }
+
+      _config = SolidPreferencesConfig(
+        themeModeConfig: themeModeConfig,
+        appBarActions: appBarActions,
+      );
+
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error initializing preferences: $e');
+      _isInitialized = true;
+    }
+  }
+
   /// Updates the entire preferences configuration.
 
   void setConfig(SolidPreferencesConfig config) {
     if (_config == config) return;
     _config = config;
+    _savePreferences();
     notifyListeners();
   }
 
@@ -73,6 +148,7 @@ class SolidPreferencesNotifier extends ChangeNotifier {
     }
     if (_config.themeModeConfig == themeModeConfig) return;
     _config = _config.copyWith(themeModeConfig: themeModeConfig);
+    _saveThemeModeConfig();
     notifyListeners();
   }
 
@@ -88,7 +164,8 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   /// Sets whether dark mode is enabled in the toggle cycle.
 
   void setDarkModeEnabled(bool enabled) {
-    final newConfig = _config.themeModeConfig.copyWith(darkModeEnabled: enabled);
+    final newConfig =
+        _config.themeModeConfig.copyWith(darkModeEnabled: enabled);
     if (!newConfig.isValid) return;
     setThemeModeConfig(newConfig);
   }
@@ -96,8 +173,16 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   /// Sets whether system mode is enabled in the toggle cycle.
 
   void setSystemModeEnabled(bool enabled) {
-    final newConfig = _config.themeModeConfig.copyWith(systemModeEnabled: enabled);
+    final newConfig =
+        _config.themeModeConfig.copyWith(systemModeEnabled: enabled);
     if (!newConfig.isValid) return;
+    setThemeModeConfig(newConfig);
+  }
+
+  /// Sets whether smart toggle behaviour is enabled.
+
+  void setSmartToggle(bool enabled) {
+    final newConfig = _config.themeModeConfig.copyWith(smartToggle: enabled);
     setThemeModeConfig(newConfig);
   }
 
@@ -105,6 +190,7 @@ class SolidPreferencesNotifier extends ChangeNotifier {
 
   void setAppBarActions(List<SolidAppBarActionItem> actions) {
     _config = _config.copyWith(appBarActions: actions);
+    _saveAppBarActions();
     notifyListeners();
   }
 
@@ -130,6 +216,7 @@ class SolidPreferencesNotifier extends ChangeNotifier {
     }
 
     _config = _config.copyWith(appBarActions: updatedActions);
+    _saveAppBarActions();
     notifyListeners();
   }
 
@@ -144,6 +231,7 @@ class SolidPreferencesNotifier extends ChangeNotifier {
     }).toList();
 
     _config = _config.copyWith(appBarActions: actions);
+    _saveAppBarActions();
     notifyListeners();
   }
 
@@ -158,9 +246,86 @@ class SolidPreferencesNotifier extends ChangeNotifier {
     }).toList();
 
     _config = _config.copyWith(appBarActions: actions);
+    _saveAppBarActions();
     notifyListeners();
   }
 
+  /// Saves all preferences to SharedPreferences.
+
+  Future<void> _savePreferences() async {
+    await _saveThemeModeConfig();
+    await _saveAppBarActions();
+  }
+
+  /// Saves theme mode configuration to SharedPreferences.
+
+  Future<void> _saveThemeModeConfig() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(
+        _PreferencesKeys.lightModeEnabled,
+        _config.themeModeConfig.lightModeEnabled,
+      );
+      await prefs.setBool(
+        _PreferencesKeys.darkModeEnabled,
+        _config.themeModeConfig.darkModeEnabled,
+      );
+      await prefs.setBool(
+        _PreferencesKeys.systemModeEnabled,
+        _config.themeModeConfig.systemModeEnabled,
+      );
+      await prefs.setBool(
+        _PreferencesKeys.smartToggle,
+        _config.themeModeConfig.smartToggle,
+      );
+    } catch (e) {
+      debugPrint('Error saving theme mode config: $e');
+    }
+  }
+
+  /// Saves AppBar actions to SharedPreferences.
+
+  Future<void> _saveAppBarActions() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_config.appBarActions.isEmpty) {
+        await prefs.remove(_PreferencesKeys.appBarActions);
+      } else {
+        final actionsJson = jsonEncode(
+          _config.appBarActions.map((a) => _appBarActionItemToJson(a)).toList(),
+        );
+        await prefs.setString(_PreferencesKeys.appBarActions, actionsJson);
+      }
+    } catch (e) {
+      debugPrint('Error saving AppBar actions: $e');
+    }
+  }
+
+  /// Converts an AppBarActionItem to JSON.
+
+  Map<String, dynamic> _appBarActionItemToJson(SolidAppBarActionItem item) {
+    return {
+      'id': item.id,
+      'label': item.label,
+      'icon': item.icon.codePoint,
+      'showInOverflow': item.showInOverflow,
+      'isVisible': item.isVisible,
+      'order': item.order,
+    };
+  }
+
+  /// Creates an AppBarActionItem from JSON.
+
+  SolidAppBarActionItem _appBarActionItemFromJson(Map<String, dynamic> json) {
+    return SolidAppBarActionItem(
+      id: json['id'] as String,
+      label: json['label'] as String,
+      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      showInOverflow: json['showInOverflow'] as bool? ?? false,
+      isVisible: json['isVisible'] as bool? ?? true,
+      order: json['order'] as int? ?? 0,
+    );
+  }
 }
 
 /// Global instance of the preferences notifier.

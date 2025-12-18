@@ -68,6 +68,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   late bool _lightModeEnabled;
   late bool _darkModeEnabled;
   late bool _systemModeEnabled;
+  late bool _smartToggle;
   late List<SolidAppBarActionItem> _appBarActions;
 
   @override
@@ -81,8 +82,14 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     _lightModeEnabled = config.themeModeConfig.lightModeEnabled;
     _darkModeEnabled = config.themeModeConfig.darkModeEnabled;
     _systemModeEnabled = config.themeModeConfig.systemModeEnabled;
+    _smartToggle = config.themeModeConfig.smartToggle;
     _appBarActions = List.from(config.appBarActions);
   }
+
+  /// Whether all three modes are enabled.
+
+  bool get _allModesEnabled =>
+      _lightModeEnabled && _darkModeEnabled && _systemModeEnabled;
 
   bool get _isAtLeastOneModeEnabled =>
       _lightModeEnabled || _darkModeEnabled || _systemModeEnabled;
@@ -159,11 +166,16 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     });
   }
 
+  void _onSmartToggleChanged(bool value) {
+    setState(() => _smartToggle = value);
+  }
+
   void _savePreferences() {
     final themeModeConfig = SolidThemeModeConfig(
       lightModeEnabled: _lightModeEnabled,
       darkModeEnabled: _darkModeEnabled,
       systemModeEnabled: _systemModeEnabled,
+      smartToggle: _smartToggle,
     );
 
     final newConfig = SolidPreferencesConfig(
@@ -262,9 +274,52 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
             _buildThemeModeCheckbox(
               icon: Icons.brightness_auto,
               label: 'System Mode',
-              tooltip: 'Include system mode (follows device settings) in theme toggle',
+              tooltip:
+                  'Include system mode (follows device settings) in theme toggle',
               value: _systemModeEnabled,
               onChanged: _onSystemModeChanged,
+            ),
+
+            // Smart toggle switch - only shown when all modes are enabled.
+
+            if (_allModesEnabled) ...[
+              const Divider(height: 24),
+              _buildSmartToggleSwitch(theme),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmartToggleSwitch(ThemeData theme) {
+    return Tooltip(
+      message: _smartToggle
+          ? 'Adaptive: From System mode, switches to the opposite of '
+              'current system brightness, then cycles between Light and Dark.'
+          : 'Sequential: Cycles through System → Light → Dark → System.',
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Row(
+          children: [
+            Icon(
+              _smartToggle ? Icons.auto_awesome : Icons.swap_horiz,
+              size: 20,
+              color: _smartToggle ? theme.colorScheme.primary : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Adaptive Toggle',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+            Transform.scale(
+              scale: 0.85,
+              child: Switch(
+                value: _smartToggle,
+                onChanged: _onSmartToggleChanged,
+              ),
             ),
           ],
         ),

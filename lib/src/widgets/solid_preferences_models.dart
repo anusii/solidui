@@ -103,10 +103,21 @@ class SolidThemeModeConfig {
 
   final bool systemModeEnabled;
 
+  /// Whether to use smart toggle behaviour when all three modes are enabled.
+  ///
+  /// When true (default): In System mode, detects current system brightness
+  /// and switches to the opposite mode, then toggles between Light and Dark.
+  ///
+  /// When false: Mechanically cycles through all three modes in order:
+  /// System → Light → Dark → System...
+
+  final bool smartToggle;
+
   const SolidThemeModeConfig({
     this.lightModeEnabled = true,
     this.darkModeEnabled = true,
     this.systemModeEnabled = true,
+    this.smartToggle = true,
   });
 
   /// Returns the list of enabled theme modes.
@@ -125,11 +136,13 @@ class SolidThemeModeConfig {
     bool? lightModeEnabled,
     bool? darkModeEnabled,
     bool? systemModeEnabled,
+    bool? smartToggle,
   }) {
     return SolidThemeModeConfig(
       lightModeEnabled: lightModeEnabled ?? this.lightModeEnabled,
       darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
       systemModeEnabled: systemModeEnabled ?? this.systemModeEnabled,
+      smartToggle: smartToggle ?? this.smartToggle,
     );
   }
 
