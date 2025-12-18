@@ -88,31 +88,24 @@ class SolidScaffoldAppBarBuilder {
       actions.add(const Gap(8));
     }
 
-    // Add regular action buttons.
+    // Build ordered actions based on preferences.
 
-    actions.addAll(_buildRegularActions(config, screenWidth));
+    final orderedActions = _buildOrderedActions(
+      config: config,
+      screenWidth: screenWidth,
+      themeToggle: themeToggle,
+      currentThemeMode: currentThemeMode,
+      themeToggleCallback: themeToggleCallback,
+      aboutConfig: aboutConfig,
+      context: context,
+      showPreferences: showPreferences,
+      onLogout: onLogout,
+    );
+    actions.addAll(orderedActions);
 
-    // Add theme toggle if configured.
+    // Handle overflow menu if on narrow screen.
 
-    if (_shouldShowThemeToggle(themeToggle, config, screenWidth)) {
-      actions.add(
-        SolidScaffoldHelpers.buildThemeToggleButton(
-          themeToggle!,
-          currentThemeMode,
-          themeToggleCallback,
-        ),
-      );
-    }
-
-    // Add preferences button if enabled and screen is wide enough.
-
-    if (showPreferences && screenWidth >= config.veryNarrowScreenThreshold) {
-      actions.add(_buildPreferencesButton(context, config, themeToggle));
-    }
-
-    // Handle overflow menu or regular buttons based on screen width.
-
-    _handleOverflowItems(
+    _handleOverflowMenu(
       actions,
       config,
       screenWidth,
@@ -121,8 +114,8 @@ class SolidScaffoldAppBarBuilder {
       themeToggleCallback,
       aboutConfig,
       context,
-      onLogout: onLogout,
       showPreferences: showPreferences,
+      onLogout: onLogout,
     );
 
     return AppBar(
@@ -167,96 +160,271 @@ class SolidScaffoldAppBarBuilder {
     SolidPreferencesDialog.show(context);
   }
 
-  /// Initialises AppBar actions in preferences notifier if empty.
+  /// Initialises AppBar actions in preferences notifier if empty or missing
+  /// items.
 
   static void _initializeAppBarActionsIfNeeded(
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle,
   ) {
-    if (solidPreferencesNotifier.appBarActions.isNotEmpty) return;
+    // Check if we need to add missing standard buttons.
+
+    final existingActions = solidPreferencesNotifier.appBarActions;
+    final needsInit = existingActions.isEmpty;
+    final needsMerge = !needsInit && _hasMissingStandardButtons(existingActions);
+
+    if (!needsInit && !needsMerge) return;
 
     final actions = <SolidAppBarActionItem>[];
-    int order = 0;
+
+    // Collect all actions with their initial indices.
+
+    final actionEntries = <_ActionEntry>[];
 
     // Add theme toggle if enabled.
+    // Default: show in AppBar.
 
     if (themeToggle != null && themeToggle.enabled) {
-      actions.add(
-        SolidAppBarActionItem(
-          id: SolidAppBarActionIds.themeToggle,
-          label: 'Theme Toggle',
-          icon: Icons.brightness_6,
-          showInOverflow: !themeToggle.showInAppBarActions,
-          order: order++,
+      actionEntries.add(
+        _ActionEntry(
+          item: const SolidAppBarActionItem(
+            id: SolidAppBarActionIds.themeToggle,
+            label: 'Theme Toggle',
+            icon: Icons.brightness_6,
+            showInOverflow: false, // Show in AppBar by default.
+          ),
+          initialIndex: 0, // Theme toggle defaults to first position.
         ),
       );
     }
 
     // Add custom actions from config.
+    // Default: show in AppBar.
 
-    for (final action in config.actions) {
-      actions.add(
-        SolidAppBarActionItem(
-          id: 'action_${actions.length}',
-          label: action.tooltip ?? 'Action',
-          icon: action.icon,
-          showInOverflow: !action.showOnNarrowScreen,
-          order: order++,
+    for (int i = 0; i < config.actions.length; i++) {
+      final action = config.actions[i];
+      final actionId = action.id ?? 'action_$i';
+      // Use initialIndex if provided, otherwise use position + 100 to come
+      // after built-in actions.
+
+      final initialIndex = action.initialIndex ?? (100 + i);
+      actionEntries.add(
+        _ActionEntry(
+          item: SolidAppBarActionItem(
+            id: actionId,
+            label: action.tooltip ?? 'Action',
+            icon: action.icon,
+            showInOverflow: false, // Show in AppBar by default.
+          ),
+          initialIndex: initialIndex,
         ),
       );
     }
 
     // Add overflow items from config.
+    // Default: show in AppBar (user can move to overflow via preferences).
 
-    for (final item in config.overflowItems) {
-      actions.add(
-        SolidAppBarActionItem(
-          id: item.id,
-          label: item.label,
-          icon: item.icon,
-          showInOverflow: item.showInOverflow,
-          order: order++,
+    for (int i = 0; i < config.overflowItems.length; i++) {
+      final item = config.overflowItems[i];
+      actionEntries.add(
+        _ActionEntry(
+          item: SolidAppBarActionItem(
+            id: item.id,
+            label: item.label,
+            icon: item.icon,
+            showInOverflow: false, // Show in AppBar by default.
+          ),
+          initialIndex: 200 + i, // Overflow items come after regular actions.
         ),
       );
     }
 
-    // Add About button.
+    // Add Logout button.
+    // Default: show in AppBar.
 
-    actions.add(
-      SolidAppBarActionItem(
-        id: SolidAppBarActionIds.about,
-        label: 'About',
-        icon: Icons.info_outline,
-        showInOverflow: true,
-        order: order++,
+    actionEntries.add(
+      _ActionEntry(
+        item: const SolidAppBarActionItem(
+          id: SolidAppBarActionIds.logout,
+          label: 'Logout',
+          icon: Icons.logout,
+          showInOverflow: false, // Show in AppBar by default.
+        ),
+        initialIndex: 800, // Logout button before About.
+      ),
+    );
+
+    // Add About button.
+    // Default: show in AppBar.
+
+    actionEntries.add(
+      _ActionEntry(
+        item: const SolidAppBarActionItem(
+          id: SolidAppBarActionIds.about,
+          label: 'About',
+          icon: Icons.info_outline,
+          showInOverflow: false, // Show in AppBar by default.
+        ),
+        initialIndex: 900, // About button near the end.
       ),
     );
 
     // Add Preferences button.
+    // Default: show in AppBar.
 
-    actions.add(
-      SolidAppBarActionItem(
-        id: SolidAppBarActionIds.preferences,
-        label: 'Preferences',
-        icon: Icons.tune,
-        showInOverflow: true,
-        order: order++,
+    actionEntries.add(
+      _ActionEntry(
+        item: const SolidAppBarActionItem(
+          id: SolidAppBarActionIds.preferences,
+          label: 'Preferences',
+          icon: Icons.tune,
+          showInOverflow: false, // Show in AppBar by default.
+        ),
+        initialIndex: 910, // Preferences button at the end.
       ),
     );
 
-    solidPreferencesNotifier.setAppBarActions(actions);
+    // Sort by initial index and assign order values.
+
+    actionEntries.sort((a, b) => a.initialIndex.compareTo(b.initialIndex));
+    for (int i = 0; i < actionEntries.length; i++) {
+      actions.add(actionEntries[i].item.copyWith(order: i));
+    }
+
+    // If merging, combine existing actions with new ones.
+
+    if (needsMerge) {
+      final mergedActions = _mergeActions(existingActions, actions);
+      solidPreferencesNotifier.setAppBarActions(mergedActions);
+    } else {
+      solidPreferencesNotifier.setAppBarActions(actions);
+    }
   }
 
-  /// Builds regular action buttons.
+  /// Checks if standard buttons are missing from existing actions.
+  /// Only checks for buttons that should always exist (logout, about, prefs).
 
-  static List<Widget> _buildRegularActions(
-    SolidAppBarConfig config,
-    double screenWidth,
+  static bool _hasMissingStandardButtons(List<SolidAppBarActionItem> actions) {
+    final existingIds = actions.map((a) => a.id).toSet();
+    // Only check for buttons that should always be configurable.
+    // Theme toggle is optional (depends on themeToggle config).
+
+    final requiredIds = [
+      SolidAppBarActionIds.logout,
+      SolidAppBarActionIds.about,
+      SolidAppBarActionIds.preferences,
+    ];
+
+    for (final id in requiredIds) {
+      if (!existingIds.contains(id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Merges existing actions with new default actions, adding missing ones.
+
+  static List<SolidAppBarActionItem> _mergeActions(
+    List<SolidAppBarActionItem> existing,
+    List<SolidAppBarActionItem> defaults,
   ) {
-    List<Widget> actions = [];
+    final existingIds = existing.map((a) => a.id).toSet();
+    final merged = List<SolidAppBarActionItem>.from(existing);
 
-    for (final action in config.actions) {
-      bool shouldShow = _shouldShowAction(action, config, screenWidth);
+    // Add missing actions at the end.
+
+    int maxOrder = existing.isEmpty
+        ? 0
+        : existing.map((a) => a.order).reduce((a, b) => a > b ? a : b);
+
+    for (final action in defaults) {
+      if (!existingIds.contains(action.id)) {
+        merged.add(action.copyWith(order: ++maxOrder));
+      }
+    }
+
+    return merged;
+  }
+
+  /// Gets the action item configuration from preferences by ID.
+  /// Returns null if not found.
+
+  static SolidAppBarActionItem? _getActionConfig(String id) {
+    final actions = solidPreferencesNotifier.appBarActions;
+    try {
+      return actions.firstWhere((a) => a.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Builds ordered action buttons based on preferences configuration.
+  /// On wide screens: shows all visible buttons (ignores showInOverflow).
+  /// On narrow screens: shows buttons marked as "add to appbar" (showInOverflow
+  /// = false), others go to overflow menu.
+
+  static List<Widget> _buildOrderedActions({
+    required SolidAppBarConfig config,
+    required double screenWidth,
+    required SolidThemeToggleConfig? themeToggle,
+    required ThemeMode currentThemeMode,
+    required VoidCallback? themeToggleCallback,
+    required SolidAboutConfig aboutConfig,
+    required BuildContext context,
+    required bool showPreferences,
+    void Function(BuildContext)? onLogout,
+  }) {
+    final List<_OrderedAction> orderedActions = [];
+    // Use narrowScreenThreshold to determine when to collapse buttons.
+    final isNarrowScreen = screenWidth < config.narrowScreenThreshold;
+
+    // On wide screens: show all visible buttons (ignore showInOverflow).
+    // On narrow screens: only show buttons with showInOverflow = false.
+
+    // Add theme toggle.
+
+    if (themeToggle != null && themeToggle.enabled) {
+      final actionConfig = _getActionConfig(SolidAppBarActionIds.themeToggle);
+      final isVisible = actionConfig?.isVisible ?? true;
+      final isInOverflow = actionConfig?.showInOverflow ?? false;
+      final order = actionConfig?.order ?? 0;
+
+      // Show if: wide screen, or narrow screen with showInOverflow = false.
+
+      final shouldShow = isVisible &&
+          (!isNarrowScreen || !isInOverflow) &&
+          _shouldShowThemeToggle(themeToggle, config, screenWidth);
+
+      if (shouldShow) {
+        orderedActions.add(
+          _OrderedAction(
+            order: order,
+            widget: SolidScaffoldHelpers.buildThemeToggleButton(
+              themeToggle,
+              currentThemeMode,
+              themeToggleCallback,
+            ),
+          ),
+        );
+      }
+    }
+
+    // Add custom actions from config.
+
+    for (int i = 0; i < config.actions.length; i++) {
+      final action = config.actions[i];
+      final actionId = action.id ?? 'action_$i';
+      final actionConfig = _getActionConfig(actionId);
+      final isVisible = actionConfig?.isVisible ?? true;
+      final isInOverflow = actionConfig?.showInOverflow ?? false;
+      final order = actionConfig?.order ?? (100 + i);
+
+      // Show if: wide screen, or narrow screen with showInOverflow = false.
+
+      final shouldShow = isVisible &&
+          (!isNarrowScreen || !isInOverflow) &&
+          _shouldShowAction(action, config, screenWidth);
 
       if (shouldShow) {
         Widget iconButton = IconButton(
@@ -272,11 +440,106 @@ class SolidScaffoldAppBarBuilder {
           );
         }
 
-        actions.add(iconButton);
+        orderedActions.add(_OrderedAction(order: order, widget: iconButton));
       }
     }
 
-    return actions;
+    // Add preferences button.
+    // Preferences button is always visible (forced true) to ensure user can
+    // always access settings.
+
+    if (showPreferences) {
+      final actionConfig = _getActionConfig(SolidAppBarActionIds.preferences);
+
+      // Force isVisible to true - Preferences button cannot be hidden.
+
+      const isVisible = true;
+      final isInOverflow = actionConfig?.showInOverflow ?? false;
+      final order = actionConfig?.order ?? 910;
+
+      // Show if: wide screen, or narrow screen with showInOverflow = false.
+
+      if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+        orderedActions.add(
+          _OrderedAction(
+            order: order,
+            widget: _buildPreferencesButton(context, config, themeToggle),
+          ),
+        );
+      }
+    }
+
+    // Add overflow items as regular buttons.
+
+    for (int i = 0; i < config.overflowItems.length; i++) {
+      final item = config.overflowItems[i];
+      final actionConfig = _getActionConfig(item.id);
+      final isVisible = actionConfig?.isVisible ?? true;
+      final isInOverflow = actionConfig?.showInOverflow ?? true;
+      final order = actionConfig?.order ?? (200 + i);
+
+      // Show if: wide screen, or narrow screen with showInOverflow = false.
+
+      if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+        Widget iconButton = IconButton(
+          icon: Icon(item.icon),
+          onPressed: item.onSelected,
+        );
+
+        iconButton = MarkdownTooltip(message: item.label, child: iconButton);
+        orderedActions.add(_OrderedAction(order: order, widget: iconButton));
+      }
+    }
+
+    // Add logout button.
+
+    if (onLogout != null) {
+      final actionConfig = _getActionConfig(SolidAppBarActionIds.logout);
+      final isVisible = actionConfig?.isVisible ?? true;
+      final isInOverflow = actionConfig?.showInOverflow ?? false;
+      final order = actionConfig?.order ?? 800;
+
+      // Show if: wide screen, or narrow screen with showInOverflow = false.
+
+      if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+        orderedActions.add(
+          _OrderedAction(
+            order: order,
+            widget: _buildLogoutButton(context, onLogout),
+          ),
+        );
+      }
+    }
+
+    // Add About button.
+
+    if (aboutConfig.enabled &&
+        aboutConfig.shouldShow(
+          screenWidth,
+          config.narrowScreenThreshold,
+          config.veryNarrowScreenThreshold,
+        )) {
+      final actionConfig = _getActionConfig(SolidAppBarActionIds.about);
+      final isVisible = actionConfig?.isVisible ?? true;
+      final isInOverflow = actionConfig?.showInOverflow ?? false;
+      final order = actionConfig?.order ?? 900;
+
+      // Show if: wide screen, or narrow screen with showInOverflow = false.
+
+      if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+        orderedActions.add(
+          _OrderedAction(
+            order: order,
+            widget: SolidAboutButton(config: aboutConfig),
+          ),
+        );
+      }
+    }
+
+    // Sort by order and return widgets.
+
+    orderedActions.sort((a, b) => a.order.compareTo(b.order));
+    return orderedActions.map((a) => a.widget).toList();
   }
 
   /// Determines if an action should be shown based on screen width.
@@ -317,9 +580,9 @@ class SolidScaffoldAppBarBuilder {
         screenWidth >= config.veryNarrowScreenThreshold;
   }
 
-  /// Handles overflow items and about button.
+  /// Handles overflow menu on narrow screens.
 
-  static void _handleOverflowItems(
+  static void _handleOverflowMenu(
     List<Widget> actions,
     SolidAppBarConfig config,
     double screenWidth,
@@ -328,66 +591,126 @@ class SolidScaffoldAppBarBuilder {
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
     BuildContext context, {
-    void Function(BuildContext)? onLogout,
     bool showPreferences = true,
+    void Function(BuildContext)? onLogout,
   }) {
-    final hasOverflowItems = config.overflowItems.isNotEmpty;
-    final hasThemeToggleInOverflow = themeToggle != null &&
-        themeToggle.enabled &&
-        (!themeToggle.showInAppBarActions ||
-            screenWidth < config.veryNarrowScreenThreshold);
+    // Use narrowScreenThreshold to determine when to show overflow menu.
 
-    final hasAboutInOverflow =
-        aboutConfig.enabled && screenWidth < config.veryNarrowScreenThreshold;
+    final isNarrowScreen = screenWidth < config.narrowScreenThreshold;
 
-    final hasPreferencesInOverflow =
-        showPreferences && screenWidth < config.veryNarrowScreenThreshold;
+    // Only show overflow menu on narrow screens.
+    // On wide screens, all buttons are displayed directly in AppBar.
 
-    if (screenWidth < config.veryNarrowScreenThreshold &&
-        (hasOverflowItems ||
-            hasThemeToggleInOverflow ||
-            hasAboutInOverflow ||
-            hasPreferencesInOverflow)) {
-      // Add overflow menu.
+    if (!isNarrowScreen) return;
 
-      actions.add(
-        _buildOverflowMenu(
-          config,
+    actions.add(
+      _buildOverflowMenu(
+        config,
+        themeToggle,
+        currentThemeMode,
+        themeToggleCallback,
+        aboutConfig,
+        _shouldShowThemeToggleInOverflow(
           themeToggle,
-          currentThemeMode,
-          themeToggleCallback,
-          aboutConfig,
-          hasThemeToggleInOverflow,
-          hasAboutInOverflow,
-          context,
-          hasPreferencesInOverflow: hasPreferencesInOverflow,
-        ),
-      );
-    } else if (screenWidth >= config.veryNarrowScreenThreshold) {
-      // Add overflow items as regular buttons.
-
-      actions.addAll(SolidScaffoldHelpers.buildOverflowIconButtons(config));
-    }
-
-    // Add logout button if callback is provided.
-
-    if (onLogout != null) {
-      actions.add(
-        _buildLogoutButton(context, onLogout),
-      );
-    }
-
-    // Add About button if it should be shown.
-
-    if (aboutConfig.enabled &&
-        aboutConfig.shouldShow(
+          config,
           screenWidth,
-          config.narrowScreenThreshold,
-          config.veryNarrowScreenThreshold,
-        ) &&
-        screenWidth >= config.veryNarrowScreenThreshold) {
-      actions.add(SolidAboutButton(config: aboutConfig));
-    }
+          forceOverflow: true,
+        ),
+        _shouldShowAboutInOverflow(
+          aboutConfig,
+          config,
+          screenWidth,
+          forceOverflow: true,
+        ),
+        context,
+        hasPreferencesInOverflow: _shouldShowPreferencesInOverflow(
+          showPreferences,
+          screenWidth,
+          forceOverflow: true,
+        ),
+        hasLogoutInOverflow: _shouldShowLogoutInOverflow(
+          onLogout != null,
+          forceOverflow: true,
+        ),
+        onLogout: onLogout,
+      ),
+    );
+  }
+
+  static bool _shouldShowLogoutInOverflow(
+    bool hasLogout, {
+    bool forceOverflow = false,
+  }) {
+    if (!hasLogout) return false;
+    final actionConfig = _getActionConfig(SolidAppBarActionIds.logout);
+    final isVisible = actionConfig?.isVisible ?? true;
+    if (!isVisible) return false;
+
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
+
+    if (forceOverflow) return isInOverflow;
+    return isInOverflow;
+  }
+
+  static bool _shouldShowThemeToggleInOverflow(
+    SolidThemeToggleConfig? themeToggle,
+    SolidAppBarConfig config,
+    double screenWidth, {
+    bool forceOverflow = false,
+  }) {
+    if (themeToggle == null || !themeToggle.enabled) return false;
+    final actionConfig = _getActionConfig(SolidAppBarActionIds.themeToggle);
+    final isVisible = actionConfig?.isVisible ?? true;
+    if (!isVisible) return false;
+
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
+
+    if (forceOverflow) return isInOverflow;
+    return isInOverflow;
+  }
+
+  static bool _shouldShowAboutInOverflow(
+    SolidAboutConfig aboutConfig,
+    SolidAppBarConfig config,
+    double screenWidth, {
+    bool forceOverflow = false,
+  }) {
+    if (!aboutConfig.enabled) return false;
+    final actionConfig = _getActionConfig(SolidAppBarActionIds.about);
+    final isVisible = actionConfig?.isVisible ?? true;
+    if (!isVisible) return false;
+
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
+
+    if (forceOverflow) return isInOverflow;
+    return isInOverflow;
+  }
+
+  static bool _shouldShowPreferencesInOverflow(
+    bool showPreferences,
+    double screenWidth, {
+    bool forceOverflow = false,
+  }) {
+    if (!showPreferences) return false;
+    final actionConfig = _getActionConfig(SolidAppBarActionIds.preferences);
+    // Preferences button is always visible (forced true).
+
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
+
+    if (forceOverflow) return isInOverflow;
+    return isInOverflow;
   }
 
   /// Builds the logout button.
@@ -406,6 +729,7 @@ class SolidScaffoldAppBarBuilder {
   }
 
   /// Builds the overflow menu.
+  /// Uses Builder to ensure context is valid during callbacks.
 
   static Widget _buildOverflowMenu(
     SolidAppBarConfig config,
@@ -415,8 +739,10 @@ class SolidScaffoldAppBarBuilder {
     SolidAboutConfig aboutConfig,
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow,
-    BuildContext context, {
+    BuildContext parentContext, {
     bool hasPreferencesInOverflow = false,
+    bool hasLogoutInOverflow = false,
+    void Function(BuildContext)? onLogout,
   }) {
     final overflowMenuItems = SolidScaffoldHelpers.buildOverflowMenuItems(
       config,
@@ -426,28 +752,61 @@ class SolidScaffoldAppBarBuilder {
       hasThemeToggleInOverflow,
       hasAboutInOverflow,
       hasPreferencesInOverflow: hasPreferencesInOverflow,
+      hasLogoutInOverflow: hasLogoutInOverflow,
     );
 
-    return PopupMenuButton<String>(
-      onSelected: (String id) {
-        if (id == 'theme_toggle') {
-          themeToggleCallback?.call();
-        } else if (id == 'about') {
-          if (aboutConfig.onPressed != null) {
-            aboutConfig.onPressed!();
-          } else {
-            // Show default About dialogue.
+    // Use Builder to get a valid context for callbacks, preventing
+    // "deactivated widget's ancestor" errors during window resize.
 
-            SolidAbout.show(context, aboutConfig);
-          }
-        } else if (id == 'preferences') {
-          _showPreferencesDialog(context, config, themeToggle);
-        } else {
-          final item = config.overflowItems.firstWhere((item) => item.id == id);
-          item.onSelected();
-        }
+    return Builder(
+      builder: (BuildContext context) {
+        return PopupMenuButton<String>(
+          onSelected: (String id) {
+            // Check if context is still mounted before using it.
+
+            if (!context.mounted) return;
+
+            if (id == 'theme_toggle') {
+              themeToggleCallback?.call();
+            } else if (id == 'about') {
+              if (aboutConfig.onPressed != null) {
+                aboutConfig.onPressed!();
+              } else {
+                // Show default About dialogue.
+
+                SolidAbout.show(context, aboutConfig);
+              }
+            } else if (id == 'preferences') {
+              _showPreferencesDialog(context, config, themeToggle);
+            } else if (id == 'logout') {
+              onLogout?.call(context);
+            } else {
+              final item =
+                  config.overflowItems.firstWhere((item) => item.id == id);
+              item.onSelected();
+            }
+          },
+          itemBuilder: (BuildContext menuContext) => overflowMenuItems,
+        );
       },
-      itemBuilder: (BuildContext context) => overflowMenuItems,
     );
   }
+}
+
+/// Helper class for sorting actions by initial index.
+
+class _ActionEntry {
+  final SolidAppBarActionItem item;
+  final int initialIndex;
+
+  _ActionEntry({required this.item, required this.initialIndex});
+}
+
+/// Helper class for building ordered action widgets.
+
+class _OrderedAction {
+  final int order;
+  final Widget widget;
+
+  _OrderedAction({required this.order, required this.widget});
 }

@@ -190,6 +190,12 @@ class SolidNavUserInfo {
 /// Configuration for an AppBar action button.
 
 class SolidAppBarAction {
+  /// Unique identifier for this action. Used for ordering and visibility
+  /// settings in Preferences. If not provided, an auto-generated ID will be
+  /// used based on the action's position in the list.
+
+  final String? id;
+
   /// The icon to display.
 
   final IconData icon;
@@ -214,13 +220,21 @@ class SolidAppBarAction {
 
   final bool showOnVeryNarrowScreen;
 
+  /// Initial order index for this action. Lower values appear first (leftmost).
+  /// If not specified, the order will be based on the position in the actions
+  /// list. This can be overridden by user preferences.
+
+  final int? initialIndex;
+
   const SolidAppBarAction({
+    this.id,
     required this.icon,
     required this.onPressed,
     this.tooltip,
     this.color,
     this.showOnNarrowScreen = true,
     this.showOnVeryNarrowScreen = true,
+    this.initialIndex,
   });
 }
 

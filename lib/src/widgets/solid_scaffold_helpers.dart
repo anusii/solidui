@@ -142,6 +142,7 @@ class SolidScaffoldHelpers {
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow, {
     bool hasPreferencesInOverflow = false,
+    bool hasLogoutInOverflow = false,
   }) {
     List<PopupMenuItem<String>> overflowMenuItems = [];
 
@@ -195,6 +196,23 @@ class SolidScaffoldHelpers {
               Icon(themeToggle.getNextIcon(currentThemeMode, themeModeConfig)),
               const SizedBox(width: 8),
               Text(labelText),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Add Logout to overflow menu if configured.
+
+    if (hasLogoutInOverflow) {
+      overflowMenuItems.add(
+        const PopupMenuItem<String>(
+          value: 'logout',
+          child: Row(
+            children: [
+              Icon(Icons.logout),
+              SizedBox(width: 8),
+              Text('Logout'),
             ],
           ),
         ),

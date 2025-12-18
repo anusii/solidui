@@ -166,6 +166,28 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     });
   }
 
+  void _onVisibilityChanged(int index, bool? value) {
+    if (value == null) return;
+
+    // Prevent hiding Preferences button (user won't be able to restore it).
+
+    final action = _appBarActions[index];
+    if (action.id == SolidAppBarActionIds.preferences && value == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preferences button cannot be hidden'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _appBarActions[index] =
+          _appBarActions[index].copyWith(isVisible: value);
+    });
+  }
+
   void _onSmartToggleChanged(bool value) {
     setState(() => _smartToggle = value);
   }
@@ -369,13 +391,13 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Drag to reorder buttons. Check the box to move the button '
-              'into the overflow menu on narrow screens:',
+              'Drag to reorder buttons. Use the eye icon to toggle visibility, '
+              'and the menu icon to move to overflow on narrow screens:',
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: _appBarActions.length * 56.0,
+              height: _appBarActions.length * 60.0,
               child: ReorderableListView.builder(
                 shrinkWrap: true,
                 buildDefaultDragHandles: false,
@@ -413,17 +435,81 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
         ),
         title: Row(
           children: [
-            Icon(action.icon, size: 20),
+            Icon(
+              action.icon,
+              size: 20,
+              color: action.isVisible
+                  ? null
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.38),
+            ),
             const SizedBox(width: 8),
-            Expanded(child: Text(action.label)),
+            Expanded(
+              child: Text(
+                action.label,
+                style: action.isVisible
+                    ? null
+                    : TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.38,
+                        ),
+                      ),
+              ),
+            ),
           ],
         ),
-        trailing: Tooltip(
-          message: 'Move to overflow menu on narrow screens',
-          child: Checkbox(
-            value: action.showInOverflow,
-            onChanged: (value) => _onOverflowChanged(index, value),
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Visibility toggle.
+            // Disabled for Preferences button (cannot be hidden).
+
+            if (action.id == SolidAppBarActionIds.preferences)
+              Tooltip(
+                message: 'Preferences button is always visible',
+                child: IconButton(
+                  icon: Icon(
+                    Icons.visibility,
+                    size: 20,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.38),
+                  ),
+                  onPressed: null, // Disabled.
+                ),
+              )
+            else
+              Tooltip(
+                message: action.isVisible ? 'Hide button' : 'Show button',
+                child: IconButton(
+                  icon: Icon(
+                    action.isVisible ? Icons.visibility : Icons.visibility_off,
+                    size: 20,
+                    color: action.isVisible
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.38),
+                  ),
+                  onPressed: () =>
+                      _onVisibilityChanged(index, !action.isVisible),
+                ),
+              ),
+
+            // Overflow toggle.
+
+            Tooltip(
+              message: action.showInOverflow
+                  ? 'Show in AppBar'
+                  : 'Move to overflow menu',
+              child: IconButton(
+                icon: Icon(
+                  action.showInOverflow ? Icons.more_vert : Icons.push_pin,
+                  size: 20,
+                  color: action.showInOverflow
+                      ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
+                      : theme.colorScheme.primary,
+                ),
+                onPressed: () =>
+                    _onOverflowChanged(index, !action.showInOverflow),
+              ),
+            ),
+          ],
         ),
         dense: true,
       ),
