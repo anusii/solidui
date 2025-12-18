@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/widgets/solid_preferences_appearance.dart';
+import 'package:solidui/src/widgets/solid_preferences_button_order.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 
@@ -85,11 +87,6 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     _smartToggle = config.themeModeConfig.smartToggle;
     _appBarActions = List.from(config.appBarActions);
   }
-
-  /// Whether all three modes are enabled.
-
-  bool get _allModesEnabled =>
-      _lightModeEnabled && _darkModeEnabled && _systemModeEnabled;
 
   bool get _isAtLeastOneModeEnabled =>
       _lightModeEnabled || _darkModeEnabled || _systemModeEnabled;
@@ -232,14 +229,28 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
 
               _buildSectionHeader(theme, 'Appearance'),
               const SizedBox(height: 8),
-              _buildAppearanceSection(theme),
+              SolidPreferencesAppearanceSection(
+                lightModeEnabled: _lightModeEnabled,
+                darkModeEnabled: _darkModeEnabled,
+                systemModeEnabled: _systemModeEnabled,
+                smartToggle: _smartToggle,
+                onLightModeChanged: _onLightModeChanged,
+                onDarkModeChanged: _onDarkModeChanged,
+                onSystemModeChanged: _onSystemModeChanged,
+                onSmartToggleChanged: _onSmartToggleChanged,
+              ),
               const SizedBox(height: 24),
 
               // Button Order Section.
 
               _buildSectionHeader(theme, 'Button Order'),
               const SizedBox(height: 8),
-              _buildButtonOrderSection(theme),
+              SolidPreferencesButtonOrderSection(
+                appBarActions: _appBarActions,
+                onReorder: _onReorder,
+                onVisibilityChanged: _onVisibilityChanged,
+                onOverflowChanged: _onOverflowChanged,
+              ),
             ],
           ),
         ),
@@ -262,255 +273,6 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
       title,
       style: theme.textTheme.titleMedium?.copyWith(
         fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  Widget _buildAppearanceSection(ThemeData theme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Select which theme modes to include in the toggle cycle:',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            _buildThemeModeCheckbox(
-              icon: Icons.light_mode,
-              label: 'Light Mode',
-              tooltip: 'Include light mode in theme toggle',
-              value: _lightModeEnabled,
-              onChanged: _onLightModeChanged,
-            ),
-            _buildThemeModeCheckbox(
-              icon: Icons.dark_mode,
-              label: 'Dark Mode',
-              tooltip: 'Include dark mode in theme toggle',
-              value: _darkModeEnabled,
-              onChanged: _onDarkModeChanged,
-            ),
-            _buildThemeModeCheckbox(
-              icon: Icons.brightness_auto,
-              label: 'System Mode',
-              tooltip:
-                  'Include system mode (follows device settings) in theme toggle',
-              value: _systemModeEnabled,
-              onChanged: _onSystemModeChanged,
-            ),
-
-            // Smart toggle switch - only shown when all modes are enabled.
-
-            if (_allModesEnabled) ...[
-              const Divider(height: 24),
-              _buildSmartToggleSwitch(theme),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSmartToggleSwitch(ThemeData theme) {
-    return Tooltip(
-      message: _smartToggle
-          ? 'Adaptive: From System mode, switches to the opposite of '
-              'current system brightness, then cycles between Light and Dark.'
-          : 'Sequential: Cycles through System → Light → Dark → System.',
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Row(
-          children: [
-            Icon(
-              _smartToggle ? Icons.auto_awesome : Icons.swap_horiz,
-              size: 20,
-              color: _smartToggle ? theme.colorScheme.primary : null,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Adaptive Toggle',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-            Transform.scale(
-              scale: 0.85,
-              child: Switch(
-                value: _smartToggle,
-                onChanged: _onSmartToggleChanged,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThemeModeCheckbox({
-    required IconData icon,
-    required String label,
-    required String tooltip,
-    required bool value,
-    required ValueChanged<bool?> onChanged,
-  }) {
-    return Tooltip(
-      message: tooltip,
-      child: CheckboxListTile(
-        secondary: Icon(icon),
-        title: Text(label),
-        value: value,
-        onChanged: onChanged,
-        controlAffinity: ListTileControlAffinity.leading,
-        dense: true,
-      ),
-    );
-  }
-
-  Widget _buildButtonOrderSection(ThemeData theme) {
-    if (_appBarActions.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'No configurable buttons available.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Drag to reorder buttons. Use the eye icon to toggle visibility, '
-              'and the menu icon to move to overflow on narrow screens:',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: _appBarActions.length * 60.0,
-              child: ReorderableListView.builder(
-                shrinkWrap: true,
-                buildDefaultDragHandles: false,
-                itemCount: _appBarActions.length,
-                onReorder: _onReorder,
-                itemBuilder: (context, index) {
-                  final action = _appBarActions[index];
-                  return _buildReorderableItem(
-                    key: ValueKey(action.id),
-                    index: index,
-                    action: action,
-                    theme: theme,
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReorderableItem({
-    required Key key,
-    required int index,
-    required SolidAppBarActionItem action,
-    required ThemeData theme,
-  }) {
-    return Material(
-      key: key,
-      child: ListTile(
-        leading: ReorderableDragStartListener(
-          index: index,
-          child: const Icon(Icons.drag_handle),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              action.icon,
-              size: 20,
-              color: action.isVisible
-                  ? null
-                  : theme.colorScheme.onSurface.withValues(alpha: 0.38),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                action.label,
-                style: action.isVisible
-                    ? null
-                    : TextStyle(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.38,
-                        ),
-                      ),
-              ),
-            ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Visibility toggle.
-            // Disabled for Preferences button (cannot be hidden).
-
-            if (action.id == SolidAppBarActionIds.preferences)
-              Tooltip(
-                message: 'Preferences button is always visible',
-                child: IconButton(
-                  icon: Icon(
-                    Icons.visibility,
-                    size: 20,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.38),
-                  ),
-                  onPressed: null, // Disabled.
-                ),
-              )
-            else
-              Tooltip(
-                message: action.isVisible ? 'Hide button' : 'Show button',
-                child: IconButton(
-                  icon: Icon(
-                    action.isVisible ? Icons.visibility : Icons.visibility_off,
-                    size: 20,
-                    color: action.isVisible
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.38),
-                  ),
-                  onPressed: () =>
-                      _onVisibilityChanged(index, !action.isVisible),
-                ),
-              ),
-
-            // Overflow toggle.
-
-            Tooltip(
-              message: action.showInOverflow
-                  ? 'Show in AppBar'
-                  : 'Move to overflow menu',
-              child: IconButton(
-                icon: Icon(
-                  action.showInOverflow ? Icons.more_vert : Icons.push_pin,
-                  size: 20,
-                  color: action.showInOverflow
-                      ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
-                      : theme.colorScheme.primary,
-                ),
-                onPressed: () =>
-                    _onOverflowChanged(index, !action.showInOverflow),
-              ),
-            ),
-          ],
-        ),
-        dense: true,
       ),
     );
   }
