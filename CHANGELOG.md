@@ -15,7 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
-+ Added version userTextStyle for accessibility [0.0.17 20251612 tonypioneer]
++ Added version userTextStyle for accessibility [0.0.18 20251612 tonypioneer]
 + On startup match THEME with system theme [0.0.17 20251212 tonypioneer]
 + Bug fix for LOADING icon background [0.0.16 20251212 tonypioneer]
 + Add LOGOUT to toolbar [0.0.15 20251212 tonypioneer]
