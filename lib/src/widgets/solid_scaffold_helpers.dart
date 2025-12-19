@@ -36,6 +36,8 @@ import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
@@ -109,27 +111,19 @@ class SolidScaffoldHelpers {
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
   ) {
-    // Determine the tooltip message.
+    // Determine the tooltip message based on enabled modes.
 
+    final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
     String tooltipMessage;
     if (themeConfig.tooltip != null) {
       tooltipMessage = themeConfig.tooltip!;
     } else {
-      switch (currentThemeMode) {
-        case ThemeMode.light:
-          tooltipMessage = themeConfig.lightModeTooltip;
-          break;
-        case ThemeMode.dark:
-          tooltipMessage = themeConfig.darkModeTooltip;
-          break;
-        case ThemeMode.system:
-          tooltipMessage = themeConfig.systemModeTooltip;
-          break;
-      }
+      tooltipMessage =
+          solidThemeNotifier.getTooltipForCurrentMode(themeModeConfig);
     }
 
     Widget themeButton = IconButton(
-      icon: Icon(themeConfig.getNextIcon(currentThemeMode)),
+      icon: Icon(themeConfig.getNextIcon(currentThemeMode, themeModeConfig)),
       onPressed: themeToggleCallback,
     );
 
@@ -140,6 +134,7 @@ class SolidScaffoldHelpers {
   }
 
   /// Builds overflow menu items.
+  /// Dynamically includes all buttons based on preferences configuration.
 
   static List<PopupMenuItem<String>> buildOverflowMenuItems(
     SolidAppBarConfig config,
@@ -147,82 +142,180 @@ class SolidScaffoldHelpers {
     ThemeMode currentThemeMode,
     SolidAboutConfig aboutConfig,
     bool hasThemeToggleInOverflow,
-    bool hasAboutInOverflow,
-  ) {
+    bool hasAboutInOverflow, {
+    bool hasPreferencesInOverflow = false,
+    bool hasLogoutInOverflow = false,
+  }) {
     List<PopupMenuItem<String>> overflowMenuItems = [];
 
-    // Add regular overflow items.
+    // Get all configured actions from preferences, sorted by order.
 
-    overflowMenuItems.addAll(
-      config.overflowItems.where((item) => item.showInOverflow).map(
-            (item) => PopupMenuItem<String>(
-              value: item.id,
+    final allActions =
+        List<SolidAppBarActionItem>.from(solidPreferencesNotifier.appBarActions)
+          ..sort((a, b) => a.order.compareTo(b.order));
+
+    for (final actionItem in allActions) {
+      // Skip if not visible or not marked for overflow.
+
+      if (!actionItem.isVisible || !actionItem.showInOverflow) continue;
+
+      // Handle each action type.
+
+      if (actionItem.id == SolidAppBarActionIds.themeToggle) {
+        // Theme toggle.
+
+        if (hasThemeToggleInOverflow && themeToggle != null) {
+          final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
+          String labelText;
+          switch (currentThemeMode) {
+            case ThemeMode.light:
+              labelText = 'Switch to Dark Mode';
+              break;
+            case ThemeMode.dark:
+              labelText = 'Switch to Light Mode';
+              break;
+            case ThemeMode.system:
+              final systemBrightness = SchedulerBinding
+                  .instance.platformDispatcher.platformBrightness;
+              if (systemBrightness == Brightness.light) {
+                labelText = 'Switch to Dark Mode';
+              } else {
+                labelText = 'Switch to Light Mode';
+              }
+              break;
+          }
+
+          overflowMenuItems.add(
+            PopupMenuItem<String>(
+              value: 'theme_toggle',
               child: Row(
                 children: [
-                  Icon(item.icon),
+                  Icon(
+                    themeToggle.getNextIcon(currentThemeMode, themeModeConfig),
+                  ),
                   const SizedBox(width: 8),
-                  Text(item.label),
+                  Text(labelText),
                 ],
               ),
             ),
-          ),
-    );
+          );
+        }
+      } else if (actionItem.id == SolidAppBarActionIds.logout) {
+        // Logout.
 
-    // Add theme toggle to overflow menu if configured.
+        if (hasLogoutInOverflow) {
+          overflowMenuItems.add(
+            const PopupMenuItem<String>(
+              value: 'logout',
+              child: Row(
+                children: [
+                  Icon(Icons.logout),
+                  SizedBox(width: 8),
+                  Text('Logout'),
+                ],
+              ),
+            ),
+          );
+        }
+      } else if (actionItem.id == SolidAppBarActionIds.preferences) {
+        // Preferences.
 
-    if (hasThemeToggleInOverflow && themeToggle != null) {
-      // Determine the label text.
-      // For system mode, detect the current system brightness and show the
-      // label for the opposite mode.
+        if (hasPreferencesInOverflow) {
+          overflowMenuItems.add(
+            const PopupMenuItem<String>(
+              value: 'preferences',
+              child: Row(
+                children: [
+                  Icon(Icons.tune),
+                  SizedBox(width: 8),
+                  Text('Preferences'),
+                ],
+              ),
+            ),
+          );
+        }
+      } else if (actionItem.id == SolidAppBarActionIds.about) {
+        // About.
 
-      String labelText;
-      switch (currentThemeMode) {
-        case ThemeMode.light:
-          labelText = 'Switch to Dark Mode';
-          break;
-        case ThemeMode.dark:
-          labelText = 'Switch to Light Mode';
-          break;
-        case ThemeMode.system:
-          final systemBrightness =
-              SchedulerBinding.instance.platformDispatcher.platformBrightness;
-          if (systemBrightness == Brightness.light) {
-            labelText = 'Switch to Dark Mode';
-          } else {
-            labelText = 'Switch to Light Mode';
+        if (hasAboutInOverflow) {
+          overflowMenuItems.add(
+            PopupMenuItem<String>(
+              value: 'about',
+              child: Row(
+                children: [
+                  Icon(aboutConfig.effectiveIcon),
+                  const SizedBox(width: 8),
+                  const Text('About'),
+                ],
+              ),
+            ),
+          );
+        }
+      } else if (actionItem.id.startsWith('action_')) {
+        // Custom action from config.actions.
+
+        final actionIndex =
+            int.tryParse(actionItem.id.replaceFirst('action_', ''));
+        if (actionIndex != null && actionIndex < config.actions.length) {
+          final originalAction = config.actions[actionIndex];
+          overflowMenuItems.add(
+            PopupMenuItem<String>(
+              value: actionItem.id,
+              child: Row(
+                children: [
+                  Icon(originalAction.icon),
+                  const SizedBox(width: 8),
+                  Text(actionItem.label),
+                ],
+              ),
+            ),
+          );
+        } else {
+          // Try to find by id match if index doesn't work.
+
+          final originalAction =
+              config.actions.cast<SolidAppBarAction?>().firstWhere(
+                    (a) => a?.id == actionItem.id,
+                    orElse: () => null,
+                  );
+          if (originalAction != null) {
+            overflowMenuItems.add(
+              PopupMenuItem<String>(
+                value: actionItem.id,
+                child: Row(
+                  children: [
+                    Icon(originalAction.icon),
+                    const SizedBox(width: 8),
+                    Text(actionItem.label),
+                  ],
+                ),
+              ),
+            );
           }
-          break;
+        }
+      } else {
+        // Custom overflow item from config.overflowItems.
+
+        final originalItem =
+            config.overflowItems.cast<SolidOverflowMenuItem?>().firstWhere(
+                  (item) => item?.id == actionItem.id,
+                  orElse: () => null,
+                );
+        if (originalItem != null) {
+          overflowMenuItems.add(
+            PopupMenuItem<String>(
+              value: actionItem.id,
+              child: Row(
+                children: [
+                  Icon(originalItem.icon),
+                  const SizedBox(width: 8),
+                  Text(actionItem.label),
+                ],
+              ),
+            ),
+          );
+        }
       }
-
-      overflowMenuItems.add(
-        PopupMenuItem<String>(
-          value: 'theme_toggle',
-          child: Row(
-            children: [
-              Icon(themeToggle.getNextIcon(currentThemeMode)),
-              const SizedBox(width: 8),
-              Text(labelText),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Add About button to overflow menu if configured.
-
-    if (hasAboutInOverflow) {
-      overflowMenuItems.add(
-        PopupMenuItem<String>(
-          value: 'about',
-          child: Row(
-            children: [
-              Icon(aboutConfig.effectiveIcon),
-              const SizedBox(width: 8),
-              const Text('About'),
-            ],
-          ),
-        ),
-      );
     }
 
     return overflowMenuItems;
@@ -359,6 +452,7 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
+    bool showPreferences = true,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -375,6 +469,7 @@ class SolidScaffoldHelpers {
       narrowScreenThreshold,
       hideNavRail: hideNavRail,
       onLogout: onLogout,
+      showPreferences: showPreferences,
     );
   }
 

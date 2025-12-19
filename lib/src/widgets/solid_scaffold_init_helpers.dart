@@ -34,6 +34,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// Helper class for Solid Scaffold initialization.
@@ -53,16 +54,25 @@ class SolidScaffoldInitHelpers {
     return service;
   }
 
-  /// Initialises theme notifier if using internal management.
+  /// Initialises theme notifier and preferences notifier.
+  /// Both notifiers load their state from SharedPreferences on first init.
 
-  static void initializeThemeNotifier(
+  static Future<void> initializeThemeNotifier(
     bool usesInternalManagement,
     VoidCallback onThemeChanged,
-  ) {
+  ) async {
+    // Always initialise preferences notifier first (loads theme mode config).
+
+    if (!solidPreferencesNotifier.isInitialized) {
+      await solidPreferencesNotifier.initialize();
+    }
+
     if (!usesInternalManagement) return;
 
+    // Initialise theme notifier (loads saved theme mode).
+
     if (!solidThemeNotifier.isInitialized) {
-      solidThemeNotifier.initialize();
+      await solidThemeNotifier.initialize();
     }
     solidThemeNotifier.addListener(onThemeChanged);
   }
