@@ -119,6 +119,21 @@ class SolidAppBarActionsManager {
       );
     }
 
+    // Add Preferences button.
+    // Default: show in AppBar, after custom actions but before Logout/About.
+
+    actionEntries.add(
+      _ActionEntry(
+        item: const SolidAppBarActionItem(
+          id: SolidAppBarActionIds.preferences,
+          label: 'Preferences',
+          icon: Icons.tune,
+          showInOverflow: false, // Show in AppBar by default.
+        ),
+        initialIndex: 300, // Preferences after custom/overflow actions.
+      ),
+    );
+
     // Add Logout button.
     // Default: show in AppBar.
 
@@ -130,12 +145,12 @@ class SolidAppBarActionsManager {
           icon: Icons.logout,
           showInOverflow: false, // Show in AppBar by default.
         ),
-        initialIndex: 800, // Logout button before About.
+        initialIndex: 400, // Logout button after Preferences.
       ),
     );
 
     // Add About button.
-    // Default: show in AppBar.
+    // Default: show in AppBar, rightmost position.
 
     actionEntries.add(
       _ActionEntry(
@@ -145,22 +160,7 @@ class SolidAppBarActionsManager {
           icon: Icons.info_outline,
           showInOverflow: false, // Show in AppBar by default.
         ),
-        initialIndex: 900, // About button near the end.
-      ),
-    );
-
-    // Add Preferences button.
-    // Default: show in AppBar.
-
-    actionEntries.add(
-      _ActionEntry(
-        item: const SolidAppBarActionItem(
-          id: SolidAppBarActionIds.preferences,
-          label: 'Preferences',
-          icon: Icons.tune,
-          showInOverflow: false, // Show in AppBar by default.
-        ),
-        initialIndex: 910, // Preferences button at the end.
+        initialIndex: 900, // About button at the rightmost position.
       ),
     );
 

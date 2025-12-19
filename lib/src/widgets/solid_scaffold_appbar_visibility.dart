@@ -59,6 +59,7 @@ class SolidAppBarVisibilityHelper {
     double screenWidth,
   ) {
     if (themeToggle == null || !themeToggle.enabled) return false;
+    if (!themeToggle.showInAppBarActions) return false;
 
     if (!themeToggle.showOnVeryNarrowScreen &&
         screenWidth < config.veryNarrowScreenThreshold) {
@@ -68,7 +69,6 @@ class SolidAppBarVisibilityHelper {
       return false;
     }
 
-    return themeToggle.showInAppBarActions &&
-        screenWidth >= config.veryNarrowScreenThreshold;
+    return true;
   }
 }

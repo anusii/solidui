@@ -200,7 +200,7 @@ class SolidAppBarOrderedActionsBuilder {
 
     const isVisible = true; // Preferences button cannot be hidden.
     final isInOverflow = actionConfig?.showInOverflow ?? false;
-    final order = actionConfig?.order ?? 910;
+    final order = actionConfig?.order ?? 300;
 
     if (isVisible && (!isNarrowScreen || !isInOverflow)) {
       orderedActions.add(
@@ -249,7 +249,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     final isInOverflow = actionConfig?.showInOverflow ?? false;
-    final order = actionConfig?.order ?? 800;
+    final order = actionConfig?.order ?? 400;
 
     if (isVisible && (!isNarrowScreen || !isInOverflow)) {
       orderedActions.add(
