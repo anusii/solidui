@@ -61,6 +61,7 @@ class SolidAuthConfig {
   final String? appDirectory;
 
   /// App image for the default login page.
+
   final AssetImage? appImage;
 
   /// App logo for the default login page.
@@ -126,16 +127,20 @@ class SolidAuthHandler {
       // Merge: keep existing non-null values, fill in missing ones from defaults
       _config = SolidAuthConfig(
         returnTo: _config!.returnTo ?? defaults.returnTo,
-        loginPageBuilder: _config!.loginPageBuilder ?? defaults.loginPageBuilder,
-        defaultServerUrl: _config!.defaultServerUrl ?? defaults.defaultServerUrl,
+        loginPageBuilder:
+            _config!.loginPageBuilder ?? defaults.loginPageBuilder,
+        defaultServerUrl:
+            _config!.defaultServerUrl ?? defaults.defaultServerUrl,
         appTitle: _config!.appTitle ?? defaults.appTitle,
         appDirectory: _config!.appDirectory ?? defaults.appDirectory,
         appImage: _config!.appImage ?? defaults.appImage,
         appLogo: _config!.appLogo ?? defaults.appLogo,
         appLink: _config!.appLink ?? defaults.appLink,
-        loginSuccessWidget: _config!.loginSuccessWidget ?? defaults.loginSuccessWidget,
+        loginSuccessWidget:
+            _config!.loginSuccessWidget ?? defaults.loginSuccessWidget,
         // IMPORTANT: Preserve app's security key reset callback
-        onSecurityKeyReset: _config!.onSecurityKeyReset ?? defaults.onSecurityKeyReset,
+        onSecurityKeyReset:
+            _config!.onSecurityKeyReset ?? defaults.onSecurityKeyReset,
       );
     }
   }

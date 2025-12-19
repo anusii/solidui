@@ -15,6 +15,12 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Improve theme and appbar button preferences [0.0.19 20251219 tonypioneer]
++ Added version userTextStyle for accessibility [0.0.18 20251612 tonypioneer]
++ On startup match THEME with system theme [0.0.17 20251212 tonypioneer]
++ Bug fix for LOADING icon background [0.0.16 20251212 tonypioneer]
++ Add LOGOUT to toolbar [0.0.15 20251212 tonypioneer]
++ Option to hide menu rail [0.0.14 20251210 gjw]
 + Updated dependencies [0.0.13 20251206 gjw]
 + Support navigation to subpages [0.0.12 20251202 tonypioneer]
 + readPod improvements for resource handling [0.0.11 20251202 tonypioneer]

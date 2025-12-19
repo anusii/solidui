@@ -48,6 +48,7 @@ import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_login_panel.dart';
+import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// A widget to login to a Solid server for a user's token to access their POD.
 ///
@@ -158,7 +159,7 @@ class SolidLogin extends StatefulWidget {
   State<SolidLogin> createState() => _SolidLoginState();
 }
 
-class _SolidLoginState extends State<SolidLogin> {
+class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   // This strings will hold the application version number and app name.
   // Initially, it's an empty string because the actual version number
   // will be obtained asynchronously from the app's package information.
@@ -183,12 +184,15 @@ class _SolidLoginState extends State<SolidLogin> {
 
   bool isDarkMode = false;
 
-  // Text controller for the URI of the solid server - should be managed in state
+  // Text controller for the URI of the solid server - should be managed in state.
+
   late TextEditingController _webIdController;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    solidThemeNotifier.addListener(_onThemeChanged);
 
     // Initialize the controller with the widget's webID
     _webIdController = TextEditingController(text: widget.webID);
@@ -199,6 +203,7 @@ class _SolidLoginState extends State<SolidLogin> {
     _autoConfigureSolidAuthHandler();
 
     // dc 20251022: please explain why calling an async without await.
+
     _initPackageInfo();
   }
 
@@ -241,9 +246,33 @@ class _SolidLoginState extends State<SolidLogin> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed
+    // Clean up the controller when the widget is disposed.
+
     _webIdController.dispose();
+    solidThemeNotifier.removeListener(_onThemeChanged);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  // Callback when theme changes from the global notifier.
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {
+        // Determine if dark mode based on ThemeMode.
+
+        final themeMode = solidThemeNotifier.themeMode;
+        if (themeMode == ThemeMode.system) {
+          // Follow system brightness.
+
+          final brightness =
+              WidgetsBinding.instance.platformDispatcher.platformBrightness;
+          isDarkMode = brightness == Brightness.dark;
+        } else {
+          isDarkMode = themeMode == ThemeMode.dark;
+        }
+      });
+    }
   }
 
   // Fetch the package information.
@@ -344,12 +373,11 @@ class _SolidLoginState extends State<SolidLogin> {
     );
   }
 
-  // Toggle between light and dark mode.
+  // Toggle between light and dark mode using the global theme notifier.
+  // This ensures consistency with the rest of the app.
 
   void _toggleTheme() {
-    setState(() {
-      isDarkMode = !isDarkMode;
-    });
+    solidThemeNotifier.toggleTheme();
   }
 
   @override
@@ -452,10 +480,6 @@ class _SolidLoginState extends State<SolidLogin> {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         },
         behavior: HitTestBehavior.deferToChild,
-
-        // TODO 20231228 gjw SOMEONE PLEASE EXPLAIN WHY USING A SafeArea
-        // HERE. WHAT MOTIVATED ITS USE?
-
         child: SafeArea(
           child: DecoratedBox(
             decoration:

@@ -141,12 +141,14 @@ class SolidNavUserInfo {
         }
       }
 
-      // Fallback: try to extract from the last slash in the full URL
+      // Fallback: try to extract from the last slash in the full URL.
+
       final lastSlashIndex = webId.lastIndexOf('/');
       if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
         String candidate = webId.substring(lastSlashIndex + 1);
 
-        // Remove common suffixes
+        // Remove common suffixes.
+
         const suffixes = ['profile', 'card#me', '#me'];
         for (final suffix in suffixes) {
           if (candidate.endsWith(suffix)) {
@@ -190,6 +192,12 @@ class SolidNavUserInfo {
 /// Configuration for an AppBar action button.
 
 class SolidAppBarAction {
+  /// Unique identifier for this action. Used for ordering and visibility
+  /// settings in Preferences. If not provided, an auto-generated ID will be
+  /// used based on the action's position in the list.
+
+  final String? id;
+
   /// The icon to display.
 
   final IconData icon;
@@ -214,13 +222,21 @@ class SolidAppBarAction {
 
   final bool showOnVeryNarrowScreen;
 
+  /// Initial order index for this action. Lower values appear first (leftmost).
+  /// If not specified, the order will be based on the position in the actions
+  /// list. This can be overridden by user preferences.
+
+  final int? initialIndex;
+
   const SolidAppBarAction({
+    this.id,
     required this.icon,
     required this.onPressed,
     this.tooltip,
     this.color,
     this.showOnNarrowScreen = true,
     this.showOnVeryNarrowScreen = true,
+    this.initialIndex,
   });
 }
 
@@ -275,6 +291,12 @@ class SolidVersionConfig {
 
   final String? tooltip;
 
+  /// Custom text style for the version widget. The default text style
+  /// uses color to represent the currency of the app, where blue is
+  /// most recent version, and red is more recent version available.
+
+  final TextStyle? userTextStyle;
+
   /// Creates version configuration.
 
   const SolidVersionConfig({
@@ -282,6 +304,7 @@ class SolidVersionConfig {
     this.changelogUrl,
     this.showDate = true,
     this.tooltip,
+    this.userTextStyle,
   });
 }
 

@@ -33,12 +33,15 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart' show getWebId, checkLoggedIn;
+
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_controller.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_init_helpers.dart';
@@ -240,6 +243,11 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Option to force the navigation rail to be hidden and display a
+  /// hamburger menu button instead.
+
+  final bool hideNavRail;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -281,6 +289,7 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.hideNavRail = false,
   });
 
   @override
@@ -297,6 +306,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   String? _appVersion;
   bool _isVersionLoaded = false;
   bool? _cachedUsesInternalManagement;
+  String? _currentWebId;
 
   @override
   void initState() {
@@ -310,10 +320,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (SolidScaffoldInitHelpers.hasVersionConfig(widget.appBar)) {
       _loadAppVersion();
     }
-    SolidScaffoldInitHelpers.initializeThemeNotifier(
-      _getUsesInternalManagement(),
-      _onThemeChanged,
-    );
+
+    // Initialise theme and preferences notifiers asynchronously.
+
+    _initializeNotifiers();
 
     // Listen to global security key notifier.
 
@@ -321,6 +331,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
       securityKeyNotifier.addListener(_onSecurityKeyNotifierChanged);
       _isKeySaved = securityKeyNotifier.isKeySaved;
     }
+
+    // Listen to preferences notifier for theme mode changes.
+
+    solidPreferencesNotifier.addListener(_onPreferencesChanged);
 
     // Load security key status asynchronously after initialisation.
 
@@ -335,6 +349,52 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (widget.controller != null) {
       widget.controller!.addListener(_onControllerChanged);
     }
+
+    // Load the current webId for navigation drawer user info display.
+
+    _loadCurrentWebId();
+  }
+
+  /// Initialises theme and preferences notifiers asynchronously.
+
+  Future<void> _initializeNotifiers() async {
+    await SolidScaffoldInitHelpers.initializeThemeNotifier(
+      _getUsesInternalManagement(),
+      _onThemeChanged,
+    );
+    if (mounted) setState(() {});
+  }
+
+  /// Loads the current webId from Solid POD authentication state.
+  /// This is used to display user information in the navigation drawer header.
+
+  Future<void> _loadCurrentWebId() async {
+    try {
+      final webId = await getWebId();
+
+      if (webId == null || webId.isEmpty) {
+        if (mounted && _currentWebId != null) {
+          setState(() => _currentWebId = null);
+        }
+        return;
+      }
+
+      // Verify if the user is actually logged in.
+
+      final isLoggedIn = await checkLoggedIn();
+
+      if (mounted) {
+        final newWebId = isLoggedIn ? webId : null;
+        if (_currentWebId != newWebId) {
+          setState(() => _currentWebId = newWebId);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading current webId: $e');
+      if (mounted && _currentWebId != null) {
+        setState(() => _currentWebId = null);
+      }
+    }
   }
 
   @override
@@ -346,10 +406,15 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (widget.statusBar?.securityKeyStatus != null) {
       securityKeyNotifier.removeListener(_onSecurityKeyNotifierChanged);
     }
+    solidPreferencesNotifier.removeListener(_onPreferencesChanged);
     if (widget.controller != null) {
       widget.controller!.removeListener(_onControllerChanged);
     }
     super.dispose();
+  }
+
+  void _onPreferencesChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onControllerChanged() {
@@ -487,6 +552,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   bool _isWideScreen(BuildContext context) =>
+      !widget.hideNavRail &&
       SolidScaffoldHelpers.isWideScreen(context, widget.narrowScreenThreshold);
 
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
@@ -523,6 +589,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
         Future.delayed(const Duration(milliseconds: 300), () {
           securityKeyNotifier.refreshStatus();
+
+          // Also refresh webId status when security key changes.
+
+          _loadCurrentWebId();
         });
         return true;
       },
@@ -540,6 +610,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
         getUsesInternalManagement: _getUsesInternalManagement,
         shouldShowVersion: _shouldShowVersion,
         getVersionToDisplay: _getVersionToDisplay,
+        currentWebId: _currentWebId,
       ),
     );
   }
