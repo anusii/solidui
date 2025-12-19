@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 
 /// Builds the button order section for preferences dialogue.
@@ -172,7 +174,7 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
             // Disabled for Preferences button (cannot be hidden).
 
             if (action.id == SolidAppBarActionIds.preferences)
-              Tooltip(
+              MarkdownTooltip(
                 message: 'Preferences button is always visible',
                 child: IconButton(
                   icon: Icon(
@@ -184,7 +186,7 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
                 ),
               )
             else
-              Tooltip(
+              MarkdownTooltip(
                 message: action.isVisible ? 'Hide button' : 'Show button',
                 child: IconButton(
                   icon: Icon(
@@ -201,7 +203,7 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
 
             // Overflow toggle.
 
-            Tooltip(
+            MarkdownTooltip(
               message: action.showInOverflow
                   ? 'Show in AppBar'
                   : 'Move to overflow menu',

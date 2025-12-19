@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+
 /// Builds the appearance section for preferences dialogue.
 
 class SolidPreferencesAppearanceSection extends StatelessWidget {
@@ -133,7 +135,7 @@ class SolidPreferencesAppearanceSection extends StatelessWidget {
   }
 
   Widget _buildSmartToggleSwitch(ThemeData theme) {
-    return Tooltip(
+    return MarkdownTooltip(
       message: smartToggle
           ? 'Adaptive: From System mode, switches to the opposite of '
               'current system brightness, then cycles between Light and Dark.'
@@ -174,7 +176,7 @@ class SolidPreferencesAppearanceSection extends StatelessWidget {
     required bool value,
     required ValueChanged<bool?> onChanged,
   }) {
-    return Tooltip(
+    return MarkdownTooltip(
       message: tooltip,
       child: CheckboxListTile(
         secondary: Icon(icon),
