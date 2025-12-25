@@ -124,36 +124,20 @@ class FileOperations {
 
       if (!context.mounted) continue;
 
-      // Try to read file metadata using relative path from pod root.
+      // Read file metadata using relative path from pod root.
       // Note: currentPath already contains the full path from pod root
       // (e.g., "healthpod/data/pathology"), so we use relativeToPod to avoid
       // path duplication.
-      
-      // If reading metadata fails (e.g., permission issues or file format),
-      // we still want to show the file in the browser, so we catch exceptions.
 
-      try {
-        final metadata = await readPod(
-          relativePath,
-          pathType: PathType.relativeToPod,
-        );
+      final metadata = await readPod(
+        relativePath,
+        pathType: PathType.relativeToPod,
+      );
 
-        // Add files with successful metadata read.
-        if (metadata != SolidFunctionCallStatus.fail.toString() &&
-            metadata != SolidFunctionCallStatus.notLoggedIn.toString()) {
-          processedFiles.add(
-            FileItem(
-              name: fileName,
-              path: relativePath,
-              dateModified: DateTime.now(),
-            ),
-          );
-        }
-      } catch (e) {
-        // If metadata read fails, still show the file.
-        // This ensures files like places.json are visible even if
-        // there are permission or format issues.
-        debugPrint('Failed to read metadata for $fileName: $e');
+      // Add valid files to the processed list.
+
+      if (metadata != SolidFunctionCallStatus.fail.toString() &&
+          metadata != SolidFunctionCallStatus.notLoggedIn.toString()) {
         processedFiles.add(
           FileItem(
             name: fileName,
