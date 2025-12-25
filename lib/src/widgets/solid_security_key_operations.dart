@@ -35,11 +35,14 @@ import 'package:solidpod/solidpod.dart' show KeyManager;
 /// Helper class for Security Key operations.
 
 class SecurityKeyOperations {
-  /// Checks if a security key exists and is valid.
+  /// Checks if a security key exists locally.
+  /// 
+  /// This performs a fast local check without server validation.
+  /// The key will be validated against the server when actually used.
 
   static Future<bool> checkKeyStatus() async {
     try {
-      final hasKey = await KeyManager.hasSecurityKey();
+      final hasKey = await KeyManager.hasSecurityKeyLocally();
       debugPrint(
         'Security key status check: ${hasKey ? "exists" : "not found"}',
       );
