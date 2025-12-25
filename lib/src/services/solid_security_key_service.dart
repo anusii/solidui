@@ -47,18 +47,14 @@ class SolidSecurityKeyService extends ChangeNotifier {
 
   bool? _lastKnownKeyStatus;
 
-  /// Checks if a security key is currently saved locally.
+  /// Checks if a security key is currently saved.
   ///
-  /// Returns true if a security key exists in local storage, false otherwise.
-  /// This method performs a quick local check without server validation.
+  /// Returns true if a security key exists in memory, false otherwise.
   /// This method handles exceptions gracefully and logs errors for debugging.
-  ///
-  /// Note: This checks local storage only and doesn't verify against server.
-  /// For full validation, the key will be verified when actually used.
 
   Future<bool> isKeySaved() async {
     try {
-      return await KeyManager.hasSecurityKeyLocally();
+      return await KeyManager.hasSecurityKey();
     } catch (e) {
       debugPrint('Error checking security key status: $e');
       return false;
@@ -78,9 +74,9 @@ class SolidSecurityKeyService extends ChangeNotifier {
 
   Future<bool> fetchKeySavedStatus([Function(bool)? onKeyStatusChanged]) async {
     try {
-      // Check if the security key exists locally (fast, no network required).
+      // Check if the security key exists in memory.
 
-      final hasKey = await KeyManager.hasSecurityKeyLocally();
+      final hasKey = await KeyManager.hasSecurityKey();
 
       // Call the callback if provided.
 
@@ -139,22 +135,15 @@ class SolidSecurityKeyService extends ChangeNotifier {
 
   Future<bool> isSecurityKeyNeeded() async {
     try {
-      // First check locally - if key exists, it's not needed to be set.
+      // If key already exists, it's not needed to be set.
 
-      final hasKeyLocally = await KeyManager.hasSecurityKeyLocally();
-      if (hasKeyLocally) return false;
+      final hasKey = await KeyManager.hasSecurityKey();
+      if (hasKey) return false;
 
-      // Check if a verification key exists on server (indicating encryption is used).
-      // This requires network access.
+      // Check if a verification key exists (indicating encryption is used).
 
-      try {
-        final verificationKey = await KeyManager.getVerificationKey();
-        return verificationKey.isNotEmpty;
-      } catch (e) {
-        // If verification key can't be fetched, assume encryption not set up yet
-        debugPrint('Could not fetch verification key: $e');
-        return false;
-      }
+      final verificationKey = await KeyManager.getVerificationKey();
+      return verificationKey.isNotEmpty;
     } catch (e) {
       debugPrint('Error checking if security key is needed: $e');
       return false;
@@ -168,7 +157,7 @@ class SolidSecurityKeyService extends ChangeNotifier {
 
   Future<bool> validateSecurityKeySetup() async {
     try {
-      return await KeyManager.hasSecurityKeyLocally();
+      return await KeyManager.hasSecurityKey();
     } catch (e) {
       debugPrint('Error validating security key setup: $e');
       return false;
