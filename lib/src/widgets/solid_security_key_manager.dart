@@ -257,9 +257,12 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   /// Handles the forgot key reset - deletes all encryption keys and shows new key dialog.
   Future<void> _handleForgotKeyReset() async {
     try {
-      // Delete encryption key files from server
+      // Delete the main encryption key file from server
+      // Other key files (ind-keys, pub-key) will be overwritten by initPodKeys
       final encKeyPath = await getEncKeyPath();
-      await deleteFile(encKeyPath, isKey: true);
+      try {
+        await deleteFile(encKeyPath, isKey: true);
+      } catch (_) {}
 
       // Clear any local key state
       await KeyManager.forgetSecurityKey();
@@ -271,9 +274,14 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         widget.onKeyStatusChanged(false);
       }
 
-      // Show new key dialog
+      // Initialize new keys - this will create fresh encryption keys
       if (mounted) {
-        await _showNewKeyDialog(context);
+        await SecurityKeyOperations.handleNewKeyInit(
+          context,
+          _keyController,
+          _confirmKeyController,
+          () async => _updateKeyStatusAfterSet(),
+        );
       }
     } catch (e) {
       if (mounted) {
