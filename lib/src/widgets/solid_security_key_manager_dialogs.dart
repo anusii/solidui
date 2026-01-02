@@ -101,8 +101,9 @@ class SolidSecurityKeyManagerDialogs {
     BuildContext context,
     TextEditingController keyController,
     Future<void> Function() onKeyRestored,
-    Future<bool> Function(String key) handleRestoreFunction,
-  ) async {
+    Future<bool> Function(String key) handleRestoreFunction, {
+    Future<void> Function()? onForgotKey,
+  }) async {
     keyController.clear();
     bool isLoading = false;
     bool obscureText = true;
@@ -141,15 +142,6 @@ class SolidSecurityKeyManagerDialogs {
                 'access to your encrypted data.',
                 style: TextStyle(fontSize: 13),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                '⚠️ If you forgot your key, your encrypted data cannot be recovered.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.red,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
               const SizedBox(height: 16),
               TextField(
                 controller: keyController,
@@ -166,6 +158,30 @@ class SolidSecurityKeyManagerDialogs {
                 ),
                 enabled: !isLoading,
               ),
+              if (onForgotKey != null) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            Navigator.pop(context);
+                            await _showForgotKeyConfirmation(
+                              context,
+                              onForgotKey,
+                            );
+                          },
+                    child: const Text(
+                      'Forgot Key? Reset All',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           actions: [
@@ -199,6 +215,69 @@ class SolidSecurityKeyManagerDialogs {
         ),
       ),
     );
+  }
+
+  /// Shows confirmation dialog for forgetting/resetting security key.
+  static Future<void> _showForgotKeyConfirmation(
+    BuildContext context,
+    Future<void> Function() onConfirmReset,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Reset Security Key?', style: TextStyle(fontSize: 18)),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '⚠️ This will permanently delete ALL your encrypted data!',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'This action cannot be undone. All files encrypted with your '
+              'old security key will become inaccessible forever.',
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Only proceed if you are sure you want to start fresh with a '
+              'new security key.',
+              style: TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete All & Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await onConfirmReset();
+    }
   }
 
   /// Shows the key file not found dialogue.
