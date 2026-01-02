@@ -106,4 +106,52 @@ class SecurityKeyOperations {
       return false;
     }
   }
+
+  /// Handles restoring/verifying an existing security key.
+  /// This is used when the server has enc-keys.ttl but local storage doesn't.
+  /// Unlike handleKeySubmission, this uses setSecurityKey which VERIFIES
+  /// against the server's verification key instead of overwriting it.
+
+  static Future<bool> handleRestoreKey(
+    String key,
+    void Function(String message) showErrorFunction,
+  ) async {
+    if (key.isEmpty) {
+      showErrorFunction('Please enter your security key');
+      return false;
+    }
+
+    try {
+      // Use setSecurityKey() which verifies against server's verification key.
+      // This will throw if the key doesn't match.
+      await KeyManager.setSecurityKey(key);
+      debugPrint('Security key successfully restored and verified.');
+      return true;
+    } catch (e) {
+      debugPrint('Error restoring security key: $e');
+      String errorMessage = 'Incorrect security key.';
+
+      final errorStr = e.toString().toLowerCase();
+
+      if (errorStr.contains('not logged in') ||
+          errorStr.contains('authentication')) {
+        errorMessage = 'You must be logged in to restore your security key.';
+      } else if (errorStr.contains('network') ||
+          errorStr.contains('connection')) {
+        errorMessage =
+            'Network error. Please check your connection and try again.';
+      } else if (errorStr.contains('verify')) {
+        errorMessage =
+            'Incorrect security key. Please enter the key you originally set.';
+      }
+
+      try {
+        showErrorFunction(errorMessage);
+      } catch (displayError) {
+        debugPrint('Error displaying error message: $displayError');
+      }
+
+      return false;
+    }
+  }
 }

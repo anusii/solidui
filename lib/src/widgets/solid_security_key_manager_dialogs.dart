@@ -94,6 +94,113 @@ class SolidSecurityKeyManagerDialogs {
     );
   }
 
+  /// Shows the restore key dialog for verifying an existing security key.
+  /// Used when server has enc-keys.ttl but local storage doesn't have the key.
+
+  static Future<void> showRestoreKeyDialog(
+    BuildContext context,
+    TextEditingController keyController,
+    Future<void> Function() onKeyRestored,
+    Future<bool> Function(String key) handleRestoreFunction,
+  ) async {
+    keyController.clear();
+    bool isLoading = false;
+    bool obscureText = true;
+
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.key, color: Colors.orange),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Restore Security Key',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your encrypted data was found on the server.',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Please enter the security key you originally set to restore '
+                'access to your encrypted data.',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '⚠️ If you forgot your key, your encrypted data cannot be recovered.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.red,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: keyController,
+                obscureText: obscureText,
+                decoration: InputDecoration(
+                  labelText: 'Security Key',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () => setState(() => obscureText = !obscureText),
+                  ),
+                ),
+                enabled: !isLoading,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      setState(() => isLoading = true);
+                      final success =
+                          await handleRestoreFunction(keyController.text);
+                      if (success) {
+                        if (context.mounted) Navigator.pop(context);
+                        await onKeyRestored();
+                      } else {
+                        setState(() => isLoading = false);
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Restore'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Shows the key file not found dialogue.
 
   static Future<void> showKeyFileNotFoundDialog(

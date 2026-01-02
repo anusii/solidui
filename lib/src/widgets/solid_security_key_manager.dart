@@ -31,7 +31,13 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show KeyManager, deleteFile, getEncKeyPath;
+    show
+        KeyManager,
+        deleteFile,
+        getEncKeyPath,
+        getFileUrl,
+        checkResourceStatus,
+        ResourceStatus;
 
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
@@ -197,7 +203,51 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       );
       return;
     }
+
+    // CRITICAL FIX: Check if server has enc-keys.ttl before showing new key dialog.
+    // If server has keys but local doesn't, user needs to RESTORE key, not create new.
+    // Creating new would overwrite server keys and cause permanent data loss!
+
+    try {
+      final encKeyPath = await getEncKeyPath();
+      final encKeyUrl = await getFileUrl(encKeyPath);
+      final status = await checkResourceStatus(encKeyUrl, isFile: true);
+
+      if (status == ResourceStatus.exist) {
+        // Server has keys - show restore key dialog instead of new key dialog.
+        if (!context.mounted) return;
+        await _showRestoreKeyDialog(context);
+        return;
+      }
+    } catch (e) {
+      debugPrint('Error checking server key status: $e');
+      // On error, fall through to new key dialog (safer default for new users).
+    }
+
+    if (!context.mounted) return;
     return _showNewKeyDialog(context);
+  }
+
+  /// Shows dialog to restore/verify an existing security key.
+  /// Used when server has enc-keys.ttl but local storage doesn't have the key.
+  Future<void> _showRestoreKeyDialog(BuildContext context) async {
+    await SolidSecurityKeyManagerDialogs.showRestoreKeyDialog(
+      context,
+      _keyController,
+      () async {
+        _updateKeyStatusAfterSet();
+      },
+      (key) async {
+        return await SecurityKeyOperations.handleRestoreKey(
+          key,
+          (message) {
+            if (mounted) {
+              SecurityKeyUIHelpers.showErrorSnackBar(this.context, message);
+            }
+          },
+        );
+      },
+    );
   }
 
   Future<void> _showNewKeyDialog(BuildContext context) async {
