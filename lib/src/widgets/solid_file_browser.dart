@@ -159,7 +159,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
       // Check if the user is actually logged in.
 
-      final loggedIn = await checkLoggedIn();
+      final loggedIn = await isUserLoggedIn();
       setState(() {
         isLoggedIn = loggedIn;
       });

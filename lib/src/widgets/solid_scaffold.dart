@@ -33,7 +33,7 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show getWebId, checkLoggedIn;
+import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
@@ -380,7 +380,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
       // Verify if the user is actually logged in.
 
-      final isLoggedIn = await checkLoggedIn();
+      final isLoggedIn = await isUserLoggedIn();
 
       if (mounted) {
         final newWebId = isLoggedIn ? webId : null;
