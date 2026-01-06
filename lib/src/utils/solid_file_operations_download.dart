@@ -96,8 +96,20 @@ class SolidFileDownloadOperations {
 
         // Read file content from POD.
 
+        // dc 20250106: the `basePath` is heavily involved in the file-browsing
+        // codebase, and this leads to a leading forward slash in `filePath`,
+        // e.g., /myapp/encryption/ind-keys.ttl.
+        // This format triggers an error when extracting data from the turtle
+        // content due to double `//` in the subject of triples.
+        // Below is a temporary workaround but a better solution is needed to
+        // fully resolve this issue (e.g., refactor the file-browsing code to
+        // use `PathType` instead of `basePath`).
+
         final fileContent = await readPod(
-          [filePath, fileName].join('/'),
+          [
+            filePath.startsWith('/') ? filePath.substring(1) : filePath,
+            fileName,
+          ].join('/'),
           pathType: pathType ?? PathType.relativeToPod,
         );
 
