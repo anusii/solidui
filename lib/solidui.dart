@@ -95,6 +95,7 @@ export 'src/utils/solid_file_operations.dart';
 export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_pod_helpers.dart'
     show loginIfRequired, getKeyFromUserIfRequired;
+export 'src/utils/solid_notifications.dart';
 
 export 'src/widgets/solid_format_info_card.dart';
 
