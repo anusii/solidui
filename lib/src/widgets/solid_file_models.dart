@@ -36,8 +36,11 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
 class SolidFileConfig {
   /// Base path for file operations.
+  ///
+  /// If null, defaults to the app data directory path (e.g. 'appname/data').
+  /// If the app data directory does not exist, falls back to the pod root.
 
-  final String basePath;
+  final String? basePath;
 
   /// Whether to show the back button.
 
@@ -56,7 +59,7 @@ class SolidFileConfig {
   final double? browserHeight;
 
   const SolidFileConfig({
-    required this.basePath,
+    this.basePath,
     this.showBackButton = true,
     this.backButtonText = 'Back to Home Folder',
     this.forceWideScreen,

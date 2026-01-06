@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart' show getDataDirPath;
+
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_browser_builder.dart';
 import 'package:solidui/src/widgets/solid_file_callbacks.dart';
@@ -43,8 +45,11 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
 class SolidFile extends StatefulWidget {
   /// Base path for file operations.
+  ///
+  /// If null, defaults to the app data directory path (e.g. 'appname/data').
+  /// If the app data directory does not exist, falls back to the pod root ('').
 
-  final String basePath;
+  final String? basePath;
 
   /// Current path in the file browser.
 
@@ -126,7 +131,7 @@ class SolidFile extends StatefulWidget {
 
   const SolidFile({
     super.key,
-    required this.basePath,
+    this.basePath,
     this.currentPath,
     this.friendlyFolderName,
     this.showBackButton = true,
@@ -174,7 +179,11 @@ class SolidFile extends StatefulWidget {
         uploadConfig = state.uploadConfig,
         uploadCallbacks = callbacks.uploadCallbacks,
         uploadState = state.uploadState,
-        autoConfig = false; // Legacy mode does not use auto-config
+        autoConfig = false; // Legacy mode does not use auto-config.
+
+  /// Default base path constant representing the pod root.
+
+  static const String podRoot = '';
 
   @override
   State<SolidFile> createState() => _SolidFileState();
@@ -184,18 +193,74 @@ class _SolidFileState extends State<SolidFile> {
   late GlobalKey<SolidFileBrowserState> _browserKey;
   late String _currentPath;
 
+  /// The resolved base path (either from widget or computed default).
+
+  String? _resolvedBasePath;
+
+  /// Whether the base path is currently being resolved.
+
+  bool _isResolvingBasePath = true;
+
   @override
   void initState() {
     super.initState();
     _browserKey = widget.browserKey ?? GlobalKey<SolidFileBrowserState>();
-    _currentPath = widget.currentPath ?? widget.basePath;
+    _resolveBasePath();
   }
+
+  /// Resolves the base path asynchronously.
+  ///
+  /// If basePath is provided, uses it directly.
+  /// Otherwise, defaults to the app data directory path.
+  /// Falls back to pod root if the app data directory cannot be determined.
+
+  Future<void> _resolveBasePath() async {
+    if (widget.basePath != null) {
+      // Use the provided basePath directly.
+
+      _resolvedBasePath = widget.basePath;
+      _currentPath = widget.currentPath ?? _resolvedBasePath!;
+      setState(() {
+        _isResolvingBasePath = false;
+      });
+      return;
+    }
+
+    // Attempt to get the app data directory path.
+
+    try {
+      final appDataPath = await getDataDirPath();
+      _resolvedBasePath = appDataPath;
+    } catch (e) {
+      // Fall back to pod root if getDataDirPath fails.
+
+      debugPrint('Failed to get app data path, falling back to pod root: $e');
+      _resolvedBasePath = SolidFile.podRoot;
+    }
+
+    _currentPath = widget.currentPath ?? _resolvedBasePath!;
+    setState(() {
+      _isResolvingBasePath = false;
+    });
+  }
+
+  /// Gets the effective base path (resolved or empty string as fallback).
+
+  String get _effectiveBasePath => _resolvedBasePath ?? SolidFile.podRoot;
 
   @override
   void didUpdateWidget(covariant SolidFile oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldPath = oldWidget.currentPath ?? oldWidget.basePath;
-    final newPath = widget.currentPath ?? widget.basePath;
+
+    // Handle basePath changes.
+
+    if (oldWidget.basePath != widget.basePath) {
+      _resolveBasePath();
+      return;
+    }
+
+    final oldPath = oldWidget.currentPath ?? _effectiveBasePath;
+    final newPath = widget.currentPath ?? _effectiveBasePath;
 
     if (oldPath != newPath && newPath != _currentPath) {
       setState(() {
@@ -235,6 +300,21 @@ class _SolidFileState extends State<SolidFile> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading indicator whilst resolving the base path.
+
+    if (_isResolvingBasePath) {
+      return const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 8),
+            Text('Resolving file path...'),
+          ],
+        ),
+      );
+    }
+
     final isWideScreen = SolidFileHelpers.shouldUseWideScreen(
       context,
       widget.forceWideScreen,
@@ -254,15 +334,15 @@ class _SolidFileState extends State<SolidFile> {
             child: TextButton.icon(
               onPressed: widget.onBackPressed ??
                   () {
-                    // Default behavior: reset to base path.
+                    // Default behaviour: reset to base path.
 
                     setState(() {
-                      _currentPath = widget.basePath;
+                      _currentPath = _effectiveBasePath;
                     });
 
                     // Refresh the browser to the base path.
 
-                    _browserKey.currentState?.navigateToPath(widget.basePath);
+                    _browserKey.currentState?.navigateToPath(_effectiveBasePath);
                   },
               icon: const Icon(Icons.home),
               label: Text(widget.backButtonText),
@@ -284,7 +364,7 @@ class _SolidFileState extends State<SolidFile> {
                           uploadConfig:
                               SolidFileHelpers.getEffectiveUploadConfig(
                             _currentPath,
-                            widget.basePath,
+                            _effectiveBasePath,
                             widget.autoConfig,
                             widget.showUpload,
                             widget.uploadConfig,
@@ -301,7 +381,7 @@ class _SolidFileState extends State<SolidFile> {
                           uploadConfig:
                               SolidFileHelpers.getEffectiveUploadConfig(
                             _currentPath,
-                            widget.basePath,
+                            _effectiveBasePath,
                             widget.autoConfig,
                             widget.showUpload,
                             widget.uploadConfig,
@@ -325,10 +405,10 @@ class _SolidFileState extends State<SolidFile> {
   Widget _buildFileBrowser() {
     return SolidFileBrowserBuilder.build(
       browserKey: _browserKey,
-      basePath: widget.basePath,
+      basePath: _effectiveBasePath,
       friendlyFolderName: SolidFileHelpers.getEffectiveFriendlyFolderName(
         _currentPath,
-        widget.basePath,
+        _effectiveBasePath,
         widget.autoConfig,
         widget.friendlyFolderName,
       ),
