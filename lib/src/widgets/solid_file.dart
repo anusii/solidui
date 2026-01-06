@@ -342,7 +342,8 @@ class _SolidFileState extends State<SolidFile> {
 
                     // Refresh the browser to the base path.
 
-                    _browserKey.currentState?.navigateToPath(_effectiveBasePath);
+                    _browserKey.currentState
+                        ?.navigateToPath(_effectiveBasePath);
                   },
               icon: const Icon(Icons.home),
               label: Text(widget.backButtonText),
