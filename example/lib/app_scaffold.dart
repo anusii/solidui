@@ -71,7 +71,7 @@ class AppScaffold extends StatelessWidget {
             **Files:** Tap here to browse the files on your POD.
 
             ''',
-          child: SolidFile(basePath: ''),
+          child: SolidFile(),
         ),
         SolidMenuItem(
           icon: Icons.info,
