@@ -96,7 +96,7 @@ class SolidFileDownloadOperations {
 
         // Read file content from POD.
 
-        // dc 20250106: the `basePath` is heavily involved in the file-browsing
+        // dc 20260107: the `basePath` is heavily involved in the file-browsing
         // codebase, and this leads to a leading forward slash in `filePath`,
         // e.g., /myapp/encryption/ind-keys.ttl.
         // This format triggers an error when extracting data from the turtle
