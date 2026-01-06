@@ -127,7 +127,7 @@ class AppScaffold extends StatelessWidget {
       aboutConfig: SolidAboutConfig(
         applicationName: appTitle.split(' - ')[0],
         applicationIcon: Image.asset(
-          'assets/images/app_icon.png',
+          'assets/images/app_icon.jpg',
           width: 64,
           height: 64,
         ),
