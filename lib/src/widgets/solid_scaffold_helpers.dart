@@ -155,9 +155,11 @@ class SolidScaffoldHelpers {
           ..sort((a, b) => a.order.compareTo(b.order));
 
     for (final actionItem in allActions) {
-      // Skip if not visible or not marked for overflow.
+      // Skip if not visible.
+      // Note: showInOverflow check is handled by hasXxxInOverflow parameters,
+      // which already account for narrow screen behavior.
 
-      if (!actionItem.isVisible || !actionItem.showInOverflow) continue;
+      if (!actionItem.isVisible) continue;
 
       // Handle each action type.
 
