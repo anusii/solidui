@@ -10,15 +10,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  markdown_tooltip: any
-  shared_preferences: ^2.5.3
-  solidpod: 0.8.6
+  markdown_tooltip: 0.0.10
+  shared_preferences: ^2.5.4
+  # solidpod: 0.8.6
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: dc/492_unify_extern_pod
   solidui:
     path: ..
-  window_manager: ^0.4.3
+  window_manager: ^0.5.1
 
 dev_dependencies:
-  flutter_lints: ^3.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

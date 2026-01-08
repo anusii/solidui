@@ -33,7 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidpod/solidpod.dart'
     show
-        checkLoggedIn,
+        isUserLoggedIn,
         getWebId,
         KeyManager,
         verifySecurityKey,
@@ -45,7 +45,7 @@ import 'package:solidui/src/widgets/solid_login_webid_input_dialog.dart';
 /// Login if the user has not done so.
 
 Future<bool> loginIfRequired(BuildContext context) async {
-  final loggedIn = await checkLoggedIn();
+  final loggedIn = await isUserLoggedIn();
   if (!loggedIn && context.mounted) {
     await loginWebIdInputDialog(
       context,
@@ -56,7 +56,7 @@ Future<bool> loginIfRequired(BuildContext context) async {
     //       builder: (context) => const SolidPopupLogin(),
     //     ));
   }
-  return checkLoggedIn();
+  return isUserLoggedIn();
 }
 
 /// Ask for the security key from the user if the security key is not available

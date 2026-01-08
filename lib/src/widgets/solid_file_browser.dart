@@ -159,7 +159,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
       // Check if the user is actually logged in.
 
-      final loggedIn = await checkLoggedIn();
+      final loggedIn = await isUserLoggedIn();
       setState(() {
         isLoggedIn = loggedIn;
       });
@@ -295,8 +295,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   relativePath.split('/').where((s) => s.isNotEmpty);
               var currentBuildPath = widget.basePath;
               for (final segment in segments) {
-                // dc 20251122: the line below adds unnecessary leading `/' when `currentBuildPath' is empty
-                // currentBuildPath = '$currentBuildPath/$segment';
                 currentBuildPath = [currentBuildPath, segment].join('/');
                 pathHistory.add(currentBuildPath);
               }

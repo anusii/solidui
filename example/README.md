@@ -131,7 +131,7 @@ To use this template as a starting point for your own application:
 
 5. **Update theme and branding**:
    - Edit `lib/app.dart` to change color scheme and theme
-   - Replace `assets/images/app_icon.png` and `assets/images/app_image.jpg`
+   - Replace `assets/images/app_icon.jpg` and `assets/images/app_image.jpg`
 
 ## License
 
