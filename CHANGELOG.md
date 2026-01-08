@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Fixed page reload behaviour [0.0.20 20260108 tonypioneer]
 + Drop basePath: requirement from SolidFile() [0.0.20 20260107 tonypioneer]
 + Improve theme and appbar button preferences [0.0.19 20251219 tonypioneer]
 + Added version userTextStyle for accessibility [0.0.18 20251612 tonypioneer]

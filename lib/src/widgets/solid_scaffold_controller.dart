@@ -54,17 +54,35 @@ import 'package:flutter/material.dart';
 
 class SolidScaffoldController extends ChangeNotifier {
   Widget? _currentSubpage;
+  int _navigationVersion = 0;
 
   /// Get the current subpage being displayed.
+  ///
+  /// The subpage is wrapped with a unique key to ensure it is rebuilt
+  /// each time [navigateToSubpage] is called, even for the same page type.
 
-  Widget? get currentSubpage => _currentSubpage;
+  Widget? get currentSubpage {
+    if (_currentSubpage == null) return null;
+
+    // Wrap with KeyedSubtree using the navigation version to force rebuild.
+
+    return KeyedSubtree(
+      key: ValueKey<int>(_navigationVersion),
+      child: _currentSubpage!,
+    );
+  }
 
   /// Navigate to a subpage.
   ///
   /// The subpage will be displayed using bodyOverride, taking precedence
   /// over menu-based navigation.
+  ///
+  /// Each call to this method will force a complete rebuild of the subpage,
+  /// even when navigating to the same page type. This ensures that the page
+  /// state is always refreshed.
 
   void navigateToSubpage(Widget subpage) {
+    _navigationVersion++;
     _currentSubpage = subpage;
     notifyListeners();
   }
