@@ -28,11 +28,7 @@ dependencies:
   path: ^1.9.1
   rdflib: ^0.2.12
   shared_preferences: ^2.5.4
-  # solidpod: ^0.8.7
-  solidpod:
-    git:
-      url: https://github.com/anusii/solidpod.git
-      ref: dc/492_unify_extern_pod
+  solidpod: ^0.8.7
   url_launcher: ^6.3.2
   version_widget: ^1.0.6
 
