@@ -524,15 +524,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   void _onMenuSelected(int index) {
-    // Clear controller's subpage and menu index if using controller.
+    // Clear controller's subpage if using controller.
 
-    if (widget.controller != null) {
-      if (widget.controller!.hasSubpage) {
-        widget.controller!.clearSubpage();
-      }
-      if (widget.controller!.hasMenuIndex) {
-        widget.controller!.clearMenuIndex();
-      }
+    if (widget.controller != null && widget.controller!.hasSubpage) {
+      widget.controller!.clearSubpage();
     }
 
     // Clear bodyOverride automatically if set.
@@ -559,16 +554,41 @@ class SolidScaffoldState extends State<SolidScaffold> {
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
 
   /// Returns the currently selected menu index.
-  /// Returns null when controller's selectedMenuIndex is -1 (no selection).
 
   int? get _currentSelectedIndex {
-    final controllerIndex = widget.controller?.selectedMenuIndex;
+    // Check if controller has a subpage that matches a menu item.
 
-    if (controllerIndex == -1) {
+    final subpage = widget.controller?.rawSubpage;
+    if (subpage != null && widget.menu != null) {
+      final matchingIndex = _findMatchingMenuIndex(subpage);
+      if (matchingIndex != null) {
+        return matchingIndex;
+      }
+
+      // Subpage exists but doesn't match any menu item - no highlight.
+
       return null;
     }
 
-    return controllerIndex ?? widget.selectedIndex ?? _selectedIndex;
+    return widget.selectedIndex ?? _selectedIndex;
+  }
+
+  /// Finds the menu index whose child widget type matches the given subpage.
+  /// Returns null if no match is found.
+
+  int? _findMatchingMenuIndex(Widget subpage) {
+    if (widget.menu == null) return null;
+
+    final subpageType = subpage.runtimeType;
+
+    for (int i = 0; i < widget.menu!.length; i++) {
+      final menuChild = widget.menu![i].child;
+      if (menuChild != null && menuChild.runtimeType == subpageType) {
+        return i;
+      }
+    }
+
+    return null;
   }
 
   @override
