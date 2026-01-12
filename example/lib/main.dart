@@ -30,9 +30,12 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart' show KeyManager, setAppDirName;
+import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'app.dart';
+import 'app_scaffold.dart';
 import 'constants/app.dart';
 import 'utils/is_desktop.dart';
 
@@ -40,6 +43,25 @@ import 'utils/is_desktop.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // CRITICAL: Set app directory name BEFORE any Pod operations
+  await setAppDirName('myapp');
+
+  // Configure SolidAuthHandler with app-specific settings
+  SolidAuthHandler.instance.configure(
+    SolidAuthConfig(
+      appTitle: appTitle,
+      appDirectory: 'myapp',
+      defaultServerUrl: 'https://pods.solidcommunity.au',
+      appImage: const AssetImage('assets/images/app_image.jpg'),
+      appLogo: const AssetImage('assets/images/app_icon.jpg'),
+      loginSuccessWidget: appScaffold,
+      onSecurityKeyReset: () async {
+        await KeyManager.clear();
+        debugPrint('MyApp: Security key cleared on logout');
+      },
+    ),
+  );
 
   // Set window options for desktop platforms (Windows, Linux, macOS).
 
