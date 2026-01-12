@@ -556,14 +556,11 @@ class SolidScaffoldState extends State<SolidScaffold> {
   /// Returns the currently selected menu index.
 
   int? get _currentSelectedIndex {
-    // Check if controller has a subpage that matches a menu item.
-
     final subpage = widget.controller?.rawSubpage;
     if (subpage != null && widget.menu != null) {
-      final matchingIndex = _findMatchingMenuIndex(subpage);
-      if (matchingIndex != null) {
-        return matchingIndex;
-      }
+      final matchingIndex =
+          SolidScaffoldHelpers.findMatchingMenuIndex(subpage, widget.menu);
+      if (matchingIndex != null) return matchingIndex;
 
       // Subpage exists but doesn't match any menu item - no highlight.
 
@@ -571,24 +568,6 @@ class SolidScaffoldState extends State<SolidScaffold> {
     }
 
     return widget.selectedIndex ?? _selectedIndex;
-  }
-
-  /// Finds the menu index whose child widget type matches the given subpage.
-  /// Returns null if no match is found.
-
-  int? _findMatchingMenuIndex(Widget subpage) {
-    if (widget.menu == null) return null;
-
-    final subpageType = subpage.runtimeType;
-
-    for (int i = 0; i < widget.menu!.length; i++) {
-      final menuChild = widget.menu![i].child;
-      if (menuChild != null && menuChild.runtimeType == subpageType) {
-        return i;
-      }
-    }
-
-    return null;
   }
 
   @override
