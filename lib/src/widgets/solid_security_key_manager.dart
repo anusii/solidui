@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart'
+import 'package:solidpod/solidpod.dart' as solidpod
     show
         KeyManager,
         deleteFile,
@@ -209,11 +209,11 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     // Creating new would overwrite server keys and cause permanent data loss!
 
     try {
-      final encKeyPath = await getEncKeyPath();
-      final encKeyUrl = await getFileUrl(encKeyPath);
-      final status = await checkResourceStatus(encKeyUrl, isFile: true);
+      final encKeyPath = await solidpod.getEncKeyPath();
+      final encKeyUrl = await solidpod.getFileUrl(encKeyPath);
+      final status = await solidpod.checkResourceStatus(encKeyUrl, isFile: true);
 
-      if (status == ResourceStatus.exist) {
+      if (status == solidpod.ResourceStatus.exist) {
         // Server has keys - show restore key dialog instead of new key dialog.
         if (!context.mounted) return;
         await _showRestoreKeyDialog(context);
@@ -303,7 +303,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       'The security key file could not be found. '
           'Would you like to set a new security key?',
     );
-    await KeyManager.forgetSecurityKey();
+    await solidpod.KeyManager.forgetSecurityKey();
     await _checkKeyStatus();
     if (context.mounted) {
       await _showKeyInputDialog(context);
@@ -337,14 +337,14 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     try {
       // Clear the key from memory.
 
-      await KeyManager.forgetSecurityKey();
+      await solidpod.KeyManager.forgetSecurityKey();
 
       // Delete the key file from POD.
       // IMPORTANT: Use isKey: true to skip permission revocation
       // because encryption files are NOT in the data directory
 
-      final encKeyPath = await getEncKeyPath();
-      await deleteFile(encKeyPath, isKey: true);
+      final encKeyPath = await solidpod.getEncKeyPath();
+      await solidpod.deleteFile(encKeyPath, isKey: true);
 
       success = true;
       msg = 'Successfully forgot local security key.';

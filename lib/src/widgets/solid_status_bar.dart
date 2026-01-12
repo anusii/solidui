@@ -32,10 +32,9 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show getWebId;
-
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:solidpod/solidpod.dart' show getWebId;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
