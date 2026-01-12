@@ -178,11 +178,28 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   Map<dynamic, dynamic> defaultFiles = {};
 
+  // Focus nodes for keyboard navigation.
+  // Tab order: login -> continue -> register -> info -> server input.
+
+  late final FocusNode _loginFocusNode;
+  late final FocusNode _continueFocusNode;
+  late final FocusNode _registerFocusNode;
+  late final FocusNode _infoFocusNode;
+  late final FocusNode _serverInputFocusNode;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     solidThemeNotifier.addListener(_onThemeChanged);
+
+    // Initialise focus nodes for keyboard navigation.
+
+    _loginFocusNode = FocusNode(debugLabel: 'loginButton');
+    _continueFocusNode = FocusNode(debugLabel: 'continueButton');
+    _registerFocusNode = FocusNode(debugLabel: 'registerButton');
+    _infoFocusNode = FocusNode(debugLabel: 'infoButton');
+    _serverInputFocusNode = FocusNode(debugLabel: 'serverInput');
 
     // dc 20251022: please explain why calling an async without await.
     _initPackageInfo();
@@ -192,6 +209,15 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     solidThemeNotifier.removeListener(_onThemeChanged);
+
+    // Dispose focus nodes to avoid memory leaks.
+
+    _loginFocusNode.dispose();
+    _continueFocusNode.dispose();
+    _registerFocusNode.dispose();
+    _infoFocusNode.dispose();
+    _serverInputFocusNode.dispose();
+
     super.dispose();
   }
 
@@ -356,46 +382,63 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // Build all buttons using the button builder.
     // User input from text field will override the default server URL.
 
-    final registerButton = SolidLoginButtons.buildRegisterButton(
-      style: widget.registerButtonStyle,
-      onPressed: () {
-        final webId = webIdController.text.trim().isNotEmpty
-            ? webIdController.text.trim()
-            : SolidConfig.defaultServerUrl;
-        launchUrl(Uri.parse('$webId/.account/login/password/register/'));
-      },
+    final registerButton = FocusTraversalOrder(
+      order: const NumericFocusOrder(3),
+      child: SolidLoginButtons.buildRegisterButton(
+        style: widget.registerButtonStyle,
+        onPressed: () {
+          final webId = webIdController.text.trim().isNotEmpty
+              ? webIdController.text.trim()
+              : SolidConfig.defaultServerUrl;
+          launchUrl(Uri.parse('$webId/.account/login/password/register/'));
+        },
+        focusNode: _registerFocusNode,
+      ),
     );
 
-    final loginButton = SolidLoginButtons.buildLoginButton(
-      style: widget.loginButtonStyle,
-      onPressed: () async {
-        final podServer = webIdController.text.trim().isNotEmpty
-            ? webIdController.text.trim()
-            : SolidConfig.defaultServerUrl;
+    final loginButton = FocusTraversalOrder(
+      order: const NumericFocusOrder(1),
+      child: SolidLoginButtons.buildLoginButton(
+        style: widget.loginButtonStyle,
+        onPressed: () async {
+          final podServer = webIdController.text.trim().isNotEmpty
+              ? webIdController.text.trim()
+              : SolidConfig.defaultServerUrl;
 
-        isDialogCanceled = false;
-        await SolidLoginAuthHandler.handleLogin(
-          context: context,
-          podServer: podServer,
-          defaultFolders: defaultFolders,
-          defaultFiles: defaultFiles,
-          originalLoginWidget: widget,
-          childWidget: widget.child,
-          isDialogCanceled: isDialogCanceled,
-          updateDialogCanceledState: updateState,
-          showSnackbar: _showSnackbar,
-        );
-      },
+          isDialogCanceled = false;
+          await SolidLoginAuthHandler.handleLogin(
+            context: context,
+            podServer: podServer,
+            defaultFolders: defaultFolders,
+            defaultFiles: defaultFiles,
+            originalLoginWidget: widget,
+            childWidget: widget.child,
+            isDialogCanceled: isDialogCanceled,
+            updateDialogCanceledState: updateState,
+            showSnackbar: _showSnackbar,
+          );
+        },
+        focusNode: _loginFocusNode,
+        autofocus: true,
+      ),
     );
 
-    final continueButton = SolidLoginButtons.buildContinueButton(
-      style: widget.continueButtonStyle,
-      onPressed: () async => await pushReplacement(context, widget.child),
+    final continueButton = FocusTraversalOrder(
+      order: const NumericFocusOrder(2),
+      child: SolidLoginButtons.buildContinueButton(
+        style: widget.continueButtonStyle,
+        onPressed: () async => await pushReplacement(context, widget.child),
+        focusNode: _continueFocusNode,
+      ),
     );
 
-    final infoButton = SolidLoginButtons.buildInfoButton(
-      style: widget.infoButtonStyle,
-      link: widget.link,
+    final infoButton = FocusTraversalOrder(
+      order: const NumericFocusOrder(4),
+      child: SolidLoginButtons.buildInfoButton(
+        style: widget.infoButtonStyle,
+        link: widget.link,
+        focusNode: _infoFocusNode,
+      ),
     );
 
     // Build the login panel content.
@@ -412,6 +455,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       infoButton: infoButton,
       isRequired: widget.required,
       currentTheme: currentTheme,
+      serverInputFocusNode: _serverInputFocusNode,
     );
 
     // Add theme toggle to the panel.
@@ -431,27 +475,32 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     );
 
     // Build and return the final Scaffold.
+    // Wrap with FocusTraversalGroup to enable ordered keyboard navigation.
 
     return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
-        behavior: HitTestBehavior.deferToChild,
-        child: SafeArea(
-          child: DecoratedBox(
-            decoration:
-                isNarrowScreen(context) ? loginBoxDecor : const BoxDecoration(),
-            child: Row(
-              children: [
-                isNarrowScreen(context)
-                    ? Container()
-                    : Expanded(
-                        flex: 7,
-                        child: Container(decoration: loginBoxDecor),
-                      ),
-                Expanded(flex: 5, child: loginPanel),
-              ],
+      body: FocusTraversalGroup(
+        policy: OrderedTraversalPolicy(),
+        child: GestureDetector(
+          onTap: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+          behavior: HitTestBehavior.deferToChild,
+          child: SafeArea(
+            child: DecoratedBox(
+              decoration: isNarrowScreen(context)
+                  ? loginBoxDecor
+                  : const BoxDecoration(),
+              child: Row(
+                children: [
+                  isNarrowScreen(context)
+                      ? Container()
+                      : Expanded(
+                          flex: 7,
+                          child: Container(decoration: loginBoxDecor),
+                        ),
+                  Expanded(flex: 5, child: loginPanel),
+                ],
+              ),
             ),
           ),
         ),

@@ -45,6 +45,7 @@ class SolidLoginButtons {
   static Widget buildRegisterButton({
     required RegisterButtonStyle style,
     required VoidCallback onPressed,
+    FocusNode? focusNode,
   }) {
     return PodButton(
       text: style.text,
@@ -52,6 +53,7 @@ class SolidLoginButtons {
       foreground: style.foreground,
       tooltip: style.tooltip,
       onPressed: onPressed,
+      focusNode: focusNode,
     );
   }
 
@@ -60,6 +62,8 @@ class SolidLoginButtons {
   static Widget buildLoginButton({
     required LoginButtonStyle style,
     required VoidCallback onPressed,
+    FocusNode? focusNode,
+    bool autofocus = false,
   }) {
     return PodButton(
       text: style.text,
@@ -67,6 +71,8 @@ class SolidLoginButtons {
       foreground: style.foreground,
       tooltip: style.tooltip,
       onPressed: onPressed,
+      focusNode: focusNode,
+      autofocus: autofocus,
     );
   }
 
@@ -75,6 +81,7 @@ class SolidLoginButtons {
   static Widget buildContinueButton({
     required ContinueButtonStyle style,
     required VoidCallback onPressed,
+    FocusNode? focusNode,
   }) {
     return PodButton(
       text: style.text,
@@ -82,6 +89,7 @@ class SolidLoginButtons {
       foreground: style.foreground,
       tooltip: style.tooltip,
       onPressed: onPressed,
+      focusNode: focusNode,
     );
   }
 
@@ -90,6 +98,7 @@ class SolidLoginButtons {
   static Widget buildInfoButton({
     required InfoButtonStyle style,
     required String link,
+    FocusNode? focusNode,
   }) {
     return PodButton(
       text: style.text,
@@ -97,6 +106,7 @@ class SolidLoginButtons {
       foreground: style.foreground,
       tooltip: style.tooltip,
       onPressed: () => launchUrl(Uri.parse(link)),
+      focusNode: focusNode,
     );
   }
 }
