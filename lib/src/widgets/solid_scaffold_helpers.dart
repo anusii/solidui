@@ -356,7 +356,7 @@ class SolidScaffoldHelpers {
 
   static Widget? getEffectiveChild(
     List<SolidMenuItem>? menu,
-    int currentSelectedIndex,
+    int? currentSelectedIndex,
     Widget? child,
     Widget? body,
     Widget? bodyOverride,
@@ -368,8 +368,10 @@ class SolidScaffoldHelpers {
     }
 
     // Second priority: menu-based navigation.
+    // When currentSelectedIndex is null, no menu item is selected.
 
     if (menu != null &&
+        currentSelectedIndex != null &&
         currentSelectedIndex < menu.length &&
         currentSelectedIndex >= 0) {
       return menu[currentSelectedIndex].child;

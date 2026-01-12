@@ -524,10 +524,15 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   void _onMenuSelected(int index) {
-    // Clear controller's subpage if using controller.
+    // Clear controller's subpage and menu index if using controller.
 
-    if (widget.controller != null && widget.controller!.hasSubpage) {
-      widget.controller!.clearSubpage();
+    if (widget.controller != null) {
+      if (widget.controller!.hasSubpage) {
+        widget.controller!.clearSubpage();
+      }
+      if (widget.controller!.hasMenuIndex) {
+        widget.controller!.clearMenuIndex();
+      }
     }
 
     // Clear bodyOverride automatically if set.
@@ -553,7 +558,18 @@ class SolidScaffoldState extends State<SolidScaffold> {
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
 
-  int get _currentSelectedIndex => widget.selectedIndex ?? _selectedIndex;
+  /// Returns the currently selected menu index.
+  /// Returns null when controller's selectedMenuIndex is -1 (no selection).
+
+  int? get _currentSelectedIndex {
+    final controllerIndex = widget.controller?.selectedMenuIndex;
+
+    if (controllerIndex == -1) {
+      return null;
+    }
+
+    return controllerIndex ?? widget.selectedIndex ?? _selectedIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
