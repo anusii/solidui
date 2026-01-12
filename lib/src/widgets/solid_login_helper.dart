@@ -65,7 +65,7 @@ const Color defaultButtonForeground = Colors.black;
 
 const Color registerButtonBackground = defaultButtonBackground;
 const Color registerButtonForeground = defaultButtonForeground;
-const Color loginButtonBackground = defaultButtonBackground;
+const Color loginButtonBackground = Colors.lightGreenAccent;
 const Color loginButtonForeground = defaultButtonForeground;
 
 const String defaultLoginButtonText = 'Login';
