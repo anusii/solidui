@@ -15,6 +15,9 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Updated solidpod dependency - writePod() #155 [0.0.22 dc]
++ Fixed page reload behaviour #158 [0.0.21 20260108 tonypioneer]
++ Drop basePath: requirement from SolidFile() [0.0.20 20260107 tonypioneer]
 + Improve theme and appbar button preferences [0.0.19 20251219 tonypioneer]
 + Added version userTextStyle for accessibility [0.0.18 20251612 tonypioneer]
 + On startup match THEME with system theme [0.0.17 20251212 tonypioneer]

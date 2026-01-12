@@ -36,7 +36,7 @@ import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show checkLoggedIn, solidAuthenticate, initialStructureTest;
+    show isUserLoggedIn, solidAuthenticate, initialStructureTest;
 
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
@@ -74,7 +74,7 @@ class SolidLoginAuthHandler {
 
     // Check if user is already logged in before attempting authentication.
 
-    final wasAlreadyLoggedIn = await checkLoggedIn();
+    final wasAlreadyLoggedIn = await isUserLoggedIn();
 
     if (!context.mounted) return false;
 

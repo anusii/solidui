@@ -55,10 +55,28 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   SolidPreferencesConfig _config;
   bool _isInitialized = false;
 
+  /// Default AppBar actions provided by the application.
+  /// Used to look up icon definitions when loading from storage.
+
+  List<SolidAppBarActionItem> _defaultAppBarActions;
+
+  /// Cached JSON for deferred loading of AppBar actions.
+  /// Stored when initialize() is called before defaults are set.
+
+  String? _pendingActionsJson;
+
   /// Creates a new SolidPreferencesNotifier with optional initial configuration.
 
   SolidPreferencesNotifier([SolidPreferencesConfig? initialConfig])
-      : _config = initialConfig ?? const SolidPreferencesConfig();
+      : _config = initialConfig ?? const SolidPreferencesConfig(),
+        _defaultAppBarActions = initialConfig?.appBarActions ?? const [];
+
+  /// Sets the default AppBar actions.
+  /// These are used to look up icon definitions when loading from storage.
+
+  void setDefaultAppBarActions(List<SolidAppBarActionItem> actions) {
+    _defaultAppBarActions = actions;
+  }
 
   /// Whether the notifier has been initialised from SharedPreferences.
 
@@ -102,18 +120,24 @@ class SolidPreferencesNotifier extends ChangeNotifier {
       );
 
       // Load AppBar actions if stored.
+      // Cache the JSON for deferred loading if defaults are not yet set.
 
       List<SolidAppBarActionItem> appBarActions = [];
       final actionsJson = prefs.getString(_PreferencesKeys.appBarActions);
       if (actionsJson != null) {
-        try {
-          final List<dynamic> actionsList = jsonDecode(actionsJson);
-          appBarActions = actionsList
-              .map((json) => _appBarActionItemFromJson(json))
-              .toList();
-        } catch (e) {
-          debugPrint('Error parsing stored AppBar actions: $e');
+        if (_defaultAppBarActions.isNotEmpty) {
+          appBarActions = _parseActionsJson(actionsJson);
+        } else {
+          // Cache for later when defaults are set.
+
+          _pendingActionsJson = actionsJson;
         }
+      }
+
+      // If no stored actions, use defaults.
+
+      if (appBarActions.isEmpty && _defaultAppBarActions.isNotEmpty) {
+        appBarActions = List.from(_defaultAppBarActions);
       }
 
       _config = SolidPreferencesConfig(
@@ -188,11 +212,106 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   }
 
   /// Updates the AppBar action items.
+  /// Also updates the default actions for icon lookups during deserialisation.
 
   void setAppBarActions(List<SolidAppBarActionItem> actions) {
+    // Update default actions to capture icon definitions.
+
+    if (actions.isNotEmpty) {
+      _updateDefaultActions(actions);
+    }
+
+    // Check for pending JSON that can now be parsed.
+
+    if (_pendingActionsJson != null && _defaultAppBarActions.isNotEmpty) {
+      final restoredActions = _parseActionsJson(_pendingActionsJson!);
+      _pendingActionsJson = null;
+      if (restoredActions.isNotEmpty) {
+        // Merge restored settings with new actions.
+
+        final mergedActions = _mergeRestoredActions(restoredActions, actions);
+        _config = _config.copyWith(appBarActions: mergedActions);
+        _saveAppBarActions();
+        notifyListeners();
+        return;
+      }
+    }
+
     _config = _config.copyWith(appBarActions: actions);
     _saveAppBarActions();
     notifyListeners();
+  }
+
+  /// Merges restored actions with new actions.
+  /// Restored actions take precedence for order and visibility settings.
+
+  List<SolidAppBarActionItem> _mergeRestoredActions(
+    List<SolidAppBarActionItem> restored,
+    List<SolidAppBarActionItem> newActions,
+  ) {
+    final restoredById = {for (var a in restored) a.id: a};
+    final result = <SolidAppBarActionItem>[];
+
+    for (final action in newActions) {
+      final restoredAction = restoredById[action.id];
+      if (restoredAction != null) {
+        // Use restored settings but keep the icon from new actions.
+
+        result.add(
+          action.copyWith(
+            showInOverflow: restoredAction.showInOverflow,
+            isVisible: restoredAction.isVisible,
+            order: restoredAction.order,
+          ),
+        );
+      } else {
+        result.add(action);
+      }
+    }
+
+    // Sort by order.
+
+    result.sort((a, b) => a.order.compareTo(b.order));
+    return result;
+  }
+
+  /// Updates the default actions map with icon definitions from the given list.
+
+  void _updateDefaultActions(List<SolidAppBarActionItem> actions) {
+    final defaultIds = _defaultAppBarActions.map((a) => a.id).toSet();
+    final newDefaults = <SolidAppBarActionItem>[];
+
+    // Keep existing defaults.
+
+    newDefaults.addAll(_defaultAppBarActions);
+
+    // Add any new actions not already in defaults.
+
+    for (final action in actions) {
+      if (!defaultIds.contains(action.id)) {
+        newDefaults.add(action);
+        defaultIds.add(action.id);
+      }
+    }
+
+    _defaultAppBarActions = newDefaults;
+  }
+
+  /// Parses stored actions JSON into a list of action items.
+
+  List<SolidAppBarActionItem> _parseActionsJson(String actionsJson) {
+    try {
+      final List<dynamic> actionsList = jsonDecode(actionsJson);
+      return actionsList
+          .map(
+            (json) => _appBarActionItemFromJson(json as Map<String, dynamic>),
+          )
+          .whereType<SolidAppBarActionItem>()
+          .toList();
+    } catch (e) {
+      debugPrint('Error parsing stored AppBar actions: $e');
+      return [];
+    }
   }
 
   /// Reorders an action item from one position to another.
@@ -303,12 +422,12 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   }
 
   /// Converts an AppBarActionItem to JSON.
+  /// Icons are looked up from default actions by ID when loading.
 
   Map<String, dynamic> _appBarActionItemToJson(SolidAppBarActionItem item) {
     return {
       'id': item.id,
       'label': item.label,
-      'icon': item.icon.codePoint,
       'showInOverflow': item.showInOverflow,
       'isVisible': item.isVisible,
       'order': item.order,
@@ -316,12 +435,26 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   }
 
   /// Creates an AppBarActionItem from JSON.
+  /// Looks up the icon from default actions to avoid runtime IconData creation.
 
-  SolidAppBarActionItem _appBarActionItemFromJson(Map<String, dynamic> json) {
+  SolidAppBarActionItem? _appBarActionItemFromJson(Map<String, dynamic> json) {
+    final id = json['id'] as String;
+
+    // Find the default action to get the icon.
+
+    final defaultAction =
+        _defaultAppBarActions.where((action) => action.id == id).firstOrNull;
+
+    if (defaultAction == null) {
+      // Action no longer exists in defaults, skip it.
+
+      return null;
+    }
+
     return SolidAppBarActionItem(
-      id: json['id'] as String,
-      label: json['label'] as String,
-      icon: IconData(json['icon'] as int, fontFamily: 'MaterialIcons'),
+      id: id,
+      label: json['label'] as String? ?? defaultAction.label,
+      icon: defaultAction.icon,
       showInOverflow: json['showInOverflow'] as bool? ?? false,
       isVisible: json['isVisible'] as bool? ?? true,
       order: json['order'] as int? ?? 0,

@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show getWebId, checkLoggedIn;
+import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
 
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
@@ -113,7 +113,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
 
       // Verify if the user is actually logged in.
 
-      final isLoggedIn = await checkLoggedIn();
+      final isLoggedIn = await isUserLoggedIn();
 
       setState(() {
         _currentWebId = isLoggedIn ? webId : null;

@@ -55,7 +55,7 @@ class App extends StatelessWidget {
 
       home: const SolidLogin(
         image: AssetImage('assets/images/app_image.jpg'),
-        logo: AssetImage('assets/images/app_icon.png'),
+        logo: AssetImage('assets/images/app_icon.jpg'),
         child: appScaffold,
       ),
     );

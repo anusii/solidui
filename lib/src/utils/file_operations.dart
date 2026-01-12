@@ -118,8 +118,6 @@ class FileOperations {
 
       // Construct full path.
 
-      // dc 20251122: the line below adds unnecessary leading `/' when `currentPath' is empty
-      // final relativePath = '$currentPath/$fileName';
       final relativePath = [currentPath, fileName].join('/');
 
       if (!context.mounted) continue;
@@ -129,23 +127,27 @@ class FileOperations {
       // (e.g., "healthpod/data/pathology"), so we use relativeToPod to avoid
       // path duplication.
 
-      final metadata = await readPod(
-        relativePath,
-        pathType: PathType.relativeToPod,
-      );
+      // dc 20260107: It is unnecessary to read the content of file as contents
+      // are not stored in `processedFiles`.
+      //
+      // final metadata = await readPod(
+      //   relativePath,
+      //   pathType: PathType.relativeToPod,
+      // );
 
       // Add valid files to the processed list.
 
-      if (metadata != SolidFunctionCallStatus.fail.toString() &&
-          metadata != SolidFunctionCallStatus.notLoggedIn.toString()) {
-        processedFiles.add(
-          FileItem(
-            name: fileName,
-            path: relativePath,
-            dateModified: DateTime.now(),
-          ),
-        );
-      }
+      // if (metadata != SolidFunctionCallStatus.fail.toString() &&
+      //     metadata != SolidFunctionCallStatus.notLoggedIn.toString()) {
+
+      processedFiles.add(
+        FileItem(
+          name: fileName,
+          path: relativePath,
+          dateModified: DateTime.now(),
+        ),
+      );
+      // }
     }
     return processedFiles;
   }

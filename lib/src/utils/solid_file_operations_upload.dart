@@ -118,11 +118,9 @@ class SolidFileUploadOperations {
 
         // Upload file with encryption.
 
-        final result = await writePod(
+        await writePod(
           uploadPath,
           fileContent,
-          context,
-          const Text('Upload'),
           encrypted: true,
         );
 
@@ -132,33 +130,19 @@ class SolidFileUploadOperations {
 
         Navigator.of(context).pop();
 
-        if (result == SolidFunctionCallStatus.success) {
-          // Show success message.
+        // Show success message.
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('File "${file.name}" uploaded successfully'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 3),
-            ),
-          );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('File "${file.name}" uploaded successfully'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
 
-          // Call success callback if provided.
+        // Call success callback if provided.
 
-          onSuccess?.call();
-        } else {
-          // Show error message.
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Upload failed - please check your connection and permissions',
-              ),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 5),
-            ),
-          );
-        }
+        onSuccess?.call();
       } catch (e) {
         if (context.mounted) {
           // Close loading dialog if still open.
