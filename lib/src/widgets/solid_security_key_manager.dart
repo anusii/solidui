@@ -211,7 +211,8 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     try {
       final encKeyPath = await solidpod.getEncKeyPath();
       final encKeyUrl = await solidpod.getFileUrl(encKeyPath);
-      final status = await solidpod.checkResourceStatus(encKeyUrl, isFile: true);
+      final status =
+          await solidpod.checkResourceStatus(encKeyUrl, isFile: true);
 
       if (status == solidpod.ResourceStatus.exist) {
         // Server has keys - show restore key dialog instead of new key dialog.
