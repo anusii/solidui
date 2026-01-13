@@ -31,8 +31,9 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show KeyManager, setAppDirName;
-import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
+
+import 'package:solidui/solidui.dart';
 
 import 'app.dart';
 import 'app_scaffold.dart';
