@@ -28,7 +28,11 @@ dependencies:
   path: ^1.9.1
   rdflib: ^0.2.12
   shared_preferences: ^2.5.4
-  solidpod: ^0.9.0
+  # solidpod: ^0.9.0
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidui.git
+      ref: av/522_custom_folder_structure_at_initialisation_stage
   url_launcher: ^6.3.2
   version_widget: ^1.0.6
 
