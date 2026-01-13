@@ -52,6 +52,7 @@ class SolidLoginPanel {
     required Widget infoButton,
     required bool isRequired,
     required SolidLoginThemeMode currentTheme,
+    FocusNode? serverInputFocusNode,
   }) {
     const boxTextHeight = 20.0;
 
@@ -75,7 +76,14 @@ class SolidLoginPanel {
             ),
           ),
           const SizedBox(height: 20.0),
-          getSolidServerTooltip(webIdController, currentTheme),
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(5),
+            child: getSolidServerTooltip(
+              webIdController,
+              currentTheme,
+              focusNode: serverInputFocusNode,
+            ),
+          ),
           const SizedBox(height: 20.0),
 
           // Column of buttons.

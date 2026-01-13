@@ -65,7 +65,7 @@ const Color defaultButtonForeground = Colors.black;
 
 const Color registerButtonBackground = defaultButtonBackground;
 const Color registerButtonForeground = defaultButtonForeground;
-const Color loginButtonBackground = defaultButtonBackground;
+const Color loginButtonBackground = Colors.lightGreenAccent;
 const Color loginButtonForeground = defaultButtonForeground;
 
 const String defaultLoginButtonText = 'Login';
@@ -128,6 +128,8 @@ class PodButton extends StatelessWidget {
     required this.foreground,
     required this.tooltip,
     required this.onPressed,
+    this.focusNode,
+    this.autofocus = false,
     super.key,
   });
   final String text;
@@ -135,6 +137,15 @@ class PodButton extends StatelessWidget {
   final Color foreground;
   final String tooltip;
   final VoidCallback onPressed;
+
+  /// Optional focus node for controlling keyboard focus.
+
+  final FocusNode? focusNode;
+
+  /// Whether this button should be focused automatically when the widget is
+  /// first displayed. Defaults to false.
+
+  final bool autofocus;
 
   // Define a common style for the text of the two buttons, GET POD and LOGIN.
 
@@ -149,6 +160,8 @@ class PodButton extends StatelessWidget {
     return MarkdownTooltip(
       message: tooltip,
       child: ElevatedButton(
+        focusNode: focusNode,
+        autofocus: autofocus,
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: background,
@@ -313,12 +326,14 @@ class SolidLoginTheme {
 
 MarkdownTooltip getSolidServerTooltip(
   TextEditingController webIdController,
-  SolidLoginThemeMode themeMode,
-) =>
+  SolidLoginThemeMode themeMode, {
+  FocusNode? focusNode,
+}) =>
     MarkdownTooltip(
       message: defaultServerTooltip,
       child: TextFormField(
         controller: webIdController,
+        focusNode: focusNode,
         style: TextStyle(color: themeMode.textColor),
         decoration: InputDecoration(
           border: const UnderlineInputBorder(),
