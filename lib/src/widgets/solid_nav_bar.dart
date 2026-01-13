@@ -49,7 +49,7 @@ class SolidNavBar extends StatelessWidget {
 
   /// Currently selected tab index.
 
-  final int selectedIndex;
+  final int? selectedIndex;
 
   /// Callback when a tab is selected.
 

@@ -48,7 +48,7 @@ class SolidScaffoldLayoutBuilder {
     BuildContext context,
     bool isWideScreen,
     List<SolidNavTab> tabs,
-    int selectedIndex,
+    int? selectedIndex,
     Widget? effectiveChild,
     Function(int) onTabSelected,
     Function(BuildContext, String, String?)? onShowAlert,

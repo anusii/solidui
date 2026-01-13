@@ -356,7 +356,7 @@ class SolidScaffoldHelpers {
 
   static Widget? getEffectiveChild(
     List<SolidMenuItem>? menu,
-    int currentSelectedIndex,
+    int? currentSelectedIndex,
     Widget? child,
     Widget? body,
     Widget? bodyOverride,
@@ -368,8 +368,10 @@ class SolidScaffoldHelpers {
     }
 
     // Second priority: menu-based navigation.
+    // When currentSelectedIndex is null, no menu item is selected.
 
     if (menu != null &&
+        currentSelectedIndex != null &&
         currentSelectedIndex < menu.length &&
         currentSelectedIndex >= 0) {
       return menu[currentSelectedIndex].child;
@@ -378,6 +380,24 @@ class SolidScaffoldHelpers {
     // Fallback to child or body.
 
     return child ?? body;
+  }
+
+  /// Finds the menu index whose child widget type matches the given subpage.
+  /// Returns null if no match is found.
+
+  static int? findMatchingMenuIndex(Widget subpage, List<SolidMenuItem>? menu) {
+    if (menu == null) return null;
+
+    final subpageType = subpage.runtimeType;
+
+    for (int i = 0; i < menu.length; i++) {
+      final menuChild = menu[i].child;
+      if (menuChild != null && menuChild.runtimeType == subpageType) {
+        return i;
+      }
+    }
+
+    return null;
   }
 
   /// Resolves the app bar to use.
