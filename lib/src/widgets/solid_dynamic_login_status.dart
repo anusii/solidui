@@ -136,6 +136,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
 
     if (isCurrentlyLoggedIn) {
       // Logout scenario - don't recheck status as page will reload
+
       if (widget.onTap != null) {
         widget.onTap!.call();
       } else {
@@ -143,6 +144,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       }
     } else {
       // Login scenario - can delay status check
+
       if (widget.onLogin != null) {
         widget.onLogin!.call();
       } else {
@@ -150,6 +152,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       }
 
       // Only refresh status for login scenario
+
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
           _checkLoginStatus();

@@ -62,6 +62,7 @@ class SolidLogin extends StatefulWidget {
 
   const SolidLogin({
     // Include the literals here so that they are exposed through the docs.
+
     required this.child,
     this.required = false,
     this.appDirectory = '',
@@ -216,12 +217,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     solidThemeNotifier.addListener(_onThemeChanged);
 
-    // Initialize the controller with the widget's webID
+    // Initialise the controller with the widget's WebID.
+
     _webIdController = TextEditingController(text: widget.webID);
 
     // Auto-configure SolidAuthHandler with this widget's settings
     // This ensures the handler works even if the app didn't explicitly configure it
     // Apps can override this by calling configure() in main.dart before runApp()
+
     _autoConfigureSolidAuthHandler();
 
     // Initialise focus nodes for keyboard navigation.
@@ -238,6 +241,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   }
 
   // Auto-configure SolidAuthHandler if not already configured by the app.
+
   void _autoConfigureSolidAuthHandler() {
     // Use configureDefaults instead of configure to preserve app settings
     // This provides working defaults while keeping important app-specific
@@ -262,6 +266,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // This ensures fresh state when returning from guest mode, even if the user
     // had manually modified the URL field before leaving
     // Only skip reset if the current text already matches the intended value
+
     if (_webIdController.text != widget.webID) {
       _webIdController.text = widget.webID;
     }
@@ -269,6 +274,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // CRITICAL: Reset appDirName if appDirectory changed
     // This fixes the double-slash bug when returning from guest mode
     // Without this, appDirName stays empty causing paths like //data/places.json
+
     if (oldWidget.appDirectory != widget.appDirectory) {
       setAppDirName(widget.appDirectory);
     }

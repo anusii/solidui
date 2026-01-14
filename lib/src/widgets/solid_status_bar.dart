@@ -217,6 +217,7 @@ class SolidStatusBar extends StatelessWidget {
   ) async {
     // Import at top: import 'package:solidpod/solidpod.dart' show getWebId;
     // Check if user is logged in first
+
     try {
       final webId = await getWebId();
 

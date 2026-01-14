@@ -376,6 +376,7 @@ Future<void> pushReplacement(
 ) async {
   // Use simple pushReplacement instead of pushAndRemoveUntil
   // This preserves the navigation history and doesn't destroy all widgets
+
   await Navigator.of(context).pushReplacement(
     MaterialPageRoute(
       builder: (context) => destinationWidget,

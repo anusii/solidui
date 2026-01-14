@@ -112,6 +112,7 @@ class FileOperations {
 
       // Skip ACL files and metadata files, but include all other file types
       // (TTL, JSON, CSV, TXT, etc.)
+
       if (fileName.endsWith('.acl') || fileName.endsWith('.meta')) {
         continue;
       }
