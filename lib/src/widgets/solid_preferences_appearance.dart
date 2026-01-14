@@ -100,7 +100,7 @@ class SolidPreferencesAppearanceSection extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _buildThemeModeCheckbox(
-              icon: Icons.light_mode,
+              icon: Icons.wb_sunny_outlined,
               label: 'Light Mode',
               tooltip: 'Include light mode in theme toggle',
               value: lightModeEnabled,
