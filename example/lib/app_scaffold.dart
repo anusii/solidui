@@ -105,6 +105,13 @@ class AppScaffold extends StatelessWidget {
 
         actions: [
           SolidAppBarAction(
+            icon: Icons.folder_open,
+            onPressed: () => _scaffoldController.navigateToSubpage(
+              const SolidFile(),
+            ),
+            tooltip: 'Files',
+          ),
+          SolidAppBarAction(
             icon: Icons.settings,
             onPressed: () => _scaffoldController.navigateToSubpage(
               const SettingsPage(),

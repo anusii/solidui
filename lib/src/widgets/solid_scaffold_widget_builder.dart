@@ -76,7 +76,7 @@ class SolidScaffoldWidgetBuilder {
     required Widget? bodyContent,
     required bool isKeySaved,
     required bool isLoadingSecurityKey,
-    required int currentSelectedIndex,
+    required int? currentSelectedIndex,
     required void Function(int) onMenuSelected,
     required bool Function() getUsesInternalManagement,
     required bool Function() shouldShowVersion,

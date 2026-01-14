@@ -72,14 +72,21 @@ class SolidScaffoldController extends ChangeNotifier {
     );
   }
 
+  /// Get the raw subpage widget without KeyedSubtree wrapper.
+  /// Used internally by SolidScaffold for type matching.
+
+  Widget? get rawSubpage => _currentSubpage;
+
   /// Navigate to a subpage.
   ///
   /// The subpage will be displayed using bodyOverride, taking precedence
   /// over menu-based navigation.
   ///
   /// Each call to this method will force a complete rebuild of the subpage,
-  /// even when navigating to the same page type. This ensures that the page
-  /// state is always refreshed.
+  /// even when navigating to the same page type.
+  ///
+  /// The Navigation Rail will automatically highlight the corresponding menu
+  /// item if the subpage's type matches any menu item's child widget type.
 
   void navigateToSubpage(Widget subpage) {
     _navigationVersion++;

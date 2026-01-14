@@ -50,7 +50,7 @@ class SolidScaffoldLayoutBuilder {
     BuildContext context,
     bool isWideScreen,
     List<SolidNavTab> tabs,
-    int selectedIndex,
+    int? selectedIndex,
     Widget? effectiveChild,
     Function(int) onTabSelected,
     Function(BuildContext, String, String?)? onShowAlert,
@@ -66,7 +66,7 @@ class SolidScaffoldLayoutBuilder {
     Widget contentArea;
     if (menuItems != null && menuItems.isNotEmpty) {
       contentArea = IndexedStack(
-        index: selectedIndex.clamp(0, menuItems.length - 1),
+        index: (selectedIndex ?? 0).clamp(0, menuItems.length - 1),
         sizing: StackFit.expand,
         children: menuItems
             .map((item) => item.child ?? const SizedBox.shrink())

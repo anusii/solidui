@@ -56,7 +56,7 @@ class SolidNavDrawer extends StatefulWidget {
 
   /// Currently selected tab index.
 
-  final int selectedIndex;
+  final int? selectedIndex;
 
   /// Callback when a tab is selected.
 

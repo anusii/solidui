@@ -38,6 +38,7 @@ import 'package:solidpod/solidpod.dart'
         getAppNameVersion,
         generateDefaultFolders,
         generateDefaultFiles,
+        generateCustomFolders,
         setAppDirName;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -82,6 +83,7 @@ class SolidLogin extends StatefulWidget {
     this.changeKeyButtonStyle = const ChangeKeyButtonStyle(),
     this.themeConfig = const SolidLoginTheme(),
     this.snackbarConfig = const SnackbarConfig(),
+    this.customFolderPathList = const [],
     super.key,
   });
 
@@ -154,6 +156,17 @@ class SolidLogin extends StatefulWidget {
   /// Snackbar configuration for login notifications.
 
   final SnackbarConfig snackbarConfig;
+
+  /// Custom list of folders to be created inside the data folder.
+  /// Following are few examples.
+  ///   - Custom folder 'myDir1' will be created as '/data/myDir1'
+  ///   - Custom folder 'data' will be created as '/data/data'
+  /// If multi-level folder structure is needed you need to provide
+  /// upper level folders first in the list. For instance, to create
+  /// 'myDir1/myDir2/myDir3', add three values to the list as follows
+  /// in that order.
+  /// 'myDir1', 'myDir1/myDir2', 'myDir1/myDir2/myDir3'
+  final List customFolderPathList;
 
   @override
   State<SolidLogin> createState() => _SolidLoginState();
@@ -313,6 +326,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     final folders = await generateDefaultFolders();
     final files = await generateDefaultFiles();
 
+    final customFolders = generateCustomFolders(widget.customFolderPathList);
+
     // Check if widget is still mounted after async operations and before setState.
     // This prevents "setState() called after dispose()" errors that can occur
     // if the widget was disposed while async operations were running.
@@ -320,7 +335,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     if (!mounted) return;
 
     setState(() {
-      defaultFolders = folders;
+      defaultFolders = folders + customFolders;
       defaultFiles = files;
     });
 
