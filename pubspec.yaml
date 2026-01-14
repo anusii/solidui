@@ -32,7 +32,7 @@ dependencies:
   solidpod:
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: av/522_custom_folder_structure_at_initialisation_stage
+      ref: dev
   url_launcher: ^6.3.2
   version_widget: ^1.0.6
 
