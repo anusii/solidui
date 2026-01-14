@@ -222,7 +222,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     // Auto-configure SolidAuthHandler with this widget's settings
     // This ensures the handler works even if the app didn't explicitly configure it
-    // Apps can override this by calling configure() in main.dart before runApp()
+    // Apps can override this by calling configure() in main.dart before runApp().
+      
     _autoConfigureSolidAuthHandler();
 
     // Initialise focus nodes for keyboard navigation.
