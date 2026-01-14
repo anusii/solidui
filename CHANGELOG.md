@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Support custom folder structure [0.0.24 20260114 anusavid]
 + Default keyboard focus on LOGIN #160 [0.0.23 20260113 tonypioneer]
 + Updated solidpod dependency - writePod() #155 [0.0.22 20260113 dc]
 + Fixed page reload behaviour #158 [0.0.21 20260108 tonypioneer]

@@ -553,7 +553,22 @@ class SolidScaffoldState extends State<SolidScaffold> {
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
 
-  int get _currentSelectedIndex => widget.selectedIndex ?? _selectedIndex;
+  /// Returns the currently selected menu index.
+
+  int? get _currentSelectedIndex {
+    final subpage = widget.controller?.rawSubpage;
+    if (subpage != null && widget.menu != null) {
+      final matchingIndex =
+          SolidScaffoldHelpers.findMatchingMenuIndex(subpage, widget.menu);
+      if (matchingIndex != null) return matchingIndex;
+
+      // Subpage exists but doesn't match any menu item - no highlight.
+
+      return null;
+    }
+
+    return widget.selectedIndex ?? _selectedIndex;
+  }
 
   @override
   Widget build(BuildContext context) {

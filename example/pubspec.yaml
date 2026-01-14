@@ -12,10 +12,16 @@ dependencies:
     sdk: flutter
   markdown_tooltip: 0.0.10
   shared_preferences: ^2.5.4
-  solidpod: ^0.9.0
+  solidpod: ^0.9.8
   solidui:
     path: ..
   window_manager: ^0.5.1
+
+dependency_overrides:
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: dev
 
 dev_dependencies:
   flutter_lints: ^5.0.0
