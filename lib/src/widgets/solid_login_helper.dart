@@ -310,6 +310,10 @@ class SolidLoginTheme {
       shadowColor: Colors.black87,
       titleColor: Colors.white,
       textColor: Colors.white,
+      hintColor: Color(0xFF9E9E9E),
+      dividerColor: Color(0xFF616161),
+      inputBorderColor: Color(0xFF757575),
+      versionTextColor: Color(0xFF9E9E9E),
     ),
   });
 
@@ -334,17 +338,21 @@ MarkdownTooltip getSolidServerTooltip(
       child: TextFormField(
         controller: webIdController,
         focusNode: focusNode,
-        style: TextStyle(color: themeMode.textColor),
+        style: TextStyle(color: themeMode.textColor, fontSize: 16),
         decoration: InputDecoration(
           border: const UnderlineInputBorder(),
           labelText: 'Solid Server',
+          labelStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
+          floatingLabelStyle: TextStyle(color: themeMode.textColor),
           hintText: 'Solid server URL (or WebID)',
-          hintStyle: TextStyle(color: themeMode.hintColor),
+          hintStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: themeMode.inputBorderColor),
           ),
           focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: themeMode.inputBorderColor),
+            borderSide: BorderSide(color: themeMode.inputBorderColor, width: 2),
           ),
         ),
       ),
