@@ -255,7 +255,7 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
-    bool showPreferences = true,
+    bool showPreferences = false,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;

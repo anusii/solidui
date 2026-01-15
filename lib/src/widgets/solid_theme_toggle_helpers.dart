@@ -48,136 +48,143 @@ class SolidThemeToggleHelpers {
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
   ) {
-    // Determine the tooltip message based on enabled modes.
+    return Builder(
+      builder: (context) {
+        // Determine the tooltip message based on enabled modes.
 
-    final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
-    String tooltipMessage;
-    if (themeConfig.tooltip != null) {
-      tooltipMessage = themeConfig.tooltip!;
-    } else {
-      tooltipMessage =
-          solidThemeNotifier.getTooltipForCurrentMode(themeModeConfig);
-    }
+        final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
+        String tooltipMessage;
+        if (themeConfig.tooltip != null) {
+          tooltipMessage = themeConfig.tooltip!;
+        } else {
+          tooltipMessage =
+              solidThemeNotifier.getTooltipForCurrentMode(themeModeConfig);
+        }
 
-    Widget iconWidget;
+        // Get the next mode to determine which icon to show.
 
-    // Get the next mode to determine which icon to show.
+        final nextMode = getNextThemeModeWithContext(context, currentThemeMode);
 
-    final nextMode = getNextThemeMode(currentThemeMode, themeModeConfig);
+        // Get the icon for the next mode.
 
-    // Only show the system mode icon (with 'A' badge) when the next mode is
-    // system mode.
+        final iconWidget =
+            Icon(_getIconForModeWithContext(context, nextMode, themeConfig));
 
-    if (nextMode == ThemeMode.system) {
-      iconWidget = buildSystemModeIcon();
-    } else {
-      iconWidget =
-          Icon(themeConfig.getNextIcon(currentThemeMode, themeModeConfig));
-    }
+        Widget themeButton = IconButton(
+          icon: iconWidget,
+          onPressed: themeToggleCallback,
+        );
 
-    Widget themeButton = IconButton(
-      icon: iconWidget,
-      onPressed: themeToggleCallback,
-    );
-
-    return MarkdownTooltip(
-      message: tooltipMessage,
-      child: themeButton,
+        return MarkdownTooltip(
+          message: tooltipMessage,
+          child: themeButton,
+        );
+      },
     );
   }
 
-  /// Returns the next theme mode in the cycle.
+  /// Returns the icon for a specific theme mode.
+  /// When the mode is System, returns the icon based on current system theme.
+
+  static IconData _getIconForModeWithContext(
+    BuildContext context,
+    ThemeMode mode,
+    SolidThemeToggleConfig config,
+  ) {
+    switch (mode) {
+      case ThemeMode.light:
+        return config.lightModeIcon ?? Icons.wb_sunny_outlined;
+      case ThemeMode.dark:
+        return config.darkModeIcon ?? Icons.dark_mode;
+      case ThemeMode.system:
+        // Show the icon based on current system theme.
+
+        final systemBrightness = MediaQuery.platformBrightnessOf(context);
+        return systemBrightness == Brightness.light
+            ? (config.lightModeIcon ?? Icons.wb_sunny_outlined)
+            : (config.darkModeIcon ?? Icons.dark_mode);
+    }
+  }
+
+  /// Returns the next theme mode using adaptive toggle logic with context.
+  /// Uses MediaQuery for real-time system theme detection.
+
+  static ThemeMode getNextThemeModeWithContext(
+    BuildContext context,
+    ThemeMode currentMode,
+  ) {
+    switch (currentMode) {
+      case ThemeMode.system:
+        // Use MediaQuery for real-time system theme detection.
+
+        final systemBrightness = MediaQuery.platformBrightnessOf(context);
+        return systemBrightness == Brightness.light
+            ? ThemeMode.dark
+            : ThemeMode.light;
+
+      case ThemeMode.light:
+      case ThemeMode.dark:
+        // Return to System mode.
+
+        return ThemeMode.system;
+    }
+  }
+
+  /// Returns the next theme mode using adaptive toggle logic.
 
   static ThemeMode getNextThemeMode(
     ThemeMode currentMode,
     SolidThemeModeConfig? modeConfig,
   ) {
-    final enabledModes = modeConfig?.enabledModes ??
-        [ThemeMode.system, ThemeMode.light, ThemeMode.dark];
-    final smartToggle = modeConfig?.smartToggle ?? true;
+    switch (currentMode) {
+      case ThemeMode.system:
+        // Return opposite of current system theme.
 
-    final currentIndex = enabledModes.indexOf(currentMode);
+        final systemBrightness =
+            SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        return systemBrightness == Brightness.light
+            ? ThemeMode.dark
+            : ThemeMode.light;
 
-    if (currentIndex == -1 || enabledModes.length <= 1) {
-      return currentMode;
+      case ThemeMode.light:
+      case ThemeMode.dark:
+        // Return to System mode.
+
+        return ThemeMode.system;
     }
-
-    // Special handling for system mode with smart toggle enabled.
-
-    if (currentMode == ThemeMode.system &&
-        smartToggle &&
-        enabledModes.length == 3) {
-      final systemBrightness =
-          SchedulerBinding.instance.platformDispatcher.platformBrightness;
-      final targetMode = systemBrightness == Brightness.light
-          ? ThemeMode.dark
-          : ThemeMode.light;
-
-      if (enabledModes.contains(targetMode)) {
-        return targetMode;
-      }
-    }
-
-    // Get the next mode in the cycle (sequential toggle).
-
-    final nextIndex = (currentIndex + 1) % enabledModes.length;
-    return enabledModes[nextIndex];
   }
 
-  /// Builds the system mode icon with an 'A' badge.
-  /// The icon is a sun (light) or moon (dark) based on the current system
-  /// brightness, with the main icon centred and 'A' as a small badge in the
-  /// bottom-right corner.
+  /// Builds the theme mode icon using context for real-time theme.
 
-  static Widget buildSystemModeIcon({double iconSize = 24.0}) {
-    final systemBrightness =
-        SchedulerBinding.instance.platformDispatcher.platformBrightness;
-    final baseIcon = systemBrightness == Brightness.light
-        ? Icons.wb_sunny_outlined
-        : Icons.dark_mode;
+  static Widget buildSystemModeIcon({
+    double iconSize = 24.0,
+    BuildContext? context,
+    ThemeMode currentMode = ThemeMode.system,
+  }) {
+    Brightness systemBrightness;
+    if (context != null) {
+      systemBrightness = MediaQuery.platformBrightnessOf(context);
+    } else {
+      systemBrightness =
+          SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    }
 
-    // Use a fixed size container to keep the icon centred.
-    // Use Builder to get context for theme-aware icon colour.
+    // When in Light or Dark mode, show the current system theme icon.
 
-    return Builder(
-      builder: (context) {
-        final iconColor = IconTheme.of(context).color;
+    if (currentMode != ThemeMode.system) {
+      final systemIcon = systemBrightness == Brightness.light
+          ? Icons.wb_sunny_outlined
+          : Icons.dark_mode;
+      return Icon(systemIcon, size: iconSize);
+    }
 
-        return SizedBox(
-          width: iconSize,
-          height: iconSize,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              // Main icon centred.
+    // When in System mode, show the opposite of current theme mode.
 
-              Icon(baseIcon, size: iconSize),
+    final nextModeIcon = systemBrightness == Brightness.light
+        ? Icons.dark_mode
+        : Icons.wb_sunny_outlined;
 
-              // 'A' badge in the bottom-right corner, using outlined style
-              // with the same colour as the icon.
-
-              Positioned(
-                right: -4,
-                bottom: -4,
-                child: Text(
-                  'A',
-                  style: TextStyle(
-                    fontSize: iconSize * 0.42,
-                    fontWeight: FontWeight.w500,
-                    foreground: Paint()
-                      ..style = PaintingStyle.stroke
-                      ..strokeWidth = 1.2
-                      ..color = iconColor ?? Colors.black,
-                    height: 1.0,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    return Icon(nextModeIcon, size: iconSize);
   }
 
   /// Gets the current theme mode based on internal management.

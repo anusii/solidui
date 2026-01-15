@@ -59,7 +59,7 @@ class SolidScaffoldAppBarBuilder {
     double narrowScreenThreshold, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
-    bool showPreferences = true,
+    bool showPreferences = false,
   }) {
     final isWideScreen = !hideNavRail &&
         SolidScaffoldHelpers.isWideScreen(
@@ -128,7 +128,7 @@ class SolidScaffoldAppBarBuilder {
     );
   }
 
-  /// Builds the preferences button for AppBar.
+  /// Builds the layout preferences button for AppBar.
 
   static Widget _buildPreferencesButton(
     BuildContext context,
@@ -138,8 +138,8 @@ class SolidScaffoldAppBarBuilder {
     return MarkdownTooltip(
       message: '''
 
-  **Preferences:** Configure appearance and button layout settings.
-  Set which theme modes are available and customise the AppBar button order.
+  **AppBar Layout Preferences:** Configure button layout settings.
+  Customise the AppBar button order and visibility.
 
   ''',
       child: IconButton(
@@ -149,7 +149,7 @@ class SolidScaffoldAppBarBuilder {
     );
   }
 
-  /// Shows the preferences dialogue.
+  /// Shows the AppBar layout preferences dialogue.
 
   static void _showPreferencesDialog(
     BuildContext context,

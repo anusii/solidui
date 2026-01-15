@@ -146,7 +146,7 @@ class SolidLoginPanel {
 
   static Widget buildPanelWithThemeToggle({
     required Widget panelContent,
-    required bool isDarkMode,
+    required ThemeMode currentThemeMode,
     required VoidCallback onThemeToggle,
   }) {
     return Stack(
@@ -155,7 +155,10 @@ class SolidLoginPanel {
         Positioned(
           top: 10,
           right: 10,
-          child: getThemeToggleTooltip(isDarkMode, onPressed: onThemeToggle),
+          child: getThemeToggleTooltip(
+            currentThemeMode,
+            onPressed: onThemeToggle,
+          ),
         ),
       ],
     );

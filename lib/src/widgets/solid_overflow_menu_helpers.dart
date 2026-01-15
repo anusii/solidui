@@ -146,7 +146,7 @@ class SolidOverflowMenuHelpers {
           children: [
             Icon(Icons.tune),
             SizedBox(width: 8),
-            Text('Preferences'),
+            Text('AppBar Layout Preferences'),
           ],
         ),
       ),
