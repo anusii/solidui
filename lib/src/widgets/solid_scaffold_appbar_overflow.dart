@@ -52,7 +52,7 @@ class SolidAppBarOverflowHandler {
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
     BuildContext context, {
-    bool showPreferences = true,
+    bool showPreferences = false,
     void Function(BuildContext)? onLogout,
     required void Function(
       BuildContext,

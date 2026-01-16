@@ -171,11 +171,11 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Visibility toggle.
-            // Disabled for Preferences button (cannot be hidden).
+            // Disabled for AppBar Layout Preferences button (cannot be hidden).
 
             if (action.id == SolidAppBarActionIds.preferences)
               MarkdownTooltip(
-                message: 'Preferences button is always visible',
+                message: 'AppBar Layout Preferences button is always visible',
                 child: IconButton(
                   icon: Icon(
                     Icons.visibility,

@@ -310,6 +310,10 @@ class SolidLoginTheme {
       shadowColor: Colors.black87,
       titleColor: Colors.white,
       textColor: Colors.white,
+      hintColor: Color(0xFF9E9E9E),
+      dividerColor: Color(0xFF616161),
+      inputBorderColor: Color(0xFF757575),
+      versionTextColor: Color(0xFF9E9E9E),
     ),
   });
 
@@ -334,38 +338,97 @@ MarkdownTooltip getSolidServerTooltip(
       child: TextFormField(
         controller: webIdController,
         focusNode: focusNode,
-        style: TextStyle(color: themeMode.textColor),
+        style: TextStyle(color: themeMode.textColor, fontSize: 16),
         decoration: InputDecoration(
           border: const UnderlineInputBorder(),
           labelText: 'Solid Server',
+          labelStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
+          floatingLabelStyle: TextStyle(color: themeMode.textColor),
           hintText: 'Solid server URL (or WebID)',
-          hintStyle: TextStyle(color: themeMode.hintColor),
+          hintStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: themeMode.inputBorderColor),
           ),
           focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: themeMode.inputBorderColor),
+            borderSide: BorderSide(color: themeMode.inputBorderColor, width: 2),
           ),
         ),
       ),
     );
 
-/// Return a [MarkdownTooltip] for the theme toggle button
+/// Return a [Widget] for the theme toggle button with adaptive toggle logic.
+/// Uses MediaQuery for real-time system brightness detection.
 
-MarkdownTooltip getThemeToggleTooltip(
-  bool isDarkMode, {
+Widget getThemeToggleTooltip(
+  ThemeMode currentThemeMode, {
   required void Function() onPressed,
-}) =>
-    MarkdownTooltip(
-      message: 'Switch to ${isDarkMode ? "light" : "dark"} mode',
-      child: IconButton(
-        icon: Icon(
-          isDarkMode ? Icons.wb_sunny_outlined : Icons.nightlight_round,
-          color: isDarkMode ? Colors.amber : Colors.blueGrey,
+}) {
+  return Builder(
+    builder: (context) {
+      // Get the next mode based on current mode and system brightness.
+
+      final ThemeMode nextMode;
+      switch (currentThemeMode) {
+        case ThemeMode.system:
+          // Use MediaQuery for real-time system brightness detection.
+
+          final systemBrightness = MediaQuery.platformBrightnessOf(context);
+          nextMode = systemBrightness == Brightness.light
+              ? ThemeMode.dark
+              : ThemeMode.light;
+          break;
+        case ThemeMode.light:
+        case ThemeMode.dark:
+          // Return to System mode.
+
+          nextMode = ThemeMode.system;
+          break;
+      }
+
+      // Get the icon for the next mode.
+
+      final IconData icon;
+      final Color iconColor;
+      final String tooltipMessage;
+
+      switch (nextMode) {
+        case ThemeMode.light:
+          icon = Icons.wb_sunny_outlined;
+          iconColor = Colors.amber;
+          tooltipMessage = 'Switch to Light Mode';
+          break;
+        case ThemeMode.dark:
+          icon = Icons.dark_mode;
+          iconColor = Colors.blueGrey;
+          tooltipMessage = 'Switch to Dark Mode';
+          break;
+        case ThemeMode.system:
+          // Show icon based on current system theme.
+
+          final systemBrightness = MediaQuery.platformBrightnessOf(context);
+          if (systemBrightness == Brightness.light) {
+            icon = Icons.wb_sunny_outlined;
+            iconColor = Colors.amber;
+          } else {
+            icon = Icons.dark_mode;
+            iconColor = Colors.blueGrey;
+          }
+          tooltipMessage = 'Switch to System Mode';
+          break;
+      }
+
+      return MarkdownTooltip(
+        message: tooltipMessage,
+        child: IconButton(
+          icon: Icon(icon, color: iconColor),
+          onPressed: onPressed,
         ),
-        onPressed: onPressed,
-      ),
-    );
+      );
+    },
+  );
+}
 
 /// Utility function for navigation
 

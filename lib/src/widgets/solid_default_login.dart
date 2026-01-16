@@ -106,7 +106,7 @@ class SolidDefaultLogin extends StatelessWidget {
   AssetImage _getDefaultLogo() {
     // Try to use a common default logo path, fallback to transparent pixel.
 
-    return const AssetImage('assets/images/app_icon.jpg');
+    return const AssetImage('assets/images/app_icon.png');
   }
 
   /// Get default success widget if none provided.

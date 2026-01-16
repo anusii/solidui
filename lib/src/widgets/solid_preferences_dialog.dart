@@ -30,13 +30,12 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/widgets/solid_preferences_appearance.dart';
 import 'package:solidui/src/widgets/solid_preferences_button_order.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 
-/// A dialogue widget for configuring user preferences including appearance
-/// settings and AppBar button ordering.
+/// A dialogue widget for configuring user preferences including
+/// AppBar button ordering.
 
 class SolidPreferencesDialog extends StatefulWidget {
   /// Optional callback when preferences are saved.
@@ -50,7 +49,7 @@ class SolidPreferencesDialog extends StatefulWidget {
   const SolidPreferencesDialog({
     super.key,
     this.onSave,
-    this.title = 'Preferences',
+    this.title = 'AppBar Layout Preferences',
   });
 
   /// Shows the preferences dialogue.
@@ -67,10 +66,6 @@ class SolidPreferencesDialog extends StatefulWidget {
 }
 
 class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
-  late bool _lightModeEnabled;
-  late bool _darkModeEnabled;
-  late bool _systemModeEnabled;
-  late bool _smartToggle;
   late List<SolidAppBarActionItem> _appBarActions;
 
   @override
@@ -81,62 +76,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
 
   void _loadCurrentPreferences() {
     final config = solidPreferencesNotifier.config;
-    _lightModeEnabled = config.themeModeConfig.lightModeEnabled;
-    _darkModeEnabled = config.themeModeConfig.darkModeEnabled;
-    _systemModeEnabled = config.themeModeConfig.systemModeEnabled;
-    _smartToggle = config.themeModeConfig.smartToggle;
     _appBarActions = List.from(config.appBarActions);
-  }
-
-  bool get _isAtLeastOneModeEnabled =>
-      _lightModeEnabled || _darkModeEnabled || _systemModeEnabled;
-
-  void _onLightModeChanged(bool? value) {
-    if (value == null) return;
-
-    // Prevent unchecking if it's the last enabled mode.
-
-    if (!value && !_darkModeEnabled && !_systemModeEnabled) {
-      _showMinimumModeWarning();
-      return;
-    }
-
-    setState(() => _lightModeEnabled = value);
-  }
-
-  void _onDarkModeChanged(bool? value) {
-    if (value == null) return;
-
-    // Prevent unchecking if it's the last enabled mode.
-
-    if (!value && !_lightModeEnabled && !_systemModeEnabled) {
-      _showMinimumModeWarning();
-      return;
-    }
-
-    setState(() => _darkModeEnabled = value);
-  }
-
-  void _onSystemModeChanged(bool? value) {
-    if (value == null) return;
-
-    // Prevent unchecking if it's the last enabled mode.
-
-    if (!value && !_lightModeEnabled && !_darkModeEnabled) {
-      _showMinimumModeWarning();
-      return;
-    }
-
-    setState(() => _systemModeEnabled = value);
-  }
-
-  void _showMinimumModeWarning() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('At least one theme mode must be enabled'),
-        duration: Duration(seconds: 2),
-      ),
-    );
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -166,13 +106,13 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   void _onVisibilityChanged(int index, bool? value) {
     if (value == null) return;
 
-    // Prevent hiding Preferences button (user won't be able to restore it).
+    // Prevent hiding AppBar Layout Preferences button
 
     final action = _appBarActions[index];
     if (action.id == SolidAppBarActionIds.preferences && value == false) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Preferences button cannot be hidden'),
+          content: Text('AppBar Layout Preferences button cannot be hidden'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -184,20 +124,8 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     });
   }
 
-  void _onSmartToggleChanged(bool value) {
-    setState(() => _smartToggle = value);
-  }
-
   void _savePreferences() {
-    final themeModeConfig = SolidThemeModeConfig(
-      lightModeEnabled: _lightModeEnabled,
-      darkModeEnabled: _darkModeEnabled,
-      systemModeEnabled: _systemModeEnabled,
-      smartToggle: _smartToggle,
-    );
-
     final newConfig = SolidPreferencesConfig(
-      themeModeConfig: themeModeConfig,
       appBarActions: _appBarActions,
     );
 
@@ -213,7 +141,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.settings),
+          const Icon(Icons.tune),
           const SizedBox(width: 8),
           Text(widget.title),
         ],
@@ -225,22 +153,6 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Appearance Section.
-
-              _buildSectionHeader(theme, 'Appearance'),
-              const SizedBox(height: 8),
-              SolidPreferencesAppearanceSection(
-                lightModeEnabled: _lightModeEnabled,
-                darkModeEnabled: _darkModeEnabled,
-                systemModeEnabled: _systemModeEnabled,
-                smartToggle: _smartToggle,
-                onLightModeChanged: _onLightModeChanged,
-                onDarkModeChanged: _onDarkModeChanged,
-                onSystemModeChanged: _onSystemModeChanged,
-                onSmartToggleChanged: _onSmartToggleChanged,
-              ),
-              const SizedBox(height: 24),
-
               // Button Order Section.
 
               _buildSectionHeader(theme, 'Button Order'),
@@ -261,7 +173,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
           child: const Text('Cancel'),
         ),
         FilledButton(
-          onPressed: _isAtLeastOneModeEnabled ? _savePreferences : null,
+          onPressed: _savePreferences,
           child: const Text('Save'),
         ),
       ],
