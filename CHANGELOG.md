@@ -15,7 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
-+ Simplified light/dark theme management [0.0.24 20260116 tonypioneer]
++ Simplified light/dark theme management [0.0.25 20260116 tonypioneer]
 + Support custom folder structure [0.0.24 20260114 anusavid]
 + Default keyboard focus on LOGIN #160 [0.0.23 20260113 tonypioneer]
 + Updated solidpod dependency - writePod() #155 [0.0.22 20260113 dc]
