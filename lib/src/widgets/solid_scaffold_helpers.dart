@@ -29,19 +29,23 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
-import 'package:solidui/src/widgets/solid_preferences_models.dart';
-import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
+import 'package:solidui/src/widgets/solid_overflow_menu_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
+import 'package:solidui/src/widgets/solid_theme_toggle_helpers.dart';
+
+// Re-export helpers for backwards compatibility.
+
+export 'package:solidui/src/widgets/solid_overflow_menu_helpers.dart';
+export 'package:solidui/src/widgets/solid_theme_toggle_helpers.dart';
 
 /// Helper class for Solid Scaffold operations.
 
@@ -49,10 +53,7 @@ class SolidScaffoldHelpers {
   /// Converts SolidMenuItem to SolidNavTab.
 
   static List<SolidNavTab> convertToNavTabs(List<SolidMenuItem>? menu) {
-    if (menu == null) {
-      return [];
-    }
-
+    if (menu == null) return [];
     return menu
         .map(
           (item) => SolidNavTab(
@@ -110,31 +111,19 @@ class SolidScaffoldHelpers {
     SolidThemeToggleConfig themeConfig,
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
-  ) {
-    // Determine the tooltip message based on enabled modes.
+  ) =>
+      SolidThemeToggleHelpers.buildThemeToggleButton(
+        themeConfig,
+        currentThemeMode,
+        themeToggleCallback,
+      );
 
-    final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
-    String tooltipMessage;
-    if (themeConfig.tooltip != null) {
-      tooltipMessage = themeConfig.tooltip!;
-    } else {
-      tooltipMessage =
-          solidThemeNotifier.getTooltipForCurrentMode(themeModeConfig);
-    }
+  /// Builds the system mode icon with an 'A' badge.
 
-    Widget themeButton = IconButton(
-      icon: Icon(themeConfig.getNextIcon(currentThemeMode, themeModeConfig)),
-      onPressed: themeToggleCallback,
-    );
-
-    return MarkdownTooltip(
-      message: tooltipMessage,
-      child: themeButton,
-    );
-  }
+  static Widget buildSystemModeIcon({double iconSize = 24.0}) =>
+      SolidThemeToggleHelpers.buildSystemModeIcon(iconSize: iconSize);
 
   /// Builds overflow menu items.
-  /// Dynamically includes all buttons based on preferences configuration.
 
   static List<PopupMenuItem<String>> buildOverflowMenuItems(
     SolidAppBarConfig config,
@@ -145,202 +134,22 @@ class SolidScaffoldHelpers {
     bool hasAboutInOverflow, {
     bool hasPreferencesInOverflow = false,
     bool hasLogoutInOverflow = false,
-  }) {
-    List<PopupMenuItem<String>> overflowMenuItems = [];
-
-    // Get all configured actions from preferences, sorted by order.
-
-    final allActions =
-        List<SolidAppBarActionItem>.from(solidPreferencesNotifier.appBarActions)
-          ..sort((a, b) => a.order.compareTo(b.order));
-
-    for (final actionItem in allActions) {
-      // Skip if not visible.
-      // Note: showInOverflow check is handled by hasXxxInOverflow parameters,
-      // which already account for narrow screen behavior.
-
-      if (!actionItem.isVisible) continue;
-
-      // Handle each action type.
-
-      if (actionItem.id == SolidAppBarActionIds.themeToggle) {
-        // Theme toggle.
-
-        if (hasThemeToggleInOverflow && themeToggle != null) {
-          final themeModeConfig = solidPreferencesNotifier.themeModeConfig;
-          String labelText;
-          switch (currentThemeMode) {
-            case ThemeMode.light:
-              labelText = 'Switch to Dark Mode';
-              break;
-            case ThemeMode.dark:
-              labelText = 'Switch to Light Mode';
-              break;
-            case ThemeMode.system:
-              final systemBrightness = SchedulerBinding
-                  .instance.platformDispatcher.platformBrightness;
-              if (systemBrightness == Brightness.light) {
-                labelText = 'Switch to Dark Mode';
-              } else {
-                labelText = 'Switch to Light Mode';
-              }
-              break;
-          }
-
-          overflowMenuItems.add(
-            PopupMenuItem<String>(
-              value: 'theme_toggle',
-              child: Row(
-                children: [
-                  Icon(
-                    themeToggle.getNextIcon(currentThemeMode, themeModeConfig),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(labelText),
-                ],
-              ),
-            ),
-          );
-        }
-      } else if (actionItem.id == SolidAppBarActionIds.logout) {
-        // Logout.
-
-        if (hasLogoutInOverflow) {
-          overflowMenuItems.add(
-            const PopupMenuItem<String>(
-              value: 'logout',
-              child: Row(
-                children: [
-                  Icon(Icons.logout),
-                  SizedBox(width: 8),
-                  Text('Logout'),
-                ],
-              ),
-            ),
-          );
-        }
-      } else if (actionItem.id == SolidAppBarActionIds.preferences) {
-        // Preferences.
-
-        if (hasPreferencesInOverflow) {
-          overflowMenuItems.add(
-            const PopupMenuItem<String>(
-              value: 'preferences',
-              child: Row(
-                children: [
-                  Icon(Icons.tune),
-                  SizedBox(width: 8),
-                  Text('Preferences'),
-                ],
-              ),
-            ),
-          );
-        }
-      } else if (actionItem.id == SolidAppBarActionIds.about) {
-        // About.
-
-        if (hasAboutInOverflow) {
-          overflowMenuItems.add(
-            PopupMenuItem<String>(
-              value: 'about',
-              child: Row(
-                children: [
-                  Icon(aboutConfig.effectiveIcon),
-                  const SizedBox(width: 8),
-                  const Text('About'),
-                ],
-              ),
-            ),
-          );
-        }
-      } else if (actionItem.id.startsWith('action_')) {
-        // Custom action from config.actions.
-
-        final actionIndex =
-            int.tryParse(actionItem.id.replaceFirst('action_', ''));
-        if (actionIndex != null && actionIndex < config.actions.length) {
-          final originalAction = config.actions[actionIndex];
-          overflowMenuItems.add(
-            PopupMenuItem<String>(
-              value: actionItem.id,
-              child: Row(
-                children: [
-                  Icon(originalAction.icon),
-                  const SizedBox(width: 8),
-                  Text(actionItem.label),
-                ],
-              ),
-            ),
-          );
-        } else {
-          // Try to find by id match if index doesn't work.
-
-          final originalAction =
-              config.actions.cast<SolidAppBarAction?>().firstWhere(
-                    (a) => a?.id == actionItem.id,
-                    orElse: () => null,
-                  );
-          if (originalAction != null) {
-            overflowMenuItems.add(
-              PopupMenuItem<String>(
-                value: actionItem.id,
-                child: Row(
-                  children: [
-                    Icon(originalAction.icon),
-                    const SizedBox(width: 8),
-                    Text(actionItem.label),
-                  ],
-                ),
-              ),
-            );
-          }
-        }
-      } else {
-        // Custom overflow item from config.overflowItems.
-
-        final originalItem =
-            config.overflowItems.cast<SolidOverflowMenuItem?>().firstWhere(
-                  (item) => item?.id == actionItem.id,
-                  orElse: () => null,
-                );
-        if (originalItem != null) {
-          overflowMenuItems.add(
-            PopupMenuItem<String>(
-              value: actionItem.id,
-              child: Row(
-                children: [
-                  Icon(originalItem.icon),
-                  const SizedBox(width: 8),
-                  Text(actionItem.label),
-                ],
-              ),
-            ),
-          );
-        }
-      }
-    }
-
-    return overflowMenuItems;
-  }
+  }) =>
+      SolidOverflowMenuHelpers.buildOverflowMenuItems(
+        config,
+        themeToggle,
+        currentThemeMode,
+        aboutConfig,
+        hasThemeToggleInOverflow,
+        hasAboutInOverflow,
+        hasPreferencesInOverflow: hasPreferencesInOverflow,
+        hasLogoutInOverflow: hasLogoutInOverflow,
+      );
 
   /// Builds overflow icon buttons for wider screens.
 
-  static List<Widget> buildOverflowIconButtons(SolidAppBarConfig config) {
-    List<Widget> buttons = [];
-
-    for (final item in config.overflowItems) {
-      Widget iconButton = IconButton(
-        icon: Icon(item.icon),
-        onPressed: item.onSelected,
-      );
-
-      iconButton = MarkdownTooltip(message: item.label, child: iconButton);
-
-      buttons.add(iconButton);
-    }
-
-    return buttons;
-  }
+  static List<Widget> buildOverflowIconButtons(SolidAppBarConfig config) =>
+      SolidOverflowMenuHelpers.buildOverflowIconButtons(config);
 
   /// Determines if screen is wide.
 
@@ -349,12 +158,7 @@ class SolidScaffoldHelpers {
   }
 
   /// Gets effective child widget.
-  ///
-  /// Priority order:
-  /// 1. bodyOverride (for subpages not in menu)
-  /// 2. menu[selectedIndex].child (for menu-based navigation)
-  /// 3. child (fallback)
-  /// 4. body (final fallback)
+  /// Priority: bodyOverride > menu[selectedIndex].child > child > body.
 
   static Widget? getEffectiveChild(
     List<SolidMenuItem>? menu,
@@ -363,42 +167,27 @@ class SolidScaffoldHelpers {
     Widget? body,
     Widget? bodyOverride,
   ) {
-    // First priority: bodyOverride for subpages.
-
-    if (bodyOverride != null) {
-      return bodyOverride;
-    }
-
-    // Second priority: menu-based navigation.
-    // When currentSelectedIndex is null, no menu item is selected.
-
+    if (bodyOverride != null) return bodyOverride;
     if (menu != null &&
         currentSelectedIndex != null &&
         currentSelectedIndex < menu.length &&
         currentSelectedIndex >= 0) {
       return menu[currentSelectedIndex].child;
     }
-
-    // Fallback to child or body.
-
     return child ?? body;
   }
 
   /// Finds the menu index whose child widget type matches the given subpage.
-  /// Returns null if no match is found.
 
   static int? findMatchingMenuIndex(Widget subpage, List<SolidMenuItem>? menu) {
     if (menu == null) return null;
-
     final subpageType = subpage.runtimeType;
-
     for (int i = 0; i < menu.length; i++) {
       final menuChild = menu[i].child;
       if (menuChild != null && menuChild.runtimeType == subpageType) {
         return i;
       }
     }
-
     return null;
   }
 
@@ -412,16 +201,11 @@ class SolidScaffoldHelpers {
     List<SolidMenuItem>? menu,
     PreferredSizeWidget? Function(BuildContext) buildAppBar,
   ) {
-    if (appBar is PreferredSizeWidget) {
-      return appBar;
-    } else if (appBar is SolidAppBarConfig) {
-      return buildAppBar(context);
-    } else if (appBar == null) {
-      if (isCompatibilityMode) {
-        return scaffoldAppBar;
-      } else {
-        return menu != null ? buildAppBar(context) : null;
-      }
+    if (appBar is PreferredSizeWidget) return appBar;
+    if (appBar is SolidAppBarConfig) return buildAppBar(context);
+    if (appBar == null) {
+      if (isCompatibilityMode) return scaffoldAppBar;
+      return menu != null ? buildAppBar(context) : null;
     }
     return scaffoldAppBar;
   }
@@ -432,12 +216,12 @@ class SolidScaffoldHelpers {
     bool usesInternalManagement,
     SolidThemeNotifier solidThemeNotifier,
     SolidThemeToggleConfig? themeToggle,
-  ) {
-    if (usesInternalManagement) {
-      return solidThemeNotifier.themeMode;
-    }
-    return themeToggle?.currentThemeMode ?? ThemeMode.system;
-  }
+  ) =>
+      SolidThemeToggleHelpers.getCurrentThemeMode(
+        usesInternalManagement,
+        solidThemeNotifier,
+        themeToggle,
+      );
 
   /// Gets theme toggle callback.
 
@@ -445,20 +229,17 @@ class SolidScaffoldHelpers {
     bool usesInternalManagement,
     SolidThemeNotifier solidThemeNotifier,
     SolidThemeToggleConfig? themeToggle,
-  ) {
-    if (usesInternalManagement) {
-      return () {
-        solidThemeNotifier.toggleTheme();
-      };
-    }
-    return themeToggle?.onToggleTheme;
-  }
+  ) =>
+      SolidThemeToggleHelpers.getThemeToggleCallback(
+        usesInternalManagement,
+        solidThemeNotifier,
+        themeToggle,
+      );
 
   /// Checks if uses internal management.
 
-  static bool getUsesInternalManagement(SolidThemeToggleConfig? themeToggle) {
-    return themeToggle?.usesInternalManagement ?? false;
-  }
+  static bool getUsesInternalManagement(SolidThemeToggleConfig? themeToggle) =>
+      SolidThemeToggleHelpers.getUsesInternalManagement(themeToggle);
 
   /// Builds the app bar.
 
@@ -474,11 +255,10 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
-    bool showPreferences = true,
+    bool showPreferences = false,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
-
     return SolidScaffoldAppBarBuilder.buildAppBar(
       context,
       appBar,
@@ -498,9 +278,7 @@ class SolidScaffoldHelpers {
   /// Gets version to display.
 
   static String getVersionToDisplay(bool isVersionLoaded, String? appVersion) {
-    if (isVersionLoaded && appVersion != null) {
-      return appVersion;
-    }
+    if (isVersionLoaded && appVersion != null) return appVersion;
     return '0.0.0+0';
   }
 

@@ -525,7 +525,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     final loginPanelDecor = SolidLoginPanel.buildPanelWithThemeToggle(
       panelContent: loginPanelContent,
-      isDarkMode: isDarkMode,
+      currentThemeMode: solidThemeNotifier.themeMode,
       onThemeToggle: _toggleTheme,
     );
 

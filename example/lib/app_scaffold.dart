@@ -34,7 +34,7 @@ import 'package:solidui/solidui.dart';
 
 import 'constants/app.dart';
 import 'home.dart';
-import 'screens/settings_page.dart';
+import 'screens/sample_page.dart';
 
 final _scaffoldController = SolidScaffoldController();
 
@@ -73,18 +73,6 @@ class AppScaffold extends StatelessWidget {
             ''',
           child: SolidFile(),
         ),
-        SolidMenuItem(
-          icon: Icons.info,
-          title: 'About',
-          tooltip: '''
-
-            **About:** Tap here to learn more about this application.
-
-            ''',
-          child: Center(
-            child: Text('About Page', style: TextStyle(fontSize: 24)),
-          ),
-        ),
       ],
 
       // APP BAR.
@@ -105,18 +93,18 @@ class AppScaffold extends StatelessWidget {
 
         actions: [
           SolidAppBarAction(
-            icon: Icons.folder_open,
+            icon: Icons.folder,
             onPressed: () => _scaffoldController.navigateToSubpage(
               const SolidFile(),
             ),
             tooltip: 'Files',
           ),
           SolidAppBarAction(
-            icon: Icons.settings,
+            icon: Icons.article,
             onPressed: () => _scaffoldController.navigateToSubpage(
-              const SettingsPage(),
+              const SamplePage(),
             ),
-            tooltip: 'Settings',
+            tooltip: 'Sample Page',
           ),
         ],
       ),
@@ -134,7 +122,7 @@ class AppScaffold extends StatelessWidget {
       aboutConfig: SolidAboutConfig(
         applicationName: appTitle.split(' - ')[0],
         applicationIcon: Image.asset(
-          'assets/images/app_icon.jpg',
+          'assets/images/app_icon.png',
           width: 64,
           height: 64,
         ),

@@ -33,8 +33,6 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
-
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
@@ -47,6 +45,7 @@ import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_init_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
+import 'package:solidui/src/widgets/solid_scaffold_state_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_widget_builder.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
@@ -248,6 +247,10 @@ class SolidScaffold extends StatefulWidget {
 
   final bool hideNavRail;
 
+  /// Whether to show the AppBar Layout Preferences button.
+
+  final bool showAppBarLayoutPreferences;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -290,6 +293,7 @@ class SolidScaffold extends StatefulWidget {
     this.themeToggle,
     this.aboutConfig,
     this.hideNavRail = false,
+    this.showAppBarLayoutPreferences = false,
   });
 
   @override
@@ -300,9 +304,8 @@ class SolidScaffoldState extends State<SolidScaffold> {
   late int _selectedIndex;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   SolidSecurityKeyService? _securityKeyService;
+  SolidScaffoldSecurityKeyHelper? _securityKeyHelper;
   bool _isKeySaved = false;
-  bool _isLoadingSecurityKeyStatus = false;
-  bool _isUpdatingSecurityKeyStatus = false;
   String? _appVersion;
   bool _isVersionLoaded = false;
   bool? _cachedUsesInternalManagement;
@@ -312,50 +315,43 @@ class SolidScaffoldState extends State<SolidScaffold> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
-    _securityKeyService = SolidScaffoldInitHelpers.initializeSecurityKeyService(
-      widget.statusBar?.securityKeyStatus != null,
-      _onSecurityKeyChanged,
-      () => _loadSecurityKeyStatus(),
-    );
+    _initSecurityKey();
     if (SolidScaffoldInitHelpers.hasVersionConfig(widget.appBar)) {
       _loadAppVersion();
     }
-
-    // Initialise theme and preferences notifiers asynchronously.
-
     _initializeNotifiers();
-
-    // Listen to global security key notifier.
-
-    if (widget.statusBar?.securityKeyStatus != null) {
-      securityKeyNotifier.addListener(_onSecurityKeyNotifierChanged);
-      _isKeySaved = securityKeyNotifier.isKeySaved;
-    }
-
-    // Listen to preferences notifier for theme mode changes.
-
-    solidPreferencesNotifier.addListener(_onPreferencesChanged);
-
-    // Load security key status asynchronously after initialisation.
-
+    _setupListeners();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.statusBar?.securityKeyStatus != null) {
         securityKeyNotifier.refreshStatus();
       }
     });
-
-    // Listen to controller changes.
-
-    if (widget.controller != null) {
-      widget.controller!.addListener(_onControllerChanged);
-    }
-
-    // Load the current webId for navigation drawer user info display.
-
     _loadCurrentWebId();
   }
 
-  /// Initialises theme and preferences notifiers asynchronously.
+  void _initSecurityKey() {
+    _securityKeyService = SolidScaffoldInitHelpers.initializeSecurityKeyService(
+      widget.statusBar?.securityKeyStatus != null,
+      _onSecurityKeyChanged,
+      () => _securityKeyHelper?.loadStatus(
+        widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
+      ),
+    );
+    _securityKeyHelper = SolidScaffoldSecurityKeyHelper(
+      securityKeyService: _securityKeyService,
+      onStatusChanged: (status) => setState(() => _isKeySaved = status),
+      isMounted: () => mounted,
+    );
+  }
+
+  void _setupListeners() {
+    if (widget.statusBar?.securityKeyStatus != null) {
+      securityKeyNotifier.addListener(_onSecurityKeyNotifierChanged);
+      _isKeySaved = securityKeyNotifier.isKeySaved;
+    }
+    solidPreferencesNotifier.addListener(_onPreferencesChanged);
+    widget.controller?.addListener(_onControllerChanged);
+  }
 
   Future<void> _initializeNotifiers() async {
     await SolidScaffoldInitHelpers.initializeThemeNotifier(
@@ -365,35 +361,13 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (mounted) setState(() {});
   }
 
-  /// Loads the current webId from Solid POD authentication state.
-  /// This is used to display user information in the navigation drawer header.
-
   Future<void> _loadCurrentWebId() async {
-    try {
-      final webId = await getWebId();
-
-      if (webId == null || webId.isEmpty) {
-        if (mounted && _currentWebId != null) {
-          setState(() => _currentWebId = null);
-        }
-        return;
-      }
-
-      // Verify if the user is actually logged in.
-
-      final isLoggedIn = await isUserLoggedIn();
-
-      if (mounted) {
-        final newWebId = isLoggedIn ? webId : null;
-        if (_currentWebId != newWebId) {
-          setState(() => _currentWebId = newWebId);
-        }
-      }
-    } catch (e) {
-      debugPrint('Error loading current webId: $e');
-      if (mounted && _currentWebId != null) {
-        setState(() => _currentWebId = null);
-      }
+    final webId = await SolidScaffoldWebIdHelper.loadCurrentWebId(
+      isMounted: () => mounted,
+      currentWebId: _currentWebId,
+    );
+    if (mounted && webId != _currentWebId) {
+      setState(() => _currentWebId = webId);
     }
   }
 
@@ -407,9 +381,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
       securityKeyNotifier.removeListener(_onSecurityKeyNotifierChanged);
     }
     solidPreferencesNotifier.removeListener(_onPreferencesChanged);
-    if (widget.controller != null) {
-      widget.controller!.removeListener(_onControllerChanged);
-    }
+    widget.controller?.removeListener(_onControllerChanged);
     super.dispose();
   }
 
@@ -425,13 +397,9 @@ class SolidScaffoldState extends State<SolidScaffold> {
     if (mounted) setState(() {});
   }
 
-  /// Callback when global security key notifier changes.
-
   void _onSecurityKeyNotifierChanged() {
     if (!mounted) return;
-
     final newStatus = securityKeyNotifier.isKeySaved;
-
     if (_isKeySaved != newStatus) {
       setState(() => _isKeySaved = newStatus);
       widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(newStatus);
@@ -439,77 +407,16 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   void _onSecurityKeyChanged() {
-    if (_isUpdatingSecurityKeyStatus) return;
-    _updateSecurityKeyStatusFromService();
+    _securityKeyHelper?.updateStatusFromService(
+      widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
+    );
   }
-
-  Future<void> _updateSecurityKeyStatusFromService() async {
-    if (_isUpdatingSecurityKeyStatus) return;
-    _isUpdatingSecurityKeyStatus = true;
-    if (mounted) setState(() => _isLoadingSecurityKeyStatus = true);
-    try {
-      final isKeySaved =
-          await SolidScaffoldInitHelpers.updateSecurityKeyStatusFromService(
-        _securityKeyService,
-        widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
-      );
-      if (mounted) setState(() => _isKeySaved = isKeySaved);
-    } finally {
-      if (mounted) setState(() => _isLoadingSecurityKeyStatus = false);
-      _isUpdatingSecurityKeyStatus = false;
-    }
-  }
-
-  Future<void> _loadSecurityKeyStatus() async {
-    if (_isUpdatingSecurityKeyStatus) return;
-    _isUpdatingSecurityKeyStatus = true;
-    if (mounted) setState(() => _isLoadingSecurityKeyStatus = true);
-    try {
-      final hasKeyInMemory =
-          await SolidScaffoldInitHelpers.loadSecurityKeyStatus(
-        _securityKeyService,
-        (hasKey) {
-          if (mounted && hasKey != _isKeySaved) {
-            setState(() => _isKeySaved = hasKey);
-            widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(
-              hasKey,
-            );
-          }
-        },
-      );
-      if (mounted) setState(() => _isKeySaved = hasKeyInMemory);
-    } catch (e) {
-      if (mounted) setState(() => _isKeySaved = false);
-    } finally {
-      if (mounted) setState(() => _isLoadingSecurityKeyStatus = false);
-      _isUpdatingSecurityKeyStatus = false;
-    }
-  }
-
-  /// Manually refresh the security key status.
 
   Future<void> refreshSecurityKeyStatus() async {
-    if (_securityKeyService == null) return;
-
-    try {
-      final hasKey = await _securityKeyService!.refreshAndNotify((
-        bool keyStatus,
-      ) {
-        if (mounted && keyStatus != _isKeySaved) {
-          setState(() => _isKeySaved = keyStatus);
-          widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(
-            keyStatus,
-          );
-        }
-      });
-
-      if (mounted && hasKey != _isKeySaved) {
-        setState(() => _isKeySaved = hasKey);
-        widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(hasKey);
-      }
-    } catch (e) {
-      debugPrint('Error refreshing security key status: $e');
-    }
+    await _securityKeyHelper?.refresh(
+      _isKeySaved,
+      widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
+    );
   }
 
   String _getVersionToDisplay() =>
@@ -619,7 +526,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
         isCompatibilityMode: isCompatibilityMode,
         bodyContent: bodyContent,
         isKeySaved: _isKeySaved,
-        isLoadingSecurityKey: _isLoadingSecurityKeyStatus,
+        isLoadingSecurityKey: _securityKeyHelper?.isUpdating ?? false,
         currentSelectedIndex: _currentSelectedIndex,
         onMenuSelected: _onMenuSelected,
         getUsesInternalManagement: _getUsesInternalManagement,

@@ -186,7 +186,7 @@ class SolidThemeToggleConfig {
   IconData _getIconForMode(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.light:
-        return lightModeIcon ?? Icons.light_mode;
+        return lightModeIcon ?? Icons.wb_sunny_outlined;
       case ThemeMode.dark:
         return darkModeIcon ?? Icons.dark_mode;
       case ThemeMode.system:
