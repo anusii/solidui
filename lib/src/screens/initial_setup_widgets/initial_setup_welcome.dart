@@ -86,7 +86,7 @@ SizedBox initialSetupWelcome(BuildContext context) {
             child: buildMsgBox(
               context,
               'warning',
-              initialStructureTitle,
+              '', // No title for the message box.
               initialStructureMsg,
             ),
           ),

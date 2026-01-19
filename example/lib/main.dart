@@ -46,11 +46,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // CRITICAL: Set app directory name BEFORE any Pod operations.
-  
+
   await setAppDirName('myapp');
 
   // Configure SolidAuthHandler with app-specific settings.
-  
+
   SolidAuthHandler.instance.configure(
     SolidAuthConfig(
       appTitle: appTitle,

@@ -161,7 +161,7 @@ class SolidStatusBar extends StatelessWidget {
     final theme = Theme.of(context);
 
     // Show loading indicator if status is being loaded.
-    
+
     if (securityKeyStatus.isLoading) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -218,13 +218,13 @@ class SolidStatusBar extends StatelessWidget {
   ) async {
     // Import at top: import 'package:solidpod/solidpod.dart' show getWebId;
     // Check if user is logged in first.
-    
+
     try {
       final webId = await getWebId();
 
       if (webId == null || webId.isEmpty) {
         // Show friendly login prompt.
-        
+
         if (!context.mounted) return;
         await showDialog(
           context: context,

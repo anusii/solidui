@@ -218,13 +218,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     solidThemeNotifier.addListener(_onThemeChanged);
 
     // Initialise the controller with the widget's webID.
-      
+
     _webIdController = TextEditingController(text: widget.webID);
 
     // Auto-configure SolidAuthHandler with this widget's settings
     // This ensures the handler works even if the app didn't explicitly configure it
     // Apps can override this by calling configure() in main.dart before runApp().
-      
+
     _autoConfigureSolidAuthHandler();
 
     // Initialise focus nodes for keyboard navigation.
@@ -241,12 +241,12 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   }
 
   // Auto-configure SolidAuthHandler if not already configured by the app.
-    
+
   void _autoConfigureSolidAuthHandler() {
     // Use configureDefaults instead of configure to preserve app settings
     // This provides working defaults while keeping important app-specific
     // configurations like onSecurityKeyReset callback.
-      
+
     SolidAuthHandler.instance.configureDefaults(
       SolidAuthConfig(
         appDirectory: widget.appDirectory,
@@ -267,7 +267,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // This ensures fresh state when returning from guest mode, even if the user
     // had manually modified the URL field before leaving
     // Only skip reset if the current text already matches the intended value.
-      
+
     if (_webIdController.text != widget.webID) {
       _webIdController.text = widget.webID;
     }
@@ -275,7 +275,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // CRITICAL: Reset appDirName if appDirectory changed
     // This fixes the double-slash bug when returning from guest mode
     // Without this, appDirName stays empty causing paths like //data/places.json.
-      
+
     if (oldWidget.appDirectory != widget.appDirectory) {
       setAppDirName(widget.appDirectory);
     }

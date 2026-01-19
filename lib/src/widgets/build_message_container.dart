@@ -78,25 +78,6 @@ Color getContentColour(String contentType) {
   }
 }
 
-/// Calculates the height of a widget based on the length of the provided content.
-///
-/// This function determines the height of a widget by evaluating the length of
-/// the string [content]. It returns different height values as a `double`
-/// depending on the number of characters in [content]. The function categorizes
-/// the content length into four ranges and assigns a specific height for each range.
-
-double getWidgetHeight(String content) {
-  if (content.length < 200) {
-    return 0.125;
-  } else if (content.length < 400) {
-    return 0.190;
-  } else if (content.length < 600) {
-    return 0.250;
-  } else {
-    return 0.300;
-  }
-}
-
 /// Builds a custom message box widget with adaptive layout and dynamic styling.
 ///
 /// This widget creates a Container that displays a message box. The layout and styling
@@ -130,66 +111,48 @@ Container buildMsgBox(
   // Determine device type for layout adjustments
 
   final isMobile = size.width <= 730;
-  final isTablet = size.width > 730 && size.width <= 1050;
 
   // Minimal horizontal padding for all devices
 
   final horizontalPadding =
       size.width * 0.01; // Adjust this value to increase or decrease padding
 
+  // Use dynamic height based on content.
+
   return Container(
     margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
-    height: !isMobile
-        ? !isTablet
-            ? size.height * (1500.0 / size.width) * getWidgetHeight(msg)
-            : size.height * (1000.0 / size.width) * getWidgetHeight(msg)
-        : size.height * (650.0 / size.width) * getWidgetHeight(msg),
-    child: Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.topCenter,
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+    decoration: BoxDecoration(
+      color: getContentColour(msgType),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: size.width,
-          decoration: BoxDecoration(
-            color: getContentColour(msgType),
-            borderRadius: BorderRadius.circular(20),
+        // Only show title if it is not empty.
+
+        if (title.isNotEmpty) ...[
+          Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: !isMobile ? size.height * 0.03 : size.height * 0.025,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
           ),
-        ),
-        Positioned.fill(
-          // Apply minimal padding equally on both sides
-          left: horizontalPadding,
-          right: horizontalPadding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: size.height * 0.02),
-              Center(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize:
-                        !isMobile ? size.height * 0.03 : size.height * 0.025,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(height: size.height * 0.005),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Text(
-                    msg,
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: size.height * 0.020,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: size.height * 0.015),
-            ],
+          const SizedBox(height: 10),
+        ],
+        Text(
+          msg,
+          softWrap: true,
+          style: const TextStyle(
+            // Use fixed font size to match page body text.
+
+            fontSize: 15,
+            color: Colors.white,
           ),
         ),
       ],

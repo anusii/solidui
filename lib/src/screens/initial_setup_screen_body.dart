@@ -84,6 +84,111 @@ class InitialSetupScreenBody extends StatefulWidget {
 }
 
 class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
+  /// Shows a dialog displaying the resources to be created.
+
+  void _showResourcesDialog(
+    BuildContext context,
+    String baseUrl,
+    List<String?> extractedParts,
+  ) {
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Resources Dialog',
+      barrierColor: Colors.black54,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
+          child: Material(
+            borderRadius: BorderRadius.circular(12),
+            elevation: 8,
+            child: Container(
+              width: 600,
+              height: 500,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Resources to be created',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => rootNavigator.pop(),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Within: $baseUrl',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
+
+                  // Scrollable resource list.
+
+                  Expanded(
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      child: ListView.separated(
+                        itemCount: extractedParts.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final resLink = extractedParts[index];
+                          if (resLink == null) return const SizedBox.shrink();
+                          final isFolder = resLink.endsWith('/');
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isFolder
+                                      ? Icons.folder_outlined
+                                      : Icons.insert_drive_file_outlined,
+                                  size: 20,
+                                  color: isFolder ? Colors.amber : Colors.blue,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    resLink,
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormBuilderState>();
@@ -139,159 +244,137 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         .map((item) => item.toString())
         .toList();
 
-    return Column(
-      children: [
-        // Adding a Row for the back button and spacing.
+    // Wrap in FocusTraversalGroup to enable ordered tab navigation.
 
-        Row(
-          children: [
-            BackButton(
-              onPressed: () {
-                // Navigate back to the original login screen with all parameters preserved.
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Column(
+        children: [
+          // Adding a Row for the back button and spacing.
 
-                if (widget.originalLogin != null) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => widget.originalLogin!,
-                    ),
-                  );
-                } else {
-                  // Fallback to navigating to the root if original login is not available.
+          Row(
+            children: [
+              BackButton(
+                onPressed: () {
+                  // Navigate back to the original login screen with all
+                  // parameters preserved.
 
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
-            ),
-          ],
-        ),
+                  if (widget.originalLogin != null) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => widget.originalLogin!,
+                      ),
+                    );
+                  } else {
+                    // Fallback to navigating to the root if original login is
+                    // not available.
 
-        Expanded(
-          child: SizedBox(
-            height: 700,
-            child: ListView(
-              primary: false,
-              children: [
-                Center(
-                  child: initialSetupWelcome(context),
-                ),
-                Center(
-                  child: SizedBox(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(80, 10, 80, 0),
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  }
+                },
+              ),
+            ],
+          ),
+
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: ListView(
+                  primary: false,
+                  children: [
+                    initialSetupWelcome(context),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           EncKeyInputForm(
                             formKey: formKey,
+                            onSubmit: () => handleFormSubmission(
+                              formKey,
+                              context,
+                              resFoldersLink,
+                              resFilesLink,
+                              widget.child,
+                            ),
                           ),
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          Center(
+                          const SizedBox(height: 20),
+                          FractionallySizedBox(
+                            widthFactor: 0.9,
+                            alignment: Alignment.center,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ResourceCreationTextWidget(
-                                  resLinks: combinedLinks,
-                                  baseUrl: baseUrl,
-                                ),
-                                const Divider(
-                                  color: Colors.grey,
-                                ),
-                                for (final String? resLink
-                                    in extractedParts) ...[
-                                  ListTile(
-                                    title: Text(resLink!),
-                                    leading: Icon(
-                                      resLink.endsWith('/')
-                                          ? Icons.folder
-                                          : Icons.insert_drive_file_outlined,
+                                OutlinedButton(
+                                  onPressed: () => _showResourcesDialog(
+                                    context,
+                                    baseUrl,
+                                    extractedParts,
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.blue,
+                                    side: const BorderSide(color: Colors.blue),
+                                  ),
+                                  child: const Text(
+                                    'RESOURCES',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
                                     ),
                                   ),
-                                ],
-                                const SizedBox(
-                                  height: 20,
                                 ),
+                                const SizedBox(height: 30),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    // Tab order: Submit (3) then Logout (4).
+                                    FocusTraversalOrder(
+                                      order: const NumericFocusOrder(4),
+                                      child: TextButton(
+                                        onPressed: () async {
+                                          await logoutPopup(
+                                            context,
+                                            widget.child,
+                                          );
+                                        },
+                                        child: const Text(
+                                          'LOGOUT',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    FocusTraversalOrder(
+                                      order: const NumericFocusOrder(3),
+                                      child: resCreateFormSubmission(
+                                        formKey,
+                                        context,
+                                        resFileNames,
+                                        resFoldersLink,
+                                        resFilesLink,
+                                        widget.child,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 30),
                               ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(30.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // Simplified logout button placed next to the submit button.
-                TextButton(
-                  onPressed: () async {
-                    await logoutPopup(
-                      context,
-                      widget.child,
-                    );
-                  },
-                  child: const Text(
-                    'LOGOUT',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                resCreateFormSubmission(
-                  formKey,
-                  context,
-                  resFileNames,
-                  resFoldersLink,
-                  resFilesLink,
-                  widget.child,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class ResourceCreationTextWidget extends StatelessWidget {
-  const ResourceCreationTextWidget({
-    required this.resLinks,
-    required this.baseUrl,
-    super.key,
-  });
-  final List<String> resLinks;
-  final String baseUrl;
-
-  String getResourceCreationMessage() {
-    if (resLinks.isEmpty) return 'No resources specified';
-
-    return 'Resources to be created within\n$baseUrl';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        getResourceCreationMessage(),
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 25,
-          fontWeight: FontWeight.w500,
-        ),
+        ],
       ),
     );
   }

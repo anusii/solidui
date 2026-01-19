@@ -38,7 +38,42 @@ import 'package:solidpod/solidpod.dart' show initPod;
 import 'package:solidui/src/constants/initial_setup.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 
-/// A button to submit form widget
+/// Handles the form submission logic.
+
+Future<void> handleFormSubmission(
+  GlobalKey<FormBuilderState> formKey,
+  BuildContext context,
+  List<String> resFoldersLink,
+  List<String> resFilesLink,
+  Widget child,
+) async {
+  if (formKey.currentState?.saveAndValidate() ?? false) {
+    // ignore: unawaited_futures
+    showAnimationDialog(context, 17, 'Creating resources!', false, null);
+    final formData = formKey.currentState?.value as Map;
+
+    final securityKey = formData[securityKeyStr].toString();
+
+    try {
+      await initPod(
+        securityKey,
+        dirUrls: resFoldersLink,
+        fileUrls: resFilesLink,
+      );
+    } on Exception catch (e) {
+      debugPrint('Error initialising POD: $e');
+    }
+
+    await Navigator.pushReplacement(
+      // ignore: use_build_context_synchronously
+      context,
+      MaterialPageRoute(builder: (context) => child),
+    );
+    if (context.mounted) Navigator.pop(context);
+  }
+}
+
+/// A button to submit form widget.
 ///
 /// This function takes all the input data from the form and create all
 /// required resources inside a user's POD. This includes creating several
@@ -160,31 +195,13 @@ ElevatedButton resCreateFormSubmission(
 
   return ElevatedButton(
     onPressed: () async {
-      if (formKey.currentState?.saveAndValidate() ?? false) {
-        // ignore: unawaited_futures
-        showAnimationDialog(context, 17, 'Creating resources!', false, null);
-        final formData = formKey.currentState?.value as Map;
-
-        final securityKey = formData[securityKeyStr].toString();
-
-        try {
-          // await _initPodOriginalFunc(securityKey);
-          await initPod(
-            securityKey,
-            dirUrls: resFoldersLink,
-            fileUrls: resFilesLink,
-          );
-        } on Exception catch (e) {
-          debugPrint('Error initialising POD: $e');
-        }
-
-        await Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(builder: (context) => child),
-        );
-        if (context.mounted) Navigator.pop(context);
-      }
+      await handleFormSubmission(
+        formKey,
+        context,
+        resFoldersLink,
+        resFilesLink,
+        child,
+      );
     },
     style: ElevatedButton.styleFrom(
       foregroundColor: darkBlue,

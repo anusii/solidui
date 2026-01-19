@@ -31,14 +31,14 @@ library;
 
 // ignore_for_file: public_member_api_docs
 
-import 'dart:async' show unawaited;
-
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
     show isUserLoggedIn, solidAuthenticate, initialStructureTest;
 
+import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
+import 'package:solidui/src/widgets/solid_login.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
 /// A handler class for Solid Pod authentication logic.
@@ -200,21 +200,16 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      // Navigate to main app immediately after successful authentication
-      // This provides instant user feedback and better UX
+      // Check POD structure and navigate accordingly.
+
       if (!context.mounted) return false;
 
-      await pushReplacement(context, childWidget);
-
-      // Check initial structure in background (non-blocking)
-      // If setup is needed, user can access it from the app later
-      unawaited(
-        _checkInitialStructureInBackground(
-          defaultFolders,
-          defaultFiles,
-          originalLoginWidget,
-          childWidget,
-        ),
+      await _checkInitialStructureAndNavigate(
+        context,
+        defaultFolders,
+        defaultFiles,
+        originalLoginWidget,
+        childWidget,
       );
 
       return true;
@@ -237,12 +232,10 @@ class SolidLoginAuthHandler {
     }
   }
 
-  /// Checks initial POD structure in the background without blocking navigation.
-  ///
-  /// This allows the user to access the app immediately while structure
-  /// verification happens asynchronously. If setup is needed, it can be
-  /// triggered later from within the app.
-  static Future<void> _checkInitialStructureInBackground(
+  /// Checks initial POD structure and navigates to the appropriate screen.
+
+  static Future<void> _checkInitialStructureAndNavigate(
+    BuildContext context,
     List<String> defaultFolders,
     Map<dynamic, dynamic> defaultFiles,
     dynamic originalLoginWidget,
@@ -250,7 +243,7 @@ class SolidLoginAuthHandler {
   ) async {
     try {
       debugPrint(
-        'SolidLoginAuthHandler: Checking initial structure in background...',
+        'SolidLoginAuthHandler: Checking initial structure...',
       );
 
       final resCheckList = await initialStructureTest(
@@ -260,22 +253,47 @@ class SolidLoginAuthHandler {
 
       final allExists = resCheckList.first as bool;
 
+      if (!context.mounted) return;
+
       if (allExists) {
         debugPrint(
           'SolidLoginAuthHandler: Initial structure verified successfully',
         );
+
+        // POD structure is complete, navigate to main app.
+
+        await pushReplacement(context, childWidget);
       } else {
         debugPrint(
-          'SolidLoginAuthHandler: Initial structure incomplete - user may need to run setup',
+          'SolidLoginAuthHandler: Initial structure incomplete - '
+          'navigating to setup',
         );
-        // In the future, we could show a notification or prompt here
-        // For now, we just log it and let the user discover setup options in the app
+
+        // Navigate to initial setup screen if POD structure is incomplete.
+
+        await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InitialSetupScreen(
+              resCheckList: resCheckList,
+              originalLogin: originalLoginWidget is SolidLogin
+                  ? originalLoginWidget
+                  : null,
+              child: childWidget,
+            ),
+          ),
+        );
       }
     } catch (e) {
       debugPrint(
         'SolidLoginAuthHandler: Background structure check failed: $e',
       );
-      // Non-critical error - user can still use the app
+
+      // On error, navigate to main app and let user handle setup later.
+
+      if (context.mounted) {
+        await pushReplacement(context, childWidget);
+      }
     }
   }
 }
