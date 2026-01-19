@@ -43,6 +43,7 @@ import 'package:solidpod/solidpod.dart'
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/solid_config.dart';
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
@@ -61,6 +62,7 @@ class SolidLogin extends StatefulWidget {
 
   const SolidLogin({
     // Include the literals here so that they are exposed through the docs.
+
     required this.child,
     this.required = false,
     this.appDirectory = '',
@@ -191,6 +193,15 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   Map<dynamic, dynamic> defaultFiles = {};
 
+  // Track the current theme mode.
+  // Always start with light mode regardless of system preference.
+
+  bool isDarkMode = false;
+
+  // Text controller for the URI of the solid server - should be managed in state.
+
+  late TextEditingController _webIdController;
+
   // Focus nodes for keyboard navigation.
   // Tab order: login -> continue -> register -> info -> server input.
 
@@ -206,6 +217,16 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     solidThemeNotifier.addListener(_onThemeChanged);
 
+    // Initialise the controller with the widget's webID.
+      
+    _webIdController = TextEditingController(text: widget.webID);
+
+    // Auto-configure SolidAuthHandler with this widget's settings
+    // This ensures the handler works even if the app didn't explicitly configure it
+    // Apps can override this by calling configure() in main.dart before runApp().
+      
+    _autoConfigureSolidAuthHandler();
+
     // Initialise focus nodes for keyboard navigation.
 
     _loginFocusNode = FocusNode(debugLabel: 'loginButton');
@@ -215,12 +236,56 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _serverInputFocusNode = FocusNode(debugLabel: 'serverInput');
 
     // dc 20251022: please explain why calling an async without await.
+
     _initPackageInfo();
+  }
+
+  // Auto-configure SolidAuthHandler if not already configured by the app.
+    
+  void _autoConfigureSolidAuthHandler() {
+    // Use configureDefaults instead of configure to preserve app settings
+    // This provides working defaults while keeping important app-specific
+    // configurations like onSecurityKeyReset callback.
+      
+    SolidAuthHandler.instance.configureDefaults(
+      SolidAuthConfig(
+        appDirectory: widget.appDirectory,
+        defaultServerUrl: widget.webID,
+        appImage: widget.image,
+        appLogo: widget.logo,
+        appLink: widget.link,
+        loginSuccessWidget: widget.child,
+      ),
+    );
+  }
+
+  @override
+  void didUpdateWidget(SolidLogin oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Always reset the controller text to widget.webID when widget updates
+    // This ensures fresh state when returning from guest mode, even if the user
+    // had manually modified the URL field before leaving
+    // Only skip reset if the current text already matches the intended value.
+      
+    if (_webIdController.text != widget.webID) {
+      _webIdController.text = widget.webID;
+    }
+
+    // CRITICAL: Reset appDirName if appDirectory changed
+    // This fixes the double-slash bug when returning from guest mode
+    // Without this, appDirName stays empty causing paths like //data/places.json.
+      
+    if (oldWidget.appDirectory != widget.appDirectory) {
+      setAppDirName(widget.appDirectory);
+    }
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    // Clean up the controller when the widget is disposed.
+
+    _webIdController.dispose();
     solidThemeNotifier.removeListener(_onThemeChanged);
 
     // Dispose focus nodes to avoid memory leaks.
@@ -231,39 +296,28 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _infoFocusNode.dispose();
     _serverInputFocusNode.dispose();
 
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  /// Called when the platform brightness changes.
-  /// Triggers a rebuild to update the theme when in system mode.
-
-  @override
-  void didChangePlatformBrightness() {
-    if (mounted && solidThemeNotifier.themeMode == ThemeMode.system) {
-      setState(() {});
-    }
-  }
-
-  /// Callback when theme notifier changes.
+  // Callback when theme changes from the global notifier.
 
   void _onThemeChanged() {
     if (mounted) {
-      setState(() {});
-    }
-  }
+      setState(() {
+        // Determine if dark mode based on ThemeMode.
 
-  /// Determines if dark mode should be used based on the current theme mode.
-  /// When in system mode, follows the system brightness.
-  /// When explicitly set to light or dark, uses that mode.
+        final themeMode = solidThemeNotifier.themeMode;
+        if (themeMode == ThemeMode.system) {
+          // Follow system brightness.
 
-  bool get isDarkMode {
-    switch (solidThemeNotifier.themeMode) {
-      case ThemeMode.system:
-        return MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-      case ThemeMode.light:
-        return false;
-      case ThemeMode.dark:
-        return true;
+          final brightness =
+              WidgetsBinding.instance.platformDispatcher.platformBrightness;
+          isDarkMode = brightness == Brightness.dark;
+        } else {
+          isDarkMode = themeMode == ThemeMode.dark;
+        }
+      });
     }
   }
 
@@ -389,11 +443,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       image: DecorationImage(image: widget.image, fit: BoxFit.cover),
     );
 
-    // Text controller for the URI of the solid server to which an authenticate
-    // request is sent.
-
-    final webIdController = TextEditingController()..text = widget.webID;
-
     // Build all buttons using the button builder.
     // User input from text field will override the default server URL.
 
@@ -402,8 +451,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       child: SolidLoginButtons.buildRegisterButton(
         style: widget.registerButtonStyle,
         onPressed: () {
-          final webId = webIdController.text.trim().isNotEmpty
-              ? webIdController.text.trim()
+          final webId = _webIdController.text.trim().isNotEmpty
+              ? _webIdController.text.trim()
               : SolidConfig.defaultServerUrl;
           launchUrl(Uri.parse('$webId/.account/login/password/register/'));
         },
@@ -416,8 +465,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       child: SolidLoginButtons.buildLoginButton(
         style: widget.loginButtonStyle,
         onPressed: () async {
-          final podServer = webIdController.text.trim().isNotEmpty
-              ? webIdController.text.trim()
+          final podServer = _webIdController.text.trim().isNotEmpty
+              ? _webIdController.text.trim()
               : SolidConfig.defaultServerUrl;
 
           isDialogCanceled = false;
@@ -463,7 +512,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       logo: widget.logo,
       title: widget.title,
       appVersion: appVersion,
-      webIdController: webIdController,
+      webIdController: _webIdController,
       loginButton: loginButton,
       registerButton: registerButton,
       continueButton: continueButton,

@@ -502,6 +502,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
             ),
             _onMenuSelected,
             widget.onShowAlert,
+            widget.menu, // Pass menu items for IndexedStack
           );
     return NotificationListener<SecurityKeyStatusChangedNotification>(
       onNotification: (notification) {
@@ -525,6 +526,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
         isCompatibilityMode: isCompatibilityMode,
         bodyContent: bodyContent,
         isKeySaved: _isKeySaved,
+        isLoadingSecurityKey: _securityKeyHelper?.isUpdating ?? false,
         currentSelectedIndex: _currentSelectedIndex,
         onMenuSelected: _onMenuSelected,
         getUsesInternalManagement: _getUsesInternalManagement,

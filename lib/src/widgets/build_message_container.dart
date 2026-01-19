@@ -111,6 +111,7 @@ Container buildMsgBox(
   String msg,
 ) {
   // Zheyuan might need to use isRTL in the future
+
   // ignore: unused_local_variable
   var isRTL = false;
 
@@ -127,10 +128,12 @@ Container buildMsgBox(
   }
 
   // Determine device type for layout adjustments
+
   final isMobile = size.width <= 730;
   final isTablet = size.width > 730 && size.width <= 1050;
 
   // Minimal horizontal padding for all devices
+
   final horizontalPadding =
       size.width * 0.01; // Adjust this value to increase or decrease padding
 

@@ -124,6 +124,7 @@ class SolidScaffoldBuildHelper {
     required bool isCompatibilityMode,
     required Widget? bodyContent,
     required bool isKeySaved,
+    bool isLoadingSecurityKey = false,
     required int currentSelectedIndex,
     required void Function(int) onMenuSelected,
     required bool Function() getUsesInternalManagement,
@@ -182,12 +183,10 @@ class SolidScaffoldBuildHelper {
       bodyContent: bodyContent,
       bottomNavigationBar: isCompatibilityMode
           ? config.bottomNavigationBar
-          : (config.hideNavRail
-              ? null
-              : SolidScaffoldLayoutBuilder.buildStatusBar(
-                  config.statusBar,
-                  isKeySaved,
-                )),
+          : SolidScaffoldLayoutBuilder.buildStatusBar(
+              config.statusBar,
+              isKeySaved,
+            ),
       bottomSheet: config.bottomSheet,
       persistentFooterButtons: config.persistentFooterButtons,
       resizeToAvoidBottomInset: config.resizeToAvoidBottomInset,

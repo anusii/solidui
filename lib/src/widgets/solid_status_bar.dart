@@ -34,6 +34,7 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:solidpod/solidpod.dart' show getWebId;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
@@ -159,6 +160,33 @@ class SolidStatusBar extends StatelessWidget {
 
     final theme = Theme.of(context);
 
+    // Show loading indicator if status is being loaded.
+    
+    if (securityKeyStatus.isLoading) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                theme.colorScheme.primary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            securityKeyStatus.displayText,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ],
+      );
+    }
+
     // Determine the onTap handler.
 
     VoidCallback? onTap = securityKeyStatus.onTap;
@@ -184,10 +212,56 @@ class SolidStatusBar extends StatelessWidget {
 
   /// Shows the built-in security key manager dialogue.
 
-  void _showSecurityKeyManager(
+  Future<void> _showSecurityKeyManager(
     BuildContext context,
     SolidSecurityKeyStatus config,
-  ) {
+  ) async {
+    // Import at top: import 'package:solidpod/solidpod.dart' show getWebId;
+    // Check if user is logged in first.
+    
+    try {
+      final webId = await getWebId();
+
+      if (webId == null || webId.isEmpty) {
+        // Show friendly login prompt.
+        
+        if (!context.mounted) return;
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.blue),
+                SizedBox(width: 8),
+                Text('Login Required'),
+              ],
+            ),
+            content: const Text(
+              'You must be logged in to manage your security key.\n\n'
+              'Security keys are used to encrypt your sensitive data stored in your Solid Pod.\n\n'
+              'Please log in first, then you can set up your security key.',
+              style: TextStyle(fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    } catch (e) {
+      debugPrint('Error checking login status: $e');
+      // Continue to show dialog anyway
+    }
+
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.5),

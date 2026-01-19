@@ -431,17 +431,18 @@ Widget getThemeToggleTooltip(
 }
 
 /// Utility function for navigation
+/// Modified to preserve widget state by using simple replacement instead of clearing entire stack
 
 Future<void> pushReplacement(
   BuildContext context,
   Widget destinationWidget,
 ) async {
-  Navigator.pushAndRemoveUntil(
-    context,
+  // Use simple pushReplacement instead of pushAndRemoveUntil
+  // This preserves the navigation history and doesn't destroy all widgets
+
+  await Navigator.of(context).pushReplacement(
     MaterialPageRoute(
       builder: (context) => destinationWidget,
     ),
-    (Route<dynamic> route) =>
-        false, // This predicate ensures all previous routes are removed
   );
 }

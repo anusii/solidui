@@ -33,7 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart' show getWebId;
 
 import 'package:solidui/src/constants/solid_config.dart';
-import 'package:solidui/src/widgets/solid_default_login.dart';
+import 'package:solidui/src/widgets/solid_login.dart';
 import 'package:solidui/src/widgets/solid_logout_dialog.dart' show logoutPopup;
 
 /// Configuration for Solid authentication handling.
@@ -61,6 +61,7 @@ class SolidAuthConfig {
   final String? appDirectory;
 
   /// App image for the default login page.
+
   final AssetImage? appImage;
 
   /// App logo for the default login page.
@@ -114,6 +115,36 @@ class SolidAuthHandler {
     _config = config;
   }
 
+  /// Configure default values without overwriting existing configuration.
+  /// This is used by SolidLogin to provide fallback values while preserving
+  /// app-specific settings like onSecurityKeyReset.
+
+  void configureDefaults(SolidAuthConfig defaults) {
+    if (_config == null) {
+      // No existing config, use defaults
+      _config = defaults;
+    } else {
+      // Merge: keep existing non-null values, fill in missing ones from defaults
+      _config = SolidAuthConfig(
+        returnTo: _config!.returnTo ?? defaults.returnTo,
+        loginPageBuilder:
+            _config!.loginPageBuilder ?? defaults.loginPageBuilder,
+        defaultServerUrl:
+            _config!.defaultServerUrl ?? defaults.defaultServerUrl,
+        appTitle: _config!.appTitle ?? defaults.appTitle,
+        appDirectory: _config!.appDirectory ?? defaults.appDirectory,
+        appImage: _config!.appImage ?? defaults.appImage,
+        appLogo: _config!.appLogo ?? defaults.appLogo,
+        appLink: _config!.appLink ?? defaults.appLink,
+        loginSuccessWidget:
+            _config!.loginSuccessWidget ?? defaults.loginSuccessWidget,
+        // IMPORTANT: Preserve app's security key reset callback
+        onSecurityKeyReset:
+            _config!.onSecurityKeyReset ?? defaults.onSecurityKeyReset,
+      );
+    }
+  }
+
   /// Handle logout functionality with confirmation popup.
 
   Future<void> handleLogout(BuildContext context) async {
@@ -130,9 +161,12 @@ class SolidAuthHandler {
     // No additional navigation needed.
   }
 
-  /// Handle login functionality by navigating to login page.
+  /// Handle login functionality - navigates to login page.
+  /// Works consistently across all platforms (web, mobile, desktop).
 
   Future<void> handleLogin(BuildContext context) async {
+    // Navigate to login page using standard Flutter navigation
+    // This works across all platforms and maintains proper widget lifecycle
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -142,23 +176,38 @@ class SolidAuthHandler {
   }
 
   /// Build the login page widget.
+  ///
+  /// Returns the actual login input page (SolidLogin), not the success page.
+  /// This is used when guest users want to authenticate, or after logout.
 
   Widget _buildLoginPage(BuildContext context) {
     if (_config?.loginPageBuilder != null) {
       return _config!.loginPageBuilder!(context);
     }
 
-    // Use default login page.
+    // Use the login input page, not the success page
+    // The loginSuccessWidget (child) will be shown after successful authentication
+    final mainAppWidget = _config?.loginSuccessWidget ??
+        const Center(child: Text('Authentication required'));
 
-    return SolidDefaultLogin(
-      appTitle: _config?.appTitle ?? 'Solid App',
+    // Use ValueKey to identify this as a fresh login page instance
+    // This works with didUpdateWidget() to reset state when needed
+    return SolidLogin(
+      key: const ValueKey('login_page'),
       appDirectory: _config?.appDirectory ?? 'solid_app',
-      defaultServerUrl:
-          _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
-      appImage: _config?.appImage,
-      appLogo: _config?.appLogo,
-      appLink: _config?.appLink,
-      loginSuccessWidget: _config?.loginSuccessWidget,
+      webID: _config?.defaultServerUrl ?? SolidConfig.defaultServerUrl,
+      // Use provided images or fallback to SolidLogin's defaults from solidpod package
+      image: _config?.appImage ??
+          const AssetImage(
+            'assets/images/default_image.jpg',
+            package: 'solidpod',
+          ),
+      logo: _config?.appLogo ??
+          const AssetImage(
+            'assets/images/default_logo.png',
+            package: 'solidpod',
+          ),
+      child: mainAppWidget,
     );
   }
 

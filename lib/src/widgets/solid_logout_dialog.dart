@@ -55,6 +55,9 @@ class _LogoutDialogState extends State<LogoutDialog> {
           child: const Text('OK'),
           onPressed: () async {
             if (await logoutPod()) {
+              // Navigate to login page after successful logout
+              // Works consistently across all platforms
+
               if (context.mounted) {
                 await Navigator.pushReplacement(
                   context,
