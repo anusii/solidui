@@ -91,8 +91,10 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
   Widget _loadedScreen(List<dynamic> resCheckList) {
     final resNeedToCreate = resCheckList.last as Map;
 
+    // Use theme-aware background colour for dark mode support.
+
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Column(
         children: [
           Expanded(

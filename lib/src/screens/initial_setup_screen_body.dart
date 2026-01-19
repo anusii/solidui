@@ -98,16 +98,23 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
       barrierLabel: 'Resources Dialog',
       barrierColor: Colors.black54,
       pageBuilder: (context, animation, secondaryAnimation) {
+        // Use theme-aware colours for dark mode support.
+
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        final dialogBg = isDark ? theme.cardColor : Colors.white;
+
         return Center(
           child: Material(
             borderRadius: BorderRadius.circular(12),
             elevation: 8,
+            color: dialogBg,
             child: Container(
               width: 600,
               height: 500,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: dialogBg,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

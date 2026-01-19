@@ -71,11 +71,11 @@ SizedBox initialSetupWelcome(BuildContext context) {
           const SizedBox(
             height: 10,
           ),
-          const Text(
+          Text(
             initialStructureWelcome,
             style: TextStyle(
               fontSize: 25,
-              color: Colors.black,
+              color: Theme.of(context).textTheme.titleLarge?.color,
               fontWeight: FontWeight.w500,
             ),
           ),
