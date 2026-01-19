@@ -85,76 +85,87 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
             ),
           ),
           const SizedBox(height: 10),
-          FormBuilderTextField(
-            name: securityKeyStr,
-            obscureText:
-                // Controls whether the security key is shown or hidden.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: FormBuilderTextField(
+                  name: securityKeyStr,
+                  obscureText:
+                      // Controls whether the security key is shown or hidden.
 
-                !_showSecurityKey,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: 'SECURITY KEY',
-              labelStyle: const TextStyle(
-                color: Colors.blue,
-                letterSpacing: 1.5,
-                fontSize: 13.0,
-                fontWeight: FontWeight.bold,
-              ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _showSecurityKey ? Icons.visibility : Icons.visibility_off,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _showSecurityKey =
-                        // Toggle the state to show/hide the security key
+                      !_showSecurityKey,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    labelText: 'SECURITY KEY',
+                    labelStyle: const TextStyle(
+                      color: Colors.blue,
+                      letterSpacing: 1.5,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _showSecurityKey
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showSecurityKey =
+                              // Toggle the state to show/hide the security key.
 
-                        !_showSecurityKey;
-                  });
-                },
-              ),
-            ),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(),
-            ]),
-          ),
-          const SizedBox(height: 10),
-          FormBuilderTextField(
-            name: securityKeyStrReType,
-            obscureText: !_showRetypedSecurityKey,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: 'RETYPE SECURITY KEY',
-              labelStyle: const TextStyle(
-                color: Colors.blue,
-                letterSpacing: 1.5,
-                fontSize: 13.0,
-                fontWeight: FontWeight.bold,
-              ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _showRetypedSecurityKey
-                      ? Icons.visibility
-                      : Icons.visibility_off,
+                              !_showSecurityKey;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ]),
                 ),
-                onPressed: () {
-                  setState(() {
-                    _showRetypedSecurityKey = !_showRetypedSecurityKey;
-                  });
-                },
               ),
-            ),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(),
-              (val) {
-                if (val !=
-                    widget
-                        .formKey.currentState!.fields[securityKeyStr]?.value) {
-                  return 'Security keys do not match';
-                }
-                return null;
-              },
-            ]),
+              const SizedBox(width: 16),
+              Expanded(
+                child: FormBuilderTextField(
+                  name: securityKeyStrReType,
+                  obscureText: !_showRetypedSecurityKey,
+                  autocorrect: false,
+                  decoration: InputDecoration(
+                    labelText: 'RETYPE SECURITY KEY',
+                    labelStyle: const TextStyle(
+                      color: Colors.blue,
+                      letterSpacing: 1.5,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _showRetypedSecurityKey
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showRetypedSecurityKey = !_showRetypedSecurityKey;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    (val) {
+                      if (val !=
+                          widget.formKey.currentState!.fields[securityKeyStr]
+                              ?.value) {
+                        return 'Security keys do not match';
+                      }
+                      return null;
+                    },
+                  ]),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 30),
           const Text(
@@ -163,31 +174,6 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
               color: Colors.black,
               fontSize: 15,
               fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 10),
-          FormBuilderCheckbox(
-            name: 'providepermission',
-            initialValue: false,
-            onChanged: (val) {
-              if (val != null) {
-                debugPrint('Permission granted: $val');
-              }
-            },
-            title: RichText(
-              text: const TextSpan(
-                children: [
-                  TextSpan(
-                    text:
-                        'I acknowledge that the resources identified below will be created. ',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ],
-              ),
-            ),
-            validator: FormBuilderValidators.equal(
-              true,
-              errorText: 'You must provide permission to continue',
             ),
           ),
           const SizedBox(height: 20),

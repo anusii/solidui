@@ -184,36 +184,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                           EncKeyInputForm(
                             formKey: formKey,
                           ),
-                          Center(
-                            child: TextButton.icon(
-                              icon: const Icon(
-                                Icons.logout,
-                                color: Colors.grey,
-                                size: 24.0,
-                              ),
-                              label: const Text(
-                                'Or you can Logout from your Solid Pod'
-                                ' to login again as another user.',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey, //black,
-                                ),
-                              ),
-                              onPressed: () async {
-                                // Navigator.pop(context);
-
-                                await logoutPopup(
-                                  context,
-                                  widget.child,
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors
-                                    .white, //lightBlue, // Set the background color to light blue
-                              ),
-                              // remove the popup warning.
-                            ),
-                          ),
                           const SizedBox(
                             height: 40,
                           ),
@@ -261,6 +231,24 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                // Simplified logout button placed next to the submit button.
+                TextButton(
+                  onPressed: () async {
+                    await logoutPopup(
+                      context,
+                      widget.child,
+                    );
+                  },
+                  child: const Text(
+                    'LOGOUT',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
                 resCreateFormSubmission(
                   formKey,
                   context,
