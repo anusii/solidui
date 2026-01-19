@@ -24,6 +24,9 @@ file management capabilities, security key handling, and
 authentication features specifically designed for Solid applications
 interacting with a user's personal online data store (Pods).
 
+See the [AU SolidCommunity](https://solidcommunity.au) page for apps
+utilising the solidui package.
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -1158,7 +1161,7 @@ issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
 The authors of the package will respond to issues as best we can but.
 
 <!-- markdownlint-disable MD036 -->
-*Time-stamp: <Friday 2025-12-12 09:44:25 +1100 Graham Williams>*
+*Time-stamp: <Monday 2026-01-19 16:51:22 +1100 Graham Williams>*
 <!-- markdownlint-enable MD036 -->
 
 <!-- markdownlint-disable MD053 -->
