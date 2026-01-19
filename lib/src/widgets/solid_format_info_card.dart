@@ -77,7 +77,6 @@ class SolidFormatInfoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header with icon and title.
-
             Row(
               children: [
                 Icon(
@@ -99,7 +98,6 @@ class SolidFormatInfoCard extends StatelessWidget {
             ),
 
             // Description if provided.
-
             if (config.description != null) ...[
               const SizedBox(height: 8),
               Text(
@@ -113,7 +111,6 @@ class SolidFormatInfoCard extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Required fields section.
-
             Text(
               'Required Fields:',
               style: TextStyle(
@@ -140,7 +137,6 @@ class SolidFormatInfoCard extends StatelessWidget {
             ),
 
             // Optional fields section.
-
             if (config.optionalFields.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
@@ -170,7 +166,6 @@ class SolidFormatInfoCard extends StatelessWidget {
             ],
 
             // Format type indicator.
-
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -193,7 +188,6 @@ class SolidFormatInfoCard extends StatelessWidget {
             ),
 
             // Note text.
-
             const SizedBox(height: 8),
             Text(
               config.isJson

@@ -162,7 +162,6 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
           if (widget.userInfo != null) _buildUserInfoHeader(context, theme),
 
           // Navigation items.
-
           Container(
             padding: const EdgeInsets.all(NavigationConstants.navDrawerPadding),
             child: Column(
@@ -202,12 +201,10 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                 }),
 
                 // Additional menu items (if provided).
-
                 if (widget.additionalMenuItems != null)
                   ...widget.additionalMenuItems!,
 
                 // Divider and logout option.
-
                 if (widget.showLogout && widget.onLogout != null) ...[
                   Divider(
                     height: NavigationConstants.navDividerHeight,
@@ -271,7 +268,6 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
           const Gap(NavigationConstants.userInfoSpacing),
 
           // User name.
-
           Text(
             user.effectiveUserName,
             style: TextStyle(
@@ -282,7 +278,6 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
           ),
 
           // WebID (if enabled and available).
-
           if (user.showWebId &&
               user.webId != null &&
               user.webId!.isNotEmpty) ...[

@@ -135,30 +135,24 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
         _currentWebId != null && _currentWebId!.isNotEmpty;
 
     if (isCurrentlyLoggedIn) {
-      // Logout scenario - don't recheck status as page will reload
-
       if (widget.onTap != null) {
         widget.onTap!.call();
       } else {
         SolidAuthHandler.instance.handleLogout(context);
       }
     } else {
-      // Login scenario - can delay status check
-
       if (widget.onLogin != null) {
         widget.onLogin!.call();
       } else {
         SolidAuthHandler.instance.handleLogin(context);
       }
-
-      // Only refresh status for login scenario
-
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          _checkLoginStatus();
-        }
-      });
     }
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _checkLoginStatus();
+      }
+    });
   }
 
   @override

@@ -57,7 +57,6 @@ ElevatedButton resCreateFormSubmission(
   Widget child,
 ) {
   // Use MediaQuery to determine the screen width and adjust the font size accordingly.
-
   final screenWidth = MediaQuery.of(context).size.width;
   final isSmallDevice =
       screenWidth < 360; // A threshold for small devices, can be adjusted.

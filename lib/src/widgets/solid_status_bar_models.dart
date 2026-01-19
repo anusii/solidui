@@ -322,10 +322,6 @@ class SolidSecurityKeyStatus {
 
   final bool? isKeySaved;
 
-  /// Whether the security key status is currently loading.
-
-  final bool isLoading;
-
   /// Optional callback when security key management is tapped.
   /// If null, SolidScaffold will handle security key management automatically.
 
@@ -353,33 +349,25 @@ class SolidSecurityKeyStatus {
 
   final String? keyNotSavedText;
 
-  /// Custom text for loading state (if null, uses default).
-
-  final String? loadingText;
-
   /// Tooltip message for the security key status.
 
   final String? tooltip;
 
   const SolidSecurityKeyStatus({
     this.isKeySaved,
-    this.isLoading = false,
     this.onTap,
     this.onKeyStatusChanged,
     this.title,
     this.appWidget,
     this.keySavedText,
     this.keyNotSavedText,
-    this.loadingText,
     this.tooltip,
   });
 
   /// Get the display text based on key status.
 
   String get displayText {
-    if (isLoading) {
-      return loadingText ?? 'Security Key: Loading...';
-    } else if (isKeySaved == true) {
+    if (isKeySaved == true) {
       return keySavedText ?? 'Security Key: Saved';
     } else {
       return keyNotSavedText ?? 'Security Key: Not Saved';
