@@ -113,10 +113,10 @@ class SolidAppBarOverflowHandler {
 
     final isInOverflow = actionConfig?.showInOverflow ?? false;
 
-    // On narrow screens (forceOverflow = true), always show visible buttons
-    // in overflow menu regardless of showInOverflow setting.
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
 
-    if (forceOverflow) return true;
+    if (forceOverflow) return isInOverflow;
     return isInOverflow;
   }
 
@@ -135,10 +135,10 @@ class SolidAppBarOverflowHandler {
 
     final isInOverflow = actionConfig?.showInOverflow ?? false;
 
-    // On narrow screens (forceOverflow = true), always show visible buttons
-    // in overflow menu regardless of showInOverflow setting.
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
 
-    if (forceOverflow) return true;
+    if (forceOverflow) return isInOverflow;
     return isInOverflow;
   }
 
@@ -156,10 +156,10 @@ class SolidAppBarOverflowHandler {
 
     final isInOverflow = actionConfig?.showInOverflow ?? false;
 
-    // On narrow screens (forceOverflow = true), always show visible buttons
-    // in overflow menu regardless of showInOverflow setting.
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
 
-    if (forceOverflow) return true;
+    if (forceOverflow) return isInOverflow;
     return isInOverflow;
   }
 
@@ -177,10 +177,10 @@ class SolidAppBarOverflowHandler {
 
     final isInOverflow = actionConfig?.showInOverflow ?? false;
 
-    // On narrow screens (forceOverflow = true), always show visible buttons
-    // in overflow menu regardless of showInOverflow setting.
+    // On narrow screens, only show in overflow if showInOverflow = true.
+    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
 
-    if (forceOverflow) return true;
+    if (forceOverflow) return isInOverflow;
     return isInOverflow;
   }
 

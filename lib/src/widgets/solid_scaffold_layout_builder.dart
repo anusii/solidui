@@ -36,15 +36,13 @@ import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_dynamic_login_status.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
-import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
 /// Builder class for creating Scaffold layouts.
 
 class SolidScaffoldLayoutBuilder {
-  /// Builds the main body content using IndexedStack to preserve widget state.
-  /// This prevents unnecessary widget rebuilds when switching between tabs.
+  /// Builds the main body content.
 
   static Widget buildBody(
     BuildContext context,
@@ -54,27 +52,11 @@ class SolidScaffoldLayoutBuilder {
     Widget? effectiveChild,
     Function(int) onTabSelected,
     Function(BuildContext, String, String?)? onShowAlert,
-    List<SolidMenuItem>? menuItems,
   ) {
     final theme = Theme.of(context);
 
     if (effectiveChild == null) {
       return const SizedBox.shrink();
-    }
-
-    // Build IndexedStack with all menu item children to preserve state
-    Widget contentArea;
-    if (menuItems != null && menuItems.isNotEmpty) {
-      contentArea = IndexedStack(
-        index: (selectedIndex ?? 0).clamp(0, menuItems.length - 1),
-        sizing: StackFit.expand,
-        children: menuItems
-            .map((item) => item.child ?? const SizedBox.shrink())
-            .toList(),
-      );
-    } else {
-      // Fallback to single child if no menu items
-      contentArea = effectiveChild;
     }
 
     if (isWideScreen) {
@@ -93,7 +75,7 @@ class SolidScaffoldLayoutBuilder {
                   onShowAlert: onShowAlert,
                 ),
                 VerticalDivider(width: 1, color: theme.dividerColor),
-                Expanded(child: contentArea),
+                Expanded(child: effectiveChild),
               ],
             ),
           ),
@@ -105,7 +87,7 @@ class SolidScaffoldLayoutBuilder {
       return Column(
         children: [
           Divider(height: 1, color: theme.dividerColor),
-          Expanded(child: contentArea),
+          Expanded(child: effectiveChild),
         ],
       );
     }
@@ -113,11 +95,7 @@ class SolidScaffoldLayoutBuilder {
 
   /// Builds the status bar.
 
-  static Widget? buildStatusBar(
-    SolidStatusBarConfig? config,
-    bool isKeySaved, {
-    bool isLoading = false,
-  }) {
+  static Widget? buildStatusBar(SolidStatusBarConfig? config, bool isKeySaved) {
     if (config == null) return null;
 
     // Create a modified config with updated security key status.
@@ -128,14 +106,12 @@ class SolidScaffoldLayoutBuilder {
       final originalStatus = config.securityKeyStatus!;
       final updatedStatus = SolidSecurityKeyStatus(
         isKeySaved: isKeySaved,
-        isLoading: isLoading,
         onTap: originalStatus.onTap,
         onKeyStatusChanged: originalStatus.onKeyStatusChanged,
         title: originalStatus.title,
         appWidget: originalStatus.appWidget,
         keySavedText: originalStatus.keySavedText,
         keyNotSavedText: originalStatus.keyNotSavedText,
-        loadingText: originalStatus.loadingText,
         tooltip: originalStatus.tooltip,
       );
 

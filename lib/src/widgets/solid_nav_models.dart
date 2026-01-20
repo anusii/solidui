@@ -141,14 +141,12 @@ class SolidNavUserInfo {
         }
       }
 
-      // Fallback: try to extract from the last slash in the full URL.
-
+      // Fallback: try to extract from the last slash in the full URL
       final lastSlashIndex = webId.lastIndexOf('/');
       if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
         String candidate = webId.substring(lastSlashIndex + 1);
 
-        // Remove common suffixes.
-
+        // Remove common suffixes
         const suffixes = ['profile', 'card#me', '#me'];
         for (final suffix in suffixes) {
           if (candidate.endsWith(suffix)) {

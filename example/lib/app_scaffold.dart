@@ -134,19 +134,19 @@ class AppScaffold extends StatelessWidget {
         text: '''
 
         This template app demonstrates the following key SolidUI features:
-
+        
         🧭 Responsive navigation (rail ↔ drawer);
-
+        
         🎨 Theme switching (light/dark/system);
-
+        
         ℹ️ Customisable About dialogues;
-
+        
         📋 Version information display;
-
+        
         🔐 Security key management;
-
+        
         📊 Status bar integration;
-
+        
         👤 User information display.
 
         For more information, visit the

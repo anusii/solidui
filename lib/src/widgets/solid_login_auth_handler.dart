@@ -100,70 +100,7 @@ class SolidLoginAuthHandler {
     // Perform the actual authentication by contacting the server.
 
     if (!context.mounted) return false;
-
-    List<dynamic>? authResult;
-    try {
-      authResult = await solidAuthenticate(podServer, context);
-    } catch (e) {
-      // Authentication error - likely server unavailable or network issue
-      debugPrint('SolidLoginAuthHandler: Authentication error: $e');
-
-      if (!context.mounted) return false;
-
-      // Close the animation dialog
-      if (!wasAlreadyLoggedIn) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-
-      // Show error dialog with server availability check
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.red),
-              SizedBox(width: 8),
-              Text('Connection Failed'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Unable to connect to the Solid server.',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Text('Server: $podServer'),
-              const SizedBox(height: 12),
-              const Text('Possible causes:'),
-              const SizedBox(height: 4),
-              const Text('• Server is temporarily unavailable'),
-              const Text('• Network connection issue'),
-              const Text('• Invalid server URL'),
-              const SizedBox(height: 12),
-              Text(
-                'Error: ${e.toString()}',
-                style: const TextStyle(fontSize: 11, color: Colors.grey),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-
-      // Navigate back to login screen
-      if (!context.mounted) return false;
-      await pushReplacement(context, originalLoginWidget);
-      return false;
-    }
+    final authResult = await solidAuthenticate(podServer, context);
 
     // If authentication succeeded and the user was already logged in,
     // it means they are using a cached session.
@@ -200,17 +137,28 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      // Check POD structure and navigate accordingly.
+      // Navigate to the appropriate screen based on structure test.
+
+      final resCheckList = await initialStructureTest(
+        defaultFolders,
+        defaultFiles,
+      );
+      final allExists = resCheckList.first as bool;
 
       if (!context.mounted) return false;
 
-      await _checkInitialStructureAndNavigate(
-        context,
-        defaultFolders,
-        defaultFiles,
-        originalLoginWidget,
-        childWidget,
-      );
+      if (!allExists) {
+        await pushReplacement(
+          context,
+          InitialSetupScreen(
+            resCheckList: resCheckList,
+            originalLogin: originalLoginWidget,
+            child: childWidget,
+          ),
+        );
+      } else {
+        await pushReplacement(context, childWidget);
+      }
 
       return true;
     } else {
@@ -229,71 +177,6 @@ class SolidLoginAuthHandler {
       await pushReplacement(context, originalLoginWidget);
 
       return false;
-    }
-  }
-
-  /// Checks initial POD structure and navigates to the appropriate screen.
-
-  static Future<void> _checkInitialStructureAndNavigate(
-    BuildContext context,
-    List<String> defaultFolders,
-    Map<dynamic, dynamic> defaultFiles,
-    dynamic originalLoginWidget,
-    Widget childWidget,
-  ) async {
-    try {
-      debugPrint(
-        'SolidLoginAuthHandler: Checking initial structure...',
-      );
-
-      final resCheckList = await initialStructureTest(
-        defaultFolders,
-        defaultFiles,
-      );
-
-      final allExists = resCheckList.first as bool;
-
-      if (!context.mounted) return;
-
-      if (allExists) {
-        debugPrint(
-          'SolidLoginAuthHandler: Initial structure verified successfully',
-        );
-
-        // POD structure is complete, navigate to main app.
-
-        await pushReplacement(context, childWidget);
-      } else {
-        debugPrint(
-          'SolidLoginAuthHandler: Initial structure incomplete - '
-          'navigating to setup',
-        );
-
-        // Navigate to initial setup screen if POD structure is incomplete.
-
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => InitialSetupScreen(
-              resCheckList: resCheckList,
-              originalLogin: originalLoginWidget is SolidLogin
-                  ? originalLoginWidget
-                  : null,
-              child: childWidget,
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint(
-        'SolidLoginAuthHandler: Background structure check failed: $e',
-      );
-
-      // On error, navigate to main app and let user handle setup later.
-
-      if (context.mounted) {
-        await pushReplacement(context, childWidget);
-      }
     }
   }
 }

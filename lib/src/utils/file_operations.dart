@@ -110,10 +110,9 @@ class FileOperations {
 
       final fileName = extractResourceName(fileUrl);
 
-      // Skip ACL files and metadata files, but include all other file types
-      // (TTL, JSON, CSV, TXT, etc.)
+      // Skip non-TTL files. Include both .enc.ttl and .ttl files.
 
-      if (fileName.endsWith('.acl') || fileName.endsWith('.meta')) {
+      if (!fileName.endsWith('.enc.ttl') && !fileName.endsWith('.ttl')) {
         continue;
       }
 
@@ -183,12 +182,12 @@ class FileOperations {
 
   static Future<int> getDirectoryFileCount(String dirPath) async {
     try {
-      // Get directory contents and count files (exclude ACL and metadata files).
+      // Get directory contents and count files.
 
       final dirUrl = await getDirUrl(dirPath);
       final resources = await getResourcesInContainer(dirUrl);
       return resources.files
-          .where((f) => !f.endsWith('.acl') && !f.endsWith('.meta'))
+          .where((f) => f.endsWith('.enc.ttl') || f.endsWith('.ttl'))
           .length;
     } catch (e) {
       debugPrint('Error counting files in directory: $e');
