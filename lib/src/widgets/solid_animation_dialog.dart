@@ -104,10 +104,10 @@ Future<void> showAnimationDialog(
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (context.mounted) {
-                        updateStateCallback!();
+                      Navigator.of(animationContext).pop();
+                      if (context.mounted && updateStateCallback != null) {
+                        updateStateCallback();
                       }
-                      Navigator.of(animationContext).pop(); // Close the dialog
                     },
                     child: const Text('Cancel'),
                   ),

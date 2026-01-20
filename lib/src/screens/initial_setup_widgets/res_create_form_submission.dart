@@ -38,42 +38,7 @@ import 'package:solidpod/solidpod.dart' show initPod;
 import 'package:solidui/src/constants/initial_setup.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 
-/// Handles the form submission logic.
-
-Future<void> handleFormSubmission(
-  GlobalKey<FormBuilderState> formKey,
-  BuildContext context,
-  List<String> resFoldersLink,
-  List<String> resFilesLink,
-  Widget child,
-) async {
-  if (formKey.currentState?.saveAndValidate() ?? false) {
-    // ignore: unawaited_futures
-    showAnimationDialog(context, 17, 'Creating resources!', false, null);
-    final formData = formKey.currentState?.value as Map;
-
-    final securityKey = formData[securityKeyStr].toString();
-
-    try {
-      await initPod(
-        securityKey,
-        dirUrls: resFoldersLink,
-        fileUrls: resFilesLink,
-      );
-    } on Exception catch (e) {
-      debugPrint('Error initialising POD: $e');
-    }
-
-    await Navigator.pushReplacement(
-      // ignore: use_build_context_synchronously
-      context,
-      MaterialPageRoute(builder: (context) => child),
-    );
-    if (context.mounted) Navigator.pop(context);
-  }
-}
-
-/// A button to submit form widget.
+/// A button to submit form widget
 ///
 /// This function takes all the input data from the form and create all
 /// required resources inside a user's POD. This includes creating several
@@ -91,155 +56,64 @@ ElevatedButton resCreateFormSubmission(
   List<String> resFilesLink,
   Widget child,
 ) {
-  // Use MediaQuery to determine the screen width and adjust the font size accordingly.
+  // Use MediaQuery to determine the screen width and adjust the font size
+  // accordingly.
+
   final screenWidth = MediaQuery.of(context).size.width;
   final isSmallDevice =
       screenWidth < 360; // A threshold for small devices, can be adjusted.
 
-  // The (updated) original version of POD initialization function
-  // Keep it here as a backup.
-
-  // Future<void> initPodOriginalFunc(String securityKey) async {
-  //   final webId = await AuthDataManager.getWebId();
-  //   assert(webId != null);
-
-  //   // Variable to see whether we need to update the key files. Because if
-  //   // one file is missing we need to create asymmetric key pairs again.
-
-  //   var keyVerifyFlag = true;
-  //   String? encMasterKeyVerify;
-
-  //   // Asymmetric key pair
-
-  //   String? pubKeyStr;
-  //   String? prvKeyHash;
-  //   String? prvKeyIvz;
-
-  //   // Create files and directories flag
-
-  //   if (resFileNames.contains(encKeyFile) ||
-  //       resFileNames.contains(pubKeyFile)) {
-  //     // Generate master key
-
-  //     final masterKey = genMasterKey(securityKey);
-  //     encMasterKeyVerify = genVerificationKey(securityKey);
-
-  //     // Generate asymmetric key pair
-  //     final (:publicKey, :privateKey) = await genRandRSAKeyPair();
-
-  //     // Encrypt private key
-
-  //     final iv = genRandIV();
-  //     prvKeyHash = encryptPrivateKey(privateKey, masterKey, iv);
-  //     prvKeyIvz = iv.base64;
-
-  //     // Get public key without start and end bit
-
-  //     pubKeyStr = trimPubKeyStr(publicKey);
-
-  //     if (!resFileNames.contains(encKeyFile)) {
-  //       keyVerifyFlag = verifySecurityKey(
-  //           securityKey, await KeyManager.getVerificationKey());
-  //     }
-  //   }
-
-  //   if (!keyVerifyFlag) {
-  //     // ignore: use_build_context_synchronously
-  //     await showErrDialog(context, 'Wrong encode key. Please try again!');
-  //   } else {
-  //     try {
-  //       for (final resLink in resFoldersLink) {
-  //         await createResource(resLink,
-  //             fileFlag: false, contentType: ResourceContentType.directory);
-  //       }
-
-  //       // Create files
-  //       for (final resLink in resFilesLink) {
-  //         final resName = resLink.split('/').last;
-  //         late String fileBody;
-
-  //         switch (resName) {
-  //           case encKeyFile:
-  //             fileBody = genEncKeyBody(
-  //                 encMasterKeyVerify!, prvKeyHash!, prvKeyIvz!, resLink);
-  //           case '$permLogFile.acl':
-  //             fileBody = genLogAclBody(webId!, resName.replaceAll('.acl', ''));
-  //           case '$pubKeyFile.acl':
-  //             fileBody = genPubFileAclBody(resName);
-  //           case '.acl':
-  //             fileBody = genPubDirAclBody();
-  //           case indKeyFile:
-  //             fileBody = genIndKeyFileBody();
-  //           case pubKeyFile:
-  //             fileBody = genPubKeyFileBody(resLink, pubKeyStr!);
-  //           case permLogFile:
-  //             fileBody = genLogFileBody();
-  //           default:
-  //             throw Exception('Unknown file $resName');
-  //         }
-
-  //         final aclFlag = resName.split('.').last == 'acl' ? true : false;
-
-  //         await createResource(resLink,
-  //             content: fileBody, replaceIfExist: aclFlag);
-  //       }
-  //     } on Exception catch (e) {
-  //       debugPrint('$e');
-  //     }
-
-  //     // Add encryption key to the local secure storage.
-  //     await KeyManager.setSecurityKey(securityKey);
-  //   }
-  // }
-
   return ElevatedButton(
     onPressed: () async {
-      await handleFormSubmission(
-        formKey,
-        context,
-        resFoldersLink,
-        resFilesLink,
-        child,
-      );
+      if (formKey.currentState?.saveAndValidate() ?? false) {
+        // ignore: unawaited_futures
+        showAnimationDialog(context, 17, 'Creating resources!', false, null);
+        final formData = formKey.currentState?.value as Map;
+
+        final securityKey = formData[securityKeyStr].toString();
+
+        try {
+          await initPod(
+            securityKey,
+            dirUrls: resFoldersLink,
+            fileUrls: resFilesLink,
+          );
+        } on Exception catch (e) {
+          debugPrint('Error initialising POD: $e');
+        }
+
+        await Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(builder: (context) => child),
+        );
+        if (context.mounted) Navigator.pop(context);
+      }
     },
-    style: ButtonStyle(
-      foregroundColor: WidgetStateProperty.all(Colors.white),
-      backgroundColor: WidgetStateProperty.all(darkBlue),
-      padding: WidgetStateProperty.all(
-        const EdgeInsets.symmetric(horizontal: 50),
-      ),
-      shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-      overlayColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.focused)) {
-          return Colors.white.withValues(alpha: 0.2);
-        }
-        if (states.contains(WidgetState.hovered)) {
-          return Colors.white.withValues(alpha: 0.1);
-        }
-        return null;
-      }),
-      side: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.focused)) {
-          return const BorderSide(color: Colors.lightBlueAccent, width: 2);
-        }
-        return BorderSide.none;
-      }),
+    style: ElevatedButton.styleFrom(
+      foregroundColor: darkBlue,
+      backgroundColor: darkBlue, // foreground
+      padding: const EdgeInsets.symmetric(horizontal: 50),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),
     child: Text(
       'SUBMIT',
       style: TextStyle(
         color: Colors.white,
+
         // Adjust the font size for small devices.
+
         fontSize:
+
             // Smaller font size for small devices.
 
             isSmallDevice ? 8 : 16,
       ),
+
       // Ensure the text does not wrap.
 
       overflow: TextOverflow.ellipsis,
+
       // Limit text to a single line.
 
       maxLines: 1,

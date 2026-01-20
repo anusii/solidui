@@ -84,6 +84,12 @@ class InitialSetupScreenBody extends StatefulWidget {
 }
 
 class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
+  // Form key should be created once and persisted across rebuilds.
+  // Creating it in build() would cause the form state to be lost on every
+  // rebuild.
+
+  final _formKey = GlobalKey<FormBuilderState>();
+
   /// Shows a dialog displaying the resources to be created.
 
   void _showResourcesDialog(
@@ -198,8 +204,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormBuilderState>();
-
     final resFoldersLink = (widget.resNeedToCreate['folders'] as List)
         .map((item) => item.toString())
         .toList();
@@ -297,14 +301,22 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           EncKeyInputForm(
-                            formKey: formKey,
-                            onSubmit: () => handleFormSubmission(
-                              formKey,
-                              context,
-                              resFoldersLink,
-                              resFilesLink,
-                              widget.child,
-                            ),
+                            formKey: _formKey,
+                            onSubmit: () async {
+                              if (_formKey.currentState?.saveAndValidate() ??
+                                  false) {
+                                // Trigger the same logic as the submit button.
+                                final button = resCreateFormSubmission(
+                                  _formKey,
+                                  context,
+                                  resFileNames,
+                                  resFoldersLink,
+                                  resFilesLink,
+                                  widget.child,
+                                );
+                                button.onPressed?.call();
+                              }
+                            },
                           ),
                           const SizedBox(height: 20),
                           FractionallySizedBox(
@@ -343,7 +355,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                                     FocusTraversalOrder(
                                       order: const NumericFocusOrder(3),
                                       child: resCreateFormSubmission(
-                                        formKey,
+                                        _formKey,
                                         context,
                                         resFileNames,
                                         resFoldersLink,
