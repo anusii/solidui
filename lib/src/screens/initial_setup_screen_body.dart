@@ -83,6 +83,73 @@ class InitialSetupScreenBody extends StatefulWidget {
   }
 }
 
+/// A StatefulWidget to properly manage the ScrollController for the resource
+/// list in the dialog.
+
+class _ResourceListView extends StatefulWidget {
+  const _ResourceListView({required this.extractedParts});
+
+  final List<String?> extractedParts;
+
+  @override
+  State<_ResourceListView> createState() => _ResourceListViewState();
+}
+
+class _ResourceListViewState extends State<_ResourceListView> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: ListView.separated(
+        controller: _scrollController,
+        itemCount: widget.extractedParts.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        itemBuilder: (context, index) {
+          final resLink = widget.extractedParts[index];
+          if (resLink == null) return const SizedBox.shrink();
+          final isFolder = resLink.endsWith('/');
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Row(
+              children: [
+                Icon(
+                  isFolder
+                      ? Icons.folder_outlined
+                      : Icons.insert_drive_file_outlined,
+                  size: 20,
+                  color: isFolder ? Colors.amber : Colors.blue,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    resLink,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
   // Form key should be created once and persisted across rebuilds.
   // Creating it in build() would cause the form state to be lost on every
@@ -159,39 +226,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                   // Scrollable resource list.
 
                   Expanded(
-                    child: Scrollbar(
-                      thumbVisibility: true,
-                      child: ListView.separated(
-                        itemCount: extractedParts.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final resLink = extractedParts[index];
-                          if (resLink == null) return const SizedBox.shrink();
-                          final isFolder = resLink.endsWith('/');
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  isFolder
-                                      ? Icons.folder_outlined
-                                      : Icons.insert_drive_file_outlined,
-                                  size: 20,
-                                  color: isFolder ? Colors.amber : Colors.blue,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    resLink,
-                                    style: const TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                    child: _ResourceListView(extractedParts: extractedParts),
                   ),
                 ],
               ),
