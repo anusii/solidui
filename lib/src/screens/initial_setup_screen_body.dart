@@ -332,10 +332,25 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                                   ),
                                 ),
                                 const SizedBox(height: 30),
+
+                                // SUBMIT on left, LOGOUT on right.
+                                // Tab order: Submit (3) then Logout (4).
+
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    // Tab order: Submit (3) then Logout (4).
+                                    FocusTraversalOrder(
+                                      order: const NumericFocusOrder(3),
+                                      child: resCreateFormSubmission(
+                                        formKey,
+                                        context,
+                                        resFileNames,
+                                        resFoldersLink,
+                                        resFilesLink,
+                                        widget.child,
+                                      ),
+                                    ),
                                     FocusTraversalOrder(
                                       order: const NumericFocusOrder(4),
                                       child: TextButton(
@@ -353,18 +368,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                                             fontSize: 16,
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    FocusTraversalOrder(
-                                      order: const NumericFocusOrder(3),
-                                      child: resCreateFormSubmission(
-                                        formKey,
-                                        context,
-                                        resFileNames,
-                                        resFoldersLink,
-                                        resFilesLink,
-                                        widget.child,
                                       ),
                                     ),
                                   ],

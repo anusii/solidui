@@ -203,11 +203,30 @@ ElevatedButton resCreateFormSubmission(
         child,
       );
     },
-    style: ElevatedButton.styleFrom(
-      foregroundColor: darkBlue,
-      backgroundColor: darkBlue, // foreground
-      padding: const EdgeInsets.symmetric(horizontal: 50),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    style: ButtonStyle(
+      foregroundColor: WidgetStateProperty.all(Colors.white),
+      backgroundColor: WidgetStateProperty.all(darkBlue),
+      padding: WidgetStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 50),
+      ),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return Colors.white.withValues(alpha: 0.2);
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return Colors.white.withValues(alpha: 0.1);
+        }
+        return null;
+      }),
+      side: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return const BorderSide(color: Colors.lightBlueAccent, width: 2);
+        }
+        return BorderSide.none;
+      }),
     ),
     child: Text(
       'SUBMIT',
