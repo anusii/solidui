@@ -247,10 +247,6 @@ class SolidScaffold extends StatefulWidget {
 
   final bool hideNavRail;
 
-  /// Whether to show the AppBar Layout Preferences button.
-
-  final bool showAppBarLayoutPreferences;
-
   const SolidScaffold({
     super.key,
     this.menu,
@@ -293,7 +289,6 @@ class SolidScaffold extends StatefulWidget {
     this.themeToggle,
     this.aboutConfig,
     this.hideNavRail = false,
-    this.showAppBarLayoutPreferences = false,
   });
 
   @override

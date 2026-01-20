@@ -40,6 +40,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
 
 /// A button that shows an About dialogue when pressed.
 
@@ -302,6 +303,25 @@ class SolidAbout {
       // Fall back to children if text is not provided.
 
       children.addAll(config.children ?? []);
+    }
+
+    // Add Layout Preferences button if enabled.
+
+    if (config.showLayoutPreferences) {
+      children.add(const Gap(AboutConstants.contentVerticalSpacing));
+      children.add(const Divider());
+      children.add(
+        Builder(
+          builder: (dialogContext) => TextButton.icon(
+            icon: const Icon(Icons.tune),
+            label: const Text('AppBar Layout Preferences'),
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              SolidPreferencesDialog.show(context);
+            },
+          ),
+        ),
+      );
     }
 
     showAboutDialog(
