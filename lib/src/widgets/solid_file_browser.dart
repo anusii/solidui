@@ -36,6 +36,7 @@ import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
+import 'package:solidui/src/widgets/solid_file_browser_not_logged_in.dart';
 import 'package:solidui/src/widgets/solid_file_empty_directory_view.dart';
 import 'package:solidui/src/widgets/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_path_bar.dart';
@@ -146,8 +147,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   Future<void> _checkLoginStatus() async {
     try {
-      // Check for a WebID first.
-
       final webId = await getWebId();
       if (webId == null || webId.isEmpty) {
         setState(() {
@@ -157,19 +156,13 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         return;
       }
 
-      // Check if the user is actually logged in.
-
       final loggedIn = await isUserLoggedIn();
-      setState(() {
-        isLoggedIn = loggedIn;
-      });
+      setState(() => isLoggedIn = loggedIn);
 
       if (isLoggedIn) {
         await refreshFiles();
       } else {
-        setState(() {
-          isLoading = false;
-        });
+        setState(() => isLoading = false);
       }
     } catch (e) {
       debugPrint('Error checking login status: $e');
@@ -249,10 +242,8 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
       // Process and validate files.
 
-      final processedFiles = await FileOperations.getFiles(
-        currentPath,
-        context,
-      );
+      final processedFiles =
+          await FileOperations.getFiles(currentPath, context);
 
       if (!mounted) return;
 
@@ -265,9 +256,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       });
     } catch (e) {
       debugPrint('Error loading files: $e');
-      if (mounted) {
-        setState(() => isLoading = false);
-      }
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -276,17 +265,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   void navigateToPath(String path) {
     setState(() {
       currentPath = path;
-      // Update path history to ensure proper navigation state
-      // If navigating to base path, reset history.
-
       if (path == widget.basePath) {
         pathHistory = [widget.basePath];
       } else {
-        // If the path is not already in history, add it.
-
         if (pathHistory.isEmpty || pathHistory.last != path) {
-          // If this is a subdirectory of the base path, build proper history.
-
           if (path.startsWith(widget.basePath)) {
             pathHistory = [widget.basePath];
             final relativePath = path.substring(widget.basePath.length);
@@ -300,15 +282,12 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
               }
             }
           } else {
-            // For paths outside base path, just add to history.
-
             pathHistory.add(path);
           }
         }
       }
       refreshFiles();
     });
-
     widget.onDirectoryChanged.call(path);
   }
 
@@ -349,8 +328,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Navigation and path display bar (only show if logged in).
-
               if (isLoggedIn)
                 PathBar(
                   currentPath: currentPath,
@@ -363,33 +340,8 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   friendlyFolderName: _getEffectiveFriendlyFolderName(),
                   basePath: widget.basePath,
                 ),
-
               if (isLoggedIn) const SizedBox(height: 12),
-
-              // Main content area with conditional rendering.
-
-              Expanded(
-                child: !isLoggedIn
-                    ? _buildNotLoggedInView()
-                    : isLoading
-                        ? const FileBrowserLoadingState()
-                        : directories.isEmpty && files.isEmpty
-                            ? const EmptyDirectoryView()
-                            : FileBrowserContent(
-                                directories: directories,
-                                files: files,
-                                directoryCounts: directoryCounts,
-                                currentPath: currentPath,
-                                selectedFile: selectedFile,
-                                onDirectorySelected: navigateToDirectory,
-                                onFileSelected: (name, path) {
-                                  setState(() => selectedFile = name);
-                                  widget.onFileSelected.call(name, path);
-                                },
-                                onFileDownload: widget.onFileDownload,
-                                onFileDelete: widget.onFileDelete,
-                              ),
-              ),
+              Expanded(child: _buildContent()),
             ],
           ),
         );
@@ -397,47 +349,24 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     );
   }
 
-  /// Builds the not logged in view.
+  Widget _buildContent() {
+    if (!isLoggedIn) return const FileBrowserNotLoggedInView();
+    if (isLoading) return const FileBrowserLoadingState();
+    if (directories.isEmpty && files.isEmpty) return const EmptyDirectoryView();
 
-  Widget _buildNotLoggedInView() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Display a large account icon with reduced opacity.
-          Icon(
-            Icons.account_circle_outlined,
-            size: 48,
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Display not logged in message.
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Text(
-              'Not connected to any POD',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
+    return FileBrowserContent(
+      directories: directories,
+      files: files,
+      directoryCounts: directoryCounts,
+      currentPath: currentPath,
+      selectedFile: selectedFile,
+      onDirectorySelected: navigateToDirectory,
+      onFileSelected: (name, path) {
+        setState(() => selectedFile = name);
+        widget.onFileSelected.call(name, path);
+      },
+      onFileDownload: widget.onFileDownload,
+      onFileDelete: widget.onFileDelete,
     );
   }
 }

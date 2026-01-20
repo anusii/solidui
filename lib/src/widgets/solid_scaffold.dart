@@ -51,6 +51,8 @@ import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
+part 'solid_scaffold_state.dart';
+
 /// Simplified unified scaffold component that automatically handles responsive
 /// layout switching.
 
@@ -71,46 +73,18 @@ class SolidScaffold extends StatefulWidget {
   final Widget? body;
 
   /// Optional controller for simplified subpage navigation management.
-  /// When provided, handles all subpage state automatically.
-  /// Use `controller.navigateToSubpage(widget)` to show a subpage.
-  ///
-  /// Example:
-  /// ```dart
-  /// final controller = SolidScaffoldController();
-  /// SolidScaffold(
-  ///   controller: controller,
-  ///   appBar: SolidAppBarConfig(
-  ///     actions: [
-  ///       SolidAppBarAction(
-  ///         icon: Icons.settings,
-  ///         onPressed: () => controller.navigateToSubpage(SettingsPage()),
-  ///       ),
-  ///     ],
-  ///   ),
-  /// )
-  /// ```
 
   final SolidScaffoldController? controller;
 
   /// Optional body override for displaying subpages not in the menu.
-  /// When provided, this takes precedence over menu-based navigation.
-  /// This is useful for navigating to detail pages (e.g. individual notes)
-  /// whilst maintaining the SolidScaffold frame (AppBar, navigation drawer).
-  ///
-  /// When using bodyOverride, provide [onClearBodyOverride] callback to
-  /// automatically clear it when user taps a menu item.
 
   final Widget? bodyOverride;
 
   /// Callback invoked when bodyOverride should be cleared.
-  /// Automatically called when a menu item is tapped whilst bodyOverride is
-  /// set. Use this to clear your subpage state: `setState(() => _subpage =
-  /// null)`
 
   final VoidCallback? onClearBodyOverride;
 
   /// Standard Scaffold appBar for compatibility.
-  /// Used when SolidUI `appBar` config is null.
 
   final PreferredSizeWidget? scaffoldAppBar;
 
@@ -242,8 +216,7 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
-  /// Option to force the navigation rail to be hidden and display a
-  /// hamburger menu button instead.
+  /// Option to force the navigation rail to be hidden.
 
   final bool hideNavRail;
 
@@ -298,240 +271,4 @@ class SolidScaffold extends StatefulWidget {
 
   @override
   State<SolidScaffold> createState() => SolidScaffoldState();
-}
-
-class SolidScaffoldState extends State<SolidScaffold> {
-  late int _selectedIndex;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  SolidSecurityKeyService? _securityKeyService;
-  SolidScaffoldSecurityKeyHelper? _securityKeyHelper;
-  bool _isKeySaved = false;
-  String? _appVersion;
-  bool _isVersionLoaded = false;
-  bool? _cachedUsesInternalManagement;
-  String? _currentWebId;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedIndex = widget.initialIndex;
-    _initSecurityKey();
-    if (SolidScaffoldInitHelpers.hasVersionConfig(widget.appBar)) {
-      _loadAppVersion();
-    }
-    _initializeNotifiers();
-    _setupListeners();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.statusBar?.securityKeyStatus != null) {
-        securityKeyNotifier.refreshStatus();
-      }
-    });
-    _loadCurrentWebId();
-  }
-
-  void _initSecurityKey() {
-    _securityKeyService = SolidScaffoldInitHelpers.initializeSecurityKeyService(
-      widget.statusBar?.securityKeyStatus != null,
-      _onSecurityKeyChanged,
-      () => _securityKeyHelper?.loadStatus(
-        widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
-      ),
-    );
-    _securityKeyHelper = SolidScaffoldSecurityKeyHelper(
-      securityKeyService: _securityKeyService,
-      onStatusChanged: (status) => setState(() => _isKeySaved = status),
-      isMounted: () => mounted,
-    );
-  }
-
-  void _setupListeners() {
-    if (widget.statusBar?.securityKeyStatus != null) {
-      securityKeyNotifier.addListener(_onSecurityKeyNotifierChanged);
-      _isKeySaved = securityKeyNotifier.isKeySaved;
-    }
-    solidPreferencesNotifier.addListener(_onPreferencesChanged);
-    widget.controller?.addListener(_onControllerChanged);
-  }
-
-  Future<void> _initializeNotifiers() async {
-    await SolidScaffoldInitHelpers.initializeThemeNotifier(
-      _getUsesInternalManagement(),
-      _onThemeChanged,
-    );
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _loadCurrentWebId() async {
-    final webId = await SolidScaffoldWebIdHelper.loadCurrentWebId(
-      isMounted: () => mounted,
-      currentWebId: _currentWebId,
-    );
-    if (mounted && webId != _currentWebId) {
-      setState(() => _currentWebId = webId);
-    }
-  }
-
-  @override
-  void dispose() {
-    _securityKeyService?.removeListener(_onSecurityKeyChanged);
-    if (_getUsesInternalManagement()) {
-      solidThemeNotifier.removeListener(_onThemeChanged);
-    }
-    if (widget.statusBar?.securityKeyStatus != null) {
-      securityKeyNotifier.removeListener(_onSecurityKeyNotifierChanged);
-    }
-    solidPreferencesNotifier.removeListener(_onPreferencesChanged);
-    widget.controller?.removeListener(_onControllerChanged);
-    super.dispose();
-  }
-
-  void _onPreferencesChanged() {
-    if (mounted) setState(() {});
-  }
-
-  void _onControllerChanged() {
-    if (mounted) setState(() {});
-  }
-
-  void _onThemeChanged() {
-    if (mounted) setState(() {});
-  }
-
-  void _onSecurityKeyNotifierChanged() {
-    if (!mounted) return;
-    final newStatus = securityKeyNotifier.isKeySaved;
-    if (_isKeySaved != newStatus) {
-      setState(() => _isKeySaved = newStatus);
-      widget.statusBar?.securityKeyStatus?.onKeyStatusChanged?.call(newStatus);
-    }
-  }
-
-  void _onSecurityKeyChanged() {
-    _securityKeyHelper?.updateStatusFromService(
-      widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
-    );
-  }
-
-  Future<void> refreshSecurityKeyStatus() async {
-    await _securityKeyHelper?.refresh(
-      _isKeySaved,
-      widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
-    );
-  }
-
-  String _getVersionToDisplay() =>
-      SolidScaffoldHelpers.getVersionToDisplay(_isVersionLoaded, _appVersion);
-
-  bool _shouldShowVersion() =>
-      SolidScaffoldHelpers.shouldShowVersion(_isVersionLoaded);
-
-  Future<void> _loadAppVersion() async {
-    final version = await SolidScaffoldInitHelpers.loadAppVersion(true);
-    if (mounted) {
-      setState(() {
-        _appVersion = version;
-        _isVersionLoaded = true;
-      });
-    }
-  }
-
-  void _onMenuSelected(int index) {
-    // Clear controller's subpage if using controller.
-
-    if (widget.controller != null && widget.controller!.hasSubpage) {
-      widget.controller!.clearSubpage();
-    }
-
-    // Clear bodyOverride automatically if set.
-
-    if (widget.bodyOverride != null && widget.onClearBodyOverride != null) {
-      widget.onClearBodyOverride!();
-    }
-
-    if (widget.onMenuSelected != null) {
-      widget.onMenuSelected!(index);
-    } else {
-      setState(() => _selectedIndex = index);
-    }
-    if (widget.menu != null && index < widget.menu!.length) {
-      widget.menu![index].onTap?.call(context);
-    }
-  }
-
-  bool _isWideScreen(BuildContext context) =>
-      !widget.hideNavRail &&
-      SolidScaffoldHelpers.isWideScreen(context, widget.narrowScreenThreshold);
-
-  bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
-      SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
-
-  /// Returns the currently selected menu index.
-
-  int? get _currentSelectedIndex {
-    final subpage = widget.controller?.rawSubpage;
-    if (subpage != null && widget.menu != null) {
-      final matchingIndex =
-          SolidScaffoldHelpers.findMatchingMenuIndex(subpage, widget.menu);
-      if (matchingIndex != null) return matchingIndex;
-
-      // Subpage exists but doesn't match any menu item - no highlight.
-
-      return null;
-    }
-
-    return widget.selectedIndex ?? _selectedIndex;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isWideScreen = _isWideScreen(context);
-    final isCompatibilityMode = widget.menu == null;
-    final bodyContent = isCompatibilityMode
-        ? widget.body
-        : SolidScaffoldLayoutBuilder.buildBody(
-            context,
-            isWideScreen,
-            SolidScaffoldHelpers.convertToNavTabs(widget.menu),
-            _currentSelectedIndex,
-            SolidScaffoldHelpers.getEffectiveChild(
-              widget.menu,
-              _currentSelectedIndex,
-              widget.child,
-              widget.body,
-              widget.bodyOverride ?? widget.controller?.currentSubpage,
-            ),
-            _onMenuSelected,
-            widget.onShowAlert,
-          );
-    return NotificationListener<SecurityKeyStatusChangedNotification>(
-      onNotification: (notification) {
-        // Trigger a refresh on the global notifier
-        // This will automatically update all listeners including this scaffold.
-
-        Future.delayed(const Duration(milliseconds: 300), () {
-          securityKeyNotifier.refreshStatus();
-
-          // Also refresh webId status when security key changes.
-
-          _loadCurrentWebId();
-        });
-        return true;
-      },
-      child: SolidScaffoldWidgetBuilder.buildFromWidget(
-        context: context,
-        scaffoldKey: _scaffoldKey,
-        widget: widget,
-        isWideScreen: isWideScreen,
-        isCompatibilityMode: isCompatibilityMode,
-        bodyContent: bodyContent,
-        isKeySaved: _isKeySaved,
-        currentSelectedIndex: _currentSelectedIndex,
-        onMenuSelected: _onMenuSelected,
-        getUsesInternalManagement: _getUsesInternalManagement,
-        shouldShowVersion: _shouldShowVersion,
-        getVersionToDisplay: _getVersionToDisplay,
-        currentWebId: _currentWebId,
-      ),
-    );
-  }
 }

@@ -40,15 +40,11 @@ import 'package:solidui/solidui.dart' show SolidLogin, logoutPopup;
 import 'package:solidui/src/screens/initial_setup_widgets/enc_key_input_form.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/initial_setup_welcome.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/res_create_form_submission.dart';
+import 'package:solidui/src/screens/initial_setup_widgets/resources_dialog.dart';
 
-/// A [StatefulWidget] that represents the initial setup screen for the desktop version of an application.
-///
-/// This widget is responsible for rendering the initial setup UI, which includes forms for user input and displaying
-/// resources that will be created as part of the setup process.
+/// A [StatefulWidget] that represents the initial setup screen.
 
 class InitialSetupScreenBody extends StatefulWidget {
-  /// Initialising the [StatefulWidget]
-
   const InitialSetupScreenBody({
     required this.resNeedToCreate,
     required this.child,
@@ -73,81 +69,12 @@ class InitialSetupScreenBody extends StatefulWidget {
 
   final Widget child;
 
-  /// The original SolidLogin widget to return to when back is pressed
+  /// The original SolidLogin widget to return to when back is pressed.
 
   final SolidLogin? originalLogin;
 
   @override
-  State<InitialSetupScreenBody> createState() {
-    return _InitialSetupScreenBodyState();
-  }
-}
-
-/// A StatefulWidget to properly manage the ScrollController for the resource
-/// list in the dialog.
-
-class _ResourceListView extends StatefulWidget {
-  const _ResourceListView({required this.extractedParts});
-
-  final List<String?> extractedParts;
-
-  @override
-  State<_ResourceListView> createState() => _ResourceListViewState();
-}
-
-class _ResourceListViewState extends State<_ResourceListView> {
-  late final ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      child: ListView.separated(
-        controller: _scrollController,
-        itemCount: widget.extractedParts.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (context, index) {
-          final resLink = widget.extractedParts[index];
-          if (resLink == null) return const SizedBox.shrink();
-          final isFolder = resLink.endsWith('/');
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Row(
-              children: [
-                Icon(
-                  isFolder
-                      ? Icons.folder_outlined
-                      : Icons.insert_drive_file_outlined,
-                  size: 20,
-                  color: isFolder ? Colors.amber : Colors.blue,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    resLink,
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+  State<InitialSetupScreenBody> createState() => _InitialSetupScreenBodyState();
 }
 
 class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
@@ -156,86 +83,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
   // rebuild.
 
   final _formKey = GlobalKey<FormBuilderState>();
-
-  /// Shows a dialog displaying the resources to be created.
-
-  void _showResourcesDialog(
-    BuildContext context,
-    String baseUrl,
-    List<String?> extractedParts,
-  ) {
-    final rootNavigator = Navigator.of(context, rootNavigator: true);
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Resources Dialog',
-      barrierColor: Colors.black54,
-      pageBuilder: (context, animation, secondaryAnimation) {
-        // Use theme-aware colours for dark mode support.
-
-        final theme = Theme.of(context);
-        final isDark = theme.brightness == Brightness.dark;
-        final dialogBg = isDark ? theme.cardColor : Colors.white;
-
-        return Center(
-          child: Material(
-            borderRadius: BorderRadius.circular(12),
-            elevation: 8,
-            color: dialogBg,
-            child: Container(
-              width: 600,
-              height: 500,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: dialogBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Resources to be created',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => rootNavigator.pop(),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Within: $baseUrl',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(height: 1),
-                  const SizedBox(height: 16),
-
-                  // Scrollable resource list.
-
-                  Expanded(
-                    child: _ResourceListView(extractedParts: extractedParts),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -248,9 +95,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         .toList();
 
     final combinedLinks = resFoldersLink + resFilesLink;
-
-    // Get the common path among the URLs
-
     combinedLinks.sort((a, b) => a.length.compareTo(b.length));
     var baseUrl = combinedLinks.first;
     if (!baseUrl.endsWith('/')) {
@@ -283,7 +127,9 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         // Convert to list.
 
         .toList()
+
       // Sort alphabetically.
+
       ..sort();
 
     final resFileNames = (widget.resNeedToCreate['fileNames'] as List)
@@ -296,32 +142,13 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
       policy: OrderedTraversalPolicy(),
       child: Column(
         children: [
-          // Adding a Row for the back button and spacing.
-
           Row(
             children: [
               BackButton(
-                onPressed: () {
-                  // Navigate back to the original login screen with all
-                  // parameters preserved.
-
-                  if (widget.originalLogin != null) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => widget.originalLogin!,
-                      ),
-                    );
-                  } else {
-                    // Fallback to navigating to the root if original login is
-                    // not available.
-
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  }
-                },
+                onPressed: () => _handleBackPressed(context),
               ),
             ],
           ),
-
           Expanded(
             child: Center(
               child: ConstrainedBox(
@@ -337,21 +164,11 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                         children: <Widget>[
                           EncKeyInputForm(
                             formKey: _formKey,
-                            onSubmit: () async {
-                              if (_formKey.currentState?.saveAndValidate() ??
-                                  false) {
-                                // Trigger the same logic as the submit button.
-                                final button = resCreateFormSubmission(
-                                  _formKey,
-                                  context,
-                                  resFileNames,
-                                  resFoldersLink,
-                                  resFilesLink,
-                                  widget.child,
-                                );
-                                button.onPressed?.call();
-                              }
-                            },
+                            onSubmit: () async => _handleFormSubmit(
+                              resFileNames,
+                              resFoldersLink,
+                              resFilesLink,
+                            ),
                           ),
                           const SizedBox(height: 20),
                           FractionallySizedBox(
@@ -360,64 +177,17 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                OutlinedButton(
-                                  onPressed: () => _showResourcesDialog(
-                                    context,
-                                    baseUrl,
-                                    extractedParts,
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.blue,
-                                    side: const BorderSide(color: Colors.blue),
-                                  ),
-                                  child: const Text(
-                                    'RESOURCES',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
+                                _buildResourcesButton(
+                                  context,
+                                  baseUrl,
+                                  extractedParts,
                                 ),
                                 const SizedBox(height: 30),
-
-                                // SUBMIT on left, LOGOUT on right.
-                                // Tab order: Submit (3) then Logout (4).
-
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    FocusTraversalOrder(
-                                      order: const NumericFocusOrder(3),
-                                      child: resCreateFormSubmission(
-                                        _formKey,
-                                        context,
-                                        resFileNames,
-                                        resFoldersLink,
-                                        resFilesLink,
-                                        widget.child,
-                                      ),
-                                    ),
-                                    FocusTraversalOrder(
-                                      order: const NumericFocusOrder(4),
-                                      child: TextButton(
-                                        onPressed: () async {
-                                          await logoutPopup(
-                                            context,
-                                            widget.child,
-                                          );
-                                        },
-                                        child: const Text(
-                                          'LOGOUT',
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                _buildActionButtons(
+                                  context,
+                                  resFileNames,
+                                  resFoldersLink,
+                                  resFilesLink,
                                 ),
                                 const SizedBox(height: 30),
                               ],
@@ -433,6 +203,90 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
           ),
         ],
       ),
+    );
+  }
+
+  void _handleBackPressed(BuildContext context) {
+    if (widget.originalLogin != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => widget.originalLogin!),
+      );
+    } else {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }
+
+  Future<void> _handleFormSubmit(
+    List<String> resFileNames,
+    List<String> resFoldersLink,
+    List<String> resFilesLink,
+  ) async {
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
+      final button = resCreateFormSubmission(
+        _formKey,
+        context,
+        resFileNames,
+        resFoldersLink,
+        resFilesLink,
+        widget.child,
+      );
+      button.onPressed?.call();
+    }
+  }
+
+  Widget _buildResourcesButton(
+    BuildContext context,
+    String baseUrl,
+    List<String?> extractedParts,
+  ) {
+    return OutlinedButton(
+      onPressed: () => ResourcesDialog.show(context, baseUrl, extractedParts),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.blue,
+        side: const BorderSide(color: Colors.blue),
+      ),
+      child: const Text(
+        'RESOURCES',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(
+    BuildContext context,
+    List<String> resFileNames,
+    List<String> resFoldersLink,
+    List<String> resFilesLink,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        FocusTraversalOrder(
+          order: const NumericFocusOrder(3),
+          child: resCreateFormSubmission(
+            _formKey,
+            context,
+            resFileNames,
+            resFoldersLink,
+            resFilesLink,
+            widget.child,
+          ),
+        ),
+        FocusTraversalOrder(
+          order: const NumericFocusOrder(4),
+          child: TextButton(
+            onPressed: () async => await logoutPopup(context, widget.child),
+            child: const Text(
+              'LOGOUT',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -38,7 +38,6 @@ import 'package:solidpod/solidpod.dart'
 
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
-import 'package:solidui/src/widgets/solid_login.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
 /// A handler class for Solid Pod authentication logic.
