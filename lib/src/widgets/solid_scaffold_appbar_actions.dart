@@ -119,21 +119,6 @@ class SolidAppBarActionsManager {
       );
     }
 
-    // Add AppBar Layout Preferences button.
-    // Default: show in AppBar, after custom actions but before Logout/About.
-
-    actionEntries.add(
-      _ActionEntry(
-        item: const SolidAppBarActionItem(
-          id: SolidAppBarActionIds.preferences,
-          label: 'AppBar Layout Preferences',
-          icon: Icons.tune,
-          showInOverflow: false, // Show in AppBar by default.
-        ),
-        initialIndex: 300, // Layout Preferences after custom/overflow actions.
-      ),
-    );
-
     // Add Logout button.
     // Default: show in AppBar.
 
@@ -145,7 +130,7 @@ class SolidAppBarActionsManager {
           icon: Icons.logout,
           showInOverflow: false, // Show in AppBar by default.
         ),
-        initialIndex: 400, // Logout button after Preferences.
+        initialIndex: 300, // Logout button after custom/overflow actions.
       ),
     );
 
@@ -220,7 +205,6 @@ class SolidAppBarActionsManager {
     expectedIds.addAll([
       SolidAppBarActionIds.logout,
       SolidAppBarActionIds.about,
-      SolidAppBarActionIds.preferences,
     ]);
 
     // Check if any expected ID is missing.

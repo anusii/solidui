@@ -115,7 +115,6 @@ class SolidScaffoldWidgetBuilder {
           getVersionToDisplay,
           hideNavRail: widget.hideNavRail,
           onLogout: widget.onLogout,
-          showPreferences: widget.showAppBarLayoutPreferences,
         ),
       ),
       buildDrawer: () {

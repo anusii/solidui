@@ -95,6 +95,11 @@ class SolidAboutConfig {
 
   final VoidCallback? onPressed;
 
+  /// Whether to show Layout Preferences button in the About dialogue.
+  /// Defaults to true, allowing users to configure AppBar button layout.
+
+  final bool showLayoutPreferences;
+
   const SolidAboutConfig({
     this.enabled = true,
     this.icon,
@@ -110,6 +115,7 @@ class SolidAboutConfig {
     this.priority = 999,
     this.tooltip,
     this.onPressed,
+    this.showLayoutPreferences = true,
   });
 
   /// Returns the icon to display for the About button.

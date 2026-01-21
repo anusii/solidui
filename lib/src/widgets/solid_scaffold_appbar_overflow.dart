@@ -52,13 +52,7 @@ class SolidAppBarOverflowHandler {
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
     BuildContext context, {
-    bool showPreferences = false,
     void Function(BuildContext)? onLogout,
-    required void Function(
-      BuildContext,
-      SolidAppBarConfig,
-      SolidThemeToggleConfig?,
-    ) onShowPreferences,
   }) {
     // Use narrowScreenThreshold to determine when to show overflow menu.
 
@@ -85,16 +79,11 @@ class SolidAppBarOverflowHandler {
           forceOverflow: true,
         ),
         context,
-        hasPreferencesInOverflow: shouldShowPreferencesInOverflow(
-          showPreferences,
-          forceOverflow: true,
-        ),
         hasLogoutInOverflow: shouldShowLogoutInOverflow(
           onLogout != null,
           forceOverflow: true,
         ),
         onLogout: onLogout,
-        onShowPreferences: onShowPreferences,
       ),
     );
   }
@@ -163,27 +152,6 @@ class SolidAppBarOverflowHandler {
     return isInOverflow;
   }
 
-  /// Determines if preferences should be shown in overflow menu.
-
-  static bool shouldShowPreferencesInOverflow(
-    bool showPreferences, {
-    bool forceOverflow = false,
-  }) {
-    if (!showPreferences) return false;
-    final actionConfig = SolidAppBarActionsManager.getActionConfig(
-      SolidAppBarActionIds.preferences,
-    );
-    // Preferences button is always visible (forced true).
-
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
-
-    // On narrow screens, only show in overflow if showInOverflow = true.
-    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
-
-    if (forceOverflow) return isInOverflow;
-    return isInOverflow;
-  }
-
   /// Builds the overflow menu.
   /// Uses Builder to ensure context is valid during callbacks.
 
@@ -196,14 +164,8 @@ class SolidAppBarOverflowHandler {
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow,
     BuildContext parentContext, {
-    bool hasPreferencesInOverflow = false,
     bool hasLogoutInOverflow = false,
     void Function(BuildContext)? onLogout,
-    required void Function(
-      BuildContext,
-      SolidAppBarConfig,
-      SolidThemeToggleConfig?,
-    ) onShowPreferences,
   }) {
     final overflowMenuItems = SolidScaffoldHelpers.buildOverflowMenuItems(
       config,
@@ -212,7 +174,6 @@ class SolidAppBarOverflowHandler {
       aboutConfig,
       hasThemeToggleInOverflow,
       hasAboutInOverflow,
-      hasPreferencesInOverflow: hasPreferencesInOverflow,
       hasLogoutInOverflow: hasLogoutInOverflow,
     );
 
@@ -237,8 +198,6 @@ class SolidAppBarOverflowHandler {
 
                 SolidAbout.show(context, aboutConfig);
               }
-            } else if (id == 'preferences') {
-              onShowPreferences(context, config, themeToggle);
             } else if (id == 'logout') {
               onLogout?.call(context);
             } else if (id.startsWith('action_')) {
