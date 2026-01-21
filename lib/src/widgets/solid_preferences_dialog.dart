@@ -211,21 +211,27 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
           ),
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       actions: [
-        // Default button on the left.
+        Row(
+          children: [
+            // Default button on the left.
 
-        TextButton(
-          onPressed: _resetToDefault,
-          child: const Text('Default'),
-        ),
-        const Spacer(),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _savePreferences,
-          child: const Text('Save'),
+            TextButton(
+              onPressed: _resetToDefault,
+              child: const Text('Default'),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            const SizedBox(width: 8),
+            FilledButton(
+              onPressed: _savePreferences,
+              child: const Text('Save'),
+            ),
+          ],
         ),
       ],
     );
