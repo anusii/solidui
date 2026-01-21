@@ -177,17 +177,17 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildResourcesButton(
-                                  context,
-                                  baseUrl,
-                                  extractedParts,
-                                ),
-                                const SizedBox(height: 30),
-                                _buildActionButtons(
+                                _buildSubmitButton(
                                   context,
                                   resFileNames,
                                   resFoldersLink,
                                   resFilesLink,
+                                ),
+                                const SizedBox(height: 30),
+                                _buildActionButtons(
+                                  context,
+                                  baseUrl,
+                                  extractedParts,
                                 ),
                                 const SizedBox(height: 30),
                               ],
@@ -234,46 +234,57 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
     }
   }
 
-  Widget _buildResourcesButton(
+  Widget _buildSubmitButton(
     BuildContext context,
-    String baseUrl,
-    List<String?> extractedParts,
+    List<String> resFileNames,
+    List<String> resFoldersLink,
+    List<String> resFilesLink,
   ) {
-    return OutlinedButton(
-      onPressed: () => ResourcesDialog.show(context, baseUrl, extractedParts),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.blue,
-        side: const BorderSide(color: Colors.blue),
-      ),
-      child: const Text(
-        'RESOURCES',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+    return FocusTraversalOrder(
+      order: const NumericFocusOrder(3),
+      child: OutlinedButton(
+        onPressed: () async => _handleFormSubmit(
+          resFileNames,
+          resFoldersLink,
+          resFilesLink,
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.blue,
+          side: const BorderSide(color: Colors.blue),
+        ),
+        child: const Text(
+          'SUBMIT',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
       ),
     );
   }
 
   Widget _buildActionButtons(
     BuildContext context,
-    List<String> resFileNames,
-    List<String> resFoldersLink,
-    List<String> resFilesLink,
+    String baseUrl,
+    List<String?> extractedParts,
   ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         FocusTraversalOrder(
-          order: const NumericFocusOrder(3),
-          child: resCreateFormSubmission(
-            _formKey,
-            context,
-            resFileNames,
-            resFoldersLink,
-            resFilesLink,
-            widget.child,
+          order: const NumericFocusOrder(4),
+          child: TextButton(
+            onPressed: () =>
+                ResourcesDialog.show(context, baseUrl, extractedParts),
+            child: const Text(
+              'RESOURCES',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ),
         ),
         FocusTraversalOrder(
-          order: const NumericFocusOrder(4),
+          order: const NumericFocusOrder(5),
           child: TextButton(
             onPressed: () async => await logoutPopup(context, widget.child),
             child: const Text(
