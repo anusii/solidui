@@ -32,6 +32,7 @@ library;
 // ignore_for_file: public_member_api_docs
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:solidpod/solidpod.dart'
     show
@@ -200,6 +201,32 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   late final FocusNode _infoFocusNode;
   late final FocusNode _serverInputFocusNode;
 
+  /// The resolved background image after checking available assets.
+
+  AssetImage? _resolvedImage;
+
+  /// The resolved logo image after checking available assets.
+
+  AssetImage? _resolvedLogo;
+
+  /// Whether asset resolution has completed.
+
+  bool _assetsResolved = false;
+
+  /// Default background image from solidui package.
+
+  static const AssetImage _soliduiDefaultImage = AssetImage(
+    'assets/images/app_image.jpg',
+    package: 'solidui',
+  );
+
+  /// Default logo from solidui package.
+
+  static const AssetImage _soliduiDefaultLogo = AssetImage(
+    'assets/images/app_icon.png',
+    package: 'solidui',
+  );
+
   @override
   void initState() {
     super.initState();
@@ -214,8 +241,112 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _infoFocusNode = FocusNode(debugLabel: 'infoButton');
     _serverInputFocusNode = FocusNode(debugLabel: 'serverInput');
 
+    // Resolve image assets with fallback logic.
+    _resolveImageAssets();
+
     // dc 20251022: please explain why calling an async without await.
     _initPackageInfo();
+  }
+
+  /// Resolves the image and logo assets with fallback logic.
+  ///
+  /// For each asset (image and logo), the resolution order is:
+  /// 1. Try the user-specified path from widget.image/widget.logo
+  /// 2. If not found, try the alternate extension (png->jpg or jpg->png)
+  /// 3. If none exist, fall back to solidui package defaults
+
+  Future<void> _resolveImageAssets() async {
+    _resolvedImage = await _resolveAssetWithFallback(widget.image, 'app_image');
+    _resolvedLogo = await _resolveAssetWithFallback(widget.logo, 'app_icon');
+
+    if (mounted) {
+      setState(() {
+        _assetsResolved = true;
+      });
+    }
+  }
+
+  /// Attempts to resolve an asset with fallback to alternative formats.
+  ///
+  /// [requestedAsset] is the AssetImage specified by the user.
+  /// [defaultBaseName] is the base name for fallback (e.g., 'app_image').
+  ///
+  /// Returns the first available asset in this order:
+  /// 1. The requested asset if it exists
+  /// 2. Same file name with alternate extension (png->jpg or jpg->png)
+  /// 3. The solidui package default
+
+  Future<AssetImage> _resolveAssetWithFallback(
+    AssetImage requestedAsset,
+    String defaultBaseName,
+  ) async {
+    // First, try the user-specified asset.
+
+    final requestedPath = requestedAsset.assetName;
+    if (await _assetExists(requestedPath)) {
+      return requestedAsset;
+    }
+
+    // Extract base name and extension from the requested asset path.
+
+    final baseName = _extractBaseName(requestedPath);
+    final extension = _extractExtension(requestedPath);
+    final directory = _extractDirectory(requestedPath);
+
+    // Try alternate extension: if original is .png try .jpg, and vice versa.
+
+    final alternateExtension = extension.toLowerCase() == 'png' ? 'jpg' : 'png';
+    final alternatePath = '$directory$baseName.$alternateExtension';
+    if (await _assetExists(alternatePath)) {
+      return AssetImage(alternatePath);
+    }
+
+    // Fall back to solidui package default.
+
+    return defaultBaseName == 'app_image'
+        ? _soliduiDefaultImage
+        : _soliduiDefaultLogo;
+  }
+
+  /// Extracts the directory path from an asset path.
+  ///
+  /// For example, 'assets/images/app_image.png' returns 'assets/images/'.
+
+  String _extractDirectory(String path) {
+    final lastSlash = path.lastIndexOf('/');
+    return lastSlash != -1 ? path.substring(0, lastSlash + 1) : '';
+  }
+
+  /// Extracts the file extension from an asset path.
+  ///
+  /// For example, 'assets/images/app_image.png' returns 'png'.
+
+  String _extractExtension(String path) {
+    final dotIndex = path.lastIndexOf('.');
+    return dotIndex != -1 ? path.substring(dotIndex + 1) : '';
+  }
+
+  /// Extracts the base name (without extension) from an asset path.
+  ///
+  /// For example, 'assets/images/app_image.png' returns 'app_image'.
+
+  String _extractBaseName(String path) {
+    final fileName = path.split('/').last;
+    final dotIndex = fileName.lastIndexOf('.');
+    return dotIndex != -1 ? fileName.substring(0, dotIndex) : fileName;
+  }
+
+  /// Checks whether an asset exists in the asset bundle.
+  ///
+  /// Returns true if the asset can be loaded, false otherwise.
+
+  Future<bool> _assetExists(String assetPath) async {
+    try {
+      await rootBundle.load(assetPath);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -376,17 +507,29 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    // Show a loading indicator whilst assets are being resolved.
+
+    if (!_assetsResolved) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     // Use the internal state for theme instead of system brightness.
 
     final currentTheme = isDarkMode
         ? widget.themeConfig.darkTheme
         : widget.themeConfig.lightTheme;
 
+    // Use resolved image with fallback support.
+
+    final effectiveImage = _resolvedImage ?? _soliduiDefaultImage;
+
     // The login box's default image Widget for the left/background panel
     // depending on screen width.
 
     final loginBoxDecor = BoxDecoration(
-      image: DecorationImage(image: widget.image, fit: BoxFit.cover),
+      image: DecorationImage(image: effectiveImage, fit: BoxFit.cover),
     );
 
     // Text controller for the URI of the solid server to which an authenticate
@@ -456,11 +599,15 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       ),
     );
 
+    // Use resolved logo with fallback support.
+
+    final effectiveLogo = _resolvedLogo ?? _soliduiDefaultLogo;
+
     // Build the login panel content.
 
     final loginPanelContent = SolidLoginPanel.buildPanelContent(
       context: context,
-      logo: widget.logo,
+      logo: effectiveLogo,
       title: widget.title,
       appVersion: appVersion,
       webIdController: webIdController,
