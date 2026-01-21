@@ -30,12 +30,13 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/widgets/solid_login.dart';
 
-/// Default login widget for Solid POD authentication.
+/// A simplified wrapper around [SolidLogin] with sensible defaults.
 
 class SolidDefaultLogin extends StatelessWidget {
-  /// The application title.
+  /// The application title displayed on the login panel.
 
   final String appTitle;
 
@@ -47,19 +48,27 @@ class SolidDefaultLogin extends StatelessWidget {
 
   final String defaultServerUrl;
 
-  /// The application image.
+  /// The application background image.
+  ///
+  /// If not provided, [SolidLogin] will use its default image with
+  /// automatic fallback logic.
 
   final AssetImage? appImage;
 
-  /// The application logo.
+  /// The application logo displayed at the top of the login panel.
+  ///
+  /// If not provided, [SolidLogin] will use its default logo with
+  /// automatic fallback logic.
 
   final AssetImage? appLogo;
 
-  /// The application link.
+  /// The URL for the info button link.
 
   final String? appLink;
 
   /// Widget to navigate to after successful login.
+  ///
+  /// If not provided, a default success screen will be shown.
 
   final Widget? loginSuccessWidget;
 
@@ -85,33 +94,17 @@ class SolidDefaultLogin extends StatelessWidget {
         title: appTitle,
         appDirectory: appDirectory,
         webID: defaultServerUrl,
-        image: appImage ?? _getDefaultImage(),
-        logo: appLogo ?? _getDefaultLogo(),
+        image: appImage ?? SolidConfig.defaultImage,
+        logo: appLogo ?? SolidConfig.defaultLogo,
         link: appLink ?? '',
-        child: loginSuccessWidget ?? _getDefaultSuccessWidget(context),
+        child: loginSuccessWidget ?? _buildDefaultSuccessWidget(context),
       ),
     );
   }
 
-  /// Get default application image if none provided.
+  /// Builds the default success widget shown after login.
 
-  AssetImage _getDefaultImage() {
-    // Try to use a common default image path, fallback to transparent pixel.
-
-    return const AssetImage('assets/images/app_image.jpg');
-  }
-
-  /// Get default application logo if none provided.
-
-  AssetImage _getDefaultLogo() {
-    // Try to use a common default logo path, fallback to transparent pixel.
-
-    return const AssetImage('assets/images/app_icon.png');
-  }
-
-  /// Get default success widget if none provided.
-
-  Widget _getDefaultSuccessWidget(BuildContext context) {
+  Widget _buildDefaultSuccessWidget(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(appTitle),
@@ -138,8 +131,6 @@ class SolidDefaultLogin extends StatelessWidget {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                // Navigate back or to main app.
-
                 Navigator.pop(context);
               },
               child: const Text('Continue'),
