@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Release
 
++ Improve handling of app logo and image [0.0.27 20260122 tonypioneer]
 + Move PREFERENCES into the ABOUT dialog [0.0.26 20260122 tonypioneer]
 + Simplified light/dark theme management [0.0.25 20260116 tonypioneer]
 + Support custom folder structure [0.0.24 20260114 anusavid]
