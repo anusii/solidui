@@ -34,6 +34,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
@@ -150,9 +151,17 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidNavUserInfo? userInfo;
 
-  /// Optional logout callback.
+  /// Optional custom logout callback.
+  /// If null and [showLogout] is true, the built-in
+  /// [SolidAuthHandler.instance.handleLogout] will be used.
 
   final void Function(BuildContext)? onLogout;
+
+  /// Whether to show the logout button.
+  /// Defaults to true. When true and [onLogout] is null, the built-in
+  /// [SolidAuthHandler.instance.handleLogout] will be used automatically.
+
+  final bool showLogout;
 
   /// Optional alert dialogue callback.
 
@@ -266,6 +275,7 @@ class SolidScaffold extends StatefulWidget {
     this.statusBar,
     this.userInfo,
     this.onLogout,
+    this.showLogout = true,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,
