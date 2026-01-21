@@ -213,19 +213,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _assetsResolved = false;
 
-  /// Default background image from solidui package.
-
-  static const AssetImage _soliduiDefaultImage = AssetImage(
-    'assets/images/app_image.jpg',
-    package: 'solidui',
-  );
-
-  /// Default logo from solidui package.
-
-  static const AssetImage _soliduiDefaultLogo = AssetImage(
-    'assets/images/app_icon.png',
-    package: 'solidui',
-  );
 
   @override
   void initState() {
@@ -304,8 +291,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // Fall back to solidui package default.
 
     return defaultBaseName == 'app_image'
-        ? _soliduiDefaultImage
-        : _soliduiDefaultLogo;
+        ? SolidConfig.soliduiDefaultImage
+        : SolidConfig.soliduiDefaultLogo;
   }
 
   /// Extracts the directory path from an asset path.
@@ -523,7 +510,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     // Use resolved image with fallback support.
 
-    final effectiveImage = _resolvedImage ?? _soliduiDefaultImage;
+    final effectiveImage = _resolvedImage ?? SolidConfig.soliduiDefaultImage;
 
     // The login box's default image Widget for the left/background panel
     // depending on screen width.
@@ -601,7 +588,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     // Use resolved logo with fallback support.
 
-    final effectiveLogo = _resolvedLogo ?? _soliduiDefaultLogo;
+    final effectiveLogo = _resolvedLogo ?? SolidConfig.soliduiDefaultLogo;
 
     // Build the login panel content.
 
