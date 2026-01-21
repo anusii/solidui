@@ -213,7 +213,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _assetsResolved = false;
 
-
   @override
   void initState() {
     super.initState();
