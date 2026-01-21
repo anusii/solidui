@@ -312,13 +312,16 @@ class SolidAbout {
       children.add(const Divider());
       children.add(
         Builder(
-          builder: (dialogContext) => TextButton.icon(
-            icon: const Icon(Icons.tune),
-            label: const Text('AppBar Layout Preferences'),
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              SolidPreferencesDialog.show(context);
-            },
+          builder: (dialogContext) => Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: const Icon(Icons.tune),
+              label: const Text('AppBar Layout Preferences'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                SolidPreferencesDialog.show(context);
+              },
+            ),
           ),
         ),
       );

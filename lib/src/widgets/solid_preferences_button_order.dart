@@ -171,35 +171,20 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Visibility toggle.
-            // Disabled for AppBar Layout Preferences button (cannot be hidden).
 
-            if (action.id == SolidAppBarActionIds.preferences)
-              MarkdownTooltip(
-                message: 'AppBar Layout Preferences button is always visible',
-                child: IconButton(
-                  icon: Icon(
-                    Icons.visibility,
-                    size: 20,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.38),
-                  ),
-                  onPressed: null, // Disabled.
+            MarkdownTooltip(
+              message: action.isVisible ? 'Hide button' : 'Show button',
+              child: IconButton(
+                icon: Icon(
+                  action.isVisible ? Icons.visibility : Icons.visibility_off,
+                  size: 20,
+                  color: action.isVisible
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.38),
                 ),
-              )
-            else
-              MarkdownTooltip(
-                message: action.isVisible ? 'Hide button' : 'Show button',
-                child: IconButton(
-                  icon: Icon(
-                    action.isVisible ? Icons.visibility : Icons.visibility_off,
-                    size: 20,
-                    color: action.isVisible
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.38),
-                  ),
-                  onPressed: () =>
-                      onVisibilityChanged(index, !action.isVisible),
-                ),
+                onPressed: () => onVisibilityChanged(index, !action.isVisible),
               ),
+            ),
 
             // Overflow toggle.
 

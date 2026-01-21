@@ -105,20 +105,6 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
 
   void _onVisibilityChanged(int index, bool? value) {
     if (value == null) return;
-
-    // Prevent hiding AppBar Layout Preferences button
-
-    final action = _appBarActions[index];
-    if (action.id == SolidAppBarActionIds.preferences && value == false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('AppBar Layout Preferences button cannot be hidden'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _appBarActions[index] = _appBarActions[index].copyWith(isVisible: value);
     });
@@ -132,6 +118,64 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     solidPreferencesNotifier.setConfig(newConfig);
     widget.onSave?.call();
     Navigator.of(context).pop();
+  }
+
+  void _resetToDefault() {
+    setState(() {
+      // Reset all actions to default values: visible, not in overflow,
+      // and sorted by their default order based on button type.
+
+      final resetActions = <SolidAppBarActionItem>[];
+      for (final action in _appBarActions) {
+        resetActions.add(
+          action.copyWith(
+            showInOverflow: false,
+            isVisible: true,
+            order: _getDefaultOrderForAction(action.id),
+          ),
+        );
+      }
+
+      // Sort by the default order.
+
+      resetActions.sort((a, b) => a.order.compareTo(b.order));
+
+      // Reassign sequential order values after sorting.
+
+      for (int i = 0; i < resetActions.length; i++) {
+        resetActions[i] = resetActions[i].copyWith(order: i);
+      }
+
+      _appBarActions = resetActions;
+    });
+  }
+
+  /// Returns the default order index for an action based on its ID.
+  /// This mirrors the initialIndex values in SolidAppBarActionsManager.
+
+  int _getDefaultOrderForAction(String actionId) {
+    // Theme toggle: 0.
+
+    if (actionId == SolidAppBarActionIds.themeToggle) return 0;
+
+    // Custom actions: 100+.
+
+    if (actionId.startsWith('action_')) {
+      final index = int.tryParse(actionId.replaceFirst('action_', '')) ?? 0;
+      return 100 + index;
+    }
+
+    // Logout: 300.
+
+    if (actionId == SolidAppBarActionIds.logout) return 300;
+
+    // About: 900.
+
+    if (actionId == SolidAppBarActionIds.about) return 900;
+
+    // Other items (overflow items): 200+.
+
+    return 200;
   }
 
   @override
@@ -168,6 +212,13 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
         ),
       ),
       actions: [
+        // Default button on the left.
+
+        TextButton(
+          onPressed: _resetToDefault,
+          child: const Text('Default'),
+        ),
+        const Spacer(),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
