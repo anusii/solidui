@@ -30,6 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -42,6 +43,18 @@ import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 /// Widget builder specifically for SolidScaffold.
 
 class SolidScaffoldWidgetBuilder {
+  /// Returns the effective logout callback.
+  /// If [showLogout] is true and [onLogout] is null, returns the built-in
+  /// [SolidAuthHandler.instance.handleLogout]. Otherwise returns [onLogout].
+
+  static void Function(BuildContext)? _getEffectiveLogout(
+    SolidScaffold widget,
+  ) {
+    if (!widget.showLogout) return null;
+    return widget.onLogout ??
+        (context) => SolidAuthHandler.instance.handleLogout(context);
+  }
+
   /// Builds a default SolidNavUserInfo from available scaffold configuration.
 
   static SolidNavUserInfo? _buildDefaultUserInfo(
@@ -82,6 +95,10 @@ class SolidScaffoldWidgetBuilder {
     required String Function() getVersionToDisplay,
     String? currentWebId,
   }) {
+    // Get the effective logout callback (built-in or custom).
+
+    final effectiveLogout = _getEffectiveLogout(widget);
+
     return SolidScaffoldBuildHelper.buildScaffold(
       context: context,
       scaffoldKey: scaffoldKey,
@@ -114,7 +131,7 @@ class SolidScaffoldWidgetBuilder {
           shouldShowVersion,
           getVersionToDisplay,
           hideNavRail: widget.hideNavRail,
-          onLogout: widget.onLogout,
+          onLogout: effectiveLogout,
         ),
       ),
       buildDrawer: () {
@@ -128,8 +145,8 @@ class SolidScaffoldWidgetBuilder {
           tabs: SolidScaffoldHelpers.convertToNavTabs(widget.menu),
           selectedIndex: currentSelectedIndex,
           onTabSelected: onMenuSelected,
-          onLogout: widget.onLogout,
-          showLogout: widget.onLogout != null,
+          onLogout: effectiveLogout,
+          showLogout: effectiveLogout != null,
         );
       },
       endDrawer: widget.endDrawer,

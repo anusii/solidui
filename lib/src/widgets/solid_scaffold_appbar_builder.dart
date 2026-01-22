@@ -58,7 +58,11 @@ class SolidScaffoldAppBarBuilder {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
   }) {
-    SolidAppBarActionsManager.initializeIfNeeded(config, themeToggle);
+    SolidAppBarActionsManager.initializeIfNeeded(
+      config,
+      themeToggle,
+      hasLogout: onLogout != null,
+    );
 
     final isWideScreen = !hideNavRail &&
         SolidScaffoldHelpers.isWideScreen(

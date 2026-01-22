@@ -41,17 +41,22 @@ class SolidAppBarActionsManager {
   /// Initialises AppBar actions in preferences notifier if empty or missing
   /// items. Dynamically handles all buttons from config.actions and
   /// config.overflowItems in addition to standard buttons.
+  ///
+  /// The [hasLogout] parameter indicates whether the application has provided
+  /// a logout callback. If false, the logout button will not be added to the
+  /// preferences list.
 
   static void initializeIfNeeded(
     SolidAppBarConfig config,
-    SolidThemeToggleConfig? themeToggle,
-  ) {
+    SolidThemeToggleConfig? themeToggle, {
+    bool hasLogout = false,
+  }) {
     // Check if we need to add missing buttons (standard or custom).
 
     final existingActions = solidPreferencesNotifier.appBarActions;
     final needsInit = existingActions.isEmpty;
-    final needsMerge =
-        !needsInit && _hasMissingButtons(existingActions, config, themeToggle);
+    final needsMerge = !needsInit &&
+        _hasMissingButtons(existingActions, config, themeToggle, hasLogout);
 
     if (!needsInit && !needsMerge) return;
 
@@ -119,20 +124,22 @@ class SolidAppBarActionsManager {
       );
     }
 
-    // Add Logout button.
+    // Add Logout button if the application has provided a logout callback.
     // Default: show in AppBar.
 
-    actionEntries.add(
-      _ActionEntry(
-        item: const SolidAppBarActionItem(
-          id: SolidAppBarActionIds.logout,
-          label: 'Logout',
-          icon: Icons.logout,
-          showInOverflow: false, // Show in AppBar by default.
+    if (hasLogout) {
+      actionEntries.add(
+        _ActionEntry(
+          item: const SolidAppBarActionItem(
+            id: SolidAppBarActionIds.logout,
+            label: 'Logout',
+            icon: Icons.logout,
+            showInOverflow: false, // Show in AppBar by default.
+          ),
+          initialIndex: 300, // Logout button after custom/overflow actions.
         ),
-        initialIndex: 300, // Logout button after custom/overflow actions.
-      ),
-    );
+      );
+    }
 
     // Add About button.
     // Default: show in AppBar, rightmost position.
@@ -174,6 +181,7 @@ class SolidAppBarActionsManager {
     List<SolidAppBarActionItem> actions,
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle,
+    bool hasLogout,
   ) {
     final existingIds = actions.map((a) => a.id).toSet();
 
@@ -200,12 +208,15 @@ class SolidAppBarActionsManager {
       expectedIds.add(item.id);
     }
 
-    // Standard buttons that should always exist.
+    // Logout button (only if application has provided a logout callback).
 
-    expectedIds.addAll([
-      SolidAppBarActionIds.logout,
-      SolidAppBarActionIds.about,
-    ]);
+    if (hasLogout) {
+      expectedIds.add(SolidAppBarActionIds.logout);
+    }
+
+    // About button should always exist.
+
+    expectedIds.add(SolidAppBarActionIds.about);
 
     // Check if any expected ID is missing.
 
