@@ -46,9 +46,12 @@ import 'package:solidui/src/widgets/build_message_container.dart';
 /// A widget displaying an alert for the user noting that they have probably a
 /// newly created Solid Pod or their App's Pod is missing resources.
 ///
-/// The widget will inform the user about creating/ re-creating these recources.
+/// The widget will inform the user about creating/ re-creating these resources.
+///
+/// The [appName] parameter is used to display the actual app name in the
+/// message instead of a generic reference.
 
-SizedBox initialSetupWelcome(BuildContext context) {
+SizedBox initialSetupWelcome(BuildContext context, String appName) {
   return SizedBox(
     child: Padding(
       padding: const EdgeInsets.all(30.0),
@@ -87,7 +90,7 @@ SizedBox initialSetupWelcome(BuildContext context) {
               context,
               'warning',
               '', // No title for the message box.
-              initialStructureMsg,
+              initialStructureMsg(appName),
             ),
           ),
         ],
