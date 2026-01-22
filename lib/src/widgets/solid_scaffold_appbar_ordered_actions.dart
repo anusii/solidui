@@ -57,12 +57,6 @@ class SolidAppBarOrderedActionsBuilder {
     required VoidCallback? themeToggleCallback,
     required SolidAboutConfig aboutConfig,
     required BuildContext context,
-    required bool showPreferences,
-    required Widget Function(
-      BuildContext,
-      SolidAppBarConfig,
-      SolidThemeToggleConfig?,
-    ) buildPreferencesButton,
     void Function(BuildContext)? onLogout,
   }) {
     final List<_OrderedAction> orderedActions = [];
@@ -78,15 +72,6 @@ class SolidAppBarOrderedActionsBuilder {
       themeToggleCallback,
     );
     _addCustomActions(orderedActions, config, screenWidth, isNarrowScreen);
-    _addPreferencesButton(
-      orderedActions,
-      showPreferences,
-      isNarrowScreen,
-      context,
-      config,
-      themeToggle,
-      buildPreferencesButton,
-    );
     _addOverflowItems(orderedActions, config, isNarrowScreen);
     _addLogoutButton(orderedActions, onLogout, isNarrowScreen, context);
     _addAboutButton(
@@ -179,36 +164,6 @@ class SolidAppBarOrderedActionsBuilder {
 
         orderedActions.add(_OrderedAction(order: order, widget: iconButton));
       }
-    }
-  }
-
-  static void _addPreferencesButton(
-    List<_OrderedAction> orderedActions,
-    bool showPreferences,
-    bool isNarrowScreen,
-    BuildContext context,
-    SolidAppBarConfig config,
-    SolidThemeToggleConfig? themeToggle,
-    Widget Function(BuildContext, SolidAppBarConfig, SolidThemeToggleConfig?)
-        buildPreferencesButton,
-  ) {
-    if (!showPreferences) return;
-
-    final actionConfig = SolidAppBarActionsManager.getActionConfig(
-      SolidAppBarActionIds.preferences,
-    );
-
-    const isVisible = true; // Preferences button cannot be hidden.
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
-    final order = actionConfig?.order ?? 300;
-
-    if (isVisible && (!isNarrowScreen || !isInOverflow)) {
-      orderedActions.add(
-        _OrderedAction(
-          order: order,
-          widget: buildPreferencesButton(context, config, themeToggle),
-        ),
-      );
     }
   }
 

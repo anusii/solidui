@@ -132,7 +132,6 @@ class SolidScaffoldHelpers {
     SolidAboutConfig aboutConfig,
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow, {
-    bool hasPreferencesInOverflow = false,
     bool hasLogoutInOverflow = false,
   }) =>
       SolidOverflowMenuHelpers.buildOverflowMenuItems(
@@ -142,7 +141,6 @@ class SolidScaffoldHelpers {
         aboutConfig,
         hasThemeToggleInOverflow,
         hasAboutInOverflow,
-        hasPreferencesInOverflow: hasPreferencesInOverflow,
         hasLogoutInOverflow: hasLogoutInOverflow,
       );
 
@@ -255,7 +253,6 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
-    bool showPreferences = false,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -271,7 +268,6 @@ class SolidScaffoldHelpers {
       narrowScreenThreshold,
       hideNavRail: hideNavRail,
       onLogout: onLogout,
-      showPreferences: showPreferences,
     );
   }
 

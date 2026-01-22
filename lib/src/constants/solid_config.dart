@@ -28,6 +28,8 @@
 
 library;
 
+import 'package:flutter/material.dart';
+
 /// Configuration constants for Solid POD servers.
 
 class SolidConfig {
@@ -35,7 +37,37 @@ class SolidConfig {
 
   static const String defaultServerUrl = 'https://pods.solidcommunity.au';
 
-  // Prevent instantiation
+  /// Default background image asset path.
+
+  static const String defaultImagePath = 'assets/images/app_image.jpg';
+
+  /// Default logo asset path.
+
+  static const String defaultLogoPath = 'assets/images/app_icon.png';
+
+  /// Default background image for the login screen.
+
+  static const AssetImage defaultImage = AssetImage(defaultImagePath);
+
+  /// Default logo for the login screen.
+
+  static const AssetImage defaultLogo = AssetImage(defaultLogoPath);
+
+  /// Default background image from solidui package (fallback).
+
+  static const AssetImage soliduiDefaultImage = AssetImage(
+    defaultImagePath,
+    package: 'solidui',
+  );
+
+  /// Default logo from solidui package (fallback).
+
+  static const AssetImage soliduiDefaultLogo = AssetImage(
+    defaultLogoPath,
+    package: 'solidui',
+  );
+
+  // Prevent instantiation.
 
   SolidConfig._();
 }

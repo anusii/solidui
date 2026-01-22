@@ -52,7 +52,6 @@ class SolidOverflowMenuHelpers {
     SolidAboutConfig aboutConfig,
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow, {
-    bool hasPreferencesInOverflow = false,
     bool hasLogoutInOverflow = false,
   }) {
     List<PopupMenuItem<String>> items = [];
@@ -72,8 +71,6 @@ class SolidOverflowMenuHelpers {
         );
       } else if (actionItem.id == SolidAppBarActionIds.logout) {
         _addLogout(items, hasLogoutInOverflow);
-      } else if (actionItem.id == SolidAppBarActionIds.preferences) {
-        _addPreferences(items, hasPreferencesInOverflow);
       } else if (actionItem.id == SolidAppBarActionIds.about) {
         _addAbout(items, hasAboutInOverflow, aboutConfig);
       } else if (actionItem.id.startsWith('action_')) {
@@ -131,22 +128,6 @@ class SolidOverflowMenuHelpers {
             Icon(Icons.logout),
             SizedBox(width: 8),
             Text('Logout'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static void _addPreferences(List<PopupMenuItem<String>> items, bool show) {
-    if (!show) return;
-    items.add(
-      const PopupMenuItem<String>(
-        value: 'preferences',
-        child: Row(
-          children: [
-            Icon(Icons.tune),
-            SizedBox(width: 8),
-            Text('AppBar Layout Preferences'),
           ],
         ),
       ),
