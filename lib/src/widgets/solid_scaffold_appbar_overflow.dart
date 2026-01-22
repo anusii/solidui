@@ -284,12 +284,11 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
         action?.onPressed();
       }
     } else {
-      final item = widget.config.overflowItems
-          .cast<SolidOverflowMenuItem?>()
-          .firstWhere(
-            (item) => item?.id == id,
-            orElse: () => null,
-          );
+      final item =
+          widget.config.overflowItems.cast<SolidOverflowMenuItem?>().firstWhere(
+                (item) => item?.id == id,
+                orElse: () => null,
+              );
       item?.onSelected();
     }
 
