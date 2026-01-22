@@ -267,8 +267,10 @@ class _SolidPreferencesButtonItemState
                       ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
                       : theme.colorScheme.primary,
                 ),
-                onPressed: () =>
-                    widget.onOverflowChanged(widget.index, !action.showInOverflow),
+                onPressed: () => widget.onOverflowChanged(
+                  widget.index,
+                  !action.showInOverflow,
+                ),
               ),
             ),
           ],
