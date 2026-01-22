@@ -1,6 +1,6 @@
-/// Solid POD configuration constants.
+/// Theme helper for SolidLogin widget.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -30,44 +30,23 @@ library;
 
 import 'package:flutter/material.dart';
 
-/// Configuration constants for Solid POD servers.
+import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
-class SolidConfig {
-  /// Default production Solid POD server URL.
+/// Helper class for theme-related operations in SolidLogin widget.
 
-  static const String defaultServerUrl = 'https://pods.solidcommunity.au';
+class SolidLoginThemeHelper {
+  /// Determines if dark mode should be used based on the current theme mode.
+  /// When in system mode, follows the system brightness.
+  /// When explicitly set to light or dark, uses that mode.
 
-  /// Default background image asset path.
-
-  static const String defaultImagePath = 'assets/images/app_image.jpg';
-
-  /// Default logo asset path.
-
-  static const String defaultLogoPath = 'assets/images/app_icon.png';
-
-  /// Default background image for the login screen.
-
-  static const AssetImage defaultImage = AssetImage(defaultImagePath);
-
-  /// Default logo for the login screen.
-
-  static const AssetImage defaultLogo = AssetImage(defaultLogoPath);
-
-  /// Default background image from solidui package (fallback).
-
-  static const AssetImage soliduiDefaultImage = AssetImage(
-    defaultImagePath,
-    package: 'solidui',
-  );
-
-  /// Default logo from solidui package (fallback).
-
-  static const AssetImage soliduiDefaultLogo = AssetImage(
-    defaultLogoPath,
-    package: 'solidui',
-  );
-
-  // Prevent instantiation.
-
-  SolidConfig._();
+  static bool isDarkMode(BuildContext context) {
+    switch (solidThemeNotifier.themeMode) {
+      case ThemeMode.system:
+        return MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+      case ThemeMode.light:
+        return false;
+      case ThemeMode.dark:
+        return true;
+    }
+  }
 }

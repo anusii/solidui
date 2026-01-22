@@ -50,43 +50,29 @@ const darkBlue = Color.fromARGB(255, 7, 87, 153);
 
 /// Text string variables used for the welcome message.
 
-const initialStructureWelcome = 'Welcome to the Solid Pod Setup Wizard!';
+const initialStructureWelcome = 'Welcome to the Solid Pod Setup Wizard';
 
 /// Text string variables as the title of the message box.
 
 const initialStructureTitle = 'Solid Pod';
 
-/// Text string variables used for informing the user about the creatiion of
-/// different resources.
+/// Text string variables used for informing the user about the first-time
+/// connection and security key requirement.
 
-const initialStructureMsg = 'We notice that you have either created'
-    ' a new Solid Pod or your Pod has some missing files/folders'
-    ' (called resources).'
-    ' We will now setup the required resources to fully support'
-    ' the app functionalities.';
+const initialStructureMsg =
+    'You have connected to your Solid Pod using this app for the first time. '
+    'A security key is required to encrypt and protect your data. '
+    'You must remember this key to access the data associated with this app.';
 
 /// The string key of input form for the input of security key
 
 const securityKeyStr = '_security_key';
 
-/// The string key of the input form for retyping the security key
+/// The string key of the input form for retyping the security key.
+
 const securityKeyStrReType = '__security_key';
 
-/// Text string variables used for informing the user about the input of
-/// security key for encryption.
+/// Markdown tooltip text for the security key input field.
 
-const requiredSecurityKeyMsg =
-    'A security key (or key for short) is used to make your data private'
-    ' (using encryption) when it is stored in your Solid Pod.'
-    ' This could be the password you use to login to your'
-    ' Solid Pod (not recommended) or a different one (highly recommended).'
-    ' You will need to remember this key to access your data -'
-    ' a lost key means your data will also be lost.'
-    ' Please provide a security key and confirm it below. Thanks.';
-
-/// Text string variables used for informing the user about the creation of
-/// public/private key pair for secure data sharing.
-
-const publicKeyMsg =
-    'We will also create a random public/private key pair for secure data'
-    ' sharing, under your control, with other Solid Pods.';
+const securityKeyTooltip =
+    'A security key is required to encrypt and protect your data.';
