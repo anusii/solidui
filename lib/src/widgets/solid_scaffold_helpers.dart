@@ -255,6 +255,7 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -270,6 +271,7 @@ class SolidScaffoldHelpers {
       narrowScreenThreshold,
       hideNavRail: hideNavRail,
       onLogout: onLogout,
+      onLogin: onLogin,
     );
   }
 

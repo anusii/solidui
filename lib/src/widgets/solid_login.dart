@@ -43,6 +43,7 @@ import 'package:solidpod/solidpod.dart'
         setAppDirName;
 
 import 'package:solidui/src/constants/solid_config.dart';
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_login_build_helper.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
@@ -198,6 +199,19 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // dc 20251022: please explain why calling an async without await.
 
     _initPackageInfo();
+
+    // Auto-configure SolidAuthHandler with this login's settings.
+    // This ensures re-login from within the app uses the same configuration.
+
+    SolidAuthHandler.instance.autoConfigureFromLogin(
+      title: widget.title,
+      appDirectory: widget.appDirectory,
+      webId: widget.webID,
+      image: widget.image,
+      logo: widget.logo,
+      link: widget.link,
+      child: widget.child,
+    );
   }
 
   /// Resolves the image and logo assets with fallback logic.

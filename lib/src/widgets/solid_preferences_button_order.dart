@@ -31,6 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
 
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 
@@ -118,8 +119,9 @@ class SolidPreferencesButtonOrderSection extends StatelessWidget {
 }
 
 /// A single reorderable button item in the preferences list.
+/// For the auth (login/logout) button, dynamically shows the current state.
 
-class _SolidPreferencesButtonItem extends StatelessWidget {
+class _SolidPreferencesButtonItem extends StatefulWidget {
   final int index;
   final SolidAppBarActionItem action;
   final void Function(int index, bool? value) onVisibilityChanged;
@@ -134,19 +136,83 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
   });
 
   @override
+  State<_SolidPreferencesButtonItem> createState() =>
+      _SolidPreferencesButtonItemState();
+}
+
+class _SolidPreferencesButtonItemState
+    extends State<_SolidPreferencesButtonItem> {
+  bool _isLoggedIn = true;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Only check login status for the auth button.
+
+    if (widget.action.id == SolidAppBarActionIds.logout) {
+      _checkLoginStatus();
+    } else {
+      _isLoading = false;
+    }
+  }
+
+  Future<void> _checkLoginStatus() async {
+    try {
+      final webId = await getWebId();
+      if (webId == null || webId.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _isLoggedIn = false;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      final isLoggedIn = await isUserLoggedIn();
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = isLoggedIn;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = false;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final action = widget.action;
+
+    // Determine display label and icon for auth button based on login state.
+
+    String displayLabel = action.label;
+    IconData displayIcon = action.icon;
+
+    if (action.id == SolidAppBarActionIds.logout && !_isLoading) {
+      displayLabel = _isLoggedIn ? 'Logout' : 'Login';
+      displayIcon = _isLoggedIn ? Icons.logout : Icons.login;
+    }
 
     return Material(
       child: ListTile(
         leading: ReorderableDragStartListener(
-          index: index,
+          index: widget.index,
           child: const Icon(Icons.drag_handle),
         ),
         title: Row(
           children: [
             Icon(
-              action.icon,
+              displayIcon,
               size: 20,
               color: action.isVisible
                   ? null
@@ -155,7 +221,7 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                action.label,
+                displayLabel,
                 style: action.isVisible
                     ? null
                     : TextStyle(
@@ -182,7 +248,8 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onSurface.withValues(alpha: 0.38),
                 ),
-                onPressed: () => onVisibilityChanged(index, !action.isVisible),
+                onPressed: () =>
+                    widget.onVisibilityChanged(widget.index, !action.isVisible),
               ),
             ),
 
@@ -201,7 +268,7 @@ class _SolidPreferencesButtonItem extends StatelessWidget {
                       : theme.colorScheme.primary,
                 ),
                 onPressed: () =>
-                    onOverflowChanged(index, !action.showInOverflow),
+                    widget.onOverflowChanged(widget.index, !action.showInOverflow),
               ),
             ),
           ],

@@ -99,6 +99,17 @@ class SolidAuthHandler {
   static SolidAuthHandler? _instance;
   SolidAuthConfig? _config;
 
+  // Cached login configuration from the app's original SolidLogin widget.
+
+  String? _cachedTitle;
+  String? _cachedAppDirectory;
+  String? _cachedWebId;
+  AssetImage? _cachedImage;
+  AssetImage? _cachedLogo;
+  String? _cachedLink;
+  Widget? _cachedChild;
+  bool _isAutoConfigured = false;
+
   SolidAuthHandler._internal();
 
   /// Singleton instance of the authentication handler.
@@ -113,6 +124,32 @@ class SolidAuthHandler {
   void configure(SolidAuthConfig config) {
     _config = config;
   }
+
+  /// Auto-configure from SolidLogin widget parameters.
+  /// Called automatically when SolidLogin initialises.
+
+  void autoConfigureFromLogin({
+    required String title,
+    required String appDirectory,
+    required String webId,
+    required AssetImage image,
+    required AssetImage logo,
+    required String link,
+    required Widget child,
+  }) {
+    _cachedTitle = title;
+    _cachedAppDirectory = appDirectory;
+    _cachedWebId = webId;
+    _cachedImage = image;
+    _cachedLogo = logo;
+    _cachedLink = link;
+    _cachedChild = child;
+    _isAutoConfigured = true;
+  }
+
+  /// Check if auto-configuration is available.
+
+  bool get hasAutoConfig => _isAutoConfigured;
 
   /// Handle logout functionality with confirmation popup.
 
@@ -131,6 +168,7 @@ class SolidAuthHandler {
   }
 
   /// Handle login functionality by navigating to login page.
+  /// After successful login, navigates back to the app's root route.
 
   Future<void> handleLogin(BuildContext context) async {
     Navigator.pushReplacement(
@@ -148,7 +186,25 @@ class SolidAuthHandler {
       return _config!.loginPageBuilder!(context);
     }
 
-    // Use default login page.
+    // Use auto-configured values from the app's original SolidLogin if
+    // available.
+
+    if (_isAutoConfigured && _cachedChild != null) {
+      return SolidDefaultLogin(
+        appTitle: _cachedTitle ?? _config?.appTitle ?? 'Solid App',
+        appDirectory:
+            _cachedAppDirectory ?? _config?.appDirectory ?? 'solid_app',
+        defaultServerUrl: _cachedWebId ??
+            _config?.defaultServerUrl ??
+            SolidConfig.defaultServerUrl,
+        appImage: _cachedImage ?? _config?.appImage,
+        appLogo: _cachedLogo ?? _config?.appLogo,
+        appLink: _cachedLink ?? _config?.appLink,
+        loginSuccessWidget: _config?.loginSuccessWidget ?? _cachedChild,
+      );
+    }
+
+    // Fall back to manual configuration or defaults.
 
     return SolidDefaultLogin(
       appTitle: _config?.appTitle ?? 'Solid App',
@@ -159,6 +215,7 @@ class SolidAuthHandler {
       appLogo: _config?.appLogo,
       appLink: _config?.appLink,
       loginSuccessWidget: _config?.loginSuccessWidget,
+      navigateToRootOnSuccess: _config?.loginSuccessWidget == null,
     );
   }
 

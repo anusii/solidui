@@ -68,9 +68,14 @@ class SolidDefaultLogin extends StatelessWidget {
 
   /// Widget to navigate to after successful login.
   ///
-  /// If not provided, a default success screen will be shown.
+  /// If not provided and [navigateToRootOnSuccess] is false, a default
+  /// success screen will be shown.
 
   final Widget? loginSuccessWidget;
+
+  /// Whether to navigate to the app's root route ('/') after successful login.
+
+  final bool navigateToRootOnSuccess;
 
   const SolidDefaultLogin({
     super.key,
@@ -81,10 +86,24 @@ class SolidDefaultLogin extends StatelessWidget {
     this.appLogo,
     this.appLink,
     this.loginSuccessWidget,
+    this.navigateToRootOnSuccess = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Determine the success widget based on configuration.
+
+    Widget successWidget;
+    if (loginSuccessWidget != null) {
+      successWidget = loginSuccessWidget!;
+    } else if (navigateToRootOnSuccess) {
+      // Navigate to root route after login, returning to app's entry point.
+
+      successWidget = _RootNavigator(appTitle: appTitle);
+    } else {
+      successWidget = _buildDefaultSuccessWidget(context);
+    }
+
     return Theme(
       data: Theme.of(context).brightness == Brightness.dark
           ? ThemeData.dark()
@@ -97,7 +116,7 @@ class SolidDefaultLogin extends StatelessWidget {
         image: appImage ?? SolidConfig.defaultImage,
         logo: appLogo ?? SolidConfig.defaultLogo,
         link: appLink ?? '',
-        child: loginSuccessWidget ?? _buildDefaultSuccessWidget(context),
+        child: successWidget,
       ),
     );
   }
@@ -134,6 +153,53 @@ class SolidDefaultLogin extends StatelessWidget {
                 Navigator.pop(context);
               },
               child: const Text('Continue'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A widget that navigates to the app's root route when built.
+/// Used as the login success destination to return to the app's entry point.
+
+class _RootNavigator extends StatefulWidget {
+  final String appTitle;
+
+  const _RootNavigator({required this.appTitle});
+
+  @override
+  State<_RootNavigator> createState() => _RootNavigatorState();
+}
+
+class _RootNavigatorState extends State<_RootNavigator> {
+  @override
+  void initState() {
+    super.initState();
+    // Navigate to root route after the widget is built.
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Show a brief loading indicator whilst navigating.
+
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Logging in to ${widget.appTitle}...',
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),

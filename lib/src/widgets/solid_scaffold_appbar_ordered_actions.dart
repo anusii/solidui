@@ -59,6 +59,7 @@ class SolidAppBarOrderedActionsBuilder {
     required SolidAboutConfig aboutConfig,
     required BuildContext context,
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
   }) {
     final List<_OrderedAction> orderedActions = [];
     final isNarrowScreen = screenWidth < config.narrowScreenThreshold;
@@ -74,7 +75,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     _addCustomActions(orderedActions, config, screenWidth, isNarrowScreen);
     _addOverflowItems(orderedActions, config, isNarrowScreen);
-    _addLogoutButton(orderedActions, onLogout, isNarrowScreen, context);
+    _addAuthButton(orderedActions, onLogout, onLogin, isNarrowScreen, context);
     _addAboutButton(
       orderedActions,
       aboutConfig,
@@ -195,9 +196,10 @@ class SolidAppBarOrderedActionsBuilder {
   /// Adds a dynamic login/logout button that automatically switches
   /// between login and logout states based on authentication status.
 
-  static void _addLogoutButton(
+  static void _addAuthButton(
     List<_OrderedAction> orderedActions,
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
     bool isNarrowScreen,
     BuildContext context,
   ) {
@@ -214,6 +216,7 @@ class SolidAppBarOrderedActionsBuilder {
           order: order,
           widget: SolidDynamicAuthButton(
             onLogout: onLogout,
+            onLogin: onLogin,
           ),
         ),
       );

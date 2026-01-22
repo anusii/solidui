@@ -56,6 +56,7 @@ class SolidAppBarOverflowHandler {
     SolidAboutConfig aboutConfig,
     BuildContext context, {
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
   }) {
     // Use narrowScreenThreshold to determine when to show overflow menu.
 
@@ -83,10 +84,11 @@ class SolidAppBarOverflowHandler {
         ),
         context,
         hasLogoutInOverflow: shouldShowLogoutInOverflow(
-          onLogout != null,
+          true,
           forceOverflow: true,
         ),
         onLogout: onLogout,
+        onLogin: onLogin,
       ),
     );
   }
@@ -169,6 +171,7 @@ class SolidAppBarOverflowHandler {
     BuildContext parentContext, {
     bool hasLogoutInOverflow = false,
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
   }) {
     return _DynamicOverflowMenu(
       config: config,
@@ -180,6 +183,7 @@ class SolidAppBarOverflowHandler {
       hasAboutInOverflow: hasAboutInOverflow,
       hasLogoutInOverflow: hasLogoutInOverflow,
       onLogout: onLogout,
+      onLogin: onLogin,
     );
   }
 }
@@ -196,6 +200,7 @@ class _DynamicOverflowMenu extends StatefulWidget {
   final bool hasAboutInOverflow;
   final bool hasLogoutInOverflow;
   final void Function(BuildContext)? onLogout;
+  final void Function(BuildContext)? onLogin;
 
   const _DynamicOverflowMenu({
     required this.config,
@@ -207,6 +212,7 @@ class _DynamicOverflowMenu extends StatefulWidget {
     required this.hasAboutInOverflow,
     required this.hasLogoutInOverflow,
     required this.onLogout,
+    required this.onLogin,
   });
 
   @override
@@ -270,7 +276,11 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
     } else if (id == 'login') {
       // User tapped login whilst logged out.
 
-      SolidAuthHandler.instance.handleLogin(context);
+      if (widget.onLogin != null) {
+        widget.onLogin!(context);
+      } else {
+        SolidAuthHandler.instance.handleLogin(context);
+      }
     } else if (id.startsWith('action_')) {
       final actionIndex = int.tryParse(id.replaceFirst('action_', ''));
       if (actionIndex != null && actionIndex < widget.config.actions.length) {
