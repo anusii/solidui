@@ -1,6 +1,6 @@
 /// Initial setup page constants.
 ///
-// Time-stamp: <Friday 2025-01-10 13:34:52 +1100 Graham Williams>
+// Time-stamp: <Thursday 2026-01-22 11:21:26 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -60,9 +60,9 @@ const initialStructureTitle = 'Solid Pod';
 /// connection and security key requirement.
 
 const initialStructureMsg =
-    'You have connected to your Solid Pod using this app for the first time. '
-    'A security key is required to encrypt and protect your data. '
-    'You must remember this key to access the data associated with this app.';
+    'You have connected to your Solid Pod using this App for the first time. '
+    'A security key is required to encrypt and protect your data stored in your Pod. '
+    'You must remember this security key to access the data for this App.';
 
 /// The string key of input form for the input of security key
 
@@ -75,4 +75,8 @@ const securityKeyStrReType = '__security_key';
 /// Markdown tooltip text for the security key input field.
 
 const securityKeyTooltip =
-    'A security key is required to encrypt and protect your data.';
+    'A security key can be any string of characters that you can remember.';
+
+const securityKeyRetypeTooltip =
+    'Please retype your security key to ensure it is correct. '
+    'We ask this to protect against loss of your data';

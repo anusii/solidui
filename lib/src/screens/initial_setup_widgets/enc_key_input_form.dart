@@ -1,6 +1,6 @@
 /// Contains functions for generating bodies of different ttl files.
 ///
-// Time-stamp: <Tuesday 2024-04-02 21:34:27 +1100 Graham Williams>
+// Time-stamp: <Thursday 2026-01-22 11:22:23 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -125,7 +125,7 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
             widthFactor: 0.9,
             alignment: Alignment.center,
             child: MarkdownTooltip(
-              message: securityKeyTooltip,
+              message: securityKeyRetypeTooltip,
               child: FormBuilderTextField(
                 name: securityKeyStrReType,
                 obscureText: !_showRetypedSecurityKey,
