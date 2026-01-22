@@ -34,6 +34,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/widgets/solid_about_button.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_dynamic_auth_button.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
@@ -191,14 +192,15 @@ class SolidAppBarOrderedActionsBuilder {
     }
   }
 
+  /// Adds a dynamic login/logout button that automatically switches
+  /// between login and logout states based on authentication status.
+
   static void _addLogoutButton(
     List<_OrderedAction> orderedActions,
     void Function(BuildContext)? onLogout,
     bool isNarrowScreen,
     BuildContext context,
   ) {
-    if (onLogout == null) return;
-
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
       SolidAppBarActionIds.logout,
     );
@@ -210,12 +212,8 @@ class SolidAppBarOrderedActionsBuilder {
       orderedActions.add(
         _OrderedAction(
           order: order,
-          widget: MarkdownTooltip(
-            message: 'Log out of the current session',
-            child: IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => onLogout(context),
-            ),
+          widget: SolidDynamicAuthButton(
+            onLogout: onLogout,
           ),
         ),
       );

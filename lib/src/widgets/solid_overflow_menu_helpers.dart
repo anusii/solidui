@@ -53,6 +53,7 @@ class SolidOverflowMenuHelpers {
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow, {
     bool hasLogoutInOverflow = false,
+    bool isLoggedIn = true,
   }) {
     List<PopupMenuItem<String>> items = [];
     final allActions =
@@ -70,7 +71,7 @@ class SolidOverflowMenuHelpers {
           currentThemeMode,
         );
       } else if (actionItem.id == SolidAppBarActionIds.logout) {
-        _addLogout(items, hasLogoutInOverflow);
+        _addAuthMenuItem(items, hasLogoutInOverflow, isLoggedIn);
       } else if (actionItem.id == SolidAppBarActionIds.about) {
         _addAbout(items, hasAboutInOverflow, aboutConfig);
       } else if (actionItem.id.startsWith('action_')) {
@@ -118,16 +119,27 @@ class SolidOverflowMenuHelpers {
     );
   }
 
-  static void _addLogout(List<PopupMenuItem<String>> items, bool show) {
+  /// Adds authentication menu item (login or logout) based on current state.
+
+  static void _addAuthMenuItem(
+    List<PopupMenuItem<String>> items,
+    bool show,
+    bool isLoggedIn,
+  ) {
     if (!show) return;
+
+    final icon = isLoggedIn ? Icons.logout : Icons.login;
+    final label = isLoggedIn ? 'Logout' : 'Login';
+    final value = isLoggedIn ? 'logout' : 'login';
+
     items.add(
-      const PopupMenuItem<String>(
-        value: 'logout',
+      PopupMenuItem<String>(
+        value: value,
         child: Row(
           children: [
-            Icon(Icons.logout),
-            SizedBox(width: 8),
-            Text('Logout'),
+            Icon(icon),
+            const SizedBox(width: 8),
+            Text(label),
           ],
         ),
       ),

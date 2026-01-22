@@ -133,6 +133,7 @@ class SolidScaffoldHelpers {
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow, {
     bool hasLogoutInOverflow = false,
+    bool isLoggedIn = true,
   }) =>
       SolidOverflowMenuHelpers.buildOverflowMenuItems(
         config,
@@ -142,6 +143,7 @@ class SolidScaffoldHelpers {
         hasThemeToggleInOverflow,
         hasAboutInOverflow,
         hasLogoutInOverflow: hasLogoutInOverflow,
+        isLoggedIn: isLoggedIn,
       );
 
   /// Builds overflow icon buttons for wider screens.
