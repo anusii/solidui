@@ -13,7 +13,7 @@ The package is available from
 Coding documentation is available from [solid community
 au](https://solidcommunity.au/docs/solidui)
 
-## 0.1.0 First Release
+## 0.1.0 First Beta Release
 
 + Improved SETUP WIZARD for better UX [0.0.28 20260122 tonypioneer]
 + Improve handling of app logo and image [0.0.27 20260122 tonypioneer]
