@@ -56,7 +56,9 @@ ElevatedButton resCreateFormSubmission(
   List<String> resFilesLink,
   Widget child,
 ) {
-  // Use MediaQuery to determine the screen width and adjust the font size accordingly.
+  // Use MediaQuery to determine the screen width and adjust the font size
+  // accordingly.
+
   final screenWidth = MediaQuery.of(context).size.width;
   final isSmallDevice =
       screenWidth < 360; // A threshold for small devices, can be adjusted.
@@ -161,13 +163,12 @@ ElevatedButton resCreateFormSubmission(
     onPressed: () async {
       if (formKey.currentState?.saveAndValidate() ?? false) {
         // ignore: unawaited_futures
-        showAnimationDialog(context, 17, 'Creating resources!', false, null);
+        showAnimationDialog(context, 17, 'Creating resources...', false, null);
         final formData = formKey.currentState?.value as Map;
 
         final securityKey = formData[securityKeyStr].toString();
 
         try {
-          // await _initPodOriginalFunc(securityKey);
           await initPod(
             securityKey,
             dirUrls: resFoldersLink,
@@ -185,25 +186,49 @@ ElevatedButton resCreateFormSubmission(
         if (context.mounted) Navigator.pop(context);
       }
     },
-    style: ElevatedButton.styleFrom(
-      foregroundColor: darkBlue,
-      backgroundColor: darkBlue, // foreground
-      padding: const EdgeInsets.symmetric(horizontal: 50),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    style: ButtonStyle(
+      foregroundColor: WidgetStateProperty.all(Colors.white),
+      backgroundColor: WidgetStateProperty.all(darkBlue),
+      padding: WidgetStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 50),
+      ),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return Colors.white.withValues(alpha: 0.2);
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return Colors.white.withValues(alpha: 0.1);
+        }
+        return null;
+      }),
+      side: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.focused)) {
+          return const BorderSide(color: Colors.lightBlueAccent, width: 2);
+        }
+        return BorderSide.none;
+      }),
     ),
     child: Text(
       'SUBMIT',
       style: TextStyle(
         color: Colors.white,
+
         // Adjust the font size for small devices.
+
         fontSize:
+
             // Smaller font size for small devices.
 
             isSmallDevice ? 8 : 16,
       ),
+
       // Ensure the text does not wrap.
 
       overflow: TextOverflow.ellipsis,
+
       // Limit text to a single line.
 
       maxLines: 1,

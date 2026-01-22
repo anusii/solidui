@@ -40,15 +40,11 @@ import 'package:solidui/solidui.dart' show SolidLogin, logoutPopup;
 import 'package:solidui/src/screens/initial_setup_widgets/enc_key_input_form.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/initial_setup_welcome.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/res_create_form_submission.dart';
+import 'package:solidui/src/screens/initial_setup_widgets/resources_dialog.dart';
 
-/// A [StatefulWidget] that represents the initial setup screen for the desktop version of an application.
-///
-/// This widget is responsible for rendering the initial setup UI, which includes forms for user input and displaying
-/// resources that will be created as part of the setup process.
+/// A [StatefulWidget] that represents the initial setup screen.
 
 class InitialSetupScreenBody extends StatefulWidget {
-  /// Initialising the [StatefulWidget]
-
   const InitialSetupScreenBody({
     required this.resNeedToCreate,
     required this.child,
@@ -73,21 +69,23 @@ class InitialSetupScreenBody extends StatefulWidget {
 
   final Widget child;
 
-  /// The original SolidLogin widget to return to when back is pressed
+  /// The original SolidLogin widget to return to when back is pressed.
 
   final SolidLogin? originalLogin;
 
   @override
-  State<InitialSetupScreenBody> createState() {
-    return _InitialSetupScreenBodyState();
-  }
+  State<InitialSetupScreenBody> createState() => _InitialSetupScreenBodyState();
 }
 
 class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
+  // Form key should be created once and persisted across rebuilds.
+  // Creating it in build() would cause the form state to be lost on every
+  // rebuild.
+
+  final _formKey = GlobalKey<FormBuilderState>();
+
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormBuilderState>();
-
     final resFoldersLink = (widget.resNeedToCreate['folders'] as List)
         .map((item) => item.toString())
         .toList();
@@ -97,9 +95,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         .toList();
 
     final combinedLinks = resFoldersLink + resFilesLink;
-
-    // Get the common path among the URLs
-
     combinedLinks.sort((a, b) => a.length.compareTo(b.length));
     var baseUrl = combinedLinks.first;
     if (!baseUrl.endsWith('/')) {
@@ -132,179 +127,177 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         // Convert to list.
 
         .toList()
+
       // Sort alphabetically.
+
       ..sort();
 
     final resFileNames = (widget.resNeedToCreate['fileNames'] as List)
         .map((item) => item.toString())
         .toList();
 
-    return Column(
-      children: [
-        // Adding a Row for the back button and spacing.
+    // Wrap in FocusTraversalGroup to enable ordered tab navigation.
 
-        Row(
-          children: [
-            BackButton(
-              onPressed: () {
-                // Navigate back to the original login screen with all parameters preserved.
-
-                if (widget.originalLogin != null) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => widget.originalLogin!,
-                    ),
-                  );
-                } else {
-                  // Fallback to navigating to the root if original login is not available.
-
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
-            ),
-          ],
-        ),
-
-        Expanded(
-          child: SizedBox(
-            height: 700,
-            child: ListView(
-              primary: false,
-              children: [
-                Center(
-                  child: initialSetupWelcome(context),
-                ),
-                Center(
-                  child: SizedBox(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(80, 10, 80, 0),
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              BackButton(
+                onPressed: () => _handleBackPressed(context),
+              ),
+            ],
+          ),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: ListView(
+                  primary: false,
+                  children: [
+                    initialSetupWelcome(context),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           EncKeyInputForm(
-                            formKey: formKey,
-                          ),
-                          Center(
-                            child: TextButton.icon(
-                              icon: const Icon(
-                                Icons.logout,
-                                color: Colors.grey,
-                                size: 24.0,
-                              ),
-                              label: const Text(
-                                'Or you can Logout from your Solid Pod'
-                                ' to login again as another user.',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey, //black,
-                                ),
-                              ),
-                              onPressed: () async {
-                                // Navigator.pop(context);
-
-                                await logoutPopup(
-                                  context,
-                                  widget.child,
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors
-                                    .white, //lightBlue, // Set the background color to light blue
-                              ),
-                              // remove the popup warning.
+                            formKey: _formKey,
+                            onSubmit: () async => _handleFormSubmit(
+                              resFileNames,
+                              resFoldersLink,
+                              resFilesLink,
                             ),
                           ),
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          Center(
+                          const SizedBox(height: 20),
+                          FractionallySizedBox(
+                            widthFactor: 0.9,
+                            alignment: Alignment.center,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ResourceCreationTextWidget(
-                                  resLinks: combinedLinks,
-                                  baseUrl: baseUrl,
+                                _buildSubmitButton(
+                                  context,
+                                  resFileNames,
+                                  resFoldersLink,
+                                  resFilesLink,
                                 ),
-                                const Divider(
-                                  color: Colors.grey,
+                                const SizedBox(height: 30),
+                                _buildActionButtons(
+                                  context,
+                                  baseUrl,
+                                  extractedParts,
                                 ),
-                                for (final String? resLink
-                                    in extractedParts) ...[
-                                  ListTile(
-                                    title: Text(resLink!),
-                                    leading: Icon(
-                                      resLink.endsWith('/')
-                                          ? Icons.folder
-                                          : Icons.insert_drive_file_outlined,
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(
-                                  height: 20,
-                                ),
+                                const SizedBox(height: 30),
                               ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleBackPressed(BuildContext context) {
+    if (widget.originalLogin != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => widget.originalLogin!),
+      );
+    } else {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }
+
+  Future<void> _handleFormSubmit(
+    List<String> resFileNames,
+    List<String> resFoldersLink,
+    List<String> resFilesLink,
+  ) async {
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
+      final button = resCreateFormSubmission(
+        _formKey,
+        context,
+        resFileNames,
+        resFoldersLink,
+        resFilesLink,
+        widget.child,
+      );
+      button.onPressed?.call();
+    }
+  }
+
+  Widget _buildSubmitButton(
+    BuildContext context,
+    List<String> resFileNames,
+    List<String> resFoldersLink,
+    List<String> resFilesLink,
+  ) {
+    return FocusTraversalOrder(
+      order: const NumericFocusOrder(3),
+      child: OutlinedButton(
+        onPressed: () async => _handleFormSubmit(
+          resFileNames,
+          resFoldersLink,
+          resFilesLink,
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.blue,
+          side: const BorderSide(color: Colors.blue),
+        ),
+        child: const Text(
+          'SUBMIT',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(
+    BuildContext context,
+    String baseUrl,
+    List<String?> extractedParts,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        FocusTraversalOrder(
+          order: const NumericFocusOrder(4),
+          child: TextButton(
+            onPressed: () =>
+                ResourcesDialog.show(context, baseUrl, extractedParts),
+            child: const Text(
+              'RESOURCES',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
           ),
         ),
-
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(30.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                resCreateFormSubmission(
-                  formKey,
-                  context,
-                  resFileNames,
-                  resFoldersLink,
-                  resFilesLink,
-                  widget.child,
-                ),
-              ],
+        FocusTraversalOrder(
+          order: const NumericFocusOrder(5),
+          child: TextButton(
+            onPressed: () async => await logoutPopup(context, widget.child),
+            child: const Text(
+              'LOGOUT',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class ResourceCreationTextWidget extends StatelessWidget {
-  const ResourceCreationTextWidget({
-    required this.resLinks,
-    required this.baseUrl,
-    super.key,
-  });
-  final List<String> resLinks;
-  final String baseUrl;
-
-  String getResourceCreationMessage() {
-    if (resLinks.isEmpty) return 'No resources specified';
-
-    return 'Resources to be created within\n$baseUrl';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        getResourceCreationMessage(),
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 25,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
     );
   }
 }

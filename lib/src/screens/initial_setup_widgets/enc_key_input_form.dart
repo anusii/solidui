@@ -34,17 +34,30 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/constants/initial_setup.dart';
 
-/// EncKeyInputForm is a [StatefulWidget] that represents the form for entering the encryption key.
-class EncKeyInputForm extends StatefulWidget {
-  /// Initialising the [StatefulWidget] with the [formKey].
+/// EncKeyInputForm is a [StatefulWidget] that represents the form for entering
+/// the encryption key.
 
-  const EncKeyInputForm({required this.formKey, super.key});
+class EncKeyInputForm extends StatefulWidget {
+  /// Initialising the [StatefulWidget] with the [formKey] and optional
+  /// [onSubmit] callback.
+
+  const EncKeyInputForm({
+    required this.formKey,
+    this.onSubmit,
+    super.key,
+  });
 
   /// The key for the form.
+
   final GlobalKey<FormBuilderState> formKey;
+
+  /// Optional callback triggered when user presses Enter to submit.
+
+  final VoidCallback? onSubmit;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -64,130 +77,97 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
       },
       autovalidateMode: AutovalidateMode.disabled,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const Text(
-            'We require a security key to protect your data:',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const Divider(color: Colors.grey),
-          const SizedBox(height: 20),
-          const Text(
-            requiredSecurityKeyMsg,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
           const SizedBox(height: 10),
-          FormBuilderTextField(
-            name: securityKeyStr,
-            obscureText:
-                // Controls whether the security key is shown or hidden.
-
-                !_showSecurityKey,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: 'SECURITY KEY',
-              labelStyle: const TextStyle(
-                color: Colors.blue,
-                letterSpacing: 1.5,
-                fontSize: 13.0,
-                fontWeight: FontWeight.bold,
-              ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _showSecurityKey ? Icons.visibility : Icons.visibility_off,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _showSecurityKey =
-                        // Toggle the state to show/hide the security key
-
-                        !_showSecurityKey;
-                  });
-                },
-              ),
-            ),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(),
-            ]),
-          ),
-          const SizedBox(height: 10),
-          FormBuilderTextField(
-            name: securityKeyStrReType,
-            obscureText: !_showRetypedSecurityKey,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: 'RETYPE SECURITY KEY',
-              labelStyle: const TextStyle(
-                color: Colors.blue,
-                letterSpacing: 1.5,
-                fontSize: 13.0,
-                fontWeight: FontWeight.bold,
-              ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _showRetypedSecurityKey
-                      ? Icons.visibility
-                      : Icons.visibility_off,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _showRetypedSecurityKey = !_showRetypedSecurityKey;
-                  });
-                },
-              ),
-            ),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(),
-              (val) {
-                if (val !=
-                    widget
-                        .formKey.currentState!.fields[securityKeyStr]?.value) {
-                  return 'Security keys do not match';
-                }
-                return null;
-              },
-            ]),
-          ),
-          const SizedBox(height: 30),
-          const Text(
-            publicKeyMsg,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 10),
-          FormBuilderCheckbox(
-            name: 'providepermission',
-            initialValue: false,
-            onChanged: (val) {
-              if (val != null) {
-                debugPrint('Permission granted: $val');
-              }
-            },
-            title: RichText(
-              text: const TextSpan(
-                children: [
-                  TextSpan(
-                    text:
-                        'I acknowledge that the resources identified below will be created. ',
-                    style: TextStyle(color: Colors.black),
+          FractionallySizedBox(
+            widthFactor: 0.9,
+            alignment: Alignment.center,
+            child: MarkdownTooltip(
+              message: securityKeyTooltip,
+              child: FormBuilderTextField(
+                name: securityKeyStr,
+                obscureText: !_showSecurityKey,
+                autocorrect: false,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'SECURITY KEY',
+                  labelStyle: const TextStyle(
+                    color: Colors.blue,
+                    letterSpacing: 1.5,
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
+                  suffixIcon: FocusTraversalOrder(
+                    order: const NumericFocusOrder(5),
+                    child: IconButton(
+                      icon: Icon(
+                        _showSecurityKey
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showSecurityKey = !_showSecurityKey;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                ]),
               ),
             ),
-            validator: FormBuilderValidators.equal(
-              true,
-              errorText: 'You must provide permission to continue',
+          ),
+          const SizedBox(height: 16),
+          FractionallySizedBox(
+            widthFactor: 0.9,
+            alignment: Alignment.center,
+            child: MarkdownTooltip(
+              message: securityKeyTooltip,
+              child: FormBuilderTextField(
+                name: securityKeyStrReType,
+                obscureText: !_showRetypedSecurityKey,
+                autocorrect: false,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => widget.onSubmit?.call(),
+                decoration: InputDecoration(
+                  labelText: 'RETYPE SECURITY KEY',
+                  labelStyle: const TextStyle(
+                    color: Colors.blue,
+                    letterSpacing: 1.5,
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  suffixIcon: FocusTraversalOrder(
+                    order: const NumericFocusOrder(6),
+                    child: IconButton(
+                      icon: Icon(
+                        _showRetypedSecurityKey
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showRetypedSecurityKey = !_showRetypedSecurityKey;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                  (val) {
+                    if (val !=
+                        widget.formKey.currentState!.fields[securityKeyStr]
+                            ?.value) {
+                      return 'Security keys do not match';
+                    }
+                    return null;
+                  },
+                ]),
+              ),
             ),
           ),
           const SizedBox(height: 20),
