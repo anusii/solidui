@@ -15,6 +15,8 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Beta Release
 
++ UX review and remove duplicated login/logout [0.6.31 20260123 tonypioneer]
++ Improved setup wizard UX [0.6.30 20260123 tonypioneer]
 + Bug fix missing logout button [0.0.29 20260122 tonypioneer]
 + Improved SETUP WIZARD for better UX [0.0.28 20260122 tonypioneer]
 + Improve handling of app logo and image [0.0.27 20260122 tonypioneer]
