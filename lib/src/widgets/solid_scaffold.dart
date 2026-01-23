@@ -131,6 +131,12 @@ class SolidScaffold extends StatefulWidget {
 
   final void Function(BuildContext)? onLogout;
 
+  /// Optional custom login callback.
+  /// If null, the built-in [SolidAuthHandler.instance.handleLogin] will be
+  /// used. Provide this to navigate to your app's specific login page.
+
+  final void Function(BuildContext)? onLogin;
+
   /// Whether to show the logout button.
   /// Defaults to true. When true and [onLogout] is null, the built-in
   /// [SolidAuthHandler.instance.handleLogout] will be used automatically.
@@ -248,6 +254,7 @@ class SolidScaffold extends StatefulWidget {
     this.statusBar,
     this.userInfo,
     this.onLogout,
+    this.onLogin,
     this.showLogout = true,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,

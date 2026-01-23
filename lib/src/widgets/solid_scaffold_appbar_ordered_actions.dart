@@ -34,6 +34,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/widgets/solid_about_button.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_dynamic_auth_button.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
@@ -58,6 +59,7 @@ class SolidAppBarOrderedActionsBuilder {
     required SolidAboutConfig aboutConfig,
     required BuildContext context,
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
   }) {
     final List<_OrderedAction> orderedActions = [];
     final isNarrowScreen = screenWidth < config.narrowScreenThreshold;
@@ -73,7 +75,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     _addCustomActions(orderedActions, config, screenWidth, isNarrowScreen);
     _addOverflowItems(orderedActions, config, isNarrowScreen);
-    _addLogoutButton(orderedActions, onLogout, isNarrowScreen, context);
+    _addAuthButton(orderedActions, onLogout, onLogin, isNarrowScreen, context);
     _addAboutButton(
       orderedActions,
       aboutConfig,
@@ -191,14 +193,16 @@ class SolidAppBarOrderedActionsBuilder {
     }
   }
 
-  static void _addLogoutButton(
+  /// Adds a dynamic login/logout button that automatically switches
+  /// between login and logout states based on authentication status.
+
+  static void _addAuthButton(
     List<_OrderedAction> orderedActions,
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
     bool isNarrowScreen,
     BuildContext context,
   ) {
-    if (onLogout == null) return;
-
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
       SolidAppBarActionIds.logout,
     );
@@ -210,12 +214,9 @@ class SolidAppBarOrderedActionsBuilder {
       orderedActions.add(
         _OrderedAction(
           order: order,
-          widget: MarkdownTooltip(
-            message: 'Log out of the current session',
-            child: IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => onLogout(context),
-            ),
+          widget: SolidDynamicAuthButton(
+            onLogout: onLogout,
+            onLogin: onLogin,
           ),
         ),
       );

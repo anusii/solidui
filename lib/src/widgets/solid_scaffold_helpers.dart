@@ -133,6 +133,7 @@ class SolidScaffoldHelpers {
     bool hasThemeToggleInOverflow,
     bool hasAboutInOverflow, {
     bool hasLogoutInOverflow = false,
+    bool isLoggedIn = true,
   }) =>
       SolidOverflowMenuHelpers.buildOverflowMenuItems(
         config,
@@ -142,6 +143,7 @@ class SolidScaffoldHelpers {
         hasThemeToggleInOverflow,
         hasAboutInOverflow,
         hasLogoutInOverflow: hasLogoutInOverflow,
+        isLoggedIn: isLoggedIn,
       );
 
   /// Builds overflow icon buttons for wider screens.
@@ -253,6 +255,7 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
+    void Function(BuildContext)? onLogin,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -268,6 +271,7 @@ class SolidScaffoldHelpers {
       narrowScreenThreshold,
       hideNavRail: hideNavRail,
       onLogout: onLogout,
+      onLogin: onLogin,
     );
   }
 

@@ -55,6 +55,17 @@ class SolidScaffoldWidgetBuilder {
         (context) => SolidAuthHandler.instance.handleLogout(context);
   }
 
+  /// Returns the effective login callback.
+  /// If [onLogin] is null, returns the built-in
+  /// [SolidAuthHandler.instance.handleLogin].
+
+  static void Function(BuildContext) _getEffectiveLogin(
+    SolidScaffold widget,
+  ) {
+    return widget.onLogin ??
+        (context) => SolidAuthHandler.instance.handleLogin(context);
+  }
+
   /// Builds a default SolidNavUserInfo from available scaffold configuration.
 
   static SolidNavUserInfo? _buildDefaultUserInfo(
@@ -95,9 +106,10 @@ class SolidScaffoldWidgetBuilder {
     required String Function() getVersionToDisplay,
     String? currentWebId,
   }) {
-    // Get the effective logout callback (built-in or custom).
+    // Get the effective login/logout callbacks (built-in or custom).
 
     final effectiveLogout = _getEffectiveLogout(widget);
+    final effectiveLogin = _getEffectiveLogin(widget);
 
     return SolidScaffoldBuildHelper.buildScaffold(
       context: context,
@@ -132,6 +144,7 @@ class SolidScaffoldWidgetBuilder {
           getVersionToDisplay,
           hideNavRail: widget.hideNavRail,
           onLogout: effectiveLogout,
+          onLogin: effectiveLogin,
         ),
       ),
       buildDrawer: () {
