@@ -35,8 +35,11 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:solidui/solidui.dart' show SolidLogin, logoutPopup;
+import 'package:solidui/src/constants/initial_setup.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/enc_key_input_form.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/initial_setup_welcome.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/res_create_form_submission.dart';
@@ -83,6 +86,27 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
   // rebuild.
 
   final _formKey = GlobalKey<FormBuilderState>();
+
+  String _appName = 'the App';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppName();
+  }
+
+  Future<void> _loadAppName() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        // Capitalise the first letter of the app name for display.
+        final name = packageInfo.appName;
+        _appName = name.isNotEmpty
+            ? name[0].toUpperCase() + name.substring(1)
+            : 'the App';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +180,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                 child: ListView(
                   primary: false,
                   children: [
-                    initialSetupWelcome(context),
+                    initialSetupWelcome(context, _appName),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
@@ -242,19 +266,22 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
   ) {
     return FocusTraversalOrder(
       order: const NumericFocusOrder(3),
-      child: OutlinedButton(
-        onPressed: () async => _handleFormSubmit(
-          resFileNames,
-          resFoldersLink,
-          resFilesLink,
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.blue,
-          side: const BorderSide(color: Colors.blue),
-        ),
-        child: const Text(
-          'SUBMIT',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+      child: MarkdownTooltip(
+        message: submitButtonTooltip(_appName),
+        child: OutlinedButton(
+          onPressed: () async => _handleFormSubmit(
+            resFileNames,
+            resFoldersLink,
+            resFilesLink,
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.blue,
+            side: const BorderSide(color: Colors.blue),
+          ),
+          child: const Text(
+            'SUBMIT',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
         ),
       ),
     );
@@ -266,33 +293,40 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
     List<String?> extractedParts,
   ) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         FocusTraversalOrder(
           order: const NumericFocusOrder(4),
-          child: TextButton(
-            onPressed: () =>
-                ResourcesDialog.show(context, baseUrl, extractedParts),
-            child: const Text(
-              'RESOURCES',
-              style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+          child: MarkdownTooltip(
+            message: resourcesButtonTooltip(_appName),
+            child: TextButton(
+              onPressed: () =>
+                  ResourcesDialog.show(context, baseUrl, extractedParts),
+              child: const Text(
+                'RESOURCES',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
         ),
+        const SizedBox(width: 16),
         FocusTraversalOrder(
           order: const NumericFocusOrder(5),
-          child: TextButton(
-            onPressed: () async => await logoutPopup(context, widget.child),
-            child: const Text(
-              'LOGOUT',
-              style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+          child: MarkdownTooltip(
+            message: logoutButtonTooltip(_appName),
+            child: TextButton(
+              onPressed: () async => await logoutPopup(context, widget.child),
+              child: const Text(
+                'LOGOUT',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

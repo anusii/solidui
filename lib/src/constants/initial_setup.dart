@@ -58,11 +58,14 @@ const initialStructureTitle = 'Solid Pod';
 
 /// Text string variables used for informing the user about the first-time
 /// connection and security key requirement.
+///
+/// The [appName] parameter allows the message to display the actual app name
+/// instead of a generic "this App" reference.
 
-const initialStructureMsg =
-    'You have connected to your Solid Pod using this App for the first time. '
-    'A security key is required to encrypt and protect the data stored in your Pod. '
-    'You must remember this security key to access the data for this App.';
+String initialStructureMsg(String appName) =>
+    'You have connected to your Solid Pod using $appName for the first time. '
+    'A security key is required to encrypt and protect the data stored in your '
+    'Pod. You must remember this security key to access the data for $appName.';
 
 /// The string key of input form for the input of security key
 
@@ -75,9 +78,33 @@ const securityKeyStrReType = '__security_key';
 /// Markdown tooltip text for the security key input field.
 
 const securityKeyTooltip =
-    'A security key can be any string of characters that you can remember.'
+    'A security key can be any string of characters that you can remember. '
     'The longer the better, with a mix of characters.';
 
 const securityKeyRetypeTooltip =
     'Please retype your security key to ensure it is correct. '
     'We ask this to protect against loss of your data.';
+
+/// Tooltip text for the SUBMIT button.
+///
+/// The [appName] parameter allows the tooltip to display the actual app name.
+
+String submitButtonTooltip(String appName) =>
+    'Tap here once you have provided your security key. '
+    'This will record the key and create the Pod folder for $appName.';
+
+/// Tooltip text for the RESOURCES button.
+///
+/// The [appName] parameter allows the tooltip to display the actual app name.
+
+String resourcesButtonTooltip(String appName) =>
+    'Tap here to list all of the $appName resources '
+    'that will be created to initialise your Pod.';
+
+/// Tooltip text for the LOGOUT button.
+///
+/// The [appName] parameter allows the tooltip to display the actual app name.
+
+String logoutButtonTooltip(String appName) =>
+    'Tap here to logout from your connection to your Pod on the Solid server. '
+    'Next time you start $appName you will need to log into the server again.';
