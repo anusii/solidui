@@ -87,7 +87,6 @@ class SolidLoginPanel {
           const SizedBox(height: 20.0),
 
           // Column of buttons.
-
           Column(
             children: [
               Row(
@@ -95,9 +94,7 @@ class SolidLoginPanel {
                 children: [
                   Expanded(child: loginButton),
                   const SizedBox(width: 15.0),
-                  Expanded(
-                    child: isRequired ? registerButton : continueButton,
-                  ),
+                  Expanded(child: isRequired ? registerButton : continueButton),
                 ],
               ),
               const SizedBox(height: 15.0),
@@ -122,7 +119,6 @@ class SolidLoginPanel {
           const SizedBox(height: 20.0),
 
           // Expand to the bottom of the login panel.
-
           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,

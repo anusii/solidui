@@ -47,9 +47,7 @@ import 'package:solidui/src/widgets/solid_login_webid_input_dialog.dart';
 Future<bool> loginIfRequired(BuildContext context) async {
   final loggedIn = await isUserLoggedIn();
   if (!loggedIn && context.mounted) {
-    await loginWebIdInputDialog(
-      context,
-    );
+    await loginWebIdInputDialog(context);
     // await Navigator.push(
     //     context,
     //     MaterialPageRoute(
@@ -83,7 +81,7 @@ Future<void> getKeyFromUserIfRequired(
         return verifySecurityKey(key as String, verificationKey)
             ? null
             : 'Incorrect Security Key';
-      }
+      },
     );
 
     // Use the unified SecurityKeyUI widget with the appropriate configuration.

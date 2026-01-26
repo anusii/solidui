@@ -214,10 +214,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         return await SecurityKeyOperations.handleKeySubmission(
           key,
           confirmKey,
-          (message) => SecurityKeyUIHelpers.showErrorSnackBar(
-            context,
-            message,
-          ),
+          (message) => SecurityKeyUIHelpers.showErrorSnackBar(context, message),
         );
       },
     );
@@ -329,11 +326,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     // Show the notice dialog.
 
-    await SecurityKeyUIHelpers.showErrorDialog(
-      context,
-      'Notice',
-      msg,
-    );
+    await SecurityKeyUIHelpers.showErrorDialog(context, 'Notice', msg);
   }
 
   /// Shows a confirmation dialogue before forgetting the security key.

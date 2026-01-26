@@ -217,20 +217,15 @@ ElevatedButton resCreateFormSubmission(
         color: Colors.white,
 
         // Adjust the font size for small devices.
-
         fontSize:
-
             // Smaller font size for small devices.
-
             isSmallDevice ? 8 : 16,
       ),
 
       // Ensure the text does not wrap.
-
       overflow: TextOverflow.ellipsis,
 
       // Limit text to a single line.
-
       maxLines: 1,
     ),
   );

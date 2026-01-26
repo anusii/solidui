@@ -150,8 +150,10 @@ class SolidNavUserInfo {
         const suffixes = ['profile', 'card#me', '#me'];
         for (final suffix in suffixes) {
           if (candidate.endsWith(suffix)) {
-            candidate =
-                candidate.substring(0, candidate.length - suffix.length);
+            candidate = candidate.substring(
+              0,
+              candidate.length - suffix.length,
+            );
             if (candidate.endsWith('/')) {
               candidate = candidate.substring(0, candidate.length - 1);
             }

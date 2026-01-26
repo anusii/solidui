@@ -173,9 +173,7 @@ class SolidAuthHandler {
   Future<void> handleLogin(BuildContext context) async {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => _buildLoginPage(context),
-      ),
+      MaterialPageRoute(builder: (context) => _buildLoginPage(context)),
     );
   }
 
@@ -233,11 +231,9 @@ class SolidAuthHandler {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Authentication error: $e'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Authentication error: $e')));
       }
     }
   }

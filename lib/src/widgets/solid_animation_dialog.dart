@@ -91,17 +91,10 @@ Future<void> showAnimationDialog(
                   ),
                   const SizedBox(height: 5),
                   DefaultTextStyle(
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                    child: Text(
-                      alertMsg,
-                    ),
+                    style: const TextStyle(fontSize: 20, color: Colors.white),
+                    child: Text(alertMsg),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(animationContext).pop();

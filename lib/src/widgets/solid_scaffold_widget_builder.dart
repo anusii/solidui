@@ -59,9 +59,7 @@ class SolidScaffoldWidgetBuilder {
   /// If [onLogin] is null, returns the built-in
   /// [SolidAuthHandler.instance.handleLogin].
 
-  static void Function(BuildContext) _getEffectiveLogin(
-    SolidScaffold widget,
-  ) {
+  static void Function(BuildContext) _getEffectiveLogin(SolidScaffold widget) {
     return widget.onLogin ??
         (context) => SolidAuthHandler.instance.handleLogin(context);
   }

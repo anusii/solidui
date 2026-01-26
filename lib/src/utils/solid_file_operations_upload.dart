@@ -118,11 +118,7 @@ class SolidFileUploadOperations {
 
         // Upload file with encryption.
 
-        await writePod(
-          uploadPath,
-          fileContent,
-          encrypted: true,
-        );
+        await writePod(uploadPath, fileContent, encrypted: true);
 
         if (!context.mounted) return;
 

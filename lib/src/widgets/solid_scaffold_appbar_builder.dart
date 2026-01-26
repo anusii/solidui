@@ -68,10 +68,7 @@ class SolidScaffoldAppBarBuilder {
     );
 
     final isWideScreen = !hideNavRail &&
-        SolidScaffoldHelpers.isWideScreen(
-          context,
-          narrowScreenThreshold,
-        );
+        SolidScaffoldHelpers.isWideScreen(context, narrowScreenThreshold);
     final screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
 

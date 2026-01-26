@@ -125,28 +125,19 @@ class SolidDefaultLogin extends StatelessWidget {
 
   Widget _buildDefaultSuccessWidget(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(appTitle),
-      ),
+      appBar: AppBar(title: Text(appTitle)),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.check_circle,
-              size: 64,
-              color: Colors.green,
-            ),
+            const Icon(Icons.check_circle, size: 64, color: Colors.green),
             const SizedBox(height: 16),
             const Text(
               'Successfully logged in!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Welcome to $appTitle',
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text('Welcome to $appTitle', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {

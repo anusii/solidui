@@ -57,8 +57,9 @@ class SolidThemeToggleHelpers {
         if (themeConfig.tooltip != null) {
           tooltipMessage = themeConfig.tooltip!;
         } else {
-          tooltipMessage =
-              solidThemeNotifier.getTooltipForCurrentMode(themeModeConfig);
+          tooltipMessage = solidThemeNotifier.getTooltipForCurrentMode(
+            themeModeConfig,
+          );
         }
 
         // Get the next mode to determine which icon to show.
@@ -67,18 +68,16 @@ class SolidThemeToggleHelpers {
 
         // Get the icon for the next mode.
 
-        final iconWidget =
-            Icon(_getIconForModeWithContext(context, nextMode, themeConfig));
+        final iconWidget = Icon(
+          _getIconForModeWithContext(context, nextMode, themeConfig),
+        );
 
         Widget themeButton = IconButton(
           icon: iconWidget,
           onPressed: themeToggleCallback,
         );
 
-        return MarkdownTooltip(
-          message: tooltipMessage,
-          child: themeButton,
-        );
+        return MarkdownTooltip(message: tooltipMessage, child: themeButton);
       },
     );
   }

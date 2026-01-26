@@ -237,7 +237,6 @@ class _SolidPreferencesButtonItemState
           mainAxisSize: MainAxisSize.min,
           children: [
             // Visibility toggle.
-
             MarkdownTooltip(
               message: action.isVisible ? 'Hide button' : 'Show button',
               child: IconButton(
@@ -254,7 +253,6 @@ class _SolidPreferencesButtonItemState
             ),
 
             // Overflow toggle.
-
             MarkdownTooltip(
               message: action.showInOverflow
                   ? 'Show in AppBar'

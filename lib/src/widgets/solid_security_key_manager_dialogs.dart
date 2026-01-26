@@ -236,9 +236,7 @@ class SolidSecurityKeyManagerDialogs {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: Text(
           title,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

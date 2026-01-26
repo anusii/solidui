@@ -67,31 +67,19 @@ class SecurityTextStyles {
 
   /// Style for regular text content.
 
-  static const body = TextStyle(
-    fontSize: 15,
-    color: SecurityColors.text,
-  );
+  static const body = TextStyle(fontSize: 15, color: SecurityColors.text);
 
   /// Style for the WebID display.
 
-  static const webId = TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.w500,
-  );
+  static const webId = TextStyle(fontSize: 13, fontWeight: FontWeight.w500);
 
   /// Style for the "Currently logged in as:" label.
 
-  static const label = TextStyle(
-    fontSize: 13,
-    color: SecurityColors.labelGrey,
-  );
+  static const label = TextStyle(fontSize: 13, color: SecurityColors.labelGrey);
 
   /// Style for button text.
 
-  static const button = TextStyle(
-    fontSize: 14,
-    color: Colors.white,
-  );
+  static const button = TextStyle(fontSize: 14, color: Colors.white);
 }
 
 /// Layout constants used across security dialogs and prompts.
@@ -127,8 +115,10 @@ class SecurityLayout {
 
   /// Button padding.
 
-  static const buttonPadding =
-      EdgeInsets.symmetric(horizontal: 16, vertical: 10);
+  static const buttonPadding = EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 10,
+  );
 
   /// Standard width for security dialogs.
 

@@ -242,8 +242,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
       // Process and validate files.
 
-      final processedFiles =
-          await FileOperations.getFiles(currentPath, context);
+      final processedFiles = await FileOperations.getFiles(
+        currentPath,
+        context,
+      );
 
       if (!mounted) return;
 

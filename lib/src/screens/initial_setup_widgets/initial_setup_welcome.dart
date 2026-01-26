@@ -71,9 +71,7 @@ SizedBox initialSetupWelcome(BuildContext context, String appName) {
               size: 50,
             ),
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Text(
             initialStructureWelcome,
             style: TextStyle(
@@ -82,9 +80,7 @@ SizedBox initialSetupWelcome(BuildContext context, String appName) {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           Center(
             child: buildMsgBox(
               context,

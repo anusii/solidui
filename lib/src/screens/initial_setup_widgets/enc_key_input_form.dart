@@ -45,11 +45,7 @@ class EncKeyInputForm extends StatefulWidget {
   /// Initialising the [StatefulWidget] with the [formKey] and optional
   /// [onSubmit] callback.
 
-  const EncKeyInputForm({
-    required this.formKey,
-    this.onSubmit,
-    super.key,
-  });
+  const EncKeyInputForm({required this.formKey, this.onSubmit, super.key});
 
   /// The key for the form.
 

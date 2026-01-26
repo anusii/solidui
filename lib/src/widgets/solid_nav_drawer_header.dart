@@ -110,8 +110,9 @@ class SolidNavDrawerHeader {
           child: Text(
             SolidNavDrawerUrlHelper.getSimplifiedUrl(user.webId!),
             style: TextStyle(
-              color:
-                  theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+              color: theme.colorScheme.onPrimaryContainer.withValues(
+                alpha: 0.8,
+              ),
               fontSize: NavigationConstants.webIdFontSize,
             ),
             textAlign: TextAlign.center,

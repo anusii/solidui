@@ -141,19 +141,12 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
           return null;
         })
         // Remove nulls.
-
         .where((item) => item != null)
-
         // Remove duplicates.
-
         .toSet()
-
         // Convert to list.
-
         .toList()
-
       // Sort alphabetically.
-
       ..sort();
 
     final resFileNames = (widget.resNeedToCreate['fileNames'] as List)
@@ -168,9 +161,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         children: [
           Row(
             children: [
-              BackButton(
-                onPressed: () => _handleBackPressed(context),
-              ),
+              BackButton(onPressed: () => _handleBackPressed(context)),
             ],
           ),
           Expanded(
@@ -269,11 +260,8 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
       child: MarkdownTooltip(
         message: submitButtonTooltip(_appName),
         child: OutlinedButton(
-          onPressed: () async => _handleFormSubmit(
-            resFileNames,
-            resFoldersLink,
-            resFilesLink,
-          ),
+          onPressed: () async =>
+              _handleFormSubmit(resFileNames, resFoldersLink, resFilesLink),
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.blue,
             side: const BorderSide(color: Colors.blue),

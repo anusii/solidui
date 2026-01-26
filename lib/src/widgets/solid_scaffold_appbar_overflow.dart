@@ -74,14 +74,8 @@ class SolidAppBarOverflowHandler {
         currentThemeMode,
         themeToggleCallback,
         aboutConfig,
-        shouldShowThemeToggleInOverflow(
-          themeToggle,
-          forceOverflow: true,
-        ),
-        shouldShowAboutInOverflow(
-          aboutConfig,
-          forceOverflow: true,
-        ),
+        shouldShowThemeToggleInOverflow(themeToggle, forceOverflow: true),
+        shouldShowAboutInOverflow(aboutConfig, forceOverflow: true),
         context,
         hasLogoutInOverflow: shouldShowLogoutInOverflow(
           true,
@@ -100,8 +94,9 @@ class SolidAppBarOverflowHandler {
     bool forceOverflow = false,
   }) {
     if (!hasLogout) return false;
-    final actionConfig =
-        SolidAppBarActionsManager.getActionConfig(SolidAppBarActionIds.logout);
+    final actionConfig = SolidAppBarActionsManager.getActionConfig(
+      SolidAppBarActionIds.logout,
+    );
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
@@ -143,8 +138,9 @@ class SolidAppBarOverflowHandler {
     bool forceOverflow = false,
   }) {
     if (!aboutConfig.enabled) return false;
-    final actionConfig =
-        SolidAppBarActionsManager.getActionConfig(SolidAppBarActionIds.about);
+    final actionConfig = SolidAppBarActionsManager.getActionConfig(
+      SolidAppBarActionIds.about,
+    );
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
@@ -286,19 +282,15 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
       if (actionIndex != null && actionIndex < widget.config.actions.length) {
         widget.config.actions[actionIndex].onPressed();
       } else {
-        final action =
-            widget.config.actions.cast<SolidAppBarAction?>().firstWhere(
-                  (a) => a?.id == id,
-                  orElse: () => null,
-                );
+        final action = widget.config.actions
+            .cast<SolidAppBarAction?>()
+            .firstWhere((a) => a?.id == id, orElse: () => null);
         action?.onPressed();
       }
     } else {
-      final item =
-          widget.config.overflowItems.cast<SolidOverflowMenuItem?>().firstWhere(
-                (item) => item?.id == id,
-                orElse: () => null,
-              );
+      final item = widget.config.overflowItems
+          .cast<SolidOverflowMenuItem?>()
+          .firstWhere((item) => item?.id == id, orElse: () => null);
       item?.onSelected();
     }
 

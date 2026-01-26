@@ -63,8 +63,10 @@ class SolidLogin extends StatefulWidget {
       'assets/images/default_image.jpg',
       package: 'solidpod',
     ),
-    this.logo =
-        const AssetImage('assets/images/default_logo.png', package: 'solidpod'),
+    this.logo = const AssetImage(
+      'assets/images/default_logo.png',
+      package: 'solidpod',
+    ),
     this.title = 'Log in to your Solid Pod',
     this.webID = SolidConfig.defaultServerUrl,
     this.link = 'https://solidproject.org',

@@ -177,8 +177,10 @@ class SolidScaffoldState extends State<SolidScaffold> {
   int? get _currentSelectedIndex {
     final subpage = widget.controller?.rawSubpage;
     if (subpage != null && widget.menu != null) {
-      final idx =
-          SolidScaffoldHelpers.findMatchingMenuIndex(subpage, widget.menu);
+      final idx = SolidScaffoldHelpers.findMatchingMenuIndex(
+        subpage,
+        widget.menu,
+      );
       return idx;
     }
     return widget.selectedIndex ?? _selectedIndex;

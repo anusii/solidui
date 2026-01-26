@@ -83,10 +83,7 @@ class _ResourceListViewState extends State<ResourceListView> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    resLink,
-                    style: const TextStyle(fontSize: 15),
-                  ),
+                  child: Text(resLink, style: const TextStyle(fontSize: 15)),
                 ),
               ],
             ),

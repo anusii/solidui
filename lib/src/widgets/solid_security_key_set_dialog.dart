@@ -171,10 +171,7 @@ class _SetKeyDialogState extends State<SetKeyDialog> {
         _isLoading = false;
       });
 
-      SecurityKeyUIHelpers.showErrorSnackBar(
-        context,
-        'Failed to set key: $e',
-      );
+      SecurityKeyUIHelpers.showErrorSnackBar(context, 'Failed to set key: $e');
     }
   }
 

@@ -56,9 +56,9 @@ class SolidOverflowMenuHelpers {
     bool isLoggedIn = true,
   }) {
     List<PopupMenuItem<String>> items = [];
-    final allActions =
-        List<SolidAppBarActionItem>.from(solidPreferencesNotifier.appBarActions)
-          ..sort((a, b) => a.order.compareTo(b.order));
+    final allActions = List<SolidAppBarActionItem>.from(
+      solidPreferencesNotifier.appBarActions,
+    )..sort((a, b) => a.order.compareTo(b.order));
 
     for (final actionItem in allActions) {
       if (!actionItem.isVisible || !actionItem.showInOverflow) continue;
@@ -136,11 +136,7 @@ class SolidOverflowMenuHelpers {
       PopupMenuItem<String>(
         value: value,
         child: Row(
-          children: [
-            Icon(icon),
-            const SizedBox(width: 8),
-            Text(label),
-          ],
+          children: [Icon(icon), const SizedBox(width: 8), Text(label)],
         ),
       ),
     );

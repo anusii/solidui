@@ -160,9 +160,7 @@ class SolidPreferencesNotifier extends ChangeNotifier {
 
   void setThemeModeConfig(SolidThemeModeConfig themeModeConfig) {
     if (!themeModeConfig.isValid) {
-      debugPrint(
-        'Warning: Attempted to set invalid theme mode config',
-      );
+      debugPrint('Warning: Attempted to set invalid theme mode config');
       return;
     }
     if (_config.themeModeConfig == themeModeConfig) return;
@@ -174,8 +172,9 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   /// Sets whether light mode is enabled in the toggle cycle.
 
   void setLightModeEnabled(bool enabled) {
-    final newConfig =
-        _config.themeModeConfig.copyWith(lightModeEnabled: enabled);
+    final newConfig = _config.themeModeConfig.copyWith(
+      lightModeEnabled: enabled,
+    );
     if (!newConfig.isValid) return;
     setThemeModeConfig(newConfig);
   }
@@ -183,8 +182,9 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   /// Sets whether dark mode is enabled in the toggle cycle.
 
   void setDarkModeEnabled(bool enabled) {
-    final newConfig =
-        _config.themeModeConfig.copyWith(darkModeEnabled: enabled);
+    final newConfig = _config.themeModeConfig.copyWith(
+      darkModeEnabled: enabled,
+    );
     if (!newConfig.isValid) return;
     setThemeModeConfig(newConfig);
   }
@@ -192,8 +192,9 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   /// Sets whether system mode is enabled in the toggle cycle.
 
   void setSystemModeEnabled(bool enabled) {
-    final newConfig =
-        _config.themeModeConfig.copyWith(systemModeEnabled: enabled);
+    final newConfig = _config.themeModeConfig.copyWith(
+      systemModeEnabled: enabled,
+    );
     if (!newConfig.isValid) return;
     setThemeModeConfig(newConfig);
   }

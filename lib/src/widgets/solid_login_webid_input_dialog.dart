@@ -40,9 +40,7 @@ import 'package:solidui/src/widgets/solid_popup_login.dart';
 /// following inputs
 /// [context] is the BuildContext from which this function is called.
 
-Future<dynamic> loginWebIdInputDialog(
-  BuildContext context,
-) {
+Future<dynamic> loginWebIdInputDialog(BuildContext context) {
   final formControllerWebId = TextEditingController()
     ..text = SolidConfig.defaultServerUrl;
   return showDialog(
@@ -55,7 +53,6 @@ Future<dynamic> loginWebIdInputDialog(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Web ID text field.
-
             TextFormField(
               controller: formControllerWebId,
               decoration: const InputDecoration(
@@ -78,9 +75,7 @@ Future<dynamic> loginWebIdInputDialog(
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SolidPopupLogin(
-                      webId: receiverWebId,
-                    ),
+                    builder: (context) => SolidPopupLogin(webId: receiverWebId),
                   ),
                 );
                 if (!context.mounted) return;

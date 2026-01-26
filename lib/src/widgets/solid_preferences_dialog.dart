@@ -98,8 +98,9 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   void _onOverflowChanged(int index, bool? value) {
     if (value == null) return;
     setState(() {
-      _appBarActions[index] =
-          _appBarActions[index].copyWith(showInOverflow: value);
+      _appBarActions[index] = _appBarActions[index].copyWith(
+        showInOverflow: value,
+      );
     });
   }
 
@@ -111,9 +112,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   }
 
   void _savePreferences() {
-    final newConfig = SolidPreferencesConfig(
-      appBarActions: _appBarActions,
-    );
+    final newConfig = SolidPreferencesConfig(appBarActions: _appBarActions);
 
     solidPreferencesNotifier.setConfig(newConfig);
     widget.onSave?.call();
@@ -198,7 +197,6 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Button Order Section.
-
               _buildSectionHeader(theme, 'Button Order'),
               const SizedBox(height: 8),
               SolidPreferencesButtonOrderSection(
@@ -216,7 +214,6 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
         Row(
           children: [
             // Default button on the left.
-
             TextButton(
               onPressed: _resetToDefault,
               child: const Text('Default'),
@@ -240,9 +237,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   Widget _buildSectionHeader(ThemeData theme, String title) {
     return Text(
       title,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.bold,
-      ),
+      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }

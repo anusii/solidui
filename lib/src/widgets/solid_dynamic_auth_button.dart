@@ -172,10 +172,7 @@ class _SolidDynamicAuthButtonState extends State<SolidDynamicAuthButton> {
 
     return MarkdownTooltip(
       message: tooltip,
-      child: IconButton(
-        icon: Icon(icon),
-        onPressed: _handleTap,
-      ),
+      child: IconButton(icon: Icon(icon), onPressed: _handleTap),
     );
   }
 }

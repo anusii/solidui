@@ -214,10 +214,7 @@ class SolidAppBarOrderedActionsBuilder {
       orderedActions.add(
         _OrderedAction(
           order: order,
-          widget: SolidDynamicAuthButton(
-            onLogout: onLogout,
-            onLogin: onLogin,
-          ),
+          widget: SolidDynamicAuthButton(onLogout: onLogout, onLogin: onLogin),
         ),
       );
     }

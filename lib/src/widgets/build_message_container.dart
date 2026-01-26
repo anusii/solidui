@@ -128,7 +128,6 @@ Container buildMsgBox(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Only show title if it is not empty.
-
         if (title.isNotEmpty) ...[
           Center(
             child: Text(
@@ -147,7 +146,6 @@ Container buildMsgBox(
           softWrap: true,
           style: const TextStyle(
             // Use fixed font size to match page body text.
-
             fontSize: 15,
             color: Colors.white,
           ),

@@ -47,10 +47,7 @@ import 'package:solidui/src/widgets/solid_loading_screen.dart';
 class SolidPopupLogin extends StatefulWidget {
   /// Constructor for the PopupLogin.
 
-  const SolidPopupLogin({
-    this.webId = SolidConfig.defaultServerUrl,
-    super.key,
-  });
+  const SolidPopupLogin({this.webId = SolidConfig.defaultServerUrl, super.key});
 
   /// The URI of the user's webID used to identify the Solid server to
   /// authenticate against.
@@ -156,9 +153,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
         : 'You have cancelled the login';
     return AlertDialog(
       title: Text(dialogTitle),
-      content: Text(
-        dialogContent,
-      ),
+      content: Text(dialogContent),
       actions: <Widget>[
         ElevatedButton(
           child: const Text('OK'),
