@@ -55,7 +55,7 @@ class SolidFileDownloadOperations {
       // Let user choose where to save the file.
 
       final cleanFileName = fileName.replaceAll('.enc.ttl', '');
-      String? outputFile = await FilePicker.platform.saveFile(
+      String? outputFile = await FilePicker.saveFile(
         dialogTitle: 'Save file as:',
         fileName: cleanFileName,
       );

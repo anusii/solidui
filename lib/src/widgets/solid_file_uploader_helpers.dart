@@ -43,7 +43,7 @@ class SolidFileUploaderHelpers {
   /// Handles file selection via file picker.
 
   static Future<String?> pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.pickFiles();
     if (result != null) {
       return result.files.single.path;
     }
