@@ -261,7 +261,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       await KeyManager.setSecurityKey(result);
 
-      if (!mounted) return;
+      if (!mounted || !context.mounted) return;
 
       debugPrint('Security key verified and cached successfully');
 
@@ -278,7 +278,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     } on Exception catch (e) {
       debugPrint('Failed to cache security key: $e');
 
-      if (!mounted) return;
+      if (!mounted || !context.mounted) return;
 
       setState(() => _isLoading = false);
 
@@ -296,7 +296,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   Future<void> _handleClearCache() async {
     final confirmed =
         await SolidSecurityKeyManagerUI.showClearCacheConfirmation(context);
-    if (!confirmed || !mounted) return;
+    if (!confirmed || !mounted || !context.mounted) return;
 
     setState(() => _isLoading = true);
 
@@ -307,7 +307,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       debugPrint('Local security key cache cleared successfully');
 
-      if (!mounted) return;
+      if (!mounted || !context.mounted) return;
 
       // Close the manager dialog first to prevent UI flash.
 
@@ -322,7 +322,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     } on Exception catch (e) {
       debugPrint('Error clearing cache: $e');
 
-      if (!mounted) return;
+      if (!mounted || !context.mounted) return;
 
       setState(() => _isLoading = false);
 
