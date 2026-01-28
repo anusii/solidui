@@ -30,22 +30,75 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:solidpod/solidpod.dart' show KeyManager;
+
+/// The key used by solidpod to store the security key in secure storage.
+
+const String _securityKeyStorageKey = '_solid_security_key';
 
 /// Helper class for Security Key operations.
 
 class SecurityKeyOperations {
-  /// Checks if a security key exists and is valid.
+  static final FlutterSecureStorage _secureStorage =
+      const FlutterSecureStorage();
+
+  /// Checks if a security key is cached locally and valid.
+  ///
+  /// This method performs a detailed check with three possible outcomes:
+  /// 1. Key found in local cache and verified successfully
+  /// 2. No key found in local cache
+  /// 3. Key found in local cache but verification failed (cache cleared)
+  ///
+  /// Returns true only if the key is cached locally AND verified successfully.
 
   static Future<bool> checkKeyStatus() async {
     try {
-      final hasKey = await KeyManager.hasSecurityKey();
+      // First, check if there's a key in local secure storage.
+
+      final cachedKey = await _secureStorage.read(key: _securityKeyStorageKey);
+      final hadCachedKey = cachedKey != null && cachedKey.isNotEmpty;
+
+      if (!hadCachedKey) {
+        // Case 2: No key found in local secure storage.
+
+        debugPrint(
+          'Security key status: No cached key found in local secure storage',
+        );
+        return false;
+      }
+
+      // Key exists in local storage, now verify it against POD's verification
+      // key using KeyManager.hasSecurityKey().
+
       debugPrint(
-        'Security key status check: ${hasKey ? "exists" : "not found"}',
+        'Security key status: Found cached key in local secure storage, '
+        'verifying against POD...',
       );
-      return hasKey;
+
+      final isValid = await KeyManager.hasSecurityKey();
+
+      if (isValid) {
+        // Case 1: Key found and verified successfully.
+
+        debugPrint(
+          'Security key status: Cached key verified successfully - '
+          'Cached Locally',
+        );
+        return true;
+      } else {
+        // Case 3: Key was found but verification failed.
+        // KeyManager.hasSecurityKey() has already called forgetSecurityKey()
+        // to clear the invalid cached key.
+
+        debugPrint(
+          'Security key status: Cached key verification FAILED - '
+          'local cache has been cleared automatically',
+        );
+        return false;
+      }
     } catch (e) {
-      debugPrint('Error checking key status: $e');
+      debugPrint('Error checking security key status: $e');
       return false;
     }
   }

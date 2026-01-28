@@ -129,28 +129,41 @@ class SolidSecurityKeyManagerDialogs {
     if (!hasExistingKey) {
       await showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text('Notice'),
-          content: const Text(
-            'No security key found. Please set a security key first.',
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
+        builder: (dialogContext) {
+          final theme = Theme.of(dialogContext);
+          return AlertDialog(
+            backgroundColor: theme.colorScheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
-        ),
+            title: Text(
+              'Notice',
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Text(
+              'No security key found. Please set a security key first.',
+              style: TextStyle(color: theme.colorScheme.onSurface),
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
       return;
     }
@@ -209,6 +222,7 @@ class SolidSecurityKeyManagerDialogs {
     String keyInfo,
   ) async {
     final encFileData = parseEncKeyContent(keyInfo);
+    final theme = Theme.of(context);
 
     // Map the data into rows for the DataTable.
 
@@ -216,16 +230,25 @@ class SolidSecurityKeyManagerDialogs {
       return DataRow(
         cells: [
           DataCell(
-            Text(entry.key as String, style: const TextStyle(fontSize: 12)),
+            Text(
+              entry.key as String,
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
           ),
           DataCell(
-            SizedBox(
-              width: 400,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
               child: Text(
                 entry.value[1] as String,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 3,
-                style: const TextStyle(fontSize: 12),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
             ),
           ),
@@ -235,49 +258,68 @@ class SolidSecurityKeyManagerDialogs {
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: DataTable(
-              columnSpacing: 30.0,
-              columns: const [
-                DataColumn(
-                  label: Text(
-                    'Parameter',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Value',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-              rows: dataRows,
+      builder: (dialogContext) {
+        final dialogTheme = Theme.of(dialogContext);
+        return AlertDialog(
+          backgroundColor: dialogTheme.colorScheme.surface,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: dialogTheme.colorScheme.onSurface,
             ),
           ),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: SingleChildScrollView(
+              child: DataTable(
+                columnSpacing: 30.0,
+                columns: [
+                  DataColumn(
+                    label: Text(
+                      'Parameter',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: dialogTheme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Value',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: dialogTheme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
+                rows: dataRows,
               ),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Close'),
           ),
-        ],
-      ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: dialogTheme.colorScheme.primary,
+                foregroundColor: dialogTheme.colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

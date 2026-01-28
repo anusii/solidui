@@ -30,8 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart'
-    show KeyManager, deleteFile, getEncKeyPath;
+import 'package:solidpod/solidpod.dart' show KeyManager;
 
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
@@ -95,16 +94,13 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   bool _isLoading = false;
 
-  // Indicates if a security key exists for the user.
+  // Indicates if a security key is cached locally.
 
-  // Initialise with the current notifier status to avoid showing wrong state.
+  late bool _isKeyCached;
 
-  late bool _hasExistingKey;
-
-  // Controllers for input fields used in dialogues.
+  // Controller for input field used in cache key dialogue.
 
   final _keyController = TextEditingController();
-  final _confirmKeyController = TextEditingController();
 
   @override
   void initState() {
@@ -112,62 +108,50 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     // Initialise with current notifier status to avoid flashing wrong UI.
 
-    _hasExistingKey = securityKeyNotifier.isKeySaved;
+    _isKeyCached = securityKeyNotifier.isKeySaved;
     _checkKeyStatus();
   }
 
   @override
   void dispose() {
     _keyController.dispose();
-    _confirmKeyController.dispose();
     super.dispose();
   }
 
-  /// Checks if a security key exists.
-  ///
-  /// If [forceCheck] is true, always performs a full check regardless of
-  /// the notifier state. This is used after setting a new key.
+  /// Checks if a security key is cached locally.
 
   Future<void> _checkKeyStatus({bool forceCheck = false}) async {
-    // First check the global notifier state.
-    // This avoids race conditions where we just deleted the key.
-
     final currentNotifierStatus = securityKeyNotifier.isKeySaved;
 
-    // If notifier says no key and we're not forcing a check, trust it.
-    // This prevents re-checking after deletion.
-
     if (!currentNotifierStatus && !forceCheck) {
-      debugPrint('Notifier indicates no key, skipping file check');
+      debugPrint('Notifier indicates no cached key, skipping check');
       if (mounted) {
         setState(() {
-          _hasExistingKey = false;
+          _isKeyCached = false;
         });
       }
       widget.onKeyStatusChanged(false);
       return;
     }
 
-    // Perform a full check.
-
-    final hasValidKey = await SecurityKeyOperations.checkKeyStatus();
-
-    // Update all states with the verified status, but check mounted first.
+    final isCached = await SecurityKeyOperations.checkKeyStatus();
 
     if (!mounted) return;
 
-    securityKeyNotifier.updateStatus(hasValidKey);
-    widget.onKeyStatusChanged(hasValidKey);
+    securityKeyNotifier.updateStatus(isCached);
+    widget.onKeyStatusChanged(isCached);
     setState(() {
-      _hasExistingKey = hasValidKey;
+      _isKeyCached = isCached;
     });
   }
 
-  Future<void> _showPrivateData(String title, BuildContext context) async {
+  /// Shows the security key (when cached).
+
+  Future<void> _handleShowKey(String title, BuildContext context) async {
     await SolidSecurityKeyManagerDialogs.showPrivateData(
       title,
       context,
-      _hasExistingKey,
+      _isKeyCached,
       SolidSecurityKeyManager(
         config: widget.config,
         onKeyStatusChanged: widget.onKeyStatusChanged,
@@ -181,80 +165,181 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     );
   }
 
-  Future<void> _showKeyInputDialog(BuildContext context) async {
-    _keyController.clear();
-    _confirmKeyController.clear();
+  /// Handles the change security key action (when cached).
 
-    if (_hasExistingKey) {
-      await SolidSecurityKeyManagerDialogs.showKeyInputDialog(
-        context,
-        widget.config.appWidget,
-        () async {
-          // Update status immediately after changing key.
-
-          _updateKeyStatusAfterSet();
-        },
-      );
-      return;
-    }
-    return _showNewKeyDialog(context);
-  }
-
-  Future<void> _showNewKeyDialog(BuildContext context) async {
-    await SolidSecurityKeyManagerDialogs.showNewKeyDialog(
+  Future<void> _handleChangeKey(BuildContext context) async {
+    await SolidSecurityKeyManagerDialogs.showKeyInputDialog(
       context,
-      _keyController,
-      _confirmKeyController,
+      widget.config.appWidget,
       () async {
-        // Update status immediately after setting new key.
+        // Key changed, ensure status remains cached.
 
-        _updateKeyStatusAfterSet();
-      },
-      (key, confirmKey) async {
-        return await SecurityKeyOperations.handleKeySubmission(
-          key,
-          confirmKey,
-          (message) => SecurityKeyUIHelpers.showErrorSnackBar(context, message),
-        );
+        securityKeyNotifier.updateStatus(true);
+        widget.onKeyStatusChanged(true);
+        debugPrint('Security key changed, status remains: Cached Locally');
       },
     );
   }
 
-  /// Updates the key status immediately after setting a key.
-  /// This avoids async checks that might fail if the widget is disposed.
+  /// Handles the cache security key action (when not cached).
+  /// Prompts user to enter the security key, verifies it against POD's
+  /// verification key, and caches it locally if valid.
 
-  void _updateKeyStatusAfterSet() {
-    if (!mounted) return;
+  Future<void> _handleCacheKey(BuildContext context) async {
+    _keyController.clear();
 
-    // Immediately update all states to true.
+    final result = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return AlertDialog(
+          backgroundColor: theme.colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            'Cache Security Key',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Enter your security key to cache it locally. The key will be '
+                'verified against your POD before caching.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _keyController,
+                obscureText: true,
+                decoration: SecurityKeyUIHelpers.getInputDecoration(
+                  'Security Key',
+                  theme,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(null),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: SecurityKeyUIHelpers.getButtonStyle(theme),
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_keyController.text),
+              child: const Text('Cache', style: TextStyle(fontSize: 16)),
+            ),
+          ],
+        );
+      },
+    );
 
-    setState(() {
-      _hasExistingKey = true;
-    });
+    if (result == null || result.isEmpty || !mounted) return;
 
-    // Update global notifier.
+    setState(() => _isLoading = true);
 
-    securityKeyNotifier.updateStatus(true);
+    try {
+      // KeyManager.setSecurityKey() verifies the key against POD's verification
+      // key and caches it locally if valid. Throws exception if invalid.
 
-    // Notify parent widget.
+      await KeyManager.setSecurityKey(result);
 
-    widget.onKeyStatusChanged(true);
+      if (!mounted) return;
 
-    debugPrint('Security key status updated to saved');
+      debugPrint('Security key verified and cached successfully');
+
+      // Close the manager dialog FIRST to prevent UI flash.
+
+      Navigator.of(context).pop();
+
+      // Then update the status.
+
+      securityKeyNotifier.updateStatus(true);
+      widget.onKeyStatusChanged(true);
+
+      debugPrint('Security key status updated to: Cached Locally');
+    } on Exception catch (e) {
+      debugPrint('Failed to cache security key: $e');
+
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      // Show error message - the key was invalid.
+
+      SecurityKeyUIHelpers.showErrorSnackBar(
+        context,
+        'Invalid security key. Please check and try again.',
+      );
+    }
+  }
+
+  /// Handles clearing the cached security key.
+
+  Future<void> _handleClearCache() async {
+    final confirmed =
+        await SolidSecurityKeyManagerUI.showClearCacheConfirmation(context);
+    if (!confirmed || !mounted) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Clear the key from local secure storage.
+
+      await KeyManager.forgetSecurityKey();
+
+      debugPrint('Local security key cache cleared successfully');
+
+      if (!mounted) return;
+
+      // Close the manager dialog first to prevent UI flash.
+
+      Navigator.of(context).pop();
+
+      // Then update the status.
+
+      securityKeyNotifier.updateStatus(false);
+      widget.onKeyStatusChanged(false);
+
+      debugPrint('Security key status updated to: Not Cached');
+    } on Exception catch (e) {
+      debugPrint('Error clearing cache: $e');
+
+      if (!mounted) return;
+
+      setState(() => _isLoading = false);
+
+      SecurityKeyUIHelpers.showErrorSnackBar(
+        context,
+        'Failed to clear cached security key: $e',
+      );
+    }
   }
 
   Future<void> _showKeyFileNotFoundDialog(BuildContext context) async {
     await SecurityKeyUIHelpers.showErrorDialog(
       context,
       'Security Key File Not Found',
-      'The security key file could not be found. '
-          'Would you like to set a new security key?',
+      'The security key file could not be found on your POD. '
+          'Please contact your administrator.',
     );
-    await KeyManager.forgetSecurityKey();
-    await _checkKeyStatus();
-    if (context.mounted) {
-      await _showKeyInputDialog(context);
-    }
   }
 
   Widget _buildDialogContent(BuildContext context, String title) {
@@ -262,77 +347,14 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       context,
       widget.config.title ?? 'Security Key Management',
       _isLoading,
-      _hasExistingKey,
+      _isKeyCached,
       widget.config.showViewKeyButton,
-      widget.config.showForgetKeyButton,
-      () async => await _showPrivateData(title, context),
-      () async => await _showKeyInputDialog(context),
-      _handleForgetKey,
+      () async => await _handleShowKey(title, context),
+      () async => await _handleChangeKey(context),
+      () async => await _handleCacheKey(context),
+      _handleClearCache,
       () => Navigator.of(context).pop(),
     );
-  }
-
-  /// Handles the forget key action.
-
-  Future<void> _handleForgetKey() async {
-    final confirmed = await _showForgetKeyConfirmation(context);
-    if (!confirmed || !mounted) return;
-
-    late String msg;
-    bool success = false;
-
-    try {
-      // Clear the key from memory.
-
-      await KeyManager.forgetSecurityKey();
-
-      // Delete the key file from POD.
-
-      final encKeyPath = await getEncKeyPath();
-      await deleteFile(encKeyPath);
-
-      success = true;
-      msg = 'Successfully forgot local security key.';
-    } on Exception catch (e) {
-      debugPrint('Error forgetting key: $e');
-      msg = 'Failed to forget local security key: $e';
-    }
-
-    if (!mounted) return;
-
-    // Force update all states to false immediately.
-
-    if (success) {
-      // Update local widget state.
-
-      setState(() {
-        _hasExistingKey = false;
-      });
-
-      // Update global notifier - this will trigger UI updates.
-
-      securityKeyNotifier.updateStatus(false);
-
-      // Notify parent widget.
-
-      widget.onKeyStatusChanged(false);
-    }
-
-    if (!mounted) return;
-
-    // Close the security key manager dialog first.
-
-    Navigator.of(context).pop();
-
-    // Show the notice dialog.
-
-    await SecurityKeyUIHelpers.showErrorDialog(context, 'Notice', msg);
-  }
-
-  /// Shows a confirmation dialogue before forgetting the security key.
-
-  Future<bool> _showForgetKeyConfirmation(BuildContext context) async {
-    return SolidSecurityKeyManagerUI.showForgetKeyConfirmation(context);
   }
 
   @override

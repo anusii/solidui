@@ -368,9 +368,9 @@ class SolidSecurityKeyStatus {
 
   String get displayText {
     if (isKeySaved == true) {
-      return keySavedText ?? 'Security Key: Saved';
+      return keySavedText ?? 'Security Key: Cached Locally';
     } else {
-      return keyNotSavedText ?? 'Security Key: Not Saved';
+      return keyNotSavedText ?? 'Security Key: Not Cached';
     }
   }
 
