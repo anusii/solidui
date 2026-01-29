@@ -210,6 +210,13 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       barrierDismissible: false,
       builder: (dialogContext) {
         final theme = Theme.of(dialogContext);
+
+        // Helper function to submit the key.
+
+        void submitKey() {
+          Navigator.of(dialogContext).pop(_keyController.text);
+        }
+
         return StatefulBuilder(
           builder: (stateContext, setDialogState) {
             return AlertDialog(
@@ -241,6 +248,12 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                   TextField(
                     controller: _keyController,
                     obscureText: _obscureKey,
+                    autofocus: true,
+                    textInputAction: TextInputAction.done,
+
+                    // Submit on Enter key press.
+
+                    onSubmitted: (_) => submitKey(),
                     decoration: InputDecoration(
                       labelText: 'Security Key',
                       labelStyle: TextStyle(
@@ -295,9 +308,14 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                   ),
                 ),
                 ElevatedButton(
-                  style: SecurityKeyUIHelpers.getButtonStyle(theme),
-                  onPressed: () =>
-                      Navigator.of(dialogContext).pop(_keyController.text),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: submitKey,
                   child: const Text('Cache', style: TextStyle(fontSize: 16)),
                 ),
               ],
@@ -342,13 +360,72 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
       setState(() => _isLoading = false);
 
-      // Show error message - the key was invalid.
+      // Show error dialog - the key was invalid.
 
-      SecurityKeyUIHelpers.showErrorSnackBar(
-        context,
-        'Invalid security key. Please check and try again.',
-      );
+      await _showInvalidKeyDialog(context);
     }
+  }
+
+  /// Shows an error dialog for invalid security key with Enter key support.
+
+  Future<void> _showInvalidKeyDialog(BuildContext context) async {
+    final theme = Theme.of(context);
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: theme.colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: theme.colorScheme.error,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Invalid Security Key',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'The security key you entered is invalid. '
+            'Please check and try again.',
+            style: TextStyle(
+              fontSize: 16,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          actions: [
+            // Autofocus enables Enter key to trigger the button.
+
+            ElevatedButton(
+              autofocus: true,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK', style: TextStyle(fontSize: 16)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Shows a dialog prompting the user to log in, then redirects to login page.
