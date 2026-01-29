@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show KeyManager;
+import 'package:solidpod/solidpod.dart' show KeyManager, isUserLoggedIn;
 
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
@@ -97,6 +97,10 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   // Indicates if a security key is cached locally.
 
   late bool _isKeyCached;
+
+  // Controls visibility of the security key input field.
+
+  bool _obscureKey = true;
 
   // Controller for input field used in cache key dialogue.
 
@@ -186,6 +190,19 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   /// verification key, and caches it locally if valid.
 
   Future<void> _handleCacheKey(BuildContext context) async {
+    // Check if user is logged in before attempting to cache the key.
+
+    final isLoggedIn = await isUserLoggedIn();
+    if (!mounted || !context.mounted) return;
+
+    if (!isLoggedIn) {
+      SecurityKeyUIHelpers.showErrorSnackBar(
+        context,
+        'Please log in to your POD first before caching the security key.',
+      );
+      return;
+    }
+
     _keyController.clear();
 
     final result = await showDialog<String>(
@@ -193,63 +210,105 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       barrierDismissible: false,
       builder: (dialogContext) {
         final theme = Theme.of(dialogContext);
-        return AlertDialog(
-          backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: Text(
-            'Cache Security Key',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Enter your security key to cache it locally. The key will be '
-                'verified against your POD before caching.',
+        return StatefulBuilder(
+          builder: (stateContext, setDialogState) {
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: Text(
+                'Cache Security Key',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: theme.colorScheme.onSurfaceVariant,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _keyController,
-                obscureText: true,
-                decoration: SecurityKeyUIHelpers.getInputDecoration(
-                  'Security Key',
-                  theme,
-                ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Enter your security key to cache it locally. The key will '
+                    'be verified against your POD before caching.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _keyController,
+                    obscureText: _obscureKey,
+                    decoration: InputDecoration(
+                      labelText: 'Security Key',
+                      labelStyle: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 2,
+                        ),
+                      ),
+
+                      // Visibility toggle button.
+
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureKey ? Icons.visibility_off : Icons.visibility,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        onPressed: () {
+                          setDialogState(() {
+                            _obscureKey = !_obscureKey;
+                          });
+                        },
+                        tooltip:
+                            _obscureKey ? 'Show security key' : 'Hide security key',
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(null),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: theme.colorScheme.onSurfaceVariant,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(null),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            ElevatedButton(
-              style: SecurityKeyUIHelpers.getButtonStyle(theme),
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(_keyController.text),
-              child: const Text('Cache', style: TextStyle(fontSize: 16)),
-            ),
-          ],
+                ElevatedButton(
+                  style: SecurityKeyUIHelpers.getButtonStyle(theme),
+                  onPressed: () =>
+                      Navigator.of(dialogContext).pop(_keyController.text),
+                  child: const Text('Cache', style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            );
+          },
         );
       },
     );
+
+    // Reset visibility state for next time.
+
+    _obscureKey = true;
 
     if (result == null || result.isEmpty || !mounted) return;
 
