@@ -32,7 +32,6 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show KeyManager, isUserLoggedIn;
 
-import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_ui.dart';
@@ -99,10 +98,6 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   late bool _isKeyCached;
 
-  // Controls visibility of the security key input field.
-
-  bool _obscureKey = true;
-
   // Controller for input field used in cache key dialogue.
 
   final _keyController = TextEditingController();
@@ -110,9 +105,6 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   @override
   void initState() {
     super.initState();
-
-    // Initialise with current notifier status to avoid flashing wrong UI.
-
     _isKeyCached = securityKeyNotifier.isKeySaved;
     _checkKeyStatus();
   }
@@ -127,46 +119,30 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   Future<void> _checkKeyStatus({bool forceCheck = false}) async {
     final currentNotifierStatus = securityKeyNotifier.isKeySaved;
-
     if (!currentNotifierStatus && !forceCheck) {
       debugPrint('Notifier indicates no cached key, skipping check');
-      if (mounted) {
-        setState(() {
-          _isKeyCached = false;
-        });
-      }
+      if (mounted) setState(() => _isKeyCached = false);
       widget.onKeyStatusChanged(false);
       return;
     }
-
     final isCached = await SecurityKeyOperations.checkKeyStatus();
-
     if (!mounted) return;
-
     securityKeyNotifier.updateStatus(isCached);
     widget.onKeyStatusChanged(isCached);
-    setState(() {
-      _isKeyCached = isCached;
-    });
+    setState(() => _isKeyCached = isCached);
   }
 
   /// Shows the security key (when cached).
 
   Future<void> _handleShowKey(String title, BuildContext context) async {
     await SolidSecurityKeyManagerDialogs.showPrivateData(
-      title,
-      context,
-      _isKeyCached,
+      title, context, _isKeyCached,
       SolidSecurityKeyManager(
         config: widget.config,
         onKeyStatusChanged: widget.onKeyStatusChanged,
       ),
-      (loading) {
-        if (mounted) setState(() => _isLoading = loading);
-      },
-      widget.onKeyStatusChanged,
-      _checkKeyStatus,
-      _showKeyFileNotFoundDialog,
+      (loading) { if (mounted) setState(() => _isLoading = loading); },
+      widget.onKeyStatusChanged, _checkKeyStatus, _showKeyFileNotFoundDialog,
     );
   }
 
@@ -174,11 +150,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   Future<void> _handleChangeKey(BuildContext context) async {
     await SolidSecurityKeyManagerDialogs.showKeyInputDialog(
-      context,
-      widget.config.appWidget,
-      () async {
-        // Key changed, ensure status remains cached.
-
+      context, widget.config.appWidget, () async {
         securityKeyNotifier.updateStatus(true);
         widget.onKeyStatusChanged(true);
         debugPrint('Security key changed, status remains: Cached Locally');
@@ -195,169 +167,35 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
     final isLoggedIn = await isUserLoggedIn();
     if (!mounted || !context.mounted) return;
-
     if (!isLoggedIn) {
       // Show login required dialog and redirect to login page if confirmed.
 
       await _showLoginRequiredDialog(context);
       return;
     }
-
     _keyController.clear();
-
-    final result = await showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-
-        // Helper function to submit the key.
-
-        void submitKey() {
-          Navigator.of(dialogContext).pop(_keyController.text);
-        }
-
-        return StatefulBuilder(
-          builder: (stateContext, setDialogState) {
-            return AlertDialog(
-              backgroundColor: theme.colorScheme.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              title: Text(
-                'Cache Security Key',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Enter your security key to cache it locally. The key will '
-                    'be verified against your POD before caching.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _keyController,
-                    obscureText: _obscureKey,
-                    autofocus: true,
-                    textInputAction: TextInputAction.done,
-
-                    // Submit on Enter key press.
-
-                    onSubmitted: (_) => submitKey(),
-                    decoration: InputDecoration(
-                      labelText: 'Security Key',
-                      labelStyle: TextStyle(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: theme.colorScheme.outline,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: theme.colorScheme.primary,
-                          width: 2,
-                        ),
-                      ),
-
-                      // Visibility toggle button.
-
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureKey ? Icons.visibility_off : Icons.visibility,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        onPressed: () {
-                          setDialogState(() {
-                            _obscureKey = !_obscureKey;
-                          });
-                        },
-                        tooltip: _obscureKey
-                            ? 'Show security key'
-                            : 'Hide security key',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(null),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: submitKey,
-                  child: const Text('Cache', style: TextStyle(fontSize: 16)),
-                ),
-              ],
-            );
-          },
-        );
-      },
+    final result = await SolidSecurityKeyManagerDialogs.showCacheKeyDialog(
+      context, _keyController,
     );
-
-    // Reset visibility state for next time.
-
-    _obscureKey = true;
-
     if (result == null || result.isEmpty || !mounted) return;
-
     setState(() => _isLoading = true);
-
     try {
       // KeyManager.setSecurityKey() verifies the key against POD's verification
       // key and caches it locally if valid. Throws exception if invalid.
 
       await KeyManager.setSecurityKey(result);
-
       if (!mounted || !context.mounted) return;
-
       debugPrint('Security key verified and cached successfully');
 
       // Close the manager dialog FIRST to prevent UI flash.
 
       Navigator.of(context).pop();
-
-      // Then update the status.
-
       securityKeyNotifier.updateStatus(true);
       widget.onKeyStatusChanged(true);
-
       debugPrint('Security key status updated to: Cached Locally');
     } on Exception catch (e) {
       debugPrint('Failed to cache security key: $e');
-
       if (!mounted || !context.mounted) return;
-
       setState(() => _isLoading = false);
 
       // Show error dialog - the key was invalid.
@@ -366,182 +204,34 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     }
   }
 
-  /// Shows an error dialog for invalid security key with Enter key support.
-
-  Future<void> _showInvalidKeyDialog(BuildContext context) async {
-    final theme = Theme.of(context);
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: Row(
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: theme.colorScheme.error,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Invalid Security Key',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'The security key you entered is invalid. '
-            'Please check and try again.',
-            style: TextStyle(
-              fontSize: 16,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          actions: [
-            // Autofocus enables Enter key to trigger the button.
-
-            ElevatedButton(
-              autofocus: true,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('OK', style: TextStyle(fontSize: 16)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Shows a dialog prompting the user to log in, then redirects to login page.
-
-  Future<void> _showLoginRequiredDialog(BuildContext context) async {
-    final theme = Theme.of(context);
-
-    final shouldLogin = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        title: Text(
-          'Login Required',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        content: Text(
-          'Please log in to your POD first before caching the security key.',
-          style: TextStyle(
-            fontSize: 16,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                fontSize: 16,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Log In', style: TextStyle(fontSize: 16)),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldLogin == true && mounted && context.mounted) {
-      // Close the security key manager dialog first.
-
-      Navigator.of(context).pop();
-
-      // Navigate to the login page.
-
-      await SolidAuthHandler.instance.handleLogin(context);
-    }
-  }
-
-  /// Handles clearing the cached security key.
-
   Future<void> _handleClearCache() async {
     final confirmed =
         await SolidSecurityKeyManagerUI.showClearCacheConfirmation(context);
     if (!confirmed || !mounted || !context.mounted) return;
-
     setState(() => _isLoading = true);
-
     try {
-      // Clear the key from local secure storage.
-
       await KeyManager.forgetSecurityKey();
-
       debugPrint('Local security key cache cleared successfully');
-
       if (!mounted || !context.mounted) return;
-
-      // Close the manager dialog first to prevent UI flash.
-
       Navigator.of(context).pop();
-
-      // Then update the status.
-
       securityKeyNotifier.updateStatus(false);
       widget.onKeyStatusChanged(false);
-
       debugPrint('Security key status updated to: Not Cached');
     } on Exception catch (e) {
       debugPrint('Error clearing cache: $e');
-
       if (!mounted || !context.mounted) return;
-
       setState(() => _isLoading = false);
-
       SecurityKeyUIHelpers.showErrorSnackBar(
-        context,
-        'Failed to clear cached security key: $e',
+        context, 'Failed to clear cached security key: $e',
       );
     }
   }
 
   Future<void> _showKeyFileNotFoundDialog(BuildContext context) async {
-    await SecurityKeyUIHelpers.showErrorDialog(
-      context,
+    await SecurityKeyUIHelpers.showErrorDialog(context,
       'Security Key File Not Found',
       'The security key file could not be found on your POD. '
-          'Please contact your administrator.',
-    );
+          'Please contact your administrator.');
   }
 
   Widget _buildDialogContent(BuildContext context, String title) {

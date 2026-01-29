@@ -37,7 +37,27 @@ import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
 /// UI builder for Security Key Manager dialog content.
 
 class SolidSecurityKeyManagerUI {
-  /// Builds the content of the security key manager dialog.
+  static const _gap = SizedBox(height: 20.0);
+
+  static ButtonStyle _btnStyle(ThemeData t, {bool isError = false}) =>
+      ElevatedButton.styleFrom(
+        backgroundColor: t.colorScheme.surface,
+        foregroundColor: isError ? t.colorScheme.error : t.colorScheme.primary,
+        side: BorderSide(
+          color: isError ? t.colorScheme.error : t.colorScheme.primary,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      );
+
+  static Widget _btn(String text, VoidCallback onPressed, ButtonStyle style) =>
+      SizedBox(
+        height: 44,
+        child: ElevatedButton(
+          style: style,
+          onPressed: onPressed,
+          child: Text(text),
+        ),
+      );
 
   static Widget buildDialogContent(
     BuildContext context,
@@ -51,16 +71,16 @@ class SolidSecurityKeyManagerUI {
     VoidCallback onClearCache,
     VoidCallback onCancel,
   ) {
-    const smallGapV = SizedBox(height: 20.0);
-
+    final t = Theme.of(context);
+    final cs = t.colorScheme;
     return Container(
       constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface,
+            color: cs.onSurface,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -71,10 +91,8 @@ class SolidSecurityKeyManagerUI {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header.
-
             Container(
-              color: Theme.of(context).colorScheme.surface,
+              color: cs.surface,
               padding: const EdgeInsets.symmetric(
                 vertical: 16.0,
                 horizontal: 24.0,
@@ -84,18 +102,15 @@ class SolidSecurityKeyManagerUI {
                   Expanded(
                     child: Text(
                       title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                      style: t.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Interactive options.
-
             Container(
               padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 32.0),
               child: isLoading
@@ -105,126 +120,43 @@ class SolidSecurityKeyManagerUI {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (isKeyCached) ...[
-                          // Options when key is cached locally.
-
-                          // Show Security Key button.
-
                           if (showViewKeyButton) ...[
-                            SizedBox(
-                              height: 44,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.surface,
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  side: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                onPressed: onShowKey,
-                                child: const Text('Show Security Key'),
-                              ),
+                            _btn(
+                              'Show Security Key',
+                              onShowKey,
+                              _btnStyle(t),
                             ),
-                            smallGapV,
+                            _gap,
                           ],
-
-                          // Change Security Key button.
-
-                          SizedBox(
-                            height: 44,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.surface,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed: onChangeKey,
-                              child: const Text('Change Security Key'),
-                            ),
+                          _btn(
+                            'Change Security Key',
+                            onChangeKey,
+                            _btnStyle(t),
                           ),
-                          smallGapV,
-
-                          // Clear Cached Security Key button.
-
-                          SizedBox(
-                            height: 44,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.surface,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.error,
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed: onClearCache,
-                              child: const Text('Clear Cached Security Key'),
-                            ),
+                          _gap,
+                          _btn(
+                            'Clear Cached Security Key',
+                            onClearCache,
+                            _btnStyle(t, isError: true),
                           ),
                         ] else ...[
-                          // Options when key is not cached.
-
-                          // Cache Security Key button.
-
-                          SizedBox(
-                            height: 44,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.surface,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed: onCacheKey,
-                              child: const Text('Cache Security Key'),
-                            ),
+                          _btn(
+                            'Cache Security Key',
+                            onCacheKey,
+                            _btnStyle(t),
                           ),
                         ],
-                        smallGapV,
-
-                        // Cancel button.
-
-                        SizedBox(
-                          height: 44,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                              side: BorderSide(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                        _gap,
+                        _btn(
+                          'Cancel',
+                          onCancel,
+                          ElevatedButton.styleFrom(
+                            backgroundColor: cs.surfaceContainerHighest,
+                            foregroundColor: cs.onSurfaceVariant,
+                            side: BorderSide(color: cs.outline),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            onPressed: onCancel,
-                            child: const Text('Cancel'),
                           ),
                         ),
                       ],
@@ -244,10 +176,7 @@ class SolidSecurityKeyManagerUI {
   ) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(
-        horizontal: 16.0,
-        vertical: 24.0,
-      ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
       child: FutureBuilder<({String name, String? webId})>(
         future: _getInfo(),
         builder: (context, snapshot) {
@@ -283,10 +212,10 @@ class SolidSecurityKeyManagerUI {
     return await showDialog<bool>(
           context: context,
           barrierDismissible: false,
-          builder: (dialogContext) {
-            final theme = Theme.of(dialogContext);
+          builder: (ctx) {
+            final cs = Theme.of(ctx).colorScheme;
             return AlertDialog(
-              backgroundColor: theme.colorScheme.surface,
+              backgroundColor: cs.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -295,7 +224,7 @@ class SolidSecurityKeyManagerUI {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
+                  color: cs.onSurface,
                 ),
               ),
               content: Column(
@@ -308,37 +237,31 @@ class SolidSecurityKeyManagerUI {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onSurface,
+                      color: cs.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'You will need to re-enter your security key to access '
                     'encrypted data.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  onPressed: () => Navigator.of(ctx).pop(false),
                   child: Text(
                     'Cancel',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: TextStyle(fontSize: 16, color: cs.onSurfaceVariant),
                   ),
                 ),
                 ElevatedButton(
                   style: SecurityKeyUIHelpers.getButtonStyle(
-                    theme,
+                    Theme.of(ctx),
                     isDestructive: true,
                   ),
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  onPressed: () => Navigator.of(ctx).pop(true),
                   child: const Text('Clear', style: TextStyle(fontSize: 16)),
                 ),
               ],
