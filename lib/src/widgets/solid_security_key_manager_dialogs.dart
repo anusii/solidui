@@ -30,17 +30,12 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart'
-    show
-        PathType,
-        SolidFunctionCallStatus,
-        changeKeyPopup,
-        getEncKeyPath,
-        readPod;
+import 'package:solidpod/solidpod.dart' show changeKeyPopup;
 
+import 'package:solidui/src/widgets/solid_security_key_cache_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_set_dialog.dart';
 import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
-import 'package:solidui/src/widgets/solid_security_key_utils.dart';
+import 'package:solidui/src/widgets/solid_security_key_view_dialogs.dart';
 
 /// Dialog management for Security Key Manager.
 
@@ -107,7 +102,6 @@ class SolidSecurityKeyManagerDialogs {
       'The security key file could not be found. Would you like to set a new '
           'security key?',
     );
-    // Clear key manager state and show input dialogue
     await checkKeyStatus();
     if (context.mounted) {
       await showKeyInputDialog(context);
@@ -126,158 +120,33 @@ class SolidSecurityKeyManagerDialogs {
     Future<void> Function() checkKeyStatus,
     Future<void> Function(BuildContext) showKeyFileNotFoundDialog,
   ) async {
-    if (!hasExistingKey) {
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text('Notice'),
-          content: const Text(
-            'No security key found. Please set a security key first.',
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-    setLoading(true);
-
-    try {
-      final filePath = await getEncKeyPath();
-      if (!context.mounted) return;
-
-      final fileContent = await readPod(
-        filePath,
-        pathType: PathType.relativeToPod,
-      );
-      if (!context.mounted) return;
-
-      if (fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
-        await SecurityKeyUIHelpers.showErrorDialog(
-          context,
-          'Not Logged In',
-          'You must be logged in to view security keys.',
-        );
-        return;
-      }
-      if (fileContent == SolidFunctionCallStatus.fail.toString()) {
-        await showKeyFileNotFoundDialog(context);
-        return;
-      }
-      if (fileContent.isNotEmpty) {
-        await _showSecurityKeyDialog(context, title, fileContent);
-      } else {
-        await SecurityKeyUIHelpers.showErrorDialog(
-          context,
-          'Empty Key File',
-          'The security key file exists but appears to be empty.',
-        );
-      }
-    } catch (e) {
-      debugPrint('Exception reading security key: $e');
-      if (context.mounted) {
-        await SecurityKeyUIHelpers.showErrorDialog(
-          context,
-          'Error Reading Key',
-          e.toString(),
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
+    await SecurityKeyViewDialogs.showPrivateData(
+      title,
+      context,
+      hasExistingKey,
+      setLoading,
+      showKeyFileNotFoundDialog,
+    );
   }
 
-  /// Shows the security key data in a dialogue.
+  /// Shows the cache security key input dialog.
 
-  static Future<void> _showSecurityKeyDialog(
+  static Future<String?> showCacheKeyDialog(
     BuildContext context,
-    String title,
-    String keyInfo,
+    TextEditingController keyController,
   ) async {
-    final encFileData = parseEncKeyContent(keyInfo);
+    return SecurityKeyCacheDialogs.showCacheKeyDialog(context, keyController);
+  }
 
-    // Map the data into rows for the DataTable.
+  /// Shows an error dialog for invalid security key.
 
-    final dataRows = encFileData.entries.map((entry) {
-      return DataRow(
-        cells: [
-          DataCell(
-            Text(entry.key as String, style: const TextStyle(fontSize: 12)),
-          ),
-          DataCell(
-            SizedBox(
-              width: 400,
-              child: Text(
-                entry.value[1] as String,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 3,
-                style: const TextStyle(fontSize: 12),
-              ),
-            ),
-          ),
-        ],
-      );
-    }).toList();
+  static Future<void> showInvalidKeyDialog(BuildContext context) async {
+    return SecurityKeyCacheDialogs.showInvalidKeyDialog(context);
+  }
 
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: DataTable(
-              columnSpacing: 30.0,
-              columns: const [
-                DataColumn(
-                  label: Text(
-                    'Parameter',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Value',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-              rows: dataRows,
-            ),
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+  /// Handles the login redirect after showing login required dialog.
+
+  static Future<void> handleLoginRedirect(BuildContext context) async {
+    return SecurityKeyCacheDialogs.handleLoginRedirect(context);
   }
 }

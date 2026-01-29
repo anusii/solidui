@@ -30,13 +30,21 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:solidpod/solidpod.dart' show KeyManager;
+
+/// The key used by solidpod to store the security key in secure storage.
+
+const String _securityKeyStorageKey = '_solid_security_key';
 
 /// Global notifier for security key status.
 
 class SecurityKeyNotifier extends ChangeNotifier {
   bool _isKeySaved = false;
   bool _isChecking = false;
+
+  static final FlutterSecureStorage _secureStorage =
+      const FlutterSecureStorage();
 
   /// Current security key status.
 
@@ -55,7 +63,7 @@ class SecurityKeyNotifier extends ChangeNotifier {
     }
   }
 
-  /// Refreshes the security key status by checking KeyManager directly.
+  /// Refreshes the security key status.
 
   Future<bool> refreshStatus() async {
     if (_isChecking) {
@@ -66,18 +74,73 @@ class SecurityKeyNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final actualStatus = await KeyManager.hasSecurityKey();
+      // First check if there's a key in local secure storage.
 
-      if (_isKeySaved != actualStatus) {
-        _isKeySaved = actualStatus;
-        _isChecking = false;
-        notifyListeners();
-      } else {
-        _isChecking = false;
-        notifyListeners();
+      final cachedKey = await _secureStorage.read(key: _securityKeyStorageKey);
+      final hadCachedKey = cachedKey != null && cachedKey.isNotEmpty;
+
+      if (!hadCachedKey) {
+        // No key in local storage.
+
+        debugPrint(
+          'SecurityKeyNotifier: No cached key found in local secure storage',
+        );
+
+        if (_isKeySaved) {
+          _isKeySaved = false;
+          _isChecking = false;
+          notifyListeners();
+        } else {
+          _isChecking = false;
+          notifyListeners();
+        }
+
+        return false;
       }
 
-      return actualStatus;
+      // Key exists, verify it against POD.
+
+      debugPrint(
+        'SecurityKeyNotifier: Found cached key, verifying against POD...',
+      );
+
+      final isValid = await KeyManager.hasSecurityKey();
+
+      if (isValid) {
+        debugPrint(
+          'SecurityKeyNotifier: Cached key verified successfully - '
+          'Cached Locally',
+        );
+
+        if (!_isKeySaved) {
+          _isKeySaved = true;
+          _isChecking = false;
+          notifyListeners();
+        } else {
+          _isChecking = false;
+          notifyListeners();
+        }
+
+        return true;
+      } else {
+        // Verification failed - KeyManager has cleared the cache.
+
+        debugPrint(
+          'SecurityKeyNotifier: Cached key verification FAILED - '
+          'local cache has been cleared automatically',
+        );
+
+        if (_isKeySaved) {
+          _isKeySaved = false;
+          _isChecking = false;
+          notifyListeners();
+        } else {
+          _isChecking = false;
+          notifyListeners();
+        }
+
+        return false;
+      }
     } catch (e) {
       debugPrint('SecurityKeyNotifier: Error refreshing status: $e');
       _isChecking = false;
