@@ -275,8 +275,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
                             _obscureKey = !_obscureKey;
                           });
                         },
-                        tooltip:
-                            _obscureKey ? 'Show security key' : 'Hide security key',
+                        tooltip: _obscureKey
+                            ? 'Show security key'
+                            : 'Hide security key',
                       ),
                     ),
                   ),
