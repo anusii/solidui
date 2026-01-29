@@ -185,7 +185,10 @@ class SecurityKeyCacheDialogs {
           content: Text(
             'The security key you entered is invalid. '
             'Please check and try again.',
-            style: TextStyle(fontSize: 16, color: theme.colorScheme.onSurface),
+            style: TextStyle(
+              fontSize: 14,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           actions: [
             ElevatedButton(
@@ -229,7 +232,10 @@ class SecurityKeyCacheDialogs {
         ),
         content: Text(
           'Please log in to your POD first before caching the security key.',
-          style: TextStyle(fontSize: 16, color: theme.colorScheme.onSurface),
+          style: TextStyle(
+            fontSize: 14,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
         actions: [
           TextButton(

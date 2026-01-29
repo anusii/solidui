@@ -136,13 +136,19 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   Future<void> _handleShowKey(String title, BuildContext context) async {
     await SolidSecurityKeyManagerDialogs.showPrivateData(
-      title, context, _isKeyCached,
+      title,
+      context,
+      _isKeyCached,
       SolidSecurityKeyManager(
         config: widget.config,
         onKeyStatusChanged: widget.onKeyStatusChanged,
       ),
-      (loading) { if (mounted) setState(() => _isLoading = loading); },
-      widget.onKeyStatusChanged, _checkKeyStatus, _showKeyFileNotFoundDialog,
+      (loading) {
+        if (mounted) setState(() => _isLoading = loading);
+      },
+      widget.onKeyStatusChanged,
+      _checkKeyStatus,
+      _showKeyFileNotFoundDialog,
     );
   }
 
@@ -150,7 +156,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   Future<void> _handleChangeKey(BuildContext context) async {
     await SolidSecurityKeyManagerDialogs.showKeyInputDialog(
-      context, widget.config.appWidget, () async {
+      context,
+      widget.config.appWidget,
+      () async {
         securityKeyNotifier.updateStatus(true);
         widget.onKeyStatusChanged(true);
         debugPrint('Security key changed, status remains: Cached Locally');
@@ -168,14 +176,13 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     final isLoggedIn = await isUserLoggedIn();
     if (!mounted || !context.mounted) return;
     if (!isLoggedIn) {
-      // Show login required dialog and redirect to login page if confirmed.
-
-      await _showLoginRequiredDialog(context);
+      await SolidSecurityKeyManagerDialogs.handleLoginRedirect(context);
       return;
     }
     _keyController.clear();
     final result = await SolidSecurityKeyManagerDialogs.showCacheKeyDialog(
-      context, _keyController,
+      context,
+      _keyController,
     );
     if (result == null || result.isEmpty || !mounted) return;
     setState(() => _isLoading = true);
@@ -198,9 +205,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       if (!mounted || !context.mounted) return;
       setState(() => _isLoading = false);
 
-      // Show error dialog - the key was invalid.
-
-      await _showInvalidKeyDialog(context);
+      await SolidSecurityKeyManagerDialogs.showInvalidKeyDialog(context);
     }
   }
 
@@ -222,16 +227,18 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
       if (!mounted || !context.mounted) return;
       setState(() => _isLoading = false);
       SecurityKeyUIHelpers.showErrorSnackBar(
-        context, 'Failed to clear cached security key: $e',
+        context,
+        'Failed to clear cached security key: $e',
       );
     }
   }
 
   Future<void> _showKeyFileNotFoundDialog(BuildContext context) async {
-    await SecurityKeyUIHelpers.showErrorDialog(context,
-      'Security Key File Not Found',
-      'The security key file could not be found on your POD. '
-          'Please contact your administrator.');
+    await SecurityKeyUIHelpers.showErrorDialog(
+        context,
+        'Security Key File Not Found',
+        'The security key file could not be found on your POD. '
+            'Please contact your administrator.');
   }
 
   Widget _buildDialogContent(BuildContext context, String title) {
