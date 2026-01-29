@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show KeyManager, isUserLoggedIn;
 
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager_ui.dart';
@@ -196,10 +197,9 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     if (!mounted || !context.mounted) return;
 
     if (!isLoggedIn) {
-      SecurityKeyUIHelpers.showErrorSnackBar(
-        context,
-        'Please log in to your POD first before caching the security key.',
-      );
+      // Show login required dialog and redirect to login page if confirmed.
+
+      await _showLoginRequiredDialog(context);
       return;
     }
 
@@ -348,6 +348,71 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         context,
         'Invalid security key. Please check and try again.',
       );
+    }
+  }
+
+  /// Shows a dialog prompting the user to log in, then redirects to login page.
+
+  Future<void> _showLoginRequiredDialog(BuildContext context) async {
+    final theme = Theme.of(context);
+
+    final shouldLogin = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: theme.colorScheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: Text(
+          'Login Required',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        content: Text(
+          'Please log in to your POD first before caching the security key.',
+          style: TextStyle(
+            fontSize: 16,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                fontSize: 16,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Log In', style: TextStyle(fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogin == true && mounted && context.mounted) {
+      // Close the security key manager dialog first.
+
+      Navigator.of(context).pop();
+
+      // Navigate to the login page.
+
+      await SolidAuthHandler.instance.handleLogin(context);
     }
   }
 
