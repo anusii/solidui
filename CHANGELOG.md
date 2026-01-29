@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.1.0 First Beta Release
 
++ Update security key workflows [0.0.33 20260130 dc]
 + Update dependency for file_picker 10.3.9 [0.0.32 20260127 dc]
 + UX review and remove duplicated login/logout [0.0.31 20260123 tonypioneer]
 + Improved setup wizard UX [0.0.30 20260123 tonypioneer]
