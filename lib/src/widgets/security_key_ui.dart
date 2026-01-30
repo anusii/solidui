@@ -34,8 +34,8 @@ import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 import 'package:solidui/src/constants/ui.dart';
-import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/secret_text_field.dart';
+import 'package:solidui/src/widgets/solid_login_helper.dart';
 
 /// Display mode for the SecurityKeyUI widget.
 ///
@@ -138,8 +138,7 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
   }
 
   Future<void> _submit(BuildContext context) async {
-    final formData =
-        widget.formKey.currentState?.value as Map<String, dynamic>;
+    final formData = widget.formKey.currentState?.value as Map<String, dynamic>;
 
     if (!_canSubmit) {
       return;
