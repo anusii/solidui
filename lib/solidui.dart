@@ -76,6 +76,12 @@ export 'src/widgets/solid_security_key_central_manager.dart';
 export 'src/services/solid_security_key_service.dart';
 export 'src/services/solid_security_key_notifier.dart';
 
+export 'src/widgets/secret_text_field.dart';
+export 'src/widgets/security_key_ui.dart';
+export 'src/widgets/change_key_dialog.dart';
+
+export 'src/utils/snack_bar.dart';
+
 export 'src/widgets/solid_file.dart';
 export 'src/widgets/solid_file_browser.dart';
 export 'src/widgets/solid_file_uploader.dart';
