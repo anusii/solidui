@@ -503,6 +503,10 @@ class GrantPermFormLayout {
 
   static const contentPadding = EdgeInsets.symmetric(horizontal: 50);
 
+  /// Padding for dialog input sections.
+
+  static const inputPadding = EdgeInsets.all(8);
+
   /// Standard width for security dialogs.
 
   static const dialogWidth = 480.0;
@@ -518,4 +522,159 @@ class GrantPermFormLayout {
   /// Padding of dropdown suggestion list.
 
   static const listPadding = EdgeInsets.fromLTRB(0, 5, 0, 5);
+}
+
+/// Small vertical spacing for widgets.
+
+const smallGapV = SizedBox(height: 10.0);
+
+/// Large vertical spacing for widgets.
+
+const largeGapV = SizedBox(height: 40.0);
+
+/// Text styles used for permission form.
+
+class RecipientTextStyle {
+  /// Style for the label.
+
+  static const label = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
+  );
+
+  /// Style for the WebID display.
+
+  static const webId = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    color: Colors.blueAccent,
+  );
+}
+
+/// Layout constants for sub headings.
+
+class SubHeadingStyle {
+  /// Font size.
+
+  static const double fontsize = 17.0;
+
+  /// Font colour.
+
+  static const Color fontcolor = Color.fromRGBO(96, 125, 139, 1);
+
+  /// Font weight.
+
+  static const FontWeight fontweight = FontWeight.bold;
+
+  /// Padding.
+
+  static const double padding = 8.0;
+}
+
+/// Layout constants for headings.
+
+class HeadingStyle {
+  /// Font size.
+
+  static const double fontsize = 22.0;
+
+  /// Font colour.
+
+  static const Color fontcolor = Color.fromRGBO(96, 125, 139, 1);
+
+  /// Font weight.
+
+  static const FontWeight fontweight = FontWeight.bold;
+
+  /// Padding.
+
+  static const double padding = 8.0;
+}
+
+/// Build a heading widget with customisable style.
+///
+/// Arguments:
+/// - [text] - The text to display.
+/// - [fontSize] - The font size.
+/// - [fontWeight] - The font weight (optional).
+/// - [color] - The text colour (optional).
+/// - [padding] - The padding around the text (optional).
+
+Row buildHeading({
+  required String text,
+  required double fontSize,
+  FontWeight? fontWeight,
+  Color? color,
+  double? padding,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Flexible(
+        child: Padding(
+          padding: padding == null ? EdgeInsets.zero : EdgeInsets.all(padding),
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: fontWeight ?? FontWeight.normal,
+              color: color ?? Colors.black,
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+/// Make a sub heading using SubHeadingStyle as default.
+///
+/// Arguments:
+/// - [text] - The text to display.
+/// - [bold] - Whether to use bold font weight.
+/// - [addColor] - Whether to add the default colour.
+/// - [addPadding] - Whether to add padding.
+
+Widget makeSubHeading(
+  String text, {
+  bool bold = true,
+  bool addColor = true,
+  bool addPadding = true,
+}) =>
+    buildHeading(
+      text: text,
+      fontSize: SubHeadingStyle.fontsize,
+      fontWeight: (bold) ? SubHeadingStyle.fontweight : FontWeight.normal,
+      color: (addColor) ? SubHeadingStyle.fontcolor : Colors.black,
+      padding: (addPadding) ? SubHeadingStyle.padding : 0,
+    );
+
+/// Make a heading using HeadingStyle as default.
+///
+/// Arguments:
+/// - [text] - The text to display.
+/// - [bold] - Whether to use bold font weight.
+/// - [addColor] - Whether to add the default colour.
+/// - [addPadding] - Whether to add padding.
+
+Widget makeHeading(
+  String text, {
+  bool bold = true,
+  bool addColor = true,
+  bool addPadding = true,
+}) =>
+    buildHeading(
+      text: text,
+      fontSize: HeadingStyle.fontsize,
+      fontWeight: (bold) ? HeadingStyle.fontweight : FontWeight.normal,
+      color: (addColor) ? HeadingStyle.fontcolor : Colors.black,
+      padding: (addPadding) ? HeadingStyle.padding : 0,
+    );
+
+/// Layout constants used for sharing page.
+
+class SharingPageLayout {
+  /// Padding for dialog input sections.
+
+  static const inputPadding = EdgeInsets.all(8);
 }

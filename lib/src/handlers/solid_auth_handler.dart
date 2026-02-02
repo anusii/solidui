@@ -154,16 +154,20 @@ class SolidAuthHandler {
   /// Handle logout functionality with confirmation popup.
 
   Future<void> handleLogout(BuildContext context) async {
-    if (_config?.onSecurityKeyReset != null) {
-      _config!.onSecurityKeyReset!();
-    }
-
     // Use login page as the return destination to avoid going back to main app.
 
     final returnWidget = _buildLoginPage(context);
-    await logoutPopup(context, returnWidget);
 
-    // After logout popup, the user should already be on the login page
+    // Pass the onSecurityKeyReset callback to logoutPopup so it is invoked
+    // only AFTER logoutPod succeeds.
+
+    await logoutPopup(
+      context,
+      returnWidget,
+      onLogoutSuccess: _config?.onSecurityKeyReset,
+    );
+
+    // After logout popup, the user should already be on the login page.
     // No additional navigation needed.
   }
 

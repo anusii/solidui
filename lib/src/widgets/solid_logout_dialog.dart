@@ -1,4 +1,4 @@
-/// Copyright (C) 2024, Software Innovation Institute, ANU.
+/// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Dawei Chen
+/// Authors: Dawei Chen, Tony Chen
 
 library;
 
@@ -35,11 +35,22 @@ import 'package:solidpod/solidpod.dart' show getAppNameVersion, logoutPod;
 class LogoutDialog extends StatefulWidget {
   /// Constructor.
 
-  const LogoutDialog({required this.child, super.key});
+  const LogoutDialog({
+    required this.child,
+    this.onLogoutSuccess,
+    super.key,
+  });
 
   /// The child widget after logging out.
 
   final Widget child;
+
+  /// Optional callback invoked after successful logout.
+  /// This is called AFTER [logoutPod] completes successfully but BEFORE
+  /// navigation occurs. Use this to reset UI state such as security key
+  /// status notifiers.
+
+  final VoidCallback? onLogoutSuccess;
 
   @override
   State<LogoutDialog> createState() => _LogoutDialogState();
@@ -55,6 +66,8 @@ class _LogoutDialogState extends State<LogoutDialog> {
           child: const Text('OK'),
           onPressed: () async {
             if (await logoutPod()) {
+              widget.onLogoutSuccess?.call();
+
               if (context.mounted) {
                 await Navigator.pushReplacement(
                   context,
@@ -115,10 +128,23 @@ class _LogoutDialogState extends State<LogoutDialog> {
 }
 
 /// Display a pop up dialog for logging out.
+///
+/// Parameters:
+/// - [context] - The build context.
+/// - [child] - The widget to navigate to after successful logout.
+/// - [onLogoutSuccess] - Optional callback invoked after successful logout
+///   but before navigation. Use this to reset UI state managers.
 
-Future<void> logoutPopup(BuildContext context, Widget child) async {
+Future<void> logoutPopup(
+  BuildContext context,
+  Widget child, {
+  VoidCallback? onLogoutSuccess,
+}) async {
   await showDialog(
     context: context,
-    builder: (context) => LogoutDialog(child: child),
+    builder: (context) => LogoutDialog(
+      child: child,
+      onLogoutSuccess: onLogoutSuccess,
+    ),
   );
 }
