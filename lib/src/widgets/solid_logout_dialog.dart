@@ -143,8 +143,8 @@ Future<void> logoutPopup(
   await showDialog(
     context: context,
     builder: (context) => LogoutDialog(
-      child: child,
       onLogoutSuccess: onLogoutSuccess,
+      child: child,
     ),
   );
 }
