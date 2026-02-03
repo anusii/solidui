@@ -36,6 +36,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/widgets/secret_text_field.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
+import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// Display mode for the SecurityKeyUI widget.
 ///
@@ -135,7 +136,29 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
     final fieldKeys = {for (final f in widget.inputFields) f.fieldKey};
     assert(fieldKeys.length == widget.inputFields.length);
     _verifiedMap = {for (final k in fieldKeys) k: false};
+
+    // Listen to theme changes to rebuild the UI.
+
+    solidThemeNotifier.addListener(_onThemeChanged);
   }
+
+  @override
+  void dispose() {
+    solidThemeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  /// Handles theme changes by rebuilding the widget.
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Toggles the theme mode using the app's theme toggle logic.
+
+  void _toggleTheme() => solidThemeNotifier.toggleTheme();
 
   Future<void> _submit(BuildContext context) async {
     final formData = widget.formKey.currentState?.value as Map<String, dynamic>;
@@ -184,52 +207,67 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
   /// Builds the card content including header, form fields, and buttons.
 
   Widget _buildCardContent(BuildContext context) {
-    return Container(
-      width: SecurityLayout.dialogWidth,
-      constraints: const BoxConstraints(
-        maxWidth: SecurityLayout.maxDialogWidth,
-      ),
-      decoration: BoxDecoration(
-        color: SecurityThemeColors.cardBackground(context),
-        borderRadius: BorderRadius.circular(SecurityLayout.borderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    return Stack(
+      children: [
+        Container(
+          width: SecurityLayout.dialogWidth,
+          constraints: const BoxConstraints(
+            maxWidth: SecurityLayout.maxDialogWidth,
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header section.
-
-          _buildHeader(context),
-
-          // Separator.
-
-          Container(
-            height: SecurityLayout.separatorHeight,
-            color: SecurityThemeColors.separator(context),
+          decoration: BoxDecoration(
+            color: SecurityThemeColors.cardBackground(context),
+            borderRadius: BorderRadius.circular(SecurityLayout.borderRadius),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header section.
 
-          // Form with input fields.
+              _buildHeader(context),
 
-          Padding(
-            padding: SecurityLayout.formPadding,
-            child: _buildForm(),
+              // Separator.
+
+              Container(
+                height: SecurityLayout.separatorHeight,
+                color: SecurityThemeColors.separator(context),
+              ),
+
+              // Form with input fields.
+
+              Padding(
+                padding: SecurityLayout.formPadding,
+                child: _buildForm(),
+              ),
+
+              // Buttons.
+
+              Padding(
+                padding: SecurityLayout.buttonsPadding,
+                child: _buildButtons(context),
+              ),
+            ],
           ),
+        ),
 
-          // Buttons.
+        // Theme toggle button in the top-right corner.
 
-          Padding(
-            padding: SecurityLayout.buttonsPadding,
-            child: _buildButtons(context),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: getThemeToggleTooltip(
+            solidThemeNotifier.themeMode,
+            onPressed: _toggleTheme,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
