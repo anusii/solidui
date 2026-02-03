@@ -30,8 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show changeKeyPopup;
-
+import 'package:solidui/src/widgets/change_key_dialog.dart' show changeKeyPopup;
 import 'package:solidui/src/widgets/solid_security_key_cache_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_set_dialog.dart';
 import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';

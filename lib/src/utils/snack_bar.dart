@@ -1,6 +1,6 @@
-/// Constants used for UI elements across the package.
+/// A utility function for displaying snack bars.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -24,30 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Ashley Tang, Jess Moore, Tony Chen
+/// Authors: Dawei Chen, Anushka Vidanage
 
 library;
 
-// Window and list item size constants.
+import 'package:flutter/material.dart';
 
-export 'ui_window.dart';
+/// Displays a snack bar with a custom message.
+///
+/// A customised background colour and duration can be used.
 
-// Colour constants.
-
-export 'ui_colors.dart';
-
-// Text style constants.
-
-export 'ui_text_styles.dart';
-
-// Layout constants.
-
-export 'ui_layout.dart';
-
-// String constants.
-
-export 'ui_strings.dart';
-
-// Common constants and helper functions.
-
-export 'ui_common.dart';
+void showSnackBar(
+  BuildContext context,
+  String msg,
+  Color bgColor, {
+  Duration duration = const Duration(seconds: 4),
+}) {
+  if (!context.mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(msg),
+      backgroundColor: bgColor,
+      duration: duration,
+    ),
+  );
+}

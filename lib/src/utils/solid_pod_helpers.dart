@@ -32,14 +32,10 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidpod/solidpod.dart'
-    show
-        isUserLoggedIn,
-        getWebId,
-        KeyManager,
-        verifySecurityKey,
-        SecurityKeyUI,
-        SecurityStrings;
+    show isUserLoggedIn, getWebId, KeyManager, verifySecurityKey;
 
+import 'package:solidui/src/constants/ui.dart' show SecurityStrings;
+import 'package:solidui/src/widgets/security_key_ui.dart' show SecurityKeyUI;
 import 'package:solidui/src/widgets/solid_login_webid_input_dialog.dart';
 
 /// Login if the user has not done so.

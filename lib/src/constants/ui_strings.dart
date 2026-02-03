@@ -1,6 +1,6 @@
-/// Constants used for UI elements across the package.
+/// String constants for UI elements.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2025-2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -28,26 +28,27 @@
 
 library;
 
-// Window and list item size constants.
+/// Common text strings used across security dialogs and prompts.
 
-export 'ui_window.dart';
+class SecurityStrings {
+  /// Label for the WebID display.
 
-// Colour constants.
+  static const webIdLabel = 'Currently logged in as:';
 
-export 'ui_colors.dart';
+  /// Label for not logged in state.
 
-// Text style constants.
+  static const notLoggedIn = 'Not logged in';
 
-export 'ui_text_styles.dart';
+  /// Security key input prompt.
 
-// Layout constants.
+  static const securityKeyPrompt =
+      'Please enter the security key you previously provided for securing your data.';
 
-export 'ui_layout.dart';
+  /// Submit button text.
 
-// String constants.
+  static const submit = 'Submit';
 
-export 'ui_strings.dart';
+  /// Cancel button text.
 
-// Common constants and helper functions.
-
-export 'ui_common.dart';
+  static const cancel = 'Cancel';
+}
