@@ -13,6 +13,10 @@ The package is available from
 Coding documentation is available from [solid community
 au](https://solidcommunity.au/docs/solidui)
 
+## 0.2.0 Stabilise
+
++ Migrate Security Key and Permission GUI from solidpod [0.1.0 20260203 tonypioneer]
+
 ## 0.1.0 First Beta Release
 
 + Support dark mode for security key UI [0.0.34 20260130 tonypioneer]
