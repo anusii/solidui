@@ -12,14 +12,9 @@ dependencies:
     sdk: flutter
   markdown_tooltip: 0.0.10
   shared_preferences: ^2.5.4
-<<<<<<< tony/185_theme_button
-  solidpod: ^0.9.12
-  solidui:
-    path: ..
-=======
   solidpod: ^0.10.1
-  solidui: ^0.1.0
->>>>>>> dev
+  solidui: # ^0.1.0
+    path: ..
   window_manager: ^0.5.1
 
 dependency_overrides:

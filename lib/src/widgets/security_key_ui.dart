@@ -136,7 +136,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
     final fieldKeys = {for (final f in widget.inputFields) f.fieldKey};
     assert(fieldKeys.length == widget.inputFields.length);
     _verifiedMap = {for (final k in fieldKeys) k: false};
-<<<<<<< tony/185_theme_button
 
     // Listen to theme changes to rebuild the UI.
 
@@ -161,10 +160,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
 
   void _toggleTheme() => solidThemeNotifier.toggleTheme();
 
-=======
-  }
-
->>>>>>> dev
   Future<void> _submit(BuildContext context) async {
     final formData = widget.formKey.currentState?.value as Map<String, dynamic>;
 
@@ -212,7 +207,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
   /// Builds the card content including header, form fields, and buttons.
 
   Widget _buildCardContent(BuildContext context) {
-<<<<<<< tony/185_theme_button
     return Stack(
       children: [
         Container(
@@ -274,54 +268,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
           ),
         ),
       ],
-=======
-    return Container(
-      width: SecurityLayout.dialogWidth,
-      constraints: const BoxConstraints(
-        maxWidth: SecurityLayout.maxDialogWidth,
-      ),
-      decoration: BoxDecoration(
-        color: SecurityThemeColors.cardBackground(context),
-        borderRadius: BorderRadius.circular(SecurityLayout.borderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header section.
-
-          _buildHeader(context),
-
-          // Separator.
-
-          Container(
-            height: SecurityLayout.separatorHeight,
-            color: SecurityThemeColors.separator(context),
-          ),
-
-          // Form with input fields.
-
-          Padding(
-            padding: SecurityLayout.formPadding,
-            child: _buildForm(),
-          ),
-
-          // Buttons.
-
-          Padding(
-            padding: SecurityLayout.buttonsPadding,
-            child: _buildButtons(context),
-          ),
-        ],
-      ),
->>>>>>> dev
     );
   }
 
