@@ -34,9 +34,8 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:solidpod/solidpod.dart' show isUserLoggedIn;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
