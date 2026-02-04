@@ -34,11 +34,13 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:solidpod/solidpod.dart' show isUserLoggedIn;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
+import 'package:solidui/src/widgets/solid_security_key_cache_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
@@ -184,10 +186,29 @@ class SolidStatusBar extends StatelessWidget {
 
   /// Shows the built-in security key manager dialogue.
 
-  void _showSecurityKeyManager(
+  Future<void> _showSecurityKeyManager(
     BuildContext context,
     SolidSecurityKeyStatus config,
-  ) {
+  ) async {
+    // Check user login status before showing the security key manager.
+
+    final isLoggedIn = await isUserLoggedIn();
+    if (!context.mounted) return;
+
+    if (!isLoggedIn) {
+      // User is not logged in - show login required dialog.
+
+      final shouldLogin =
+          await SecurityKeyCacheDialogs.showLoginRequiredDialog(context);
+      if (shouldLogin && context.mounted) {
+        await SolidAuthHandler.instance.handleLogin(context);
+      }
+      return;
+    }
+
+    // User is logged in - proceed to show the security key manager.
+
+    if (!context.mounted) return;
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.5),
