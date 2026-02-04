@@ -61,9 +61,15 @@ ShapeDecoration listIconShape =
 
 const double normalLoadingScreenHeight = 200.0;
 
+/// Very small vertical spacing for the widget.
+const vSmallGapV = SizedBox(height: 5.0);
+
 /// Small vertical spacing for widgets.
 
 const smallGapV = SizedBox(height: 10.0);
+
+/// Medium vertical spacing for the widget.
+const mediumGapV = SizedBox(height: 20.0);
 
 /// Large vertical spacing for widgets.
 
