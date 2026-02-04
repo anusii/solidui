@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.2.0 Stabilise
 
++ Added new spacing constants [0.1.3 20260204 jesscmoore]
 + Login warn if trying to set security key [0.1.2 20260204 tonypioneer]
 + Add theme button the security key options [0.1.1 20260204 tonypioneer]
 + Migrate Security Key and Permission GUI from solidpod [0.1.0 20260203 tonypioneer]
