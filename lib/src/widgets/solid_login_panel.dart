@@ -57,10 +57,11 @@ class SolidLoginPanel {
     const boxTextHeight = 20.0;
 
     return Container(
-      height: 650,
+      constraints: const BoxConstraints(minHeight: 500),
       padding: const EdgeInsets.all(30),
       color: currentTheme.backgroundColor,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Image(image: logo, width: 200),
           const SizedBox(height: 0.0),
@@ -87,7 +88,9 @@ class SolidLoginPanel {
           const SizedBox(height: 20.0),
 
           // Column of buttons.
+
           Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -118,18 +121,14 @@ class SolidLoginPanel {
 
           const SizedBox(height: 20.0),
 
-          // Expand to the bottom of the login panel.
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: boxTextHeight,
-                child: Center(
-                  child: SelectableText(
-                    'Version $appVersion',
-                    style: TextStyle(color: currentTheme.versionTextColor),
-                  ),
-                ),
+          // Version text at the bottom of the panel.
+
+          SizedBox(
+            height: boxTextHeight,
+            child: Center(
+              child: SelectableText(
+                'Version $appVersion',
+                style: TextStyle(color: currentTheme.versionTextColor),
               ),
             ),
           ),
