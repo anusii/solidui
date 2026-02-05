@@ -43,6 +43,102 @@ import 'package:solidui/src/utils/solid_pod_helpers.dart';
 class SolidFileDownloadOperations {
   const SolidFileDownloadOperations._();
 
+  /// Checks if a file is within the current app's data folder.
+  ///
+  /// Returns `true` if the file path starts with the app's data directory path,
+  /// indicating that the current app can decrypt this file.
+  /// Returns `false` if the file is from another app's folder, meaning
+  /// decryption may fail as the security key is not available.
+
+  static Future<bool> _isFileInCurrentAppFolder(String filePath) async {
+    try {
+      final appDataPath = await getDataDirPath();
+      if (appDataPath.isEmpty) {
+        // If no app data path is available, we cannot determine ownership.
+
+        return false;
+      }
+
+      // Normalise the file path by removing leading slashes for comparison.
+
+      final normalisedFilePath =
+          filePath.startsWith('/') ? filePath.substring(1) : filePath;
+
+      return normalisedFilePath.startsWith(appDataPath);
+    } catch (e) {
+      debugPrint('Error checking app folder ownership: $e');
+      return false;
+    }
+  }
+
+  /// Shows a warning dialogue when attempting to download an encrypted file
+  /// from another app's data folder.
+  ///
+  /// Returns `true` if the user chooses to proceed with the download.
+  /// Returns `false` if the user cancels.
+
+  static Future<bool> _showCrossAppDecryptionWarning(
+    BuildContext context,
+  ) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            SizedBox(width: 12),
+            Expanded(child: Text('Decryption Warning')),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This encrypted file belongs to another application\'s data '
+              'folder.',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'The file browser can browse files across all app folders in '
+              'your POD, but can only decrypt files within the current app\'s '
+              'data folder.',
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Since this file was encrypted by a different application, '
+              'the security key required to decrypt it is not available. '
+              'The downloaded file will likely be unreadable or corrupted.',
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Do you still wish to proceed with the download?',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Download Anyway'),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
+  }
+
   /// Default file download implementation.
 
   static Future<void> downloadFile(
@@ -52,6 +148,27 @@ class SolidFileDownloadOperations {
     PathType? pathType,
   }) async {
     try {
+      // Check if the file is an encrypted file from another app's folder.
+      // If so, warn the user that decryption may not be possible.
+
+      final isEncryptedFile = fileName.endsWith('.enc.ttl');
+
+      if (isEncryptedFile) {
+        final isInCurrentAppFolder = await _isFileInCurrentAppFolder(filePath);
+
+        if (!isInCurrentAppFolder) {
+          if (!context.mounted) return;
+
+          final shouldProceed = await _showCrossAppDecryptionWarning(context);
+
+          if (!shouldProceed) {
+            return;
+          }
+        }
+      }
+
+      if (!context.mounted) return;
+
       // Let user choose where to save the file.
 
       final cleanFileName = fileName.replaceAll('.enc.ttl', '');
