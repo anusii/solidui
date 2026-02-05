@@ -20,7 +20,6 @@ dependencies:
   file_picker: ^10.3.10
   flutter_form_builder: ^10.3.0+1
   flutter_markdown_plus: ^1.0.7
-  flutter_secure_storage: ^10.0.0
   form_builder_validators: ^11.3.0
   gap: ^3.0.1
   loading_indicator: ^3.1.1
