@@ -29,6 +29,7 @@
 library;
 
 import 'package:solidui/src/models/data_format_config.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_helpers.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
@@ -97,7 +98,13 @@ class FileTypeConfig {
   /// Gets the file type configuration based on the current path.
 
   static FileTypeConfig fromPath(String currentPath, [String? basePath]) {
-    if (currentPath.contains('/blood_pressure')) {
+    // Normalise the path for consistent pattern matching.
+
+    final normalisedPath = PathUtils.normalise(currentPath);
+
+    if (normalisedPath.contains('/blood_pressure') ||
+        normalisedPath.contains('blood_pressure/') ||
+        normalisedPath.endsWith('blood_pressure')) {
       return const FileTypeConfig(
         type: SolidFileType.bloodPressure,
         displayName: 'Blood Pressure Data',
@@ -109,7 +116,9 @@ class FileTypeConfig {
 
 ''',
       );
-    } else if (currentPath.contains('/vaccination')) {
+    } else if (normalisedPath.contains('/vaccination') ||
+        normalisedPath.contains('vaccination/') ||
+        normalisedPath.endsWith('vaccination')) {
       return const FileTypeConfig(
         type: SolidFileType.vaccination,
         displayName: 'Vaccination Data',
@@ -121,7 +130,9 @@ class FileTypeConfig {
 
 ''',
       );
-    } else if (currentPath.contains('/medication')) {
+    } else if (normalisedPath.contains('/medication') ||
+        normalisedPath.contains('medication/') ||
+        normalisedPath.endsWith('medication')) {
       return const FileTypeConfig(
         type: SolidFileType.medication,
         displayName: 'Medication Data',
@@ -133,7 +144,9 @@ class FileTypeConfig {
 
 ''',
       );
-    } else if (currentPath.contains('/diary')) {
+    } else if (normalisedPath.contains('/diary') ||
+        normalisedPath.contains('diary/') ||
+        normalisedPath.endsWith('diary')) {
       return const FileTypeConfig(
         type: SolidFileType.diary,
         displayName: 'Appointments Data',
@@ -145,7 +158,9 @@ class FileTypeConfig {
 
 ''',
       );
-    } else if (currentPath.contains('/profile')) {
+    } else if (normalisedPath.contains('/profile') ||
+        normalisedPath.contains('profile/') ||
+        normalisedPath.endsWith('profile')) {
       return const FileTypeConfig(
         type: SolidFileType.profile,
         displayName: 'Profile Data',
@@ -162,24 +177,25 @@ class FileTypeConfig {
       // consistency. If basePath is provided, use it; otherwise, construct a
       // reasonable default.
 
-      String effectiveBasePath = basePath ?? '';
+      String effectiveBasePath =
+          basePath != null ? PathUtils.normalise(basePath) : '';
 
       if (effectiveBasePath.isEmpty) {
         final segments =
-            currentPath.split('/').where((s) => s.isNotEmpty).toList();
+            normalisedPath.split('/').where((s) => s.isNotEmpty).toList();
 
         // Construct a reasonable base path - typically the first 2 segments
         // for most cases.
 
         if (segments.length >= 2) {
-          effectiveBasePath = '/${segments[0]}/${segments[1]}';
+          effectiveBasePath = '${segments[0]}/${segments[1]}';
         } else if (segments.length == 1) {
-          effectiveBasePath = '/${segments[0]}';
+          effectiveBasePath = segments[0];
         }
       }
 
       final friendlyName = SolidFileHelpers.getFriendlyFolderName(
-        currentPath,
+        normalisedPath,
         effectiveBasePath,
       );
 

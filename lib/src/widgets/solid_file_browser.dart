@@ -34,6 +34,7 @@ import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/utils/file_operations.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
 import 'package:solidui/src/widgets/solid_file_browser_not_logged_in.dart';
@@ -138,8 +139,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   @override
   void initState() {
     super.initState();
-    currentPath = widget.basePath;
-    pathHistory = [widget.basePath];
+    // Normalise the base path to ensure consistent path handling.
+
+    currentPath = PathUtils.normalise(widget.basePath);
+    pathHistory = [currentPath];
     _checkLoginStatus();
   }
 
@@ -178,7 +181,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   Future<void> navigateToDirectory(String dirName) async {
     if (!mounted) return;
     setState(() {
-      currentPath = '$currentPath/$dirName';
+      // Use PathUtils.combine to ensure consistent path joining without
+      // double slashes.
+
+      currentPath = PathUtils.combine(currentPath, dirName);
       pathHistory.add(currentPath);
     });
     await refreshFiles();
@@ -265,32 +271,42 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// Navigate to a specific path in the file browser.
 
   void navigateToPath(String path) {
+    // Normalise both the target path and the base path to ensure consistent
+    // comparison and prevent issues with leading slashes.
+
+    final normalisedPath = PathUtils.normalise(path);
+    final normalisedBasePath = PathUtils.normalise(widget.basePath);
+
     setState(() {
-      currentPath = path;
-      if (path == widget.basePath) {
-        pathHistory = [widget.basePath];
+      currentPath = normalisedPath;
+      if (normalisedPath == normalisedBasePath || normalisedPath.isEmpty) {
+        pathHistory = [normalisedBasePath];
       } else {
-        if (pathHistory.isEmpty || pathHistory.last != path) {
-          if (path.startsWith(widget.basePath)) {
-            pathHistory = [widget.basePath];
-            final relativePath = path.substring(widget.basePath.length);
-            if (relativePath.isNotEmpty && relativePath != '/') {
+        if (pathHistory.isEmpty || pathHistory.last != normalisedPath) {
+          // Check if the path is under the base path.
+
+          if (normalisedBasePath.isEmpty ||
+              normalisedPath.startsWith('$normalisedBasePath/')) {
+            pathHistory = [normalisedBasePath];
+            final relativePath =
+                PathUtils.relativeTo(normalisedPath, normalisedBasePath);
+            if (relativePath.isNotEmpty) {
               final segments =
                   relativePath.split('/').where((s) => s.isNotEmpty);
-              var currentBuildPath = widget.basePath;
+              var currentBuildPath = normalisedBasePath;
               for (final segment in segments) {
-                currentBuildPath = [currentBuildPath, segment].join('/');
+                currentBuildPath = PathUtils.combine(currentBuildPath, segment);
                 pathHistory.add(currentBuildPath);
               }
             }
           } else {
-            pathHistory.add(path);
+            pathHistory.add(normalisedPath);
           }
         }
       }
       refreshFiles();
     });
-    widget.onDirectoryChanged.call(path);
+    widget.onDirectoryChanged.call(normalisedPath);
   }
 
   /// Gets the effective friendly folder name based on the current path.

@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getDataDirPath;
 
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_browser_builder.dart';
 import 'package:solidui/src/widgets/solid_file_callbacks.dart';
@@ -216,10 +217,12 @@ class _SolidFileState extends State<SolidFile> {
 
   Future<void> _resolveBasePath() async {
     if (widget.basePath != null) {
-      // Use the provided basePath directly.
+      // Use the provided basePath directly, normalised.
 
-      _resolvedBasePath = widget.basePath;
-      _currentPath = widget.currentPath ?? _resolvedBasePath!;
+      _resolvedBasePath = PathUtils.normalise(widget.basePath!);
+      _currentPath = widget.currentPath != null
+          ? PathUtils.normalise(widget.currentPath!)
+          : _resolvedBasePath!;
       setState(() {
         _isResolvingBasePath = false;
       });
@@ -230,7 +233,7 @@ class _SolidFileState extends State<SolidFile> {
 
     try {
       final appDataPath = await getDataDirPath();
-      _resolvedBasePath = appDataPath;
+      _resolvedBasePath = PathUtils.normalise(appDataPath);
     } catch (e) {
       // Fall back to pod root if getDataDirPath fails.
 
@@ -238,7 +241,9 @@ class _SolidFileState extends State<SolidFile> {
       _resolvedBasePath = SolidFile.podRoot;
     }
 
-    _currentPath = widget.currentPath ?? _resolvedBasePath!;
+    _currentPath = widget.currentPath != null
+        ? PathUtils.normalise(widget.currentPath!)
+        : _resolvedBasePath!;
     setState(() {
       _isResolvingBasePath = false;
     });
@@ -283,20 +288,22 @@ class _SolidFileState extends State<SolidFile> {
       context,
       _currentPath,
       _browserKey,
-      basePath: _effectiveBasePath,
     );
   }
 
   /// Handles directory changes and updates internal state.
 
   void _handleDirectoryChanged(String path) {
+    // Normalise the path to ensure consistent handling.
+
+    final normalisedPath = PathUtils.normalise(path);
     setState(() {
-      _currentPath = path;
+      _currentPath = normalisedPath;
     });
 
     // Call the external callback if provided.
 
-    widget.onDirectoryChanged?.call(path);
+    widget.onDirectoryChanged?.call(normalisedPath);
   }
 
   @override

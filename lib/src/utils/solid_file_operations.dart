@@ -62,6 +62,7 @@ class SolidFileOperations {
     BuildContext context,
     String fileName,
     String filePath, {
+    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
     String? basePath,
     VoidCallback? onSuccess,
   }) =>
@@ -69,7 +70,6 @@ class SolidFileOperations {
         context,
         fileName,
         filePath,
-        basePath: basePath,
         onSuccess: onSuccess,
       );
 
@@ -78,13 +78,13 @@ class SolidFileOperations {
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
+    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
     String? basePath,
     VoidCallback? onSuccess,
   }) =>
       SolidFileUploadOperations.uploadFile(
         context,
         currentPath,
-        basePath: basePath,
         onSuccess: onSuccess,
       );
 }

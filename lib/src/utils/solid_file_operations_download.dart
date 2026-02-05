@@ -36,6 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 /// Download operations for SolidUI widgets.
@@ -96,20 +97,9 @@ class SolidFileDownloadOperations {
 
         // Read file content from POD.
 
-        // dc 20260107: the `basePath` is heavily involved in the file-browsing
-        // codebase, and this leads to a leading forward slash in `filePath`,
-        // e.g., /myapp/encryption/ind-keys.ttl.
-        // This format triggers an error when extracting data from the turtle
-        // content due to double `//` in the subject of triples.
-        // Below is a temporary workaround but a better solution is needed to
-        // fully resolve this issue (e.g., refactor the file-browsing code to
-        // use `PathType` instead of `basePath`).
-
+        final normalisedPath = PathUtils.combine(filePath, fileName);
         final fileContent = await readPod(
-          [
-            filePath.startsWith('/') ? filePath.substring(1) : filePath,
-            fileName,
-          ].join('/'),
+          normalisedPath,
           pathType: pathType ?? PathType.relativeToPod,
         );
 

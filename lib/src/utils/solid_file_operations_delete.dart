@@ -32,17 +32,26 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/utils/path_utils.dart';
+
 /// Delete operations for SolidUI widgets.
 
 class SolidFileDeleteOperations {
   const SolidFileDeleteOperations._();
 
   /// Default file deletion implementation.
+  ///
+  /// The [filePath] should be a directory path relative to the Pod root,
+  /// e.g., `myapp/data` or `myapp/data/subfolder`.
+  ///
+  /// Note: The [basePath] parameter is deprecated and will be ignored.
+  /// File paths are now handled using PathType.relativeToPod instead.
 
   static Future<void> deletePodFile(
     BuildContext context,
     String fileName,
     String filePath, {
+    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
     String? basePath,
     VoidCallback? onSuccess,
   }) async {
@@ -92,9 +101,10 @@ class SolidFileDeleteOperations {
 
       try {
         // Construct the full file path by combining directory path and
-        // filename.
+        // filename. Use PathUtils to ensure no leading slashes, which would
+        // cause double slashes in the generated URL.
 
-        final fullFilePath = [filePath, fileName].join('/');
+        final fullFilePath = PathUtils.combine(filePath, fileName);
 
         // Delete the file (this also handles the ACL file automatically).
 

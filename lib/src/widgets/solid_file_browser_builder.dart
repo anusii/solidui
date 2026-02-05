@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
@@ -52,10 +53,14 @@ class SolidFileBrowserBuilder {
     required Function(String path) onDirectoryChanged,
     SolidFileUploadCallbacks? uploadCallbacks,
   }) {
+    // Normalise the base path to ensure consistent path handling.
+
+    final normalisedBasePath = PathUtils.normalise(basePath);
+
     return SolidFileBrowser(
       key: browserKey,
       browserKey: browserKey,
-      basePath: basePath,
+      basePath: normalisedBasePath,
       friendlyFolderName: friendlyFolderName,
       onFileSelected: onFileSelected ??
           (fileName, filePath) {
@@ -63,20 +68,25 @@ class SolidFileBrowserBuilder {
           },
       onFileDownload: onFileDownload ??
           (fileName, filePath) {
+            // Use PathType.relativeToPod for all paths as they are now
+            // consistently normalised (no leading slashes).
+
             SolidFileOperations.downloadFile(
               browserKey.currentContext!,
               fileName,
               filePath,
-              pathType: basePath.trim().isEmpty ? PathType.relativeToPod : null,
+              pathType: PathType.relativeToPod,
             );
           },
       onFileDelete: onFileDelete ??
           (fileName, filePath) {
+            // filePath is already relative to Pod root (e.g., 'myapp/data/subfolder').
+            // No basePath conversion needed as we use PathType.relativeToPod approach.
+
             SolidFileOperations.deletePodFile(
               browserKey.currentContext!,
               fileName,
               filePath,
-              basePath: basePath,
               onSuccess: () {
                 // Refresh the browser after successful deletion.
 

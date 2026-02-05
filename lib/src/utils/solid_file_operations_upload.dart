@@ -38,6 +38,7 @@ import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/is_text_file.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 
 /// Upload operations for SolidUI widgets.
 
@@ -49,6 +50,7 @@ class SolidFileUploadOperations {
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
+    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
     String? basePath,
     VoidCallback? onSuccess,
   }) async {
@@ -103,44 +105,23 @@ class SolidFileUploadOperations {
 
         final remoteFileName = '$sanitizedFileName.enc.ttl';
 
-        // Calculate upload path relative to the base path.
+        // Construct the full upload path relative to the Pod root.
 
-        String uploadPath = remoteFileName;
-        if (currentPath.isNotEmpty && currentPath != '/') {
-          String relativePath = currentPath;
-
-          // Strip the base path from current path to get the relative path.
-
-          if (basePath != null && basePath.isNotEmpty) {
-            if (currentPath.startsWith(basePath)) {
-              relativePath = currentPath.substring(basePath.length);
-
-              // Remove leading slash if present after stripping.
-
-              if (relativePath.startsWith('/')) {
-                relativePath = relativePath.substring(1);
-              }
-            }
-          } else {
-            // Remove leading slash if present.
-
-            if (relativePath.startsWith('/')) {
-              relativePath = relativePath.substring(1);
-            }
-          }
-
-          // Only prepend relative path if it's not empty.
-
-          if (relativePath.isNotEmpty) {
-            uploadPath = '$relativePath/$remoteFileName';
-          }
-        }
+        final normalisedCurrentPath = PathUtils.normalise(currentPath);
+        final uploadPath = normalisedCurrentPath.isNotEmpty
+            ? PathUtils.combine(normalisedCurrentPath, remoteFileName)
+            : remoteFileName;
 
         if (!context.mounted) return;
 
-        // Upload file with encryption.
+        // Upload file with encryption using PathType.relativeToPod.
 
-        await writePod(uploadPath, fileContent, encrypted: true);
+        await writePod(
+          uploadPath,
+          fileContent,
+          encrypted: true,
+          pathType: PathType.relativeToPod,
+        );
 
         if (!context.mounted) return;
 
