@@ -190,7 +190,7 @@ class SolidFileOperations {
       // Delete the file (this also handles the ACL file automatically).
 
       try {
-        await deleteFile(filePath);
+        await deleteFile(fileUrl: await getFileUrl(filePath));
         return newState.copyWith(deleteDone: true, deleteInProgress: false);
       } catch (e) {
         debugPrint('Error deleting file: $e');

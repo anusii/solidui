@@ -99,7 +99,7 @@ class SolidFileDeleteOperations {
         // Delete the file (this also handles the ACL file automatically).
 
         try {
-          await deleteFile(fullFilePath);
+          await deleteFile(fileUrl: await getFileUrl(fullFilePath));
         } catch (e) {
           // Only rethrow if it's not a 404 error.
 
