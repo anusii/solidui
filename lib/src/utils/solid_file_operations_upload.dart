@@ -49,6 +49,7 @@ class SolidFileUploadOperations {
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
+    String? basePath,
     VoidCallback? onSuccess,
   }) async {
     try {
@@ -102,16 +103,37 @@ class SolidFileUploadOperations {
 
         final remoteFileName = '$sanitizedFileName.enc.ttl';
 
-        // Determine upload path.
+        // Calculate upload path relative to the base path.
 
         String uploadPath = remoteFileName;
         if (currentPath.isNotEmpty && currentPath != '/') {
-          // Remove leading slash if present.
+          String relativePath = currentPath;
 
-          final cleanPath = currentPath.startsWith('/')
-              ? currentPath.substring(1)
-              : currentPath;
-          uploadPath = '$cleanPath/$remoteFileName';
+          // Strip the base path from current path to get the relative path.
+
+          if (basePath != null && basePath.isNotEmpty) {
+            if (currentPath.startsWith(basePath)) {
+              relativePath = currentPath.substring(basePath.length);
+
+              // Remove leading slash if present after stripping.
+
+              if (relativePath.startsWith('/')) {
+                relativePath = relativePath.substring(1);
+              }
+            }
+          } else {
+            // Remove leading slash if present.
+
+            if (relativePath.startsWith('/')) {
+              relativePath = relativePath.substring(1);
+            }
+          }
+
+          // Only prepend relative path if it's not empty.
+
+          if (relativePath.isNotEmpty) {
+            uploadPath = '$relativePath/$remoteFileName';
+          }
         }
 
         if (!context.mounted) return;

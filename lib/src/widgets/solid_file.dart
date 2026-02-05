@@ -283,6 +283,7 @@ class _SolidFileState extends State<SolidFile> {
       context,
       _currentPath,
       _browserKey,
+      basePath: _effectiveBasePath,
     );
   }
 

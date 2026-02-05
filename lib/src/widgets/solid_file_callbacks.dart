@@ -42,13 +42,15 @@ class SolidFileDefaultCallbacks {
   static SolidFileUploadCallbacks createUploadCallbacks(
     BuildContext context,
     String currentPath,
-    GlobalKey<SolidFileBrowserState> browserKey,
-  ) {
+    GlobalKey<SolidFileBrowserState> browserKey, {
+    String? basePath,
+  }) {
     return SolidFileUploadCallbacks(
       onUpload: () {
         SolidFileOperations.uploadFile(
           context,
           currentPath,
+          basePath: basePath,
           onSuccess: () {
             // Refresh the file browser after successful upload.
 

@@ -78,11 +78,13 @@ class SolidFileOperations {
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
+    String? basePath,
     VoidCallback? onSuccess,
   }) =>
       SolidFileUploadOperations.uploadFile(
         context,
         currentPath,
+        basePath: basePath,
         onSuccess: onSuccess,
       );
 }
