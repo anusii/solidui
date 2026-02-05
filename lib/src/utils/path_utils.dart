@@ -88,10 +88,8 @@ class PathUtils {
   /// - join(['', 'myapp', '', 'data']) returns `myapp/data`
 
   static String join(List<String> segments) {
-    final normalisedSegments = segments
-        .map(normalise)
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final normalisedSegments =
+        segments.map(normalise).where((s) => s.isNotEmpty).toList();
 
     return normalisedSegments.join('/');
   }

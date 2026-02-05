@@ -35,28 +35,16 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/widgets/secret_text_field.dart';
+import 'package:solidui/src/widgets/security_key_buttons.dart';
+import 'package:solidui/src/widgets/security_key_display_mode.dart';
+import 'package:solidui/src/widgets/security_key_header.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
-/// Display mode for the SecurityKeyUI widget.
-///
-/// This enum determines whether the widget should be displayed as a fullscreen prompt
-/// or as an embedded dialog component.
+export 'package:solidui/src/widgets/security_key_display_mode.dart';
 
-enum SecurityKeyDisplayMode {
-  /// Display as a fullscreen prompt with a scaffold.
-
-  fullscreen,
-
-  /// Display as an embedded dialog component.
-
-  dialog
-}
-
-/// A flexible [StatefulWidget] for security key operations with improved UI and WebID display.
-///
-/// This widget can be used for both simple security key prompts (single input field)
-/// and more complex dialogs (multiple input fields) by providing different configurations.
+/// A flexible [StatefulWidget] for security key operations with improved UI and
+/// WebID display.
 
 class SecurityKeyUI extends StatefulWidget {
   /// Constructor for the SecurityKeyUI widget.
@@ -231,7 +219,11 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
             children: [
               // Header section.
 
-              _buildHeader(context),
+              SecurityKeyHeader(
+                title: widget.title,
+                webId: widget.webId,
+                message: widget.message,
+              ),
 
               // Separator.
 
@@ -251,7 +243,17 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
 
               Padding(
                 padding: SecurityLayout.buttonsPadding,
-                child: _buildButtons(context),
+                child: SecurityKeyButtons(
+                  canSubmit: _canSubmit,
+                  onSubmit: () async => _submit(context),
+                  onCancel: () {
+                    if (widget.displayMode == SecurityKeyDisplayMode.dialog) {
+                      Navigator.pop(context);
+                    } else {
+                      pushReplacement(context, widget.child);
+                    }
+                  },
+                ),
               ),
             ],
           ),
@@ -268,60 +270,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
           ),
         ),
       ],
-    );
-  }
-
-  /// Builds the header section with title, WebID, and message.
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: SecurityLayout.contentPadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title heading.
-
-          Text(
-            widget.title,
-            style: SecurityThemeTextStyles.heading(context),
-          ),
-
-          // Green divider under heading.
-
-          Container(
-            height: SecurityLayout.dividerHeight,
-            color: SecurityThemeColors.accent(context),
-            margin: SecurityLayout.dividerMargin,
-          ),
-
-          // "Currently logged in as:" label.
-
-          Text(
-            SecurityStrings.webIdLabel,
-            style: SecurityThemeTextStyles.label(context),
-          ),
-
-          // WebID on separate line.
-
-          Padding(
-            padding: SecurityLayout.webIdPadding,
-            child: Text(
-              widget.webId ?? SecurityStrings.notLoggedIn,
-              style: SecurityThemeTextStyles.webId(
-                context,
-                isLoggedIn: widget.webId != null,
-              ),
-            ),
-          ),
-
-          // Instructions text.
-
-          Text(
-            widget.message,
-            style: SecurityThemeTextStyles.body(context),
-          ),
-        ],
-      ),
     );
   }
 
@@ -388,51 +336,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
           children: inputFieldWidgets,
         ),
       ),
-    );
-  }
-
-  /// Builds the buttons for submit and cancel.
-
-  Widget _buildButtons(BuildContext context) {
-    final submitButton = ElevatedButton(
-      onPressed: _canSubmit ? () async => _submit(context) : null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: SecurityThemeColors.primary(context),
-        padding: SecurityLayout.buttonPadding,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(SecurityLayout.buttonRadius),
-        ),
-      ),
-      child: const Text(
-        SecurityStrings.submit,
-        style: SecurityThemeTextStyles.button,
-      ),
-    );
-
-    final cancelButton = TextButton(
-      onPressed: () {
-        if (widget.displayMode == SecurityKeyDisplayMode.dialog) {
-          Navigator.pop(context);
-        } else {
-          pushReplacement(context, widget.child);
-        }
-      },
-      style: TextButton.styleFrom(
-        padding: SecurityLayout.buttonPadding,
-      ),
-      child: Text(
-        SecurityStrings.cancel,
-        style: SecurityThemeTextStyles.cancelButton(context),
-      ),
-    );
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        cancelButton,
-        SecurityLayout.horizontalGap,
-        submitButton,
-      ],
     );
   }
 }

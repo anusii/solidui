@@ -47,7 +47,8 @@ class SolidFileOperations {
   /// Handles file upload by reading its contents and encrypting it for upload.
 
   @Deprecated(
-      'Use SolidFileUploadOperations.uploadFile with PathType.relativeToPod')
+    'Use SolidFileUploadOperations.uploadFile with PathType.relativeToPod',
+  )
   static Future<FileState> handleUpload(
     FileState fileState,
     String basePath,
@@ -119,7 +120,8 @@ class SolidFileOperations {
   /// Handles the download and decryption of files from the POD.
 
   @Deprecated(
-      'Use SolidFileDownloadOperations.downloadFile with PathType.relativeToPod')
+    'Use SolidFileDownloadOperations.downloadFile with PathType.relativeToPod',
+  )
   static Future<FileState> handleDownload(
     FileState fileState,
     String basePath,
@@ -183,7 +185,8 @@ class SolidFileOperations {
   /// Handles file deletion from the POD.
 
   @Deprecated(
-      'Use SolidFileDeleteOperations.deletePodFile with PathType.relativeToPod')
+    'Use SolidFileDeleteOperations.deletePodFile with PathType.relativeToPod',
+  )
   static Future<FileState> handleDelete(
     FileState fileState,
     String basePath,
