@@ -58,31 +58,20 @@ class SolidFileBrowserBuilder {
       basePath: basePath,
       friendlyFolderName: friendlyFolderName,
       onFileSelected: onFileSelected ??
-          (fileName, filePath) {
+              (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');
           },
       onFileDownload: onFileDownload ??
-          (fileName, filePath) async {
-            // Construct the absolute file URL from the POD-relative path
-            // and file name. The leading slash is stripped to avoid double
-            // slashes when building the URL.
-
-            final fullPath = [
-              filePath.startsWith('/') ? filePath.substring(1) : filePath,
-              fileName,
-            ].join('/');
-            final fileUrl = await getFileUrl(fullPath);
-
-            if (!browserKey.currentContext!.mounted) return;
-
+              (fileName, filePath) {
             SolidFileOperations.downloadFile(
               browserKey.currentContext!,
               fileName,
-              fileUrl,
+              filePath,
+              pathType: basePath.trim().isEmpty ? PathType.relativeToPod : null,
             );
           },
       onFileDelete: onFileDelete ??
-          (fileName, filePath) {
+              (fileName, filePath) {
             SolidFileOperations.deletePodFile(
               browserKey.currentContext!,
               fileName,
@@ -97,12 +86,12 @@ class SolidFileBrowserBuilder {
           },
       onImportCsv: uploadCallbacks?.onImportCsv != null
           ? (String fileName, String filePath) {
-              uploadCallbacks!.onImportCsv!();
-            }
+        uploadCallbacks!.onImportCsv!();
+      }
           : onImportCsv ??
               (String fileName, String filePath) {
-                debugPrint('Import CSV: $fileName at $filePath');
-              },
+            debugPrint('Import CSV: $fileName at $filePath');
+          },
       onDirectoryChanged: onDirectoryChanged,
     );
   }

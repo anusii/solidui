@@ -43,37 +43,30 @@ import 'package:solidui/src/utils/solid_pod_helpers.dart';
 class SolidFileDownloadOperations {
   const SolidFileDownloadOperations._();
 
-  /// Checks if a file URL belongs to the current app's data folder.
+  /// Checks if a file is within the current app's data folder.
   ///
-  /// The URL of a file in a Solid POD follows the structure:
-  /// `https://HOST/POD_NAME/APP_NAME/PATH_TO_RESOURCE`.
-  ///
-  /// This method retrieves the current app's data directory URL and checks
-  /// whether [fileUrl] falls within it. If the file belongs to a different
-  /// app's folder, decryption may fail as the security key is not available.
-  ///
-  /// Returns `true` if the file URL is within the current app's data folder.
-  /// Returns `false` otherwise.
+  /// Returns `true` if the file path starts with the app's data directory path,
+  /// indicating that the current app can decrypt this file.
+  /// Returns `false` if the file is from another app's folder, meaning
+  /// decryption may fail as the security key is not available.
 
-  static Future<bool> _isFileInCurrentAppFolder(String fileUrl) async {
+  static Future<bool> _isFileInCurrentAppFolder(String filePath) async {
     try {
-      if (fileUrl.trim().isEmpty) {
-        debugPrint('Cannot check app folder ownership: file URL is empty.');
+      // Validate that the file path is a POD-relative path rather than an
+      // absolute URL or empty string.
+
+      if (filePath.trim().isEmpty) {
+        debugPrint('Cannot check app folder ownership: file path is empty.');
         return false;
       }
 
-      // Validate that the input is an absolute URL.
-
-      final uri = Uri.tryParse(fileUrl);
-      if (uri == null || !uri.hasScheme) {
+      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
         debugPrint(
-          'Cannot check app folder ownership: expected an absolute URL '
-          'but received: $fileUrl',
+          'Cannot check app folder ownership: expected a POD-relative '
+              'path but received an absolute URL: $filePath',
         );
         return false;
       }
-
-      // Retrieve the current app's data directory path and build its URL.
 
       final appDataPath = await getDataDirPath();
       if (appDataPath.isEmpty) {
@@ -82,9 +75,12 @@ class SolidFileDownloadOperations {
         return false;
       }
 
-      final appDataDirUrl = await getDirUrl(appDataPath);
+      // Normalise the file path by removing leading slashes for comparison.
 
-      return fileUrl.startsWith(appDataDirUrl);
+      final normalisedFilePath =
+      filePath.startsWith('/') ? filePath.substring(1) : filePath;
+
+      return normalisedFilePath.startsWith(appDataPath);
     } catch (e) {
       debugPrint('Error checking app folder ownership: $e');
       return false;
@@ -98,8 +94,8 @@ class SolidFileDownloadOperations {
   /// Returns `false` if the user cancels.
 
   static Future<bool> _showCrossAppDecryptionWarning(
-    BuildContext context,
-  ) async {
+      BuildContext context,
+      ) async {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -117,20 +113,20 @@ class SolidFileDownloadOperations {
           children: [
             Text(
               'This encrypted file belongs to another application\'s data '
-              'folder.',
+                  'folder.',
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
             SizedBox(height: 12),
             Text(
               'The file browser can browse files across all app folders in '
-              'your POD, but can only decrypt files within the current app\'s '
-              'data folder.',
+                  'your POD, but can only decrypt files within the current app\'s '
+                  'data folder.',
             ),
             SizedBox(height: 12),
             Text(
               'Since this file was encrypted by a different application, '
-              'the security key required to decrypt it is not available. '
-              'The downloaded file will likely be unreadable or corrupted.',
+                  'the security key required to decrypt it is not available. '
+                  'The downloaded file will likely be unreadable or corrupted.',
             ),
             SizedBox(height: 16),
             Text(
@@ -160,17 +156,13 @@ class SolidFileDownloadOperations {
   }
 
   /// Default file download implementation.
-  ///
-  /// [fileUrl] must be an absolute URL pointing to the file in the POD
-  /// (e.g., `https://host/pod/app/data/file.enc.ttl`). The app name is
-  /// extracted from this URL to determine whether the file belongs to the
-  /// current application's data folder.
 
   static Future<void> downloadFile(
-    BuildContext context,
-    String fileName,
-    String fileUrl,
-  ) async {
+      BuildContext context,
+      String fileName,
+      String filePath, {
+        PathType? pathType,
+      }) async {
     try {
       // Check if the file is an encrypted file from another app's folder.
       // If so, warn the user that decryption may not be possible.
@@ -178,7 +170,7 @@ class SolidFileDownloadOperations {
       final isEncryptedFile = fileName.endsWith('.enc.ttl');
 
       if (isEncryptedFile) {
-        final isInCurrentAppFolder = await _isFileInCurrentAppFolder(fileUrl);
+        final isInCurrentAppFolder = await _isFileInCurrentAppFolder(filePath);
 
         if (!isInCurrentAppFolder) {
           if (!context.mounted) return;
@@ -235,11 +227,23 @@ class SolidFileDownloadOperations {
 
         if (!context.mounted) return;
 
-        // Read file content from POD using the absolute URL directly.
+        // Read file content from POD.
+
+        // dc 20260107: the `basePath` is heavily involved in the file-browsing
+        // codebase, and this leads to a leading forward slash in `filePath`,
+        // e.g., /myapp/encryption/ind-keys.ttl.
+        // This format triggers an error when extracting data from the turtle
+        // content due to double `//` in the subject of triples.
+        // Below is a temporary workaround but a better solution is needed to
+        // fully resolve this issue (e.g., refactor the file-browsing code to
+        // use `PathType` instead of `basePath`).
 
         final fileContent = await readPod(
-          fileUrl,
-          pathType: PathType.absoluteUrl,
+          [
+            filePath.startsWith('/') ? filePath.substring(1) : filePath,
+            fileName,
+          ].join('/'),
+          pathType: pathType ?? PathType.relativeToPod,
         );
 
         if (!context.mounted) return;
@@ -303,9 +307,9 @@ class SolidFileDownloadOperations {
   /// Save decrypted content to a file.
 
   static Future<void> _saveDecryptedContent(
-    String content,
-    String outputPath,
-  ) async {
+      String content,
+      String outputPath,
+      ) async {
     final file = File(outputPath);
 
     try {
