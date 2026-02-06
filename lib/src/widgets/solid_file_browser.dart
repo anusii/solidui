@@ -73,10 +73,6 @@ class SolidFileBrowser extends StatefulWidget {
 
   final String friendlyFolderName;
 
-  /// The base path for the file browser.
-
-  final String basePath;
-
   const SolidFileBrowser({
     super.key,
     required this.onFileSelected,
@@ -86,7 +82,6 @@ class SolidFileBrowser extends StatefulWidget {
     required this.onImportCsv,
     required this.onDirectoryChanged,
     required this.friendlyFolderName,
-    required this.basePath,
   });
 
   @override
@@ -136,12 +131,28 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   bool isLoggedIn = false;
 
+  /// The home path resolved from [getDataDirPath].
+
+  String _homePath = '';
+
   @override
   void initState() {
     super.initState();
-    // Normalise the base path to ensure consistent path handling.
+    _resolveHomePath();
+  }
 
-    currentPath = PathUtils.normalise(widget.basePath);
+  /// Resolves the home path internally via [getDataDirPath].
+
+  Future<void> _resolveHomePath() async {
+    try {
+      final appDataPath = await getDataDirPath();
+      _homePath = PathUtils.normalise(appDataPath);
+    } catch (e) {
+      debugPrint('Failed to get app data path, falling back to POD root: $e');
+      _homePath = '';
+    }
+
+    currentPath = _homePath;
     pathHistory = [currentPath];
     _checkLoginStatus();
   }
@@ -271,29 +282,28 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// Navigate to a specific path in the file browser.
 
   void navigateToPath(String path) {
-    // Normalise both the target path and the base path to ensure consistent
-    // comparison and prevent issues with leading slashes.
+    // Normalise the target path to ensure consistent comparison and prevent
+    // issues with leading slashes.
 
     final normalisedPath = PathUtils.normalise(path);
-    final normalisedBasePath = PathUtils.normalise(widget.basePath);
 
     setState(() {
       currentPath = normalisedPath;
-      if (normalisedPath == normalisedBasePath || normalisedPath.isEmpty) {
-        pathHistory = [normalisedBasePath];
+      if (normalisedPath == _homePath || normalisedPath.isEmpty) {
+        pathHistory = [_homePath];
       } else {
         if (pathHistory.isEmpty || pathHistory.last != normalisedPath) {
-          // Check if the path is under the base path.
+          // Check if the path is under the home path.
 
-          if (normalisedBasePath.isEmpty ||
-              normalisedPath.startsWith('$normalisedBasePath/')) {
-            pathHistory = [normalisedBasePath];
+          if (_homePath.isEmpty ||
+              normalisedPath.startsWith('$_homePath/')) {
+            pathHistory = [_homePath];
             final relativePath =
-                PathUtils.relativeTo(normalisedPath, normalisedBasePath);
+                PathUtils.relativeTo(normalisedPath, _homePath);
             if (relativePath.isNotEmpty) {
               final segments =
                   relativePath.split('/').where((s) => s.isNotEmpty);
-              var currentBuildPath = normalisedBasePath;
+              var currentBuildPath = _homePath;
               for (final segment in segments) {
                 currentBuildPath = PathUtils.combine(currentBuildPath, segment);
                 pathHistory.add(currentBuildPath);
@@ -315,7 +325,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   String _getEffectiveFriendlyFolderName() {
     return SolidFileOperations.getFriendlyFolderName(
       currentPath,
-      widget.basePath,
+      _homePath,
     );
   }
 
@@ -356,7 +366,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   currentDirFileCount: currentDirFileCount,
                   currentDirDirectoryCount: currentDirDirectoryCount,
                   friendlyFolderName: _getEffectiveFriendlyFolderName(),
-                  basePath: widget.basePath,
                 ),
               if (isLoggedIn) const SizedBox(height: 12),
               Expanded(child: _buildContent()),

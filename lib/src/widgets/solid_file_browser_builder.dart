@@ -30,7 +30,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
@@ -42,7 +41,6 @@ class SolidFileBrowserBuilder {
 
   static Widget build({
     required GlobalKey<SolidFileBrowserState> browserKey,
-    required String basePath,
     required String friendlyFolderName,
     Function(String fileName, String filePath)? onFileSelected,
     Function(String fileName, String filePath)? onFileDownload,
@@ -51,14 +49,9 @@ class SolidFileBrowserBuilder {
     required Function(String path) onDirectoryChanged,
     SolidFileUploadCallbacks? uploadCallbacks,
   }) {
-    // Normalise the base path to ensure consistent path handling.
-
-    final normalisedBasePath = PathUtils.normalise(basePath);
-
     return SolidFileBrowser(
       key: browserKey,
       browserKey: browserKey,
-      basePath: normalisedBasePath,
       friendlyFolderName: friendlyFolderName,
       onFileSelected: onFileSelected ??
           (fileName, filePath) {
