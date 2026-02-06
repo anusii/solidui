@@ -62,12 +62,23 @@ class SolidFileBrowserBuilder {
             debugPrint('File selected: $fileName at $filePath');
           },
       onFileDownload: onFileDownload ??
-          (fileName, filePath) {
+          (fileName, filePath) async {
+            // Construct the absolute file URL from the POD-relative path
+            // and file name. The leading slash is stripped to avoid double
+            // slashes when building the URL.
+
+            final fullPath = [
+              filePath.startsWith('/') ? filePath.substring(1) : filePath,
+              fileName,
+            ].join('/');
+            final fileUrl = await getFileUrl(fullPath);
+
+            if (!browserKey.currentContext!.mounted) return;
+
             SolidFileOperations.downloadFile(
               browserKey.currentContext!,
               fileName,
-              filePath,
-              pathType: basePath.trim().isEmpty ? PathType.relativeToPod : null,
+              fileUrl,
             );
           },
       onFileDelete: onFileDelete ??
