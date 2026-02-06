@@ -63,7 +63,7 @@ class SolidFileDownloadOperations {
       if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
         debugPrint(
           'Cannot check app folder ownership: expected a POD-relative '
-              'path but received an absolute URL: $filePath',
+          'path but received an absolute URL: $filePath',
         );
         return false;
       }
@@ -78,7 +78,7 @@ class SolidFileDownloadOperations {
       // Normalise the file path by removing leading slashes for comparison.
 
       final normalisedFilePath =
-      filePath.startsWith('/') ? filePath.substring(1) : filePath;
+          filePath.startsWith('/') ? filePath.substring(1) : filePath;
 
       return normalisedFilePath.startsWith(appDataPath);
     } catch (e) {
@@ -94,8 +94,8 @@ class SolidFileDownloadOperations {
   /// Returns `false` if the user cancels.
 
   static Future<bool> _showCrossAppDecryptionWarning(
-      BuildContext context,
-      ) async {
+    BuildContext context,
+  ) async {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -113,20 +113,20 @@ class SolidFileDownloadOperations {
           children: [
             Text(
               'This encrypted file belongs to another application\'s data '
-                  'folder.',
+              'folder.',
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
             SizedBox(height: 12),
             Text(
               'The file browser can browse files across all app folders in '
-                  'your POD, but can only decrypt files within the current app\'s '
-                  'data folder.',
+              'your POD, but can only decrypt files within the current app\'s '
+              'data folder.',
             ),
             SizedBox(height: 12),
             Text(
               'Since this file was encrypted by a different application, '
-                  'the security key required to decrypt it is not available. '
-                  'The downloaded file will likely be unreadable or corrupted.',
+              'the security key required to decrypt it is not available. '
+              'The downloaded file will likely be unreadable or corrupted.',
             ),
             SizedBox(height: 16),
             Text(
@@ -158,11 +158,11 @@ class SolidFileDownloadOperations {
   /// Default file download implementation.
 
   static Future<void> downloadFile(
-      BuildContext context,
-      String fileName,
-      String filePath, {
-        PathType? pathType,
-      }) async {
+    BuildContext context,
+    String fileName,
+    String filePath, {
+    PathType? pathType,
+  }) async {
     try {
       // Check if the file is an encrypted file from another app's folder.
       // If so, warn the user that decryption may not be possible.
@@ -307,9 +307,9 @@ class SolidFileDownloadOperations {
   /// Save decrypted content to a file.
 
   static Future<void> _saveDecryptedContent(
-      String content,
-      String outputPath,
-      ) async {
+    String content,
+    String outputPath,
+  ) async {
     final file = File(outputPath);
 
     try {

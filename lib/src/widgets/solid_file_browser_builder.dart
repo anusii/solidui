@@ -58,11 +58,11 @@ class SolidFileBrowserBuilder {
       basePath: basePath,
       friendlyFolderName: friendlyFolderName,
       onFileSelected: onFileSelected ??
-              (fileName, filePath) {
+          (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');
           },
       onFileDownload: onFileDownload ??
-              (fileName, filePath) {
+          (fileName, filePath) {
             SolidFileOperations.downloadFile(
               browserKey.currentContext!,
               fileName,
@@ -71,7 +71,7 @@ class SolidFileBrowserBuilder {
             );
           },
       onFileDelete: onFileDelete ??
-              (fileName, filePath) {
+          (fileName, filePath) {
             SolidFileOperations.deletePodFile(
               browserKey.currentContext!,
               fileName,
@@ -86,12 +86,12 @@ class SolidFileBrowserBuilder {
           },
       onImportCsv: uploadCallbacks?.onImportCsv != null
           ? (String fileName, String filePath) {
-        uploadCallbacks!.onImportCsv!();
-      }
+              uploadCallbacks!.onImportCsv!();
+            }
           : onImportCsv ??
               (String fileName, String filePath) {
-            debugPrint('Import CSV: $fileName at $filePath');
-          },
+                debugPrint('Import CSV: $fileName at $filePath');
+              },
       onDirectoryChanged: onDirectoryChanged,
     );
   }

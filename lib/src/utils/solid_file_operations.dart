@@ -44,11 +44,11 @@ class SolidFileOperations {
   /// Download a file from the POD to local storage.
 
   static Future<void> downloadFile(
-      BuildContext context,
-      String fileName,
-      String filePath, {
-        PathType? pathType,
-      }) =>
+    BuildContext context,
+    String fileName,
+    String filePath, {
+    PathType? pathType,
+  }) =>
       SolidFileDownloadOperations.downloadFile(
         context,
         fileName,
@@ -59,12 +59,12 @@ class SolidFileOperations {
   /// Delete a file from the POD.
 
   static Future<void> deletePodFile(
-      BuildContext context,
-      String fileName,
-      String filePath, {
-        String? basePath,
-        VoidCallback? onSuccess,
-      }) =>
+    BuildContext context,
+    String fileName,
+    String filePath, {
+    String? basePath,
+    VoidCallback? onSuccess,
+  }) =>
       SolidFileDeleteOperations.deletePodFile(
         context,
         fileName,
@@ -76,10 +76,10 @@ class SolidFileOperations {
   /// Upload a file to the POD.
 
   static Future<void> uploadFile(
-      BuildContext context,
-      String currentPath, {
-        VoidCallback? onSuccess,
-      }) =>
+    BuildContext context,
+    String currentPath, {
+    VoidCallback? onSuccess,
+  }) =>
       SolidFileUploadOperations.uploadFile(
         context,
         currentPath,
