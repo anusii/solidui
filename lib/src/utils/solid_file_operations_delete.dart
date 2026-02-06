@@ -43,16 +43,11 @@ class SolidFileDeleteOperations {
   ///
   /// The [filePath] should be a directory path relative to the Pod root,
   /// e.g., `myapp/data` or `myapp/data/subfolder`.
-  ///
-  /// Note: The [basePath] parameter is deprecated and will be ignored.
-  /// File paths are now handled using PathType.relativeToPod instead.
 
   static Future<void> deletePodFile(
     BuildContext context,
     String fileName,
     String filePath, {
-    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
-    String? basePath,
     VoidCallback? onSuccess,
   }) async {
     try {

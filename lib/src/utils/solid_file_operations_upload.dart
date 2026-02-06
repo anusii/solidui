@@ -50,8 +50,6 @@ class SolidFileUploadOperations {
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
-    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
-    String? basePath,
     VoidCallback? onSuccess,
   }) async {
     try {

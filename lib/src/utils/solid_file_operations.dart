@@ -58,8 +58,6 @@ class SolidFileOperations {
     BuildContext context,
     String fileName,
     String filePath, {
-    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
-    String? basePath,
     VoidCallback? onSuccess,
   }) =>
       SolidFileDeleteOperations.deletePodFile(
@@ -74,8 +72,6 @@ class SolidFileOperations {
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
-    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
-    String? basePath,
     VoidCallback? onSuccess,
   }) =>
       SolidFileUploadOperations.uploadFile(

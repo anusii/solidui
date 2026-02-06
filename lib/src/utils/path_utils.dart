@@ -33,11 +33,6 @@ library;
 /// This class provides methods to normalise and manipulate paths used in
 /// file browsing operations. All paths are treated as relative to the Pod
 /// root and should not have leading forward slashes.
-///
-/// The `basePath` concept (used in earlier versions of solidpod) has been
-/// replaced with consistent use of `PathType.relativeToPod` from solidpod.
-/// This ensures that paths like `myapp/data/file.ttl` are correctly resolved
-/// without causing double slashes in URLs.
 
 class PathUtils {
   const PathUtils._();
