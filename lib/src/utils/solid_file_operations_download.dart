@@ -49,9 +49,8 @@ class SolidFileDownloadOperations {
   static Future<void> downloadFile(
     BuildContext context,
     String fileName,
-    String filePath, {
-    PathType? pathType,
-  }) async {
+    String filePath,
+  ) async {
     try {
       // Let user choose where to save the file.
 
@@ -95,12 +94,13 @@ class SolidFileDownloadOperations {
 
         if (!context.mounted) return;
 
-        // Read file content from POD.
+        // Read file content from POD. All paths are relative to the Pod
+        // root, so we always use PathType.relativeToPod.
 
         final normalisedPath = PathUtils.combine(filePath, fileName);
         final fileContent = await readPod(
           normalisedPath,
-          pathType: pathType ?? PathType.relativeToPod,
+          pathType: PathType.relativeToPod,
         );
 
         if (!context.mounted) return;

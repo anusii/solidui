@@ -30,8 +30,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart';
-
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
@@ -68,20 +66,16 @@ class SolidFileBrowserBuilder {
           },
       onFileDownload: onFileDownload ??
           (fileName, filePath) {
-            // Use PathType.relativeToPod for all paths as they are now
-            // consistently normalised (no leading slashes).
-
             SolidFileOperations.downloadFile(
               browserKey.currentContext!,
               fileName,
               filePath,
-              pathType: PathType.relativeToPod,
             );
           },
       onFileDelete: onFileDelete ??
           (fileName, filePath) {
-            // filePath is already relative to Pod root (e.g., 'myapp/data/subfolder').
-            // No basePath conversion needed as we use PathType.relativeToPod approach.
+            // filePath is already relative to the Pod root
+            // (e.g., 'myapp/data/subfolder').
 
             SolidFileOperations.deletePodFile(
               browserKey.currentContext!,
