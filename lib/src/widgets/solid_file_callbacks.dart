@@ -43,10 +43,8 @@ class SolidFileDefaultCallbacks {
   static SolidFileUploadCallbacks createUploadCallbacks(
     BuildContext context,
     String currentPath,
-    GlobalKey<SolidFileBrowserState> browserKey, {
-    @Deprecated('basePath is no longer used. Paths are relative to Pod root.')
-    String? basePath,
-  }) {
+    GlobalKey<SolidFileBrowserState> browserKey,
+  ) {
     // Normalise paths to ensure consistent handling without leading slashes.
 
     final normalisedCurrentPath = PathUtils.normalise(currentPath);

@@ -42,14 +42,12 @@ class SolidFileUploader extends StatefulWidget {
   final Future<void> Function() onUpload;
   final void Function(String?) onFileSelected;
   final void Function(String) onPreviewRequested;
-  final String basePath;
   const SolidFileUploader({
     super.key,
     required this.fileState,
     required this.onUpload,
     required this.onFileSelected,
     required this.onPreviewRequested,
-    required this.basePath,
   });
   @override
   State<SolidFileUploader> createState() => _SolidFileUploaderState();
