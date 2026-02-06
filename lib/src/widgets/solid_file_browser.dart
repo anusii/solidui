@@ -295,8 +295,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         if (pathHistory.isEmpty || pathHistory.last != normalisedPath) {
           // Check if the path is under the home path.
 
-          if (_homePath.isEmpty ||
-              normalisedPath.startsWith('$_homePath/')) {
+          if (_homePath.isEmpty || normalisedPath.startsWith('$_homePath/')) {
             pathHistory = [_homePath];
             final relativePath =
                 PathUtils.relativeTo(normalisedPath, _homePath);
