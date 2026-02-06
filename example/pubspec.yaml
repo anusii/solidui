@@ -18,10 +18,10 @@ dependencies:
   window_manager: ^0.5.1
 
 dependency_overrides:
-  # solidpod:
-  #   git:
-  #     url: https://github.com/anusii/solidpod.git
-  #     ref: dev
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: dev
   solidui:
     path: ..
 

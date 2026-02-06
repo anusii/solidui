@@ -30,19 +30,11 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:solidpod/solidpod.dart' show KeyManager;
-
-/// The key used by solidpod to store the security key in secure storage.
-
-const String _securityKeyStorageKey = '_solid_security_key';
 
 /// Helper class for Security Key operations.
 
 class SecurityKeyOperations {
-  static final FlutterSecureStorage _secureStorage =
-      const FlutterSecureStorage();
-
   /// Checks if a security key is cached locally and valid.
   ///
   /// This method performs a detailed check with three possible outcomes:
@@ -56,8 +48,7 @@ class SecurityKeyOperations {
     try {
       // First, check if there's a key in local secure storage.
 
-      final cachedKey = await _secureStorage.read(key: _securityKeyStorageKey);
-      final hadCachedKey = cachedKey != null && cachedKey.isNotEmpty;
+      final hadCachedKey = await KeyManager.hasSecurityKey();
 
       if (!hadCachedKey) {
         // Case 2: No key found in local secure storage.
