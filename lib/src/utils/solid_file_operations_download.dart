@@ -52,6 +52,22 @@ class SolidFileDownloadOperations {
 
   static Future<bool> _isFileInCurrentAppFolder(String filePath) async {
     try {
+      // Validate that the file path is a POD-relative path rather than an
+      // absolute URL or empty string.
+
+      if (filePath.trim().isEmpty) {
+        debugPrint('Cannot check app folder ownership: file path is empty.');
+        return false;
+      }
+
+      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+        debugPrint(
+          'Cannot check app folder ownership: expected a POD-relative '
+          'path but received an absolute URL: $filePath',
+        );
+        return false;
+      }
+
       final appDataPath = await getDataDirPath();
       if (appDataPath.isEmpty) {
         // If no app data path is available, we cannot determine ownership.
