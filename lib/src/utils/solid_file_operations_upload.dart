@@ -39,6 +39,7 @@ import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/is_text_file.dart';
 import 'package:solidui/src/utils/path_utils.dart';
+import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 /// Upload operations for SolidUI widgets.
 
@@ -109,6 +110,15 @@ class SolidFileUploadOperations {
         final uploadPath = normalisedCurrentPath.isNotEmpty
             ? PathUtils.combine(normalisedCurrentPath, remoteFileName)
             : remoteFileName;
+
+        if (!context.mounted) return;
+
+        // Ensure the security key is available before writing encrypted data.
+
+        await getKeyFromUserIfRequired(
+          context,
+          const Text('Please enter your security key to upload the file'),
+        );
 
         if (!context.mounted) return;
 
