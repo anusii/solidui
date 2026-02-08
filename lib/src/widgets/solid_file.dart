@@ -202,23 +202,32 @@ class _SolidFileState extends State<SolidFile> {
 
   /// Resolves the base path asynchronously.
   ///
-  /// Defaults to the app data directory path via [getDataDirPath].
-  /// Falls back to POD root if the app data directory cannot be determined.
+  /// If [widget.currentPath] is explicitly provided, it is used as the base
+  /// path. This allows the widget to start from any location on the POD,
+  /// including the root. Otherwise, defaults to the app data directory path
+  /// via [getDataDirPath]. Falls back to POD root if the app data directory
+  /// cannot be determined.
 
   Future<void> _resolveBasePath() async {
-    try {
-      final appDataPath = await getDataDirPath();
-      _resolvedBasePath = PathUtils.normalise(appDataPath);
-    } catch (e) {
-      // Fall back to POD root if getDataDirPath fails.
+    if (widget.currentPath != null) {
+      // Use the explicitly provided path as the base.
 
-      debugPrint('Failed to get app data path, falling back to POD root: $e');
-      _resolvedBasePath = SolidFile.podRoot;
+      _resolvedBasePath = PathUtils.normalise(widget.currentPath!);
+    } else {
+      try {
+        final appDataPath = await getDataDirPath();
+        _resolvedBasePath = PathUtils.normalise(appDataPath);
+      } catch (e) {
+        // Fall back to POD root if getDataDirPath fails.
+
+        debugPrint(
+          'Failed to get app data path, falling back to POD root: $e',
+        );
+        _resolvedBasePath = SolidFile.podRoot;
+      }
     }
 
-    _currentPath = widget.currentPath != null
-        ? PathUtils.normalise(widget.currentPath!)
-        : _resolvedBasePath!;
+    _currentPath = _resolvedBasePath!;
     setState(() {
       _isResolvingBasePath = false;
     });
@@ -379,6 +388,9 @@ class _SolidFileState extends State<SolidFile> {
   }
 
   /// Builds the file browser widget.
+  ///
+  /// Passes the resolved [_currentPath] as the initial path so the browser
+  /// starts from the correct location (e.g., POD root for "All POD Files").
 
   Widget _buildFileBrowser() {
     return SolidFileBrowserBuilder.build(
@@ -389,6 +401,7 @@ class _SolidFileState extends State<SolidFile> {
         widget.autoConfig,
         widget.friendlyFolderName,
       ),
+      initialPath: widget.currentPath,
       onFileSelected: widget.onFileSelected,
       onFileDownload: widget.onFileDownload,
       onFileDelete: widget.onFileDelete,

@@ -42,6 +42,7 @@ class SolidFileBrowserBuilder {
   static Widget build({
     required GlobalKey<SolidFileBrowserState> browserKey,
     required String friendlyFolderName,
+    String? initialPath,
     Function(String fileName, String filePath)? onFileSelected,
     Function(String fileName, String filePath)? onFileDownload,
     Function(String fileName, String filePath)? onFileDelete,
@@ -53,6 +54,7 @@ class SolidFileBrowserBuilder {
       key: browserKey,
       browserKey: browserKey,
       friendlyFolderName: friendlyFolderName,
+      initialPath: initialPath,
       onFileSelected: onFileSelected ??
           (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');

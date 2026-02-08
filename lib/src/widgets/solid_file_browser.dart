@@ -73,6 +73,14 @@ class SolidFileBrowser extends StatefulWidget {
 
   final String friendlyFolderName;
 
+  /// Optional initial path for the browser to start from.
+  ///
+  /// If provided, the browser will start from this path instead of the
+  /// default app data directory path. Use an empty string to start from
+  /// the POD root.
+
+  final String? initialPath;
+
   const SolidFileBrowser({
     super.key,
     required this.onFileSelected,
@@ -82,6 +90,7 @@ class SolidFileBrowser extends StatefulWidget {
     required this.onImportCsv,
     required this.onDirectoryChanged,
     required this.friendlyFolderName,
+    this.initialPath,
   });
 
   @override
@@ -142,14 +151,28 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   }
 
   /// Resolves the home path internally via [getDataDirPath].
+  ///
+  /// If [widget.initialPath] is provided, it is used as both the starting
+  /// path and the home path for navigation. This allows browsing from any
+  /// location on the POD, including the root.
 
   Future<void> _resolveHomePath() async {
-    try {
-      final appDataPath = await getDataDirPath();
-      _homePath = PathUtils.normalise(appDataPath);
-    } catch (e) {
-      debugPrint('Failed to get app data path, falling back to POD root: $e');
-      _homePath = '';
+    if (widget.initialPath != null) {
+      // Use the explicitly provided initial path as both the home path and
+      // the starting path. This ensures the "back to root" navigation and
+      // path history work correctly for non-default starting locations.
+
+      _homePath = PathUtils.normalise(widget.initialPath!);
+    } else {
+      try {
+        final appDataPath = await getDataDirPath();
+        _homePath = PathUtils.normalise(appDataPath);
+      } catch (e) {
+        debugPrint(
+          'Failed to get app data path, falling back to POD root: $e',
+        );
+        _homePath = '';
+      }
     }
 
     currentPath = _homePath;
