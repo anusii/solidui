@@ -36,6 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 /// Download operations for SolidUI widgets.
@@ -160,9 +161,8 @@ class SolidFileDownloadOperations {
   static Future<void> downloadFile(
     BuildContext context,
     String fileName,
-    String filePath, {
-    PathType? pathType,
-  }) async {
+    String filePath,
+  ) async {
     try {
       // Check if the file is an encrypted file from another app's folder.
       // If so, warn the user that decryption may not be possible.
@@ -227,23 +227,13 @@ class SolidFileDownloadOperations {
 
         if (!context.mounted) return;
 
-        // Read file content from POD.
+        // Read file content from POD. All paths are relative to the Pod
+        // root, so we always use PathType.relativeToPod.
 
-        // dc 20260107: the `basePath` is heavily involved in the file-browsing
-        // codebase, and this leads to a leading forward slash in `filePath`,
-        // e.g., /myapp/encryption/ind-keys.ttl.
-        // This format triggers an error when extracting data from the turtle
-        // content due to double `//` in the subject of triples.
-        // Below is a temporary workaround but a better solution is needed to
-        // fully resolve this issue (e.g., refactor the file-browsing code to
-        // use `PathType` instead of `basePath`).
-
+        final normalisedPath = PathUtils.combine(filePath, fileName);
         final fileContent = await readPod(
-          [
-            filePath.startsWith('/') ? filePath.substring(1) : filePath,
-            fileName,
-          ].join('/'),
-          pathType: pathType ?? PathType.relativeToPod,
+          normalisedPath,
+          pathType: PathType.relativeToPod,
         );
 
         if (!context.mounted) return;

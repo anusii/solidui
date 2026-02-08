@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:solidui/src/models/file_type_config.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
 /// Helper class for SolidFile widget utilities.
@@ -71,7 +72,12 @@ class SolidFileHelpers {
     }
 
     if (autoConfig && showUpload) {
-      final typeConfig = FileTypeConfig.fromPath(currentPath, basePath);
+      // Normalise paths for consistent handling.
+
+      final normalisedCurrentPath = PathUtils.normalise(currentPath);
+      final normalisedBasePath = PathUtils.normalise(basePath);
+      final typeConfig =
+          FileTypeConfig.fromPath(normalisedCurrentPath, normalisedBasePath);
       return typeConfig.createUploadConfig();
     }
 
@@ -92,7 +98,12 @@ class SolidFileHelpers {
     }
 
     if (autoConfig) {
-      final typeConfig = FileTypeConfig.fromPath(currentPath, basePath);
+      // Normalise paths for consistent handling.
+
+      final normalisedCurrentPath = PathUtils.normalise(currentPath);
+      final normalisedBasePath = PathUtils.normalise(basePath);
+      final typeConfig =
+          FileTypeConfig.fromPath(normalisedCurrentPath, normalisedBasePath);
       return typeConfig.displayName;
     }
 
@@ -102,14 +113,17 @@ class SolidFileHelpers {
   /// Helper function to get a user-friendly name from the path.
 
   static String getFriendlyFolderName(String pathValue, String basePath) {
-    final String root = basePath;
-    if (pathValue.isEmpty || pathValue == root) {
+    // Normalise paths for consistent comparison.
+
+    final normalisedPath = PathUtils.normalise(pathValue);
+    final normalisedRoot = PathUtils.normalise(basePath);
+    if (normalisedPath.isEmpty || normalisedPath == normalisedRoot) {
       return 'Home Folder';
     }
 
     // Use path.basename to safely get the last component.
 
-    final dirName = path.basename(pathValue);
+    final dirName = path.basename(normalisedPath);
 
     switch (dirName) {
       case 'diary':

@@ -30,8 +30,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart';
-
 import 'package:solidui/src/utils/solid_file_operations_delete.dart';
 import 'package:solidui/src/utils/solid_file_operations_download.dart';
 import 'package:solidui/src/utils/solid_file_operations_upload.dart';
@@ -46,14 +44,12 @@ class SolidFileOperations {
   static Future<void> downloadFile(
     BuildContext context,
     String fileName,
-    String filePath, {
-    PathType? pathType,
-  }) =>
+    String filePath,
+  ) =>
       SolidFileDownloadOperations.downloadFile(
         context,
         fileName,
         filePath,
-        pathType: pathType,
       );
 
   /// Delete a file from the POD.
@@ -62,14 +58,12 @@ class SolidFileOperations {
     BuildContext context,
     String fileName,
     String filePath, {
-    String? basePath,
     VoidCallback? onSuccess,
   }) =>
       SolidFileDeleteOperations.deletePodFile(
         context,
         fileName,
         filePath,
-        basePath: basePath,
         onSuccess: onSuccess,
       );
 

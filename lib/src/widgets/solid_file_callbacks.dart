@@ -30,6 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
@@ -44,11 +45,17 @@ class SolidFileDefaultCallbacks {
     String currentPath,
     GlobalKey<SolidFileBrowserState> browserKey,
   ) {
+    // Normalise paths to ensure consistent handling without leading slashes.
+
+    final normalisedCurrentPath = PathUtils.normalise(currentPath);
+
     return SolidFileUploadCallbacks(
       onUpload: () {
+        // Upload using the normalised current path directly.
+
         SolidFileOperations.uploadFile(
           context,
-          currentPath,
+          normalisedCurrentPath,
           onSuccess: () {
             // Refresh the file browser after successful upload.
 

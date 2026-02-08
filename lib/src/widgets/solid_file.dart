@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getDataDirPath;
 
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_browser_builder.dart';
 import 'package:solidui/src/widgets/solid_file_callbacks.dart';
@@ -44,13 +45,6 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 /// functionality.
 
 class SolidFile extends StatefulWidget {
-  /// Base path for file operations.
-  ///
-  /// If null, defaults to the app data directory path (e.g. 'appname/data').
-  /// If the app data directory does not exist, falls back to the pod root ('').
-
-  final String? basePath;
-
   /// Current path in the file browser.
 
   final String? currentPath;
@@ -131,7 +125,6 @@ class SolidFile extends StatefulWidget {
 
   const SolidFile({
     super.key,
-    this.basePath,
     this.currentPath,
     this.friendlyFolderName,
     this.showBackButton = true,
@@ -161,8 +154,7 @@ class SolidFile extends StatefulWidget {
     required SolidFileCallbacks callbacks,
     required SolidFileState state,
     this.browserKey,
-  })  : basePath = config.basePath,
-        currentPath = state.currentPath,
+  })  : currentPath = state.currentPath,
         friendlyFolderName = state.friendlyFolderName,
         showBackButton = config.showBackButton,
         backButtonText = config.backButtonText,
@@ -181,7 +173,7 @@ class SolidFile extends StatefulWidget {
         uploadState = state.uploadState,
         autoConfig = false; // Legacy mode does not use auto-config.
 
-  /// Default base path constant representing the pod root.
+  /// Default path constant representing the POD root.
 
   static const String podRoot = '';
 
@@ -193,7 +185,7 @@ class _SolidFileState extends State<SolidFile> {
   late GlobalKey<SolidFileBrowserState> _browserKey;
   late String _currentPath;
 
-  /// The resolved base path (either from widget or computed default).
+  /// The resolved base path.
 
   String? _resolvedBasePath;
 
@@ -215,30 +207,19 @@ class _SolidFileState extends State<SolidFile> {
   /// Falls back to pod root if the app data directory cannot be determined.
 
   Future<void> _resolveBasePath() async {
-    if (widget.basePath != null) {
-      // Use the provided basePath directly.
-
-      _resolvedBasePath = widget.basePath;
-      _currentPath = widget.currentPath ?? _resolvedBasePath!;
-      setState(() {
-        _isResolvingBasePath = false;
-      });
-      return;
-    }
-
-    // Attempt to get the app data directory path.
-
     try {
       final appDataPath = await getDataDirPath();
-      _resolvedBasePath = appDataPath;
+      _resolvedBasePath = PathUtils.normalise(appDataPath);
     } catch (e) {
-      // Fall back to pod root if getDataDirPath fails.
+      // Fall back to POD root if getDataDirPath fails.
 
-      debugPrint('Failed to get app data path, falling back to pod root: $e');
+      debugPrint('Failed to get app data path, falling back to POD root: $e');
       _resolvedBasePath = SolidFile.podRoot;
     }
 
-    _currentPath = widget.currentPath ?? _resolvedBasePath!;
+    _currentPath = widget.currentPath != null
+        ? PathUtils.normalise(widget.currentPath!)
+        : _resolvedBasePath!;
     setState(() {
       _isResolvingBasePath = false;
     });
@@ -251,13 +232,6 @@ class _SolidFileState extends State<SolidFile> {
   @override
   void didUpdateWidget(covariant SolidFile oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // Handle basePath changes.
-
-    if (oldWidget.basePath != widget.basePath) {
-      _resolveBasePath();
-      return;
-    }
 
     final oldPath = oldWidget.currentPath ?? _effectiveBasePath;
     final newPath = widget.currentPath ?? _effectiveBasePath;
@@ -289,13 +263,16 @@ class _SolidFileState extends State<SolidFile> {
   /// Handles directory changes and updates internal state.
 
   void _handleDirectoryChanged(String path) {
+    // Normalise the path to ensure consistent handling.
+
+    final normalisedPath = PathUtils.normalise(path);
     setState(() {
-      _currentPath = path;
+      _currentPath = normalisedPath;
     });
 
     // Call the external callback if provided.
 
-    widget.onDirectoryChanged?.call(path);
+    widget.onDirectoryChanged?.call(normalisedPath);
   }
 
   @override
@@ -407,7 +384,6 @@ class _SolidFileState extends State<SolidFile> {
   Widget _buildFileBrowser() {
     return SolidFileBrowserBuilder.build(
       browserKey: _browserKey,
-      basePath: _effectiveBasePath,
       friendlyFolderName: SolidFileHelpers.getEffectiveFriendlyFolderName(
         _currentPath,
         _effectiveBasePath,

@@ -39,12 +39,16 @@ import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/models/file_state.dart';
 import 'package:solidui/src/utils/is_text_file.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 
 /// Helper class for file operations in SolidFile widget.
 
 class SolidFileOperations {
   /// Handles file upload by reading its contents and encrypting it for upload.
 
+  @Deprecated(
+    'Use SolidFileUploadOperations.uploadFile with PathType.relativeToPod',
+  )
   static Future<FileState> handleUpload(
     FileState fileState,
     String basePath,
@@ -84,13 +88,18 @@ class SolidFileOperations {
       final remoteFileName = '$sanitizedFileName.enc.ttl';
       final cleanFileName = sanitizedFileName;
 
-      // Extract the subdirectory path.
+      // Extract the subdirectory path using PathUtils for consistent
+      // normalisation (no leading slashes).
 
-      String? subPath =
-          fileState.currentPath?.replaceFirst(basePath, '').trim();
-      String uploadPath = subPath == null || subPath.isEmpty
+      final normalisedBasePath = PathUtils.normalise(basePath);
+      final normalisedCurrentPath = fileState.currentPath != null
+          ? PathUtils.normalise(fileState.currentPath!)
+          : '';
+      final subPath =
+          PathUtils.relativeTo(normalisedCurrentPath, normalisedBasePath);
+      final uploadPath = subPath.isEmpty
           ? remoteFileName
-          : '${subPath.startsWith("/") ? subPath.substring(1) : subPath}/$remoteFileName';
+          : PathUtils.combine(subPath, remoteFileName);
 
       // Upload file with encryption.
 
@@ -110,6 +119,9 @@ class SolidFileOperations {
 
   /// Handles the download and decryption of files from the POD.
 
+  @Deprecated(
+    'Use SolidFileDownloadOperations.downloadFile with PathType.relativeToPod',
+  )
   static Future<FileState> handleDownload(
     FileState fileState,
     String basePath,
@@ -138,10 +150,14 @@ class SolidFileOperations {
         return fileState.copyWith(downloadInProgress: false);
       }
 
-      final baseDir = basePath;
-      final relativePath = fileState.currentPath == baseDir
-          ? '$baseDir/${fileState.remoteFileName}'
-          : '${fileState.currentPath}/${fileState.remoteFileName}';
+      // Use PathUtils for consistent path handling without leading slashes.
+
+      final normalisedBasePath = PathUtils.normalise(basePath);
+      final normalisedCurrentPath = fileState.currentPath != null
+          ? PathUtils.normalise(fileState.currentPath!)
+          : normalisedBasePath;
+      final relativePath =
+          PathUtils.combine(normalisedCurrentPath, fileState.remoteFileName!);
 
       await promptForKeyFunction();
 
@@ -168,6 +184,9 @@ class SolidFileOperations {
 
   /// Handles file deletion from the POD.
 
+  @Deprecated(
+    'Use SolidFileDeleteOperations.deletePodFile with PathType.relativeToPod',
+  )
   static Future<FileState> handleDelete(
     FileState fileState,
     String basePath,
@@ -182,10 +201,14 @@ class SolidFileOperations {
         deleteDone: false,
       );
 
-      final baseDir = basePath;
-      final filePath = fileState.currentPath == baseDir
-          ? '$baseDir/${fileState.remoteFileName}'
-          : '${fileState.currentPath}/${fileState.remoteFileName}';
+      // Use PathUtils for consistent path handling without leading slashes.
+
+      final normalisedBasePath = PathUtils.normalise(basePath);
+      final normalisedCurrentPath = fileState.currentPath != null
+          ? PathUtils.normalise(fileState.currentPath!)
+          : normalisedBasePath;
+      final filePath =
+          PathUtils.combine(normalisedCurrentPath, fileState.remoteFileName!);
 
       // Delete the file (this also handles the ACL file automatically).
 

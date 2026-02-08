@@ -38,6 +38,8 @@ import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/is_text_file.dart';
+import 'package:solidui/src/utils/path_utils.dart';
+import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 /// Upload operations for SolidUI widgets.
 
@@ -102,23 +104,32 @@ class SolidFileUploadOperations {
 
         final remoteFileName = '$sanitizedFileName.enc.ttl';
 
-        // Determine upload path.
+        // Construct the full upload path relative to the Pod root.
 
-        String uploadPath = remoteFileName;
-        if (currentPath.isNotEmpty && currentPath != '/') {
-          // Remove leading slash if present.
-
-          final cleanPath = currentPath.startsWith('/')
-              ? currentPath.substring(1)
-              : currentPath;
-          uploadPath = '$cleanPath/$remoteFileName';
-        }
+        final normalisedCurrentPath = PathUtils.normalise(currentPath);
+        final uploadPath = normalisedCurrentPath.isNotEmpty
+            ? PathUtils.combine(normalisedCurrentPath, remoteFileName)
+            : remoteFileName;
 
         if (!context.mounted) return;
 
-        // Upload file with encryption.
+        // Ensure the security key is available before writing encrypted data.
 
-        await writePod(uploadPath, fileContent, encrypted: true);
+        await getKeyFromUserIfRequired(
+          context,
+          const Text('Please enter your security key to upload the file'),
+        );
+
+        if (!context.mounted) return;
+
+        // Upload file with encryption using PathType.relativeToPod.
+
+        await writePod(
+          uploadPath,
+          fileContent,
+          encrypted: true,
+          pathType: PathType.relativeToPod,
+        );
 
         if (!context.mounted) return;
 
