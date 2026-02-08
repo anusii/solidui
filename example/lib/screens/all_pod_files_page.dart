@@ -40,7 +40,7 @@ class AllPodFilesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SolidFile(
-      basePath: SolidFile.podRoot,
+      currentPath: SolidFile.podRoot,
       friendlyFolderName: 'All POD Files',
       showBackButton: true,
       backButtonText: 'Back to POD Root',
