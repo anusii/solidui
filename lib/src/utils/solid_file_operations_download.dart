@@ -44,10 +44,10 @@ import 'package:solidui/src/utils/solid_pod_helpers.dart';
 class SolidFileDownloadOperations {
   const SolidFileDownloadOperations._();
 
-  /// Checks if a file is within the current app's data folder.
+  /// Checks if a file is within the current app's folder on the POD.
   ///
-  /// Returns `true` if the file path starts with the app's data directory path,
-  /// indicating that the current app can decrypt this file.
+  /// Returns `true` if the file belongs to the current app, indicating that
+  /// the current app can decrypt this file.
   /// Returns `false` if the file is from another app's folder, meaning
   /// decryption may fail as the security key is not available.
 
@@ -69,19 +69,28 @@ class SolidFileDownloadOperations {
         return false;
       }
 
+      // Resolve the relative file path into a full URL for reliable
+      // comparison.
+
+      final normalisedPath = PathUtils.normalise(filePath);
+      final fileUrl = await getFileUrl(normalisedPath);
+
+      // Derive the current app name from getDataDirPath(), which returns
+      // "APP_NAME/data". The first segment is the app name.
+
       final appDataPath = await getDataDirPath();
-      if (appDataPath.isEmpty) {
-        // If no app data path is available, we cannot determine ownership.
+      if (appDataPath.isEmpty) return false;
 
-        return false;
-      }
+      final currentAppName = appDataPath.split('/').first;
+      if (currentAppName.isEmpty) return false;
 
-      // Normalise the file path by removing leading slashes for comparison.
+      // Build the current app's root directory URL and check whether the
+      // file URL falls under it. getDirUrl appends a trailing slash, which
+      // prevents false positives (e.g., "myapp2" matching "myapp").
 
-      final normalisedFilePath =
-          filePath.startsWith('/') ? filePath.substring(1) : filePath;
+      final appRootUrl = await getDirUrl(currentAppName);
 
-      return normalisedFilePath.startsWith(appDataPath);
+      return fileUrl.startsWith(appRootUrl);
     } catch (e) {
       debugPrint('Error checking app folder ownership: $e');
       return false;

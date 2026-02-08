@@ -202,9 +202,8 @@ class _SolidFileState extends State<SolidFile> {
 
   /// Resolves the base path asynchronously.
   ///
-  /// If basePath is provided, uses it directly.
-  /// Otherwise, defaults to the app data directory path.
-  /// Falls back to pod root if the app data directory cannot be determined.
+  /// Defaults to the app data directory path via [getDataDirPath].
+  /// Falls back to POD root if the app data directory cannot be determined.
 
   Future<void> _resolveBasePath() async {
     try {
