@@ -99,6 +99,7 @@ export 'src/models/snackbar_config.dart';
 export 'src/utils/file_operations.dart';
 export 'src/utils/is_text_file.dart';
 export 'src/utils/solid_file_operations.dart';
+export 'src/utils/is_phone.dart';
 export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_notifications.dart';
 export 'src/utils/solid_pod_helpers.dart'

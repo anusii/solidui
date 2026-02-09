@@ -32,6 +32,10 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/src/solid/shared_resources.dart';
+import 'package:solidpod/src/solid/solid_func_call_status.dart';
+import 'package:solidpod/src/solid/utils/authdata_manager.dart';
+
 import 'package:solidui/solidui.dart'
     show
         normalLoadingScreenHeight,
@@ -39,13 +43,9 @@ import 'package:solidui/solidui.dart'
         largeGapV,
         makeHeading,
         makeSubHeading;
-
-import 'package:solidpod/src/solid/shared_resources.dart';
-import 'package:solidpod/src/solid/solid_func_call_status.dart';
-import 'package:solidpod/src/solid/utils/authdata_manager.dart';
 import 'package:solidui/src/widgets/app_bar.dart';
-import 'package:solidui/src/widgets/solid_loading_screen.dart';
 import 'package:solidui/src/widgets/shared_resources_table.dart';
+import 'package:solidui/src/widgets/solid_loading_screen.dart';
 
 /// A widget for the demonstration screen of the application.
 

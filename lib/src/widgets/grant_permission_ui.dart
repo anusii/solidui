@@ -33,17 +33,16 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidui/solidui.dart';
-
 import 'package:solidpod/src/solid/chk_exists_and_has_acl.dart';
 import 'package:solidpod/src/solid/constants/web_acl.dart';
-import 'package:solidpod/src/solid/grant_permission_helper.dart';
 import 'package:solidpod/src/solid/models/log_record.dart';
 import 'package:solidpod/src/solid/models/permission_details.dart';
 import 'package:solidpod/src/solid/read_permission.dart';
 import 'package:solidpod/src/solid/shared_resource_history.dart';
 import 'package:solidpod/src/solid/solid_func_call_status.dart';
 import 'package:solidpod/src/solid/utils/get_authoriser.dart';
+
+import 'package:solidui/solidui.dart';
 
 /// A [StatefulWidget] for showing and editing access permissions to a
 /// resource. It displays the permission table of users with access, and

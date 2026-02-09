@@ -33,11 +33,11 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidui/solidui.dart'
-    show WindowSize, ListItemSize, ListIconSize, listIconShape;
-
 import 'package:solidpod/src/solid/models/permission.dart';
 import 'package:solidpod/src/solid/utils/permission_helper.dart';
+
+import 'package:solidui/solidui.dart'
+    show WindowSize, ListItemSize, ListIconSize, listIconShape;
 import 'package:solidui/src/widgets/revoke_permission_button.dart';
 
 /// A [StatefulWidget] for listing the permissions of a resource.

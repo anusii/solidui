@@ -32,21 +32,26 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/src/solid/constants/web_acl.dart';
+import 'package:solidpod/src/solid/grant_permission.dart';
+import 'package:solidpod/src/solid/solid_func_call_status.dart';
+
 import 'package:solidui/solidui.dart'
     show
         ActionColors,
         GrantPermFormLayout,
+        debugPrintException,
+        debugPrintFailure,
+        failureMsg,
         getPermissionCheckBoxes,
+        isPhone,
         makeSubHeading,
-        smallGapV;
-
-import 'package:solidpod/src/solid/constants/web_acl.dart';
-import 'package:solidpod/src/solid/grant_permission.dart';
-import 'package:solidpod/src/solid/grant_permission_helper.dart';
-import 'package:solidpod/src/solid/solid_func_call_status.dart';
-import 'package:solidpod/src/solid/utils/is_phone.dart';
-import 'package:solidui/src/utils/solid_alert.dart';
+        podNotInitMsg,
+        smallGapV,
+        successMsg,
+        updatePermissionMsg;
 import 'package:solidui/src/utils/snack_bar.dart';
+import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input_screen.dart';
 import 'package:solidui/src/widgets/select_recipients.dart';

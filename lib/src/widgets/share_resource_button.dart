@@ -33,9 +33,8 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/solidui.dart' show SharingPageLayout;
-
-import 'package:solidui/src/widgets/grant_permission_form.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/widgets/grant_permission_form.dart';
 
 /// A [StatefulWidget] for sharing a resource, by either creating
 /// an access permission for a new recipient or updating the access

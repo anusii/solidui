@@ -1,6 +1,6 @@
-/// A default app bar.
+/// Check if we are running on a mobile device (and not a browser).
 ///
-// Time-stamp: <Sunday 2024-07-11 12:55:00 +1000 Anushka Vidange>
+// Time-stamp: <Saturday 2025-08-02 21:01:01 +1000 Jess Moore>
 ///
 /// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
 ///
@@ -26,50 +26,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Anushka Vidanage, Ashley Tang
+/// Authors: Jess Moore
 
 library;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 
-import 'package:solidui/src/widgets/solid_login_helper.dart'
-    show pushReplacement;
+/// Checks the platform type to determine whether running on
+/// a mobile device.
+///
+/// Returns true if running on iOS or Android.
+/// Returns false on Flutter Web or desktop platforms.
 
-/// A default app bar that is used when user does not define an app bar for
-/// the UI
-PreferredSizeWidget defaultAppBar(
-  BuildContext context,
-  String title,
-  Color backgroundColor,
-  Widget child, {
-  VoidCallback? onNavigateBack,
-  bool Function()? getResult,
-}) {
-  return AppBar(
-    leading: IconButton(
-      icon: const Icon(Icons.arrow_back, color: Colors.black),
-      onPressed: () {
-        // Call the callback if provided.
+bool isPhone() {
+  if (kIsWeb) {
+    return false;
+  }
 
-        onNavigateBack?.call();
-
-        if (getResult != null) {
-          // Pop with result from callback.
-
-          Navigator.pop(context, getResult());
-        } else {
-          // Use the original pushReplacement behaviour.
-
-          pushReplacement(context, child);
-
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => child),
-          // );
-        }
-      },
-    ),
-    backgroundColor: backgroundColor,
-    title: Text(title),
-  );
+  return defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android;
 }

@@ -34,9 +34,7 @@ dependencies:
 
 dependency_overrides:
   solidpod:
-    git:
-      url: https://github.com/anusii/solidpod.git
-      ref: tony/59_ui_migration
+    path: ../solidpod
 
 dev_dependencies:
   flutter_lints: ^6.0.0

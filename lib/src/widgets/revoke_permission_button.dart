@@ -33,11 +33,11 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidui/solidui.dart' show ActionColors;
-
 import 'package:solidpod/src/solid/constants/common.dart';
 import 'package:solidpod/src/solid/constants/web_acl.dart';
 import 'package:solidpod/src/solid/revoke_permission.dart';
+
+import 'package:solidui/solidui.dart' show ActionColors;
 import 'package:solidui/src/utils/snack_bar.dart';
 
 /// A [StatefulWidget] for the revoke permission icon button. Updates

@@ -33,6 +33,9 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:solidpod/src/solid/api/rest_api.dart';
+import 'package:solidpod/src/solid/constants/common.dart';
+
 import 'package:solidui/solidui.dart'
     show
         smallGapV,
@@ -40,9 +43,6 @@ import 'package:solidui/solidui.dart'
         GrantPermFormLayout,
         WebIdLayout,
         DropdownColors;
-
-import 'package:solidpod/src/solid/api/rest_api.dart';
-import 'package:solidpod/src/solid/constants/common.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 
 /// A [StatefulWidget] dialog for adding an individual webId.

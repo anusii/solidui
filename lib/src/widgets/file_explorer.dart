@@ -30,14 +30,14 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/solidui.dart' show normalLoadingScreenHeight;
-
 import 'package:solidpod/src/solid/api/rest_api.dart';
 import 'package:solidpod/src/solid/read_external_pod.dart';
 import 'package:solidpod/src/solid/utils/exceptions.dart';
 import 'package:solidpod/src/solid/write_external_pod.dart';
-import 'package:solidui/src/utils/solid_alert.dart';
+
+import 'package:solidui/solidui.dart' show normalLoadingScreenHeight;
 import 'package:solidui/src/utils/snack_bar.dart';
+import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/solid_loading_screen.dart';
 
 /// A simple file explorer class with two input parameters

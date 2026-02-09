@@ -33,7 +33,6 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-
 import 'package:solidpod/src/solid/constants/web_acl.dart';
 
 /// Checkbox widget to display different access mode selections. Function call
