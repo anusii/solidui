@@ -32,9 +32,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/src/solid/constants/web_acl.dart';
-import 'package:solidpod/src/solid/grant_permission.dart';
-import 'package:solidpod/src/solid/solid_func_call_status.dart';
+import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart'
     show

@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/src/solid/constants/web_acl.dart';
+import 'package:solidpod/solidpod.dart' show AccessMode, RecipientType;
 
 import 'package:solidui/src/constants/ui_layout.dart' show SharingPageLayout;
 import 'package:solidui/src/widgets/permission_checkbox.dart';

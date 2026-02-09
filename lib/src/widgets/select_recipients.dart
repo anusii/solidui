@@ -33,7 +33,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/src/solid/constants/web_acl.dart';
+import 'package:solidpod/solidpod.dart' show RecipientType;
 
 import 'package:solidui/solidui.dart'
     show granterRecipientTypes, ownerRecipientTypes, recipientToolTips;

@@ -33,8 +33,8 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/src/solid/api/rest_api.dart';
-import 'package:solidpod/src/solid/constants/common.dart';
+import 'package:solidpod/solidpod.dart'
+    show checkResourceStatus, ResourceStatus, whatIsWebID, demoWebID;
 
 import 'package:solidui/solidui.dart'
     show

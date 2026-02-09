@@ -32,10 +32,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/src/solid/api/common_permission.dart';
-import 'package:solidpod/src/solid/constants/web_acl.dart';
-import 'package:solidpod/src/solid/read_external_pod.dart';
-import 'package:solidpod/src/solid/utils/misc.dart';
+import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/file_explorer.dart';

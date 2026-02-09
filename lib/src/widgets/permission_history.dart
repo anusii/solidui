@@ -33,7 +33,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/src/solid/models/log_record.dart';
+import 'package:solidpod/solidpod.dart' show LogRecord;
 
 import 'package:solidui/src/constants/ui_common.dart'
     show ListIconSize, listIconShape;

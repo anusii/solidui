@@ -32,7 +32,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/src/solid/get_recipient_list.dart';
+import 'package:solidpod/solidpod.dart'
+    show getRecipientList, extractRecipWebIdList;
 
 import 'package:solidui/solidui.dart' show normalLoadingScreenHeight;
 import 'package:solidui/src/widgets/ind_webid_input.dart';
