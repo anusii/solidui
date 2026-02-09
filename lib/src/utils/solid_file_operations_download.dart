@@ -103,7 +103,7 @@ class SolidFileDownloadOperations {
   /// Returns `true` if the user chooses to proceed with the download.
   /// Returns `false` if the user cancels.
 
-  static Future<bool> _showCrossAppDecryptionWarning(
+  static Future<bool> _showCrossAppDownloadWarning(
     BuildContext context,
   ) async {
     final result = await showDialog<bool>(
@@ -114,7 +114,7 @@ class SolidFileDownloadOperations {
           children: [
             Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
             SizedBox(width: 12),
-            Expanded(child: Text('Decryption Warning')),
+            Expanded(child: Text('Cross-App Download Warning')),
           ],
         ),
         content: const Column(
@@ -122,8 +122,7 @@ class SolidFileDownloadOperations {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'This encrypted file belongs to another application\'s data '
-              'folder.',
+              'This file belongs to another application\'s data folder.',
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
             SizedBox(height: 12),
@@ -134,9 +133,9 @@ class SolidFileDownloadOperations {
             ),
             SizedBox(height: 12),
             Text(
-              'Since this file was encrypted by a different application, '
-              'the security key required to decrypt it is not available. '
-              'The downloaded file will likely be unreadable or corrupted.',
+              'The file content may be encrypted by the other application. '
+              'If so, the security key required to decrypt it is not '
+              'available, and the downloaded file might be unreadable.',
             ),
             SizedBox(height: 16),
             Text(
@@ -173,22 +172,18 @@ class SolidFileDownloadOperations {
     String filePath,
   ) async {
     try {
-      // Check if the file is an encrypted file from another app's folder.
-      // If so, warn the user that decryption may not be possible.
+      // Check if the file belongs to another app's folder. If so, warn the
+      // user that the file content may be encrypted.
 
-      final isEncryptedFile = fileName.endsWith('.enc.ttl');
+      final isInCurrentAppFolder = await _isFileInCurrentAppFolder(filePath);
 
-      if (isEncryptedFile) {
-        final isInCurrentAppFolder = await _isFileInCurrentAppFolder(filePath);
+      if (!isInCurrentAppFolder) {
+        if (!context.mounted) return;
 
-        if (!isInCurrentAppFolder) {
-          if (!context.mounted) return;
+        final shouldProceed = await _showCrossAppDownloadWarning(context);
 
-          final shouldProceed = await _showCrossAppDecryptionWarning(context);
-
-          if (!shouldProceed) {
-            return;
-          }
+        if (!shouldProceed) {
+          return;
         }
       }
 
