@@ -40,7 +40,6 @@ import 'package:solidpod/src/solid/constants/web_acl.dart';
 import 'package:solidpod/src/solid/grant_permission_helper.dart';
 import 'package:solidpod/src/solid/models/log_record.dart';
 import 'package:solidpod/src/solid/models/permission_details.dart';
-import 'package:solidpod/src/solid/permission_history.dart';
 import 'package:solidpod/src/solid/read_permission.dart';
 import 'package:solidpod/src/solid/shared_resource_history.dart';
 import 'package:solidpod/src/solid/solid_func_call_status.dart';

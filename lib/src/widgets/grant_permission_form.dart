@@ -33,7 +33,12 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/solidui.dart'
-    show ActionColors, GrantPermFormLayout, smallGapV, makeSubHeading;
+    show
+        ActionColors,
+        GrantPermFormLayout,
+        getPermissionCheckBoxes,
+        makeSubHeading,
+        smallGapV;
 
 import 'package:solidpod/src/solid/constants/web_acl.dart';
 import 'package:solidpod/src/solid/grant_permission.dart';

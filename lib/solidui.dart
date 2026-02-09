@@ -125,6 +125,9 @@ export 'src/widgets/show_selected_recipients.dart';
 export 'src/widgets/revoke_permission_button.dart';
 export 'src/widgets/share_resource_button.dart';
 
+export 'src/widgets/permission_history.dart';
+export 'src/widgets/grant_permission_helpers_ui.dart';
+
 export 'src/constants/initial_setup.dart';
 export 'src/screens/initial_setup_screen.dart';
 export 'src/screens/initial_setup_screen_body.dart';
