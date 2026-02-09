@@ -108,6 +108,23 @@ export 'src/widgets/solid_format_info_card.dart';
 
 export 'src/widgets/build_message_container.dart';
 
+export 'src/widgets/app_bar.dart';
+export 'src/widgets/file_explorer.dart';
+export 'src/widgets/group_webid_input.dart';
+export 'src/widgets/ind_webid_input.dart';
+export 'src/widgets/ind_webid_input_screen.dart';
+export 'src/widgets/permission_checkbox.dart';
+export 'src/widgets/shared_resources_table.dart';
+
+export 'src/widgets/grant_permission_ui.dart';
+export 'src/widgets/shared_resources_ui.dart';
+export 'src/widgets/permission_table.dart';
+export 'src/widgets/grant_permission_form.dart';
+export 'src/widgets/select_recipients.dart';
+export 'src/widgets/show_selected_recipients.dart';
+export 'src/widgets/revoke_permission_button.dart';
+export 'src/widgets/share_resource_button.dart';
+
 export 'src/constants/initial_setup.dart';
 export 'src/screens/initial_setup_screen.dart';
 export 'src/screens/initial_setup_screen_body.dart';
