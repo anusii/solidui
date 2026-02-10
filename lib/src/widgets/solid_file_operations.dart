@@ -235,7 +235,11 @@ class SolidFileOperations {
 
   /// Helper function to get a user-friendly name from the path.
 
-  static String getFriendlyFolderName(String pathValue, String basePath) {
+  static String getFriendlyFolderName(
+    String pathValue,
+    String basePath, [
+    Map<String, String>? folderNameOverrides,
+  ]) {
     final String root = basePath;
     if (pathValue.isEmpty || pathValue == root) {
       return 'Home Folder';
@@ -245,40 +249,27 @@ class SolidFileOperations {
 
     final dirName = path.basename(pathValue);
 
-    switch (dirName) {
-      case 'diary':
-        return 'Appointments Data';
-      case 'blood_pressure':
-        return 'Blood Pressure Data';
-      case 'medication':
-        return 'Medication Data';
-      case 'vaccination':
-        return 'Vaccination Data';
-      case 'profile':
-        return 'Profile Data';
-      case 'health_plan':
-        return 'Health Plan Data';
-      case 'pathology':
-        return 'Pathology Data';
-      case 'tv_shows':
-        return 'TV Shows';
+    // Check application-specific overrides first.
 
-      default:
-        // Basic formatting for unknown folders:
-        // capitalise first letter, replace underscores.
-
-        if (dirName.isEmpty) return 'Folder';
-        String formattedName = dirName.replaceAll('_', ' ').trim();
-        formattedName = formattedName
-            .split(RegExp(r'\s+'))
-            .map(
-              (w) => w.isEmpty
-                  ? w
-                  : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}',
-            )
-            .join(' ');
-        return formattedName;
+    if (folderNameOverrides != null &&
+        folderNameOverrides.containsKey(dirName)) {
+      return folderNameOverrides[dirName]!;
     }
+
+    // Generic formatting for all folders:
+    // capitalise first letter, replace underscores.
+
+    if (dirName.isEmpty) return 'Folder';
+    String formattedName = dirName.replaceAll('_', ' ').trim();
+    formattedName = formattedName
+        .split(RegExp(r'\s+'))
+        .map(
+          (w) => w.isEmpty
+              ? w
+              : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}',
+        )
+        .join(' ');
+    return formattedName;
   }
 
   /// Shows an alert dialog with the given message.

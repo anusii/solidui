@@ -81,6 +81,14 @@ class SolidFileBrowser extends StatefulWidget {
 
   final String? initialPath;
 
+  /// Optional map of directory basenames to display names.
+  ///
+  /// When provided, these overrides are used to display user-friendly folder
+  /// names in the path bar. Entries not found in the map fall back to generic
+  /// formatting.
+
+  final Map<String, String>? folderNameOverrides;
+
   const SolidFileBrowser({
     super.key,
     required this.onFileSelected,
@@ -91,6 +99,7 @@ class SolidFileBrowser extends StatefulWidget {
     required this.onDirectoryChanged,
     required this.friendlyFolderName,
     this.initialPath,
+    this.folderNameOverrides,
   });
 
   @override
@@ -348,6 +357,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     return SolidFileOperations.getFriendlyFolderName(
       currentPath,
       _homePath,
+      widget.folderNameOverrides,
     );
   }
 
