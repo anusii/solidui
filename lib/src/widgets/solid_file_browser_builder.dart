@@ -42,17 +42,21 @@ class SolidFileBrowserBuilder {
   static Widget build({
     required GlobalKey<SolidFileBrowserState> browserKey,
     required String friendlyFolderName,
+    String? initialPath,
     Function(String fileName, String filePath)? onFileSelected,
     Function(String fileName, String filePath)? onFileDownload,
     Function(String fileName, String filePath)? onFileDelete,
     Function(String fileName, String filePath)? onImportCsv,
     required Function(String path) onDirectoryChanged,
     SolidFileUploadCallbacks? uploadCallbacks,
+    Map<String, String>? folderNameOverrides,
   }) {
     return SolidFileBrowser(
       key: browserKey,
       browserKey: browserKey,
       friendlyFolderName: friendlyFolderName,
+      initialPath: initialPath,
+      folderNameOverrides: folderNameOverrides,
       onFileSelected: onFileSelected ??
           (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');

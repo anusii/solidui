@@ -34,6 +34,7 @@ import 'package:solidui/solidui.dart';
 
 import 'constants/app.dart';
 import 'home.dart';
+import 'screens/all_pod_files_page.dart';
 import 'screens/sample_page.dart';
 
 final _scaffoldController = SolidScaffoldController();
@@ -72,6 +73,17 @@ class AppScaffold extends StatelessWidget {
 
             ''',
           child: SolidFile(),
+        ),
+        SolidMenuItem(
+          icon: Icons.storage,
+          title: 'All POD Files',
+          tooltip: '''
+
+            **All POD Files:** Tap here to browse all folders on your POD
+            from the root.
+
+            ''',
+          child: AllPodFilesPage(),
         ),
       ],
 

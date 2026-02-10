@@ -65,8 +65,9 @@ class SolidFileHelpers {
     String basePath,
     bool autoConfig,
     bool showUpload,
-    SolidFileUploadConfig? uploadConfig,
-  ) {
+    SolidFileUploadConfig? uploadConfig, [
+    FileTypeResolver? fileTypeResolver,
+  ]) {
     if (uploadConfig != null) {
       return uploadConfig;
     }
@@ -76,8 +77,11 @@ class SolidFileHelpers {
 
       final normalisedCurrentPath = PathUtils.normalise(currentPath);
       final normalisedBasePath = PathUtils.normalise(basePath);
-      final typeConfig =
-          FileTypeConfig.fromPath(normalisedCurrentPath, normalisedBasePath);
+      final typeConfig = FileTypeConfig.fromPath(
+        normalisedCurrentPath,
+        normalisedBasePath,
+        fileTypeResolver,
+      );
       return typeConfig.createUploadConfig();
     }
 
@@ -91,8 +95,9 @@ class SolidFileHelpers {
     String currentPath,
     String basePath,
     bool autoConfig,
-    String? friendlyFolderName,
-  ) {
+    String? friendlyFolderName, [
+    FileTypeResolver? fileTypeResolver,
+  ]) {
     if (friendlyFolderName != null) {
       return friendlyFolderName;
     }
@@ -102,8 +107,11 @@ class SolidFileHelpers {
 
       final normalisedCurrentPath = PathUtils.normalise(currentPath);
       final normalisedBasePath = PathUtils.normalise(basePath);
-      final typeConfig =
-          FileTypeConfig.fromPath(normalisedCurrentPath, normalisedBasePath);
+      final typeConfig = FileTypeConfig.fromPath(
+        normalisedCurrentPath,
+        normalisedBasePath,
+        fileTypeResolver,
+      );
       return typeConfig.displayName;
     }
 
@@ -112,7 +120,11 @@ class SolidFileHelpers {
 
   /// Helper function to get a user-friendly name from the path.
 
-  static String getFriendlyFolderName(String pathValue, String basePath) {
+  static String getFriendlyFolderName(
+    String pathValue,
+    String basePath, [
+    Map<String, String>? folderNameOverrides,
+  ]) {
     // Normalise paths for consistent comparison.
 
     final normalisedPath = PathUtils.normalise(pathValue);
@@ -125,39 +137,26 @@ class SolidFileHelpers {
 
     final dirName = path.basename(normalisedPath);
 
-    switch (dirName) {
-      case 'diary':
-        return 'Appointments Data';
-      case 'blood_pressure':
-        return 'Blood Pressure Data';
-      case 'medication':
-        return 'Medication Data';
-      case 'vaccination':
-        return 'Vaccination Data';
-      case 'profile':
-        return 'Profile Data';
-      case 'health_plan':
-        return 'Health Plan Data';
-      case 'pathology':
-        return 'Pathology Data';
-      case 'tv_shows':
-        return 'TV Shows';
+    // Check application-specific overrides first.
 
-      default:
-        // Basic formatting for unknown folders:
-        // capitalise first letter, replace underscores.
-
-        if (dirName.isEmpty) return 'Folder';
-        String formattedName = dirName.replaceAll('_', ' ').trim();
-        formattedName = formattedName
-            .split(RegExp(r'\s+'))
-            .map(
-              (w) => w.isEmpty
-                  ? w
-                  : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}',
-            )
-            .join(' ');
-        return formattedName;
+    if (folderNameOverrides != null &&
+        folderNameOverrides.containsKey(dirName)) {
+      return folderNameOverrides[dirName]!;
     }
+
+    // Generic formatting for all folders:
+    // capitalise first letter, replace underscores.
+
+    if (dirName.isEmpty) return 'Folder';
+    String formattedName = dirName.replaceAll('_', ' ').trim();
+    formattedName = formattedName
+        .split(RegExp(r'\s+'))
+        .map(
+          (w) => w.isEmpty
+              ? w
+              : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}',
+        )
+        .join(' ');
+    return formattedName;
   }
 }
