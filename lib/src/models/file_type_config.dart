@@ -33,23 +33,25 @@ import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_helpers.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
-/// Predefined file types for different data categories.
+/// A callback type for resolving file type configurations from a path.
+///
+/// Applications can provide their own resolver to map directory paths to
+/// specific [FileTypeConfig] instances. Return `null` to fall through to the
+/// default generic behaviour.
 
-enum SolidFileType {
-  bloodPressure,
-  vaccination,
-  medication,
-  diary,
-  profile,
-  general,
-}
+typedef FileTypeResolver = FileTypeConfig? Function(
+  String normalisedPath,
+  String? basePath,
+);
 
 /// Configuration for different file types.
 
 class FileTypeConfig {
-  /// The file type.
+  /// A string identifier for this file type (e.g. 'general', 'blood_pressure').
+  ///
+  /// Applications may define their own type identifiers.
 
-  final SolidFileType type;
+  final String typeId;
 
   /// Display name for the folder.
 
@@ -84,7 +86,7 @@ class FileTypeConfig {
   final String uploadTooltip;
 
   const FileTypeConfig({
-    required this.type,
+    this.typeId = 'general',
     required this.displayName,
     this.showCsvButtons = false,
     this.showProfileButtons = false,
@@ -97,121 +99,58 @@ class FileTypeConfig {
 
   /// Gets the file type configuration based on the current path.
 
-  static FileTypeConfig fromPath(String currentPath, [String? basePath]) {
+  static FileTypeConfig fromPath(
+    String currentPath, [
+    String? basePath,
+    FileTypeResolver? resolver,
+  ]) {
     // Normalise the path for consistent pattern matching.
 
     final normalisedPath = PathUtils.normalise(currentPath);
 
-    if (normalisedPath.contains('/blood_pressure') ||
-        normalisedPath.contains('blood_pressure/') ||
-        normalisedPath.endsWith('blood_pressure')) {
-      return const FileTypeConfig(
-        type: SolidFileType.bloodPressure,
-        displayName: 'Blood Pressure Data',
-        showCsvButtons: true,
-        formatConfig: SolidFileDataFormats.bloodPressure,
-        uploadTooltip: '''
+    // Attempt app-specific resolution first.
 
-**Upload**: Tap here to upload a file to your Solid Health Pod.
-
-''',
-      );
-    } else if (normalisedPath.contains('/vaccination') ||
-        normalisedPath.contains('vaccination/') ||
-        normalisedPath.endsWith('vaccination')) {
-      return const FileTypeConfig(
-        type: SolidFileType.vaccination,
-        displayName: 'Vaccination Data',
-        showCsvButtons: true,
-        formatConfig: SolidFileDataFormats.vaccination,
-        uploadTooltip: '''
-
-**Upload**: Tap here to upload a file to your Solid Health Pod.
-
-''',
-      );
-    } else if (normalisedPath.contains('/medication') ||
-        normalisedPath.contains('medication/') ||
-        normalisedPath.endsWith('medication')) {
-      return const FileTypeConfig(
-        type: SolidFileType.medication,
-        displayName: 'Medication Data',
-        showCsvButtons: true,
-        formatConfig: SolidFileDataFormats.medication,
-        uploadTooltip: '''
-
-**Upload**: Tap here to upload a file to your Solid Health Pod.
-
-''',
-      );
-    } else if (normalisedPath.contains('/diary') ||
-        normalisedPath.contains('diary/') ||
-        normalisedPath.endsWith('diary')) {
-      return const FileTypeConfig(
-        type: SolidFileType.diary,
-        displayName: 'Appointments Data',
-        showCsvButtons: true,
-        formatConfig: SolidFileDataFormats.diary,
-        uploadTooltip: '''
-
-**Upload**: Tap here to upload a file to your Solid Health Pod.
-
-''',
-      );
-    } else if (normalisedPath.contains('/profile') ||
-        normalisedPath.contains('profile/') ||
-        normalisedPath.endsWith('profile')) {
-      return const FileTypeConfig(
-        type: SolidFileType.profile,
-        displayName: 'Profile Data',
-        showProfileButtons: true,
-        formatConfig: SolidFileDataFormats.profile,
-        uploadTooltip: '''
-
-**Upload**: Tap here to upload a file to your Solid Health Pod.
-
-''',
-      );
-    } else {
-      // General case - use the existing friendly folder name logic for
-      // consistency. If basePath is provided, use it; otherwise, construct a
-      // reasonable default.
-
-      String effectiveBasePath =
-          basePath != null ? PathUtils.normalise(basePath) : '';
-
-      if (effectiveBasePath.isEmpty) {
-        final segments =
-            normalisedPath.split('/').where((s) => s.isNotEmpty).toList();
-
-        // Construct a reasonable base path - typically the first 2 segments
-        // for most cases.
-
-        if (segments.length >= 2) {
-          effectiveBasePath = '${segments[0]}/${segments[1]}';
-        } else if (segments.length == 1) {
-          effectiveBasePath = segments[0];
-        }
-      }
-
-      final friendlyName = SolidFileHelpers.getFriendlyFolderName(
-        normalisedPath,
-        effectiveBasePath,
-      );
-
-      String displayName =
-          friendlyName == 'Home' ? 'Home Folder' : friendlyName;
-
-      return FileTypeConfig(
-        type: SolidFileType.general,
-        displayName: displayName,
-        uploadTooltip: '''
-
-**Upload**: Tap here to upload a file to your Solid Health Pod.
-
-''',
-      );
+    if (resolver != null) {
+      final resolved = resolver(normalisedPath, basePath);
+      if (resolved != null) return resolved;
     }
+
+    // Generic fallback — derive a friendly display name from the path.
+
+    String effectiveBasePath =
+        basePath != null ? PathUtils.normalise(basePath) : '';
+
+    if (effectiveBasePath.isEmpty) {
+      final segments =
+          normalisedPath.split('/').where((s) => s.isNotEmpty).toList();
+
+      // Construct a reasonable base path — typically the first 2 segments
+      // for most cases.
+
+      if (segments.length >= 2) {
+        effectiveBasePath = '${segments[0]}/${segments[1]}';
+      } else if (segments.length == 1) {
+        effectiveBasePath = segments[0];
+      }
+    }
+
+    final friendlyName = SolidFileHelpers.getFriendlyFolderName(
+      normalisedPath,
+      effectiveBasePath,
+    );
+
+    String displayName =
+        friendlyName == 'Home' ? 'Home Folder' : friendlyName;
+
+    return FileTypeConfig(
+      typeId: 'general',
+      displayName: displayName,
+      uploadTooltip: '''
+
+**Upload**: Tap here to upload a file to your Solid Pod.
+
+''',
+    );
   }
 
   /// Creates the upload configuration for this file type.

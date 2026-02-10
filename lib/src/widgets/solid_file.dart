@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getDataDirPath;
 
+import 'package:solidui/src/models/file_type_config.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_browser_builder.dart';
@@ -123,6 +124,23 @@ class SolidFile extends StatefulWidget {
 
   final bool autoConfig;
 
+  /// Optional resolver for mapping paths to file type configurations.
+  ///
+  /// Applications can supply their own resolver to provide custom upload
+  /// configurations, display names, and format configs based on the current
+  /// directory path. When the resolver returns `null`, the generic default
+  /// behaviour is used.
+
+  final FileTypeResolver? fileTypeResolver;
+
+  /// Optional map of directory basenames to display names.
+  ///
+  /// When provided, the file browser uses these overrides to display
+  /// user-friendly folder names (e.g. `{'blood_pressure': 'Blood Pressure
+  /// Data'}`). Entries not found in the map fall back to generic formatting.
+
+  final Map<String, String>? folderNameOverrides;
+
   const SolidFile({
     super.key,
     this.currentPath,
@@ -144,6 +162,8 @@ class SolidFile extends StatefulWidget {
     this.uploadState,
     this.browserKey,
     this.autoConfig = true,
+    this.fileTypeResolver,
+    this.folderNameOverrides,
   });
 
   /// Legacy constructor for backward compatibility.
@@ -154,6 +174,8 @@ class SolidFile extends StatefulWidget {
     required SolidFileCallbacks callbacks,
     required SolidFileState state,
     this.browserKey,
+    this.fileTypeResolver,
+    this.folderNameOverrides,
   })  : currentPath = state.currentPath,
         friendlyFolderName = state.friendlyFolderName,
         showBackButton = config.showBackButton,
@@ -355,6 +377,7 @@ class _SolidFileState extends State<SolidFile> {
                             widget.autoConfig,
                             widget.showUpload,
                             widget.uploadConfig,
+                            widget.fileTypeResolver,
                           ),
                           uploadCallbacks: _getEffectiveUploadCallbacks(),
                           uploadState: widget.uploadState ??
@@ -372,6 +395,7 @@ class _SolidFileState extends State<SolidFile> {
                             widget.autoConfig,
                             widget.showUpload,
                             widget.uploadConfig,
+                            widget.fileTypeResolver,
                           ),
                           uploadCallbacks: _getEffectiveUploadCallbacks(),
                           uploadState: widget.uploadState ??
@@ -400,6 +424,7 @@ class _SolidFileState extends State<SolidFile> {
         _effectiveBasePath,
         widget.autoConfig,
         widget.friendlyFolderName,
+        widget.fileTypeResolver,
       ),
       initialPath: widget.currentPath,
       onFileSelected: widget.onFileSelected,
@@ -408,6 +433,7 @@ class _SolidFileState extends State<SolidFile> {
       onImportCsv: widget.onImportCsv,
       onDirectoryChanged: _handleDirectoryChanged,
       uploadCallbacks: widget.uploadCallbacks,
+      folderNameOverrides: widget.folderNameOverrides,
     );
   }
 }

@@ -49,12 +49,14 @@ class SolidFileBrowserBuilder {
     Function(String fileName, String filePath)? onImportCsv,
     required Function(String path) onDirectoryChanged,
     SolidFileUploadCallbacks? uploadCallbacks,
+    Map<String, String>? folderNameOverrides,
   }) {
     return SolidFileBrowser(
       key: browserKey,
       browserKey: browserKey,
       friendlyFolderName: friendlyFolderName,
       initialPath: initialPath,
+      folderNameOverrides: folderNameOverrides,
       onFileSelected: onFileSelected ??
           (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');
