@@ -43,7 +43,7 @@ import 'package:solidui/src/widgets/file_explorer.dart';
 /// [sharedResMap] is the map containing data of shared resources.
 /// [parentWidget] is the widget to return to after an action Eg: deletion of a
 /// permission
-///
+
 Widget buildSharedResourcesTable(
   BuildContext context,
   Map<dynamic, dynamic> sharedResMap,
