@@ -139,8 +139,7 @@ class FileTypeConfig {
       effectiveBasePath,
     );
 
-    String displayName =
-        friendlyName == 'Home' ? 'Home Folder' : friendlyName;
+    String displayName = friendlyName == 'Home' ? 'Home Folder' : friendlyName;
 
     return FileTypeConfig(
       typeId: 'general',

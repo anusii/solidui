@@ -139,7 +139,8 @@ class SolidFileHelpers {
 
     // Check application-specific overrides first.
 
-    if (folderNameOverrides != null && folderNameOverrides.containsKey(dirName)) {
+    if (folderNameOverrides != null &&
+        folderNameOverrides.containsKey(dirName)) {
       return folderNameOverrides[dirName]!;
     }
 
