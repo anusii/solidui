@@ -99,6 +99,7 @@ export 'src/models/snackbar_config.dart';
 export 'src/utils/file_operations.dart';
 export 'src/utils/is_text_file.dart';
 export 'src/utils/solid_file_operations.dart';
+export 'src/utils/is_phone.dart';
 export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_notifications.dart';
 export 'src/utils/solid_pod_helpers.dart'
@@ -107,6 +108,26 @@ export 'src/utils/solid_pod_helpers.dart'
 export 'src/widgets/solid_format_info_card.dart';
 
 export 'src/widgets/build_message_container.dart';
+
+export 'src/widgets/app_bar.dart';
+export 'src/widgets/file_explorer.dart';
+export 'src/widgets/group_webid_input.dart';
+export 'src/widgets/ind_webid_input.dart';
+export 'src/widgets/ind_webid_input_screen.dart';
+export 'src/widgets/permission_checkbox.dart';
+export 'src/widgets/shared_resources_table.dart';
+
+export 'src/widgets/grant_permission_ui.dart';
+export 'src/widgets/shared_resources_ui.dart';
+export 'src/widgets/permission_table.dart';
+export 'src/widgets/grant_permission_form.dart';
+export 'src/widgets/select_recipients.dart';
+export 'src/widgets/show_selected_recipients.dart';
+export 'src/widgets/revoke_permission_button.dart';
+export 'src/widgets/share_resource_button.dart';
+
+export 'src/widgets/permission_history.dart';
+export 'src/widgets/grant_permission_helpers_ui.dart';
 
 export 'src/constants/initial_setup.dart';
 export 'src/screens/initial_setup_screen.dart';

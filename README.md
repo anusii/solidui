@@ -33,6 +33,8 @@ utilising the solidui package.
 - [Requirements](#requirements)
 - [SolidScaffold](#solidscaffold)
 - [SolidFile](#solidfile)
+- [Grant Permission UI Example](#grant-permission-ui-example)
+- [View Permission UI Example](#view-permission-ui-example)
 - [Authentication and Login Detection](#authentication-and-login-detection)
 - [Security Key Management](#security-key-management)
 - [API Reference](#api-reference)
@@ -115,23 +117,22 @@ Fine tune to suit the theme of the app:
   - For defining specific access mode types or recipient types, use
     optional parameters `accessModeList` and `recipientTypeList`.
 
-Granting permission (currently ublished in solidpod):
+Granting permission:
 <div align="center">
  <img
  src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/grant_permission.png"
- alt="KeyPod Login" width="400">
+ alt="Grant Permission" width="400">
 </div>
 
 Revoking permission:
 <div align="center">
  <img
  src="https://raw.githubusercontent.com/anusii/solidui/main/assets/screenshots/revoke_permission.png"
- alt="KeyPod Login" width="400">
+ alt="Revoke Permission" width="400">
 </div>
 
 - SharedResourcesUi widget displays
-  resources shared with a Pod by others (currently published in
-  solidpod):
+  resources shared with a Pod by others:
 
 <div align="center">
  <img
@@ -777,6 +778,126 @@ ElevatedButton(
   changeKeyPopup(context, ReturnPage());
  },
  child: const Text('Change Security Key on Pod')
+)
+```
+
+## Grant Permission UI Example
+
+The `GrantPermissionUi` widget provides a full-featured page for
+granting, editing, and revoking access permissions on resources stored
+in a Solid POD. Wrap it inside a navigation action to reach the
+permission management page.
+
+### Basic usage (browse all resources)
+
+```dart
+ElevatedButton(
+  child: const Text('Add/Delete Permissions'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const GrantPermissionUi(
+        child: ReturnPage(),
+      ),
+    ),
+  ),
+)
+```
+
+### Permissions for a specific file
+
+```dart
+ElevatedButton(
+  child: const Text('Add/Delete Permissions from a Specific File'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const GrantPermissionUi(
+        resourceName: 'my-data-file.ttl',
+        child: ReturnPage(),
+      ),
+    ),
+  ),
+)
+```
+
+### Permissions for a specific directory
+
+```dart
+ElevatedButton(
+  child: const Text('Add/Delete Permissions from a Specific Directory'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const GrantPermissionUi(
+        resourceName: 'parentDir/',
+        child: ReturnPage(),
+        isFile: false,
+      ),
+    ),
+  ),
+)
+```
+
+### Permissions for an externally owned resource
+
+When the user has *control* access to a resource owned by someone else:
+
+```dart
+ElevatedButton(
+  child: const Text('Add/Delete Permissions from an External File'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => GrantPermissionUi(
+        resourceName: 'my-data-file.ttl',
+        isExternalRes: true,
+        ownerWebId: ownerWebId,
+        granterWebId: granterWebId,
+        child: ReturnPage(),
+      ),
+    ),
+  ),
+)
+```
+
+## View Permission UI Example
+
+The `SharedResourcesUi` widget displays the resources that have been
+shared with the current user's POD by others.
+
+### View all shared resources
+
+```dart
+ElevatedButton(
+  child: const Text('View Resources your WebID have access to'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const SharedResourcesUi(
+        child: ReturnPage(),
+      ),
+    ),
+  ),
+)
+```
+
+### View a specific shared resource
+
+```dart
+ElevatedButton(
+  child: const Text('View access to specific Resource'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const SharedResourcesUi(
+        fileName: 'my-data-file.ttl',
+        sourceWebId:
+            'https://pods.solidcommunity.au/john-doe/profile/card#me',
+        child: ReturnPage(),
+      ),
+    ),
+  ),
 )
 ```
 
