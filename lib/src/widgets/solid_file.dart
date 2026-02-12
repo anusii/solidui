@@ -334,30 +334,6 @@ class _SolidFileState extends State<SolidFile> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Back button to root folder.
-        if (widget.showBackButton)
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-            child: TextButton.icon(
-              onPressed: widget.onBackPressed ??
-                  () {
-                    // Default behaviour: reset to base path.
-
-                    setState(() {
-                      _currentPath = _effectiveBasePath;
-                    });
-
-                    // Refresh the browser to the base path.
-
-                    _browserKey.currentState?.navigateToPath(
-                      _effectiveBasePath,
-                    );
-                  },
-              icon: const Icon(Icons.home),
-              label: Text(widget.backButtonText),
-            ),
-          ),
-
         // Main content area.
         Expanded(
           child: Column(

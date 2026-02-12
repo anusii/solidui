@@ -32,17 +32,13 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/models/file_item.dart';
 
-/// A widget that displays a single file item with its metadata and actions.
+/// A widget that displays a single file item with its metadata.
 ///
 /// The widget adapts its layout based on available width constraints:
 /// - At < 40px: Shows only the file name.
 /// - At 40-100px: Adds file icon with minimal spacing.
 /// - At 100-150px: Increases icon spacing.
 /// - At > 150px: Shows modification date.
-/// - At > 200px: Shows action buttons (download, delete).
-///
-/// The item supports selection state, showing a highlight when selected.
-/// Action buttons are conditionally rendered based on available space.
 
 class FileListItem extends StatelessWidget {
   /// The file item to display.
@@ -53,21 +49,17 @@ class FileListItem extends StatelessWidget {
 
   final String currentPath;
 
-  /// Whether this file is currently selected.
+  /// Whether this file is currently selected via the checkbox.
 
   final bool isSelected;
 
-  /// Callback when the file is selected.
+  /// Callback when the file is tapped to view/open it.
 
   final Function(String, String) onFileSelected;
 
-  /// Callback when the file is downloaded.
+  /// Callback when the selection state is toggled.
 
-  final Function(String, String) onFileDownload;
-
-  /// Callback when the file is deleted.
-
-  final Function(String, String) onFileDelete;
+  final VoidCallback onToggleSelect;
 
   const FileListItem({
     super.key,
@@ -75,8 +67,7 @@ class FileListItem extends StatelessWidget {
     required this.currentPath,
     required this.isSelected,
     required this.onFileSelected,
-    required this.onFileDownload,
-    required this.onFileDelete,
+    required this.onToggleSelect,
   });
 
   @override
@@ -85,11 +76,6 @@ class FileListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Define minimum width threshold for showing action buttons.
-
-          const minWidthForButtons = 200;
-          final showButtons = constraints.maxWidth >= minWidthForButtons;
-
           return InkWell(
             onTap: () => onFileSelected(file.name, currentPath),
             borderRadius: BorderRadius.circular(8.0),
@@ -112,7 +98,23 @@ class FileListItem extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Selection checkbox.
+
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (_) => onToggleSelect(),
+                      materialTapTargetSize:
+                          MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
                   // Show file icon only if width permits.
+
                   if (constraints.maxWidth > 40)
                     Icon(
                       Icons.insert_drive_file,
@@ -121,16 +123,19 @@ class FileListItem extends StatelessWidget {
                     ),
 
                   // Responsive spacing after icon.
+
                   if (constraints.maxWidth > 40)
                     SizedBox(width: constraints.maxWidth < 100 ? 4 : 12),
 
                   // File information column.
+
                   Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // File name with overflow protection.
+
                         Text(
                           file.name,
                           style: TextStyle(
@@ -141,6 +146,7 @@ class FileListItem extends StatelessWidget {
                         ),
 
                         // Show modification date if width permits.
+
                         if (constraints.maxWidth > 150)
                           Text(
                             'Modified: ${file.dateModified.toString().split('.')[0]}',
@@ -155,48 +161,6 @@ class FileListItem extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Action buttons shown only if sufficient width.
-                  if (showButtons) ...[
-                    const SizedBox(width: 8),
-
-                    // Download button.
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(
-                        Icons.download,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      onPressed: () => onFileDownload(file.name, currentPath),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.1),
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(35, 35),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Delete button.
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(
-                        Icons.delete,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      onPressed: () => onFileDelete(file.name, currentPath),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.error.withValues(alpha: 0.1),
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(35, 35),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),

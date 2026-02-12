@@ -53,25 +53,21 @@ class FileBrowserContent extends StatelessWidget {
 
   final String currentPath;
 
-  /// The currently selected file name.
+  /// Set of currently selected item keys (e.g. "dir:folderName", "file:name").
 
-  final String? selectedFile;
+  final Set<String> selectedItems;
 
-  /// Function to handle directory selection.
+  /// Function to handle directory navigation.
 
   final Function(String) onDirectorySelected;
 
-  /// Function to handle file selection.
+  /// Function to handle file selection for viewing/opening.
 
   final Function(String, String) onFileSelected;
 
-  /// Function to handle file download.
+  /// Callback to toggle selection of an item by its key.
 
-  final Function(String, String) onFileDownload;
-
-  /// Function to handle file deletion.
-
-  final Function(String, String) onFileDelete;
+  final Function(String) onToggleSelection;
 
   const FileBrowserContent({
     super.key,
@@ -79,11 +75,10 @@ class FileBrowserContent extends StatelessWidget {
     required this.files,
     required this.directoryCounts,
     required this.currentPath,
-    required this.selectedFile,
+    required this.selectedItems,
     required this.onDirectorySelected,
     required this.onFileSelected,
-    required this.onFileDownload,
-    required this.onFileDelete,
+    required this.onToggleSelection,
   });
 
   @override
@@ -109,25 +104,29 @@ class FileBrowserContent extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(8.0),
               children: [
-                // Directory list.
+                // Directory list with selection support.
+
                 DirectoryList(
                   directories: directories,
                   directoryCounts: directoryCounts,
+                  selectedItems: selectedItems,
                   onDirectorySelected: onDirectorySelected,
+                  onToggleSelection: onToggleSelection,
                 ),
 
                 // Add visual separator if both directories and files exist.
+
                 if (directories.isNotEmpty && files.isNotEmpty)
                   Divider(height: 24, color: Theme.of(context).dividerColor),
 
-                // File list.
+                // File list with selection support.
+
                 FileList(
                   files: files,
                   currentPath: currentPath,
-                  selectedFile: selectedFile,
+                  selectedItems: selectedItems,
                   onFileSelected: onFileSelected,
-                  onFileDownload: onFileDownload,
-                  onFileDelete: onFileDelete,
+                  onToggleSelection: onToggleSelection,
                 ),
               ],
             ),

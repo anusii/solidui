@@ -44,30 +44,25 @@ class FileList extends StatelessWidget {
 
   final String currentPath;
 
-  /// The currently selected file name.
+  /// Set of currently selected item keys (e.g. "file:fileName").
 
-  final String? selectedFile;
+  final Set<String> selectedItems;
 
-  /// Callback when a file is selected.
+  /// Callback when a file is tapped to view/open it.
 
   final Function(String, String) onFileSelected;
 
-  /// Callback when a file is downloaded.
+  /// Callback to toggle selection of an item by its key.
 
-  final Function(String, String) onFileDownload;
-
-  /// Callback when a file is deleted.
-
-  final Function(String, String) onFileDelete;
+  final Function(String) onToggleSelection;
 
   const FileList({
     super.key,
     required this.files,
     required this.currentPath,
-    required this.selectedFile,
+    required this.selectedItems,
     required this.onFileSelected,
-    required this.onFileDownload,
-    required this.onFileDelete,
+    required this.onToggleSelection,
   });
 
   @override
@@ -80,6 +75,7 @@ class FileList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section header for files.
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
@@ -92,16 +88,20 @@ class FileList extends StatelessWidget {
           ),
         ),
 
-        // List of file items.
+        // List of file items with selection support.
+
         ...files.map(
-          (file) => FileListItem(
-            file: file,
-            currentPath: currentPath,
-            isSelected: selectedFile == file.name,
-            onFileSelected: onFileSelected,
-            onFileDownload: onFileDownload,
-            onFileDelete: onFileDelete,
-          ),
+          (file) {
+            final itemKey = 'file:${file.name}';
+
+            return FileListItem(
+              file: file,
+              currentPath: currentPath,
+              isSelected: selectedItems.contains(itemKey),
+              onFileSelected: onFileSelected,
+              onToggleSelect: () => onToggleSelection(itemKey),
+            );
+          },
         ),
       ],
     );

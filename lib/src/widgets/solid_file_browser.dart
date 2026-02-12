@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/models/file_item.dart';
+import 'package:solidui/src/models/file_sort_option.dart';
 import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
@@ -89,6 +90,43 @@ class SolidFileBrowser extends StatefulWidget {
 
   final Map<String, String>? folderNameOverrides;
 
+  /// Callback for creating a new folder in the current directory.
+  /// Receives the current path.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath)? onCreateFolder;
+
+  /// Callback for moving selected items.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)? onMoveItems;
+
+  /// Callback for copying selected items.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)? onCopyItems;
+
+  /// Callback for downloading selected items from the toolbar.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)?
+      onDownloadItems;
+
+  /// Callback for renaming the selected item from the toolbar.
+  /// Receives the current path and the selected item key.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, String selectedItem)? onRenameItem;
+
+  /// Callback for deleting selected items from the toolbar.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)? onDeleteItems;
+
   const SolidFileBrowser({
     super.key,
     required this.onFileSelected,
@@ -100,6 +138,12 @@ class SolidFileBrowser extends StatefulWidget {
     required this.friendlyFolderName,
     this.initialPath,
     this.folderNameOverrides,
+    this.onCreateFolder,
+    this.onMoveItems,
+    this.onCopyItems,
+    this.onDownloadItems,
+    this.onRenameItem,
+    this.onDeleteItems,
   });
 
   @override
@@ -125,10 +169,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   bool isLoading = true;
 
-  /// The currently selected file name.
-
-  String? selectedFile;
-
   /// The current directory path being displayed.
 
   late String currentPath;
@@ -136,6 +176,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// History of visited directories for navigation.
 
   late List<String> pathHistory;
+
+  /// Current position within [pathHistory] for back/forward navigation.
+
+  int _historyIndex = 0;
 
   /// Number of files in the current directory.
 
@@ -152,6 +196,33 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// The home path resolved from [getDataDirPath].
 
   String _homePath = '';
+
+  /// Set of currently selected item keys for multi-selection.
+  ///
+  /// Keys use a type prefix: "dir:folderName" for directories,
+  /// "file:fileName" for files.
+
+  final Set<String> _selectedItems = {};
+
+  /// Unmodifiable view of the currently selected item keys.
+
+  Set<String> get selectedItems => Set.unmodifiable(_selectedItems);
+
+  /// The current sort option for files and directories.
+
+  FileSortOption _currentSortOption = FileSortOption.nameAscending;
+
+  /// Whether the user can navigate back in history.
+
+  bool get canGoBack => _historyIndex > 0;
+
+  /// Whether the user can navigate forward in history.
+
+  bool get canGoForward => _historyIndex < pathHistory.length - 1;
+
+  /// Whether the user can navigate to the parent directory.
+
+  bool get canGoUp => currentPath != _homePath && currentPath.isNotEmpty;
 
   @override
   void initState() {
@@ -186,6 +257,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
     currentPath = _homePath;
     pathHistory = [currentPath];
+    _historyIndex = 0;
     _checkLoginStatus();
   }
 
@@ -223,27 +295,180 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   Future<void> navigateToDirectory(String dirName) async {
     if (!mounted) return;
-    setState(() {
-      // Use PathUtils.combine to ensure consistent path joining without
-      // double slashes.
+    final newPath = PathUtils.combine(currentPath, dirName);
+    await _navigateTo(newPath);
+  }
 
-      currentPath = PathUtils.combine(currentPath, dirName);
-      pathHistory.add(currentPath);
+  /// Navigates back in history (browser-style back).
+
+  Future<void> navigateBack() async {
+    if (!canGoBack || !mounted) return;
+    _selectedItems.clear();
+    setState(() {
+      _historyIndex--;
+      currentPath = pathHistory[_historyIndex];
     });
-    await refreshFiles();
     widget.onDirectoryChanged.call(currentPath);
+    await refreshFiles();
+  }
+
+  /// Navigates forward in history (browser-style forward).
+
+  Future<void> navigateForward() async {
+    if (!canGoForward || !mounted) return;
+    _selectedItems.clear();
+    setState(() {
+      _historyIndex++;
+      currentPath = pathHistory[_historyIndex];
+    });
+    widget.onDirectoryChanged.call(currentPath);
+    await refreshFiles();
+  }
+
+  /// Navigates to the parent directory of the current path.
+
+  Future<void> navigateToParent() async {
+    if (!canGoUp || !mounted) return;
+    final parentPath = PathUtils.parent(currentPath);
+    await _navigateTo(parentPath);
+  }
+
+  /// Navigates to the home directory.
+
+  Future<void> navigateHome() async {
+    if (!mounted) return;
+    await _navigateTo(_homePath);
   }
 
   /// Navigates up one directory level.
+  ///
+  /// Kept for backward compatibility. Delegates to [navigateBack].
 
   Future<void> navigateUp() async {
-    if (pathHistory.length > 1) {
-      pathHistory.removeLast();
-      if (!mounted) return;
-      setState(() => currentPath = pathHistory.last);
-      widget.onDirectoryChanged.call(currentPath);
-      await refreshFiles();
+    await navigateBack();
+  }
+
+  /// Toggles the selection state of an item identified by [itemKey].
+  ///
+  /// Keys follow the format "dir:folderName" or "file:fileName".
+
+  void toggleItemSelection(String itemKey) {
+    setState(() {
+      if (_selectedItems.contains(itemKey)) {
+        _selectedItems.remove(itemKey);
+      } else {
+        _selectedItems.add(itemKey);
+      }
+    });
+  }
+
+  /// Clears all selected items.
+
+  void clearSelection() {
+    if (_selectedItems.isNotEmpty) {
+      setState(() => _selectedItems.clear());
     }
+  }
+
+  /// Changes the current sort option and re-sorts the displayed items.
+
+  void changeSortOption(FileSortOption option) {
+    if (option == _currentSortOption) return;
+    setState(() {
+      _currentSortOption = option;
+      _applySorting();
+    });
+  }
+
+  /// Sorts [directories] and [files] according to [_currentSortOption].
+  ///
+  /// Directories are sorted by name for all options except the name-based
+  /// ones, since they lack modification dates and type information.
+
+  void _applySorting() {
+    switch (_currentSortOption) {
+      case FileSortOption.nameAscending:
+        directories.sort(
+          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+        );
+        files.sort(
+          (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+        );
+      case FileSortOption.nameDescending:
+        directories.sort(
+          (a, b) => b.toLowerCase().compareTo(a.toLowerCase()),
+        );
+        files.sort(
+          (a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()),
+        );
+      case FileSortOption.dateModifiedAscending:
+        directories.sort(
+          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+        );
+        files.sort(
+          (a, b) => a.dateModified.compareTo(b.dateModified),
+        );
+      case FileSortOption.dateModifiedDescending:
+        directories.sort(
+          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+        );
+        files.sort(
+          (a, b) => b.dateModified.compareTo(a.dateModified),
+        );
+      case FileSortOption.typeAscending:
+        directories.sort(
+          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+        );
+        files.sort((a, b) {
+          final cmp = _fileExtension(a.name).compareTo(
+            _fileExtension(b.name),
+          );
+          // Fall back to name order when extensions match.
+
+          return cmp != 0
+              ? cmp
+              : a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        });
+      case FileSortOption.typeDescending:
+        directories.sort(
+          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
+        );
+        files.sort((a, b) {
+          final cmp = _fileExtension(b.name).compareTo(
+            _fileExtension(a.name),
+          );
+          return cmp != 0
+              ? cmp
+              : a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        });
+    }
+  }
+
+  /// Extracts the lowercase file extension from a file name.
+
+  static String _fileExtension(String fileName) {
+    final dotIndex = fileName.lastIndexOf('.');
+    return dotIndex == -1 ? '' : fileName.substring(dotIndex + 1).toLowerCase();
+  }
+
+  /// Internal helper that navigates to a given [path], updating the history
+  /// and clearing forward entries.
+
+  Future<void> _navigateTo(String path) async {
+    if (!mounted) return;
+    _selectedItems.clear();
+    setState(() {
+      // Truncate any forward history entries beyond the current position.
+
+      if (_historyIndex < pathHistory.length - 1) {
+        pathHistory.removeRange(_historyIndex + 1, pathHistory.length);
+      }
+      pathHistory.add(path);
+      _historyIndex = pathHistory.length - 1;
+      currentPath = path;
+    });
+    widget.onDirectoryChanged.call(currentPath);
+    await refreshFiles();
   }
 
   /// Refreshes the current directory's contents.
@@ -298,12 +523,25 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
       if (!mounted) return;
 
-      // Update state with processed data.
+      // Update state with processed data and prune stale selections
+      // that reference items no longer present in the directory listing.
 
       setState(() {
         files = processedFiles;
         directoryCounts = counts;
         isLoading = false;
+
+        // Build the set of valid item keys from current directory contents.
+
+        final validKeys = <String>{
+          for (final dir in directories) 'dir:$dir',
+          for (final file in processedFiles) 'file:${file.name}',
+        };
+        _selectedItems.removeWhere((key) => !validKeys.contains(key));
+
+        // Apply the current sort option to the newly loaded data.
+
+        _applySorting();
       });
     } catch (e) {
       debugPrint('Error loading files: $e');
@@ -321,8 +559,11 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
     setState(() {
       currentPath = normalisedPath;
+      _selectedItems.clear();
+
       if (normalisedPath == _homePath || normalisedPath.isEmpty) {
         pathHistory = [_homePath];
+        _historyIndex = 0;
       } else {
         if (pathHistory.isEmpty || pathHistory.last != normalisedPath) {
           // Check if the path is under the home path.
@@ -344,10 +585,52 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
             pathHistory.add(normalisedPath);
           }
         }
+        _historyIndex = pathHistory.length - 1;
       }
       refreshFiles();
     });
     widget.onDirectoryChanged.call(normalisedPath);
+  }
+
+  /// Handles the toolbar Download action by invoking [widget.onFileDownload]
+  /// for each selected file. If [widget.onDownloadItems] is provided, it is
+  /// used instead for custom batch handling.
+
+  void _handleToolbarDownload() {
+    if (widget.onDownloadItems != null) {
+      widget.onDownloadItems!(currentPath, selectedItems);
+      return;
+    }
+
+    for (final key in _selectedItems) {
+      if (key.startsWith('file:')) {
+        final fileName = key.substring(5);
+        widget.onFileDownload(fileName, currentPath);
+      }
+    }
+  }
+
+  /// Handles the toolbar Delete action by invoking [widget.onFileDelete]
+  /// for each selected file. If [widget.onDeleteItems] is provided, it is
+  /// used instead for custom batch handling.
+  ///
+  /// After deletion, the selection is cleared and the directory is refreshed.
+
+  void _handleToolbarDelete() {
+    if (widget.onDeleteItems != null) {
+      widget.onDeleteItems!(currentPath, selectedItems);
+      return;
+    }
+
+    // Take a snapshot of selected items before clearing.
+
+    final items = Set<String>.from(_selectedItems);
+    for (final key in items) {
+      if (key.startsWith('file:')) {
+        final fileName = key.substring(5);
+        widget.onFileDelete(fileName, currentPath);
+      }
+    }
   }
 
   /// Gets the effective friendly folder name based on the current path.
@@ -391,13 +674,44 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
               if (isLoggedIn)
                 PathBar(
                   currentPath: currentPath,
-                  pathHistory: pathHistory,
-                  onNavigateUp: navigateUp,
-                  onRefresh: refreshFiles,
+                  friendlyFolderName: _getEffectiveFriendlyFolderName(),
                   isLoading: isLoading,
                   currentDirFileCount: currentDirFileCount,
                   currentDirDirectoryCount: currentDirDirectoryCount,
-                  friendlyFolderName: _getEffectiveFriendlyFolderName(),
+                  canGoBack: canGoBack,
+                  canGoForward: canGoForward,
+                  canGoUp: canGoUp,
+                  selectedCount: _selectedItems.length,
+                  onNavigateBack: navigateBack,
+                  onNavigateForward: navigateForward,
+                  onNavigateUp: navigateToParent,
+                  onNavigateHome: navigateHome,
+                  onRefresh: refreshFiles,
+                  onNewFolder: widget.onCreateFolder != null
+                      ? () => widget.onCreateFolder!(currentPath)
+                      : null,
+                  onMoveTo: widget.onMoveItems != null
+                      ? () => widget.onMoveItems!(currentPath, selectedItems)
+                      : null,
+                  onCopyTo: widget.onCopyItems != null
+                      ? () => widget.onCopyItems!(currentPath, selectedItems)
+                      : null,
+
+                  // Download and Delete are always available since
+                  // onFileDownload and onFileDelete are required callbacks.
+                  // They use per-file callbacks unless batch overrides are
+                  // provided via onDownloadItems / onDeleteItems.
+
+                  onDownload: _handleToolbarDownload,
+                  onRename: widget.onRenameItem != null
+                      ? () => widget.onRenameItem!(
+                            currentPath,
+                            _selectedItems.first,
+                          )
+                      : null,
+                  onDelete: _handleToolbarDelete,
+                  currentSortOption: _currentSortOption,
+                  onSortChanged: changeSortOption,
                 ),
               if (isLoggedIn) const SizedBox(height: 12),
               Expanded(child: _buildContent()),
@@ -418,14 +732,12 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       files: files,
       directoryCounts: directoryCounts,
       currentPath: currentPath,
-      selectedFile: selectedFile,
+      selectedItems: _selectedItems,
       onDirectorySelected: navigateToDirectory,
       onFileSelected: (name, path) {
-        setState(() => selectedFile = name);
         widget.onFileSelected.call(name, path);
       },
-      onFileDownload: widget.onFileDownload,
-      onFileDelete: widget.onFileDelete,
+      onToggleSelection: toggleItemSelection,
     );
   }
 }

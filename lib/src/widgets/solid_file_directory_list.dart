@@ -41,15 +41,25 @@ class DirectoryList extends StatelessWidget {
 
   final Map<String, int> directoryCounts;
 
-  /// Callback when a directory is selected.
+  /// Set of currently selected item keys (e.g. "dir:folderName").
+
+  final Set<String> selectedItems;
+
+  /// Callback when a directory is tapped to navigate into it.
 
   final Function(String) onDirectorySelected;
+
+  /// Callback to toggle selection of an item by its key.
+
+  final Function(String) onToggleSelection;
 
   const DirectoryList({
     super.key,
     required this.directories,
     required this.directoryCounts,
+    required this.selectedItems,
     required this.onDirectorySelected,
+    required this.onToggleSelection,
   });
 
   @override
@@ -74,59 +84,95 @@ class DirectoryList extends StatelessWidget {
           ),
         ),
 
-        // List of directory items.
-        ...directories.map(
-          (dir) => ListTile(
-            leading: Icon(
-              Icons.folder,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            title: Row(
-              children: [
-                // Directory name with overflow protection.
-                Expanded(
-                  child: Text(
-                    dir,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+        // List of directory items with selection checkboxes.
 
-                // File count badge.
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${directoryCounts[dir] ?? 0} files',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).textTheme.bodySmall?.color,
+        ...directories.map(
+          (dir) {
+            final itemKey = 'dir:$dir';
+            final isSelected = selectedItems.contains(itemKey);
+
+            return ListTile(
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Selection checkbox.
+
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (_) => onToggleSelection(itemKey),
+                      materialTapTargetSize:
+                          MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
                     ),
                   ),
-                ),
-              ],
-            ),
-            dense: true,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            onTap: () => onDirectorySelected(dir),
-            tileColor: Theme.of(context).cardColor,
-            selectedTileColor: Theme.of(
-              context,
-            ).colorScheme.primary.withValues(alpha: 0.1),
-          ),
+                  const SizedBox(width: 8),
+
+                  // Folder icon.
+
+                  Icon(
+                    Icons.folder,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+              title: Row(
+                children: [
+                  // Directory name with overflow protection.
+
+                  Expanded(
+                    child: Text(
+                      dir,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color:
+                            Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+
+                  // File count badge.
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${directoryCounts[dir] ?? 0} files',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color:
+                            Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              dense: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              onTap: () => onDirectorySelected(dir),
+              tileColor: isSelected
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.08)
+                  : Theme.of(context).cardColor,
+              selectedTileColor: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
+            );
+          },
         ),
       ],
     );
