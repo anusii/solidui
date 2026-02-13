@@ -13,7 +13,11 @@ The package is available from
 Coding documentation is available from [solid community
 au](https://solidcommunity.au/docs/solidui)
 
-## 0.2.0 Stabilise
+## 0.3.0 Stabilise
+
++ Migrate remaining UI from solidpod to solidui [0.2.0 20260213 tony]
+
+## 0.2.0 Complete UI Migration
 
 + Support delete file by url [0.1.5 20260206 dc]
 + Remove overflow on narrow and short login window [0.1.4 20260205 tonypioneer]
