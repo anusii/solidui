@@ -106,8 +106,7 @@ class FileListItem extends StatelessWidget {
                     child: Checkbox(
                       value: isSelected,
                       onChanged: (_) => onToggleSelect(),
-                      materialTapTargetSize:
-                          MaterialTapTargetSize.shrinkWrap,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       visualDensity: VisualDensity.compact,
                     ),
                   ),

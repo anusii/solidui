@@ -174,8 +174,7 @@ class PathBar extends StatelessWidget {
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(minWidth: constraints.maxWidth),
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -188,8 +187,7 @@ class PathBar extends StatelessWidget {
                               context,
                               icon: Icons.arrow_back,
                               label: 'Back',
-                              onPressed:
-                                  canGoBack ? onNavigateBack : null,
+                              onPressed: canGoBack ? onNavigateBack : null,
                             ),
                             _buildNavButton(
                               context,
@@ -228,36 +226,31 @@ class PathBar extends StatelessWidget {
                               context,
                               icon: Icons.drive_file_move,
                               label: 'Move to',
-                              onPressed:
-                                  hasSelection ? onMoveTo : null,
+                              onPressed: hasSelection ? onMoveTo : null,
                             ),
                             _buildActionButton(
                               context,
                               icon: Icons.file_copy,
                               label: 'Copy to',
-                              onPressed:
-                                  hasSelection ? onCopyTo : null,
+                              onPressed: hasSelection ? onCopyTo : null,
                             ),
                             _buildActionButton(
                               context,
                               icon: Icons.download,
                               label: 'Download',
-                              onPressed:
-                                  hasSelection ? onDownload : null,
+                              onPressed: hasSelection ? onDownload : null,
                             ),
                             _buildActionButton(
                               context,
                               icon: Icons.edit,
                               label: 'Rename',
-                              onPressed:
-                                  singleSelection ? onRename : null,
+                              onPressed: singleSelection ? onRename : null,
                             ),
                             _buildActionButton(
                               context,
                               icon: Icons.delete,
                               label: 'Delete',
-                              onPressed:
-                                  hasSelection ? onDelete : null,
+                              onPressed: hasSelection ? onDelete : null,
                               isDestructive: true,
                             ),
 
@@ -296,8 +289,7 @@ class PathBar extends StatelessWidget {
                   child: Text(
                     friendlyFolderName,
                     style: TextStyle(
-                      color:
-                          Theme.of(context).textTheme.titleMedium?.color,
+                      color: Theme.of(context).textTheme.titleMedium?.color,
                       fontWeight: FontWeight.bold,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -325,8 +317,7 @@ class PathBar extends StatelessWidget {
                       Text(
                         'Directories: $currentDirDirectoryCount',
                         style: TextStyle(
-                          color:
-                              Theme.of(context).textTheme.bodySmall?.color,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: 12,
                         ),
                       ),
@@ -334,8 +325,7 @@ class PathBar extends StatelessWidget {
                       Text(
                         'Files: $currentDirFileCount',
                         style: TextStyle(
-                          color:
-                              Theme.of(context).textTheme.bodySmall?.color,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: 12,
                         ),
                       ),
