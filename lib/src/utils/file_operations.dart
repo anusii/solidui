@@ -122,18 +122,24 @@ class FileOperations {
 
       if (!context.mounted) continue;
 
-      // Read file metadata using relative path from pod root.
+      // Retrieve the actual last modified time from the POD server.
       // Note: currentPath already contains the full path from pod root
       // (e.g., "healthpod/data/pathology"), so we use relativeToPod to avoid
       // path duplication.
 
-      // dc 20260107: It is unnecessary to read the content of file as contents
-      // are not stored in `processedFiles`.
-      //
-      // final metadata = await readPod(
-      //   relativePath,
-      //   pathType: PathType.relativeToPod,
-      // );
+      DateTime lastModified;
+      try {
+        final metadata = await readResMetadata(
+          relativePath,
+          pathType: PathType.relativeToPod,
+        );
+        lastModified = metadata.lastModified;
+      } catch (e) {
+        // Fall back to current time if metadata retrieval fails.
+
+        debugPrint('Error reading metadata for $relativePath: $e');
+        lastModified = DateTime.now();
+      }
 
       // Add valid files to the processed list.
 
@@ -144,10 +150,9 @@ class FileOperations {
         FileItem(
           name: fileName,
           path: relativePath,
-          dateModified: DateTime.now(),
+          dateModified: lastModified,
         ),
       );
-      // }
     }
     return processedFiles;
   }
