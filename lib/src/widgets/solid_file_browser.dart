@@ -247,6 +247,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   }
 
   /// Refreshes the current directory's contents.
+  ///
+  /// Fetches resources from the container in a single REST call, then
+  /// processes files and defers subdirectory count loading to the background
+  /// to minimise the initial number of REST calls.
 
   Future<void> refreshFiles() async {
     if (!isLoggedIn) {
@@ -258,56 +262,84 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     setState(() => isLoading = true);
 
     try {
-      // Get current directory contents.
+      // Get current directory contents in a single REST call.
 
       final dirUrl = await getDirUrl(currentPath);
       final resources = await getResourcesInContainer(dirUrl);
 
       if (!mounted) return;
 
-      // Update directories list.
+      // Extract directory names from the fetched resources.
 
-      setState(() {
-        directories = resources.subDirs
-            .map((dirUrl) => FileOperations.extractResourceName(dirUrl))
-            .toList();
-        currentDirDirectoryCount = directories.length;
-      });
+      final fetchedDirectories = resources.subDirs
+          .map((dirUrl) => FileOperations.extractResourceName(dirUrl))
+          .toList();
 
-      // Count files in current directory.
+      // Count TTL files from the already-fetched resource list (no extra REST
+      // call needed).
 
-      currentDirFileCount = resources.files
+      final fileCount = resources.files
           .where((f) => f.endsWith('.enc.ttl') || f.endsWith('.ttl'))
           .length;
 
-      // Get file counts for all subdirectories.
-
-      final counts = await FileOperations.getDirectoryCounts(
-        currentPath,
-        directories,
-      );
-
-      if (!mounted) return;
-
-      // Process and validate files.
+      // Process and validate files, reusing the already-fetched file URL list
+      // to avoid a duplicate getResourcesInContainer REST call.
 
       final processedFiles = await FileOperations.getFiles(
         currentPath,
+        resources.files,
         context,
       );
 
       if (!mounted) return;
 
-      // Update state with processed data.
+      // Update state with the fetched data. Directory counts are not yet
+      // available and will be loaded in the background.
 
       setState(() {
+        directories = fetchedDirectories;
+        currentDirDirectoryCount = fetchedDirectories.length;
+        currentDirFileCount = fileCount;
         files = processedFiles;
-        directoryCounts = counts;
+        directoryCounts = {};
         isLoading = false;
       });
+
+      // Defer subdirectory file count fetching to the background so that the
+      // UI is displayed immediately without blocking on N additional REST
+      // calls (one per subdirectory).
+
+      _loadDirectoryCountsInBackground(fetchedDirectories);
     } catch (e) {
       debugPrint('Error loading files: $e');
       if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  /// Loads file counts for each subdirectory in the background.
+  ///
+  /// Updates the UI incrementally as each count becomes available, rather
+  /// than blocking the initial render on N REST calls.
+
+  Future<void> _loadDirectoryCountsInBackground(
+    List<String> dirs,
+  ) async {
+    // Capture the path at the time of the request so we can discard stale
+    // results if the user has navigated elsewhere.
+
+    final requestPath = currentPath;
+
+    final counts = await FileOperations.getDirectoryCounts(
+      requestPath,
+      dirs,
+    );
+
+    if (!mounted) return;
+
+    // Only apply the results if the user is still viewing the same directory.
+
+    if (currentPath == requestPath) {
+      setState(() => directoryCounts = counts);
     }
   }
 
