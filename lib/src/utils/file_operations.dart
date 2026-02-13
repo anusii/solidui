@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/models/file_item.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 
 /// A utility class for performing file system operations in the POD.
 
@@ -87,25 +88,25 @@ class FileOperations {
 
   /// Retrieves and processes files from the specified directory.
   ///
+  /// Accepts a pre-fetched list of [fileUrls] from [getResourcesInContainer]
+  /// to avoid a duplicate REST call.
+  ///
   /// Parameters:
   /// - [currentPath]: The directory path to process.
+  /// - [fileUrls]: List of file URLs already obtained from the container.
   /// - [context]: Build context for UI operations.
   ///
   /// Returns a list of processed [FileItem] objects.
 
   static Future<List<FileItem>> getFiles(
     String currentPath,
+    List<String> fileUrls,
     BuildContext context,
   ) async {
-    // Get directory URL and contents.
-
-    final dirUrl = await getDirUrl(currentPath);
-    final resources = await getResourcesInContainer(dirUrl);
-
     // Process each file in the directory.
 
     final processedFiles = <FileItem>[];
-    for (var fileUrl in resources.files) {
+    for (var fileUrl in fileUrls) {
       // Extract the file name from the URL/path.
 
       final fileName = extractResourceName(fileUrl);
@@ -116,38 +117,41 @@ class FileOperations {
         continue;
       }
 
-      // Construct full path.
+      // Construct full path using PathUtils.combine to avoid double slashes
+      // when currentPath is empty (POD root).
 
-      final relativePath = [currentPath, fileName].join('/');
+      final relativePath = PathUtils.combine(currentPath, fileName);
 
       if (!context.mounted) continue;
 
-      // Read file metadata using relative path from pod root.
+      // Retrieve the actual last modified time from the POD server.
       // Note: currentPath already contains the full path from pod root
       // (e.g., "healthpod/data/pathology"), so we use relativeToPod to avoid
       // path duplication.
 
-      // dc 20260107: It is unnecessary to read the content of file as contents
-      // are not stored in `processedFiles`.
-      //
-      // final metadata = await readPod(
-      //   relativePath,
-      //   pathType: PathType.relativeToPod,
-      // );
+      DateTime lastModified;
+      try {
+        final metadata = await readResMetadata(
+          relativePath,
+          pathType: PathType.relativeToPod,
+        );
+        lastModified = metadata.lastModified;
+      } catch (e) {
+        // Fall back to current time if metadata retrieval fails.
+
+        debugPrint('Error reading metadata for $relativePath: $e');
+        lastModified = DateTime.now();
+      }
 
       // Add valid files to the processed list.
-
-      // if (metadata != SolidFunctionCallStatus.fail.toString() &&
-      //     metadata != SolidFunctionCallStatus.notLoggedIn.toString()) {
 
       processedFiles.add(
         FileItem(
           name: fileName,
           path: relativePath,
-          dateModified: DateTime.now(),
+          dateModified: lastModified,
         ),
       );
-      // }
     }
     return processedFiles;
   }
@@ -168,7 +172,9 @@ class FileOperations {
 
     final counts = <String, int>{};
     for (var dir in directories) {
-      counts[dir] = await getDirectoryFileCount('$currentPath/$dir');
+      counts[dir] = await getDirectoryFileCount(
+        PathUtils.combine(currentPath, dir),
+      );
     }
     return counts;
   }
