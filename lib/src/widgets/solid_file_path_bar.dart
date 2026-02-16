@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+
 import 'package:solidui/src/models/file_sort_option.dart';
 
 /// A toolbar and path bar widget that provides navigation controls and
@@ -227,12 +229,16 @@ class PathBar extends StatelessWidget {
                               icon: Icons.drive_file_move,
                               label: 'Move to',
                               onPressed: hasSelection ? onMoveTo : null,
+                              tooltipMessage:
+                                  'Under development',
                             ),
                             _buildActionButton(
                               context,
                               icon: Icons.file_copy,
                               label: 'Copy to',
                               onPressed: hasSelection ? onCopyTo : null,
+                              tooltipMessage:
+                                  'Under development',
                             ),
                             _buildActionButton(
                               context,
@@ -245,6 +251,8 @@ class PathBar extends StatelessWidget {
                               icon: Icons.edit,
                               label: 'Rename',
                               onPressed: singleSelection ? onRename : null,
+                              tooltipMessage:
+                                  'Under development',
                             ),
                             _buildActionButton(
                               context,
@@ -419,12 +427,13 @@ class PathBar extends StatelessWidget {
     required String label,
     VoidCallback? onPressed,
     bool isDestructive = false,
+    String? tooltipMessage,
   }) {
     final colour = isDestructive
         ? Theme.of(context).colorScheme.error
         : Theme.of(context).colorScheme.primary;
 
-    return Padding(
+    Widget button = Padding(
       padding: const EdgeInsets.only(right: 2.0),
       child: TextButton.icon(
         icon: Icon(icon, size: 16),
@@ -438,6 +447,15 @@ class PathBar extends StatelessWidget {
         ),
       ),
     );
+
+    if (tooltipMessage != null) {
+      button = MarkdownTooltip(
+        message: '**$label**\n\n$tooltipMessage',
+        child: button,
+      );
+    }
+
+    return button;
   }
 
   /// Builds the View dropdown menu for sorting options.

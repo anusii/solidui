@@ -666,6 +666,129 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     }
   }
 
+  /// Handles the "New Folder" action.
+  ///
+  /// If the user provides [widget.onCreateFolder], it is invoked as a
+  /// custom override. Otherwise the built-in flow is used: a dialog prompts
+  /// for the folder name, the container is created on the POD via
+  /// [createContainer] from solidpod, and the directory listing is refreshed.
+
+  Future<void> _handleCreateFolder() async {
+    // Delegate to the user's custom handler when provided.
+
+    if (widget.onCreateFolder != null) {
+      widget.onCreateFolder!(currentPath);
+      return;
+    }
+
+    // Show the folder name input dialog.
+
+    final folderName = await _showNewFolderDialog();
+    if (folderName == null || folderName.isEmpty) return;
+
+    // Check for duplicate folder names in the current directory.
+
+    if (directories.contains(folderName)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('A folder named "$folderName" already exists.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
+    // Create the container on the POD.
+
+    if (!mounted) return;
+    setState(() => isLoading = true);
+
+    try {
+      await createContainer(currentPath, folderName);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Folder "$folderName" created successfully.'),
+        ),
+      );
+
+      await refreshFiles();
+    } catch (e) {
+      debugPrint('Error creating folder "$folderName": $e');
+      if (!mounted) return;
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to create folder: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  /// Displays a dialog prompting the user for a new folder name.
+  ///
+  /// Returns the entered folder name, or `null` if the dialog was dismissed.
+
+  Future<String?> _showNewFolderDialog() {
+    final controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('New Folder'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Folder name',
+                hintText: 'Enter folder name',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Folder name cannot be empty.';
+                }
+
+                try {
+                  validateContainerName(value.trim());
+                } on ArgumentError catch (e) {
+                  return e.message as String;
+                }
+                return null;
+              },
+              onFieldSubmitted: (_) {
+                if (formKey.currentState?.validate() ?? false) {
+                  Navigator.of(dialogContext).pop(controller.text.trim());
+                }
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  Navigator.of(dialogContext).pop(controller.text.trim());
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   /// Gets the effective friendly folder name based on the current path.
   /// Uses SolidFileOperations for consistent title generation.
 
@@ -720,9 +843,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   onNavigateUp: navigateToParent,
                   onNavigateHome: navigateHome,
                   onRefresh: refreshFiles,
-                  onNewFolder: widget.onCreateFolder != null
-                      ? () => widget.onCreateFolder!(currentPath)
-                      : null,
+                  onNewFolder: _handleCreateFolder,
                   onMoveTo: widget.onMoveItems != null
                       ? () => widget.onMoveItems!(currentPath, selectedItems)
                       : null,
