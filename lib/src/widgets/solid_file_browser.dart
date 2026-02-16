@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/models/file_sort_option.dart';
 import 'package:solidui/src/utils/file_operations.dart';
@@ -643,13 +644,15 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     }
   }
 
-  /// Handles the toolbar Delete action by invoking [widget.onFileDelete]
-  /// for each selected file. If [widget.onDeleteItems] is provided, it is
-  /// used instead for custom batch handling.
+  /// Handles the toolbar Delete action.
   ///
-  /// After deletion, the selection is cleared and the directory is refreshed.
+  /// If [widget.onDeleteItems] is provided, it is used for custom batch
+  /// handling. Otherwise the built-in flow is used:
+  /// - Files are deleted via [widget.onFileDelete].
+  /// - Directories are deleted via [deleteContainer] from solidpod after
+  ///   the user confirms through a dialog.
 
-  void _handleToolbarDelete() {
+  Future<void> _handleToolbarDelete() async {
     if (widget.onDeleteItems != null) {
       widget.onDeleteItems!(currentPath, selectedItems);
       return;
@@ -658,12 +661,147 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     // Take a snapshot of selected items before clearing.
 
     final items = Set<String>.from(_selectedItems);
-    for (final key in items) {
-      if (key.startsWith('file:')) {
-        final fileName = key.substring(5);
-        widget.onFileDelete(fileName, currentPath);
+
+    // Separate files and directories.
+
+    final fileKeys = items.where((k) => k.startsWith('file:')).toList();
+    final dirKeys = items.where((k) => k.startsWith('dir:')).toList();
+
+    // Delete individual files via the existing callback.
+
+    for (final key in fileKeys) {
+      final fileName = key.substring(5);
+      widget.onFileDelete(fileName, currentPath);
+    }
+
+    // Delete directories with a confirmation dialog.
+
+    if (dirKeys.isNotEmpty) {
+      await _handleDeleteDirectories(dirKeys);
+    }
+  }
+
+  /// Shows a confirmation dialog and deletes the selected directories.
+  ///
+  /// Each directory in [dirKeys] is expected to use the "dir:name" format.
+  /// The user is warned that all contents will be permanently removed.
+
+  Future<void> _handleDeleteDirectories(List<String> dirKeys) async {
+    final dirNames = dirKeys.map((k) => k.substring(4)).toList();
+
+    final isSingle = dirNames.length == 1;
+    final subject =
+        isSingle ? 'folder "${dirNames.first}"' : '${dirNames.length} folders';
+
+    // Show a confirmation dialog before proceeding.
+
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: Text(
+            'Are you sure you want to delete $subject?\n\n'
+            'All files and sub-folders inside will be permanently removed.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(dialogContext).colorScheme.error,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => isLoading = true);
+
+    // Delete each selected directory via solidpod.
+
+    final failures = <String>[];
+    for (final name in dirNames) {
+      try {
+        await deleteContainer(currentPath, name);
+      } catch (e) {
+        debugPrint('Error deleting folder "$name": $e');
+        failures.add(name);
       }
     }
+
+    if (!mounted) return;
+
+    if (failures.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$subject deleted successfully.'),
+          backgroundColor: ActionColors.success,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to delete: ${failures.join(", ")}',
+          ),
+          backgroundColor: ActionColors.error,
+        ),
+      );
+    }
+
+    // Remove deleted paths (and their children) from navigation history
+    // so the user cannot navigate back or forward into a non-existent
+    // directory.
+
+    final deletedPaths = dirNames
+        .where((n) => !failures.contains(n))
+        .map((n) => PathUtils.combine(currentPath, n))
+        .toList();
+    _purgeDeletedPathsFromHistory(deletedPaths);
+
+    _selectedItems.removeAll(dirKeys);
+    await refreshFiles();
+  }
+
+  /// Removes entries from [pathHistory] that match or are children of any
+  /// path in [deletedPaths], then adjusts [_historyIndex] so it still
+  /// points to [currentPath].
+  ///
+  /// This prevents the Back / Forward buttons from navigating into
+  /// directories that no longer exist on the POD.
+
+  void _purgeDeletedPathsFromHistory(List<String> deletedPaths) {
+    if (deletedPaths.isEmpty) return;
+
+    // A history entry should be removed when it exactly matches a deleted
+    // path or is a descendant of one (i.e. starts with "deletedPath/").
+
+    bool isDeleted(String entry) {
+      return deletedPaths.any(
+        (dp) => entry == dp || entry.startsWith('$dp/'),
+      );
+    }
+
+    // Remember the current entry so we can re-locate the index afterwards.
+
+    final currentEntry = pathHistory[_historyIndex];
+
+    pathHistory.removeWhere(isDeleted);
+
+    // Re-calculate the index. The current entry should still be present
+    // because we are viewing the parent directory, not the deleted one.
+
+    final newIndex = pathHistory.indexOf(currentEntry);
+    _historyIndex = newIndex != -1 ? newIndex : pathHistory.length - 1;
   }
 
   /// Handles the "New Folder" action.
@@ -693,7 +831,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('A folder named "$folderName" already exists.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: ActionColors.error,
         ),
       );
       return;
@@ -711,6 +849,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Folder "$folderName" created successfully.'),
+          backgroundColor: ActionColors.success,
         ),
       );
 
@@ -722,7 +861,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to create folder: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: ActionColors.error,
         ),
       );
     }
