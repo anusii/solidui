@@ -32,6 +32,8 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getDataDirPath;
 
+import 'package:solidui/src/models/file_type_config.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_browser_builder.dart';
 import 'package:solidui/src/widgets/solid_file_callbacks.dart';
@@ -44,13 +46,6 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 /// functionality.
 
 class SolidFile extends StatefulWidget {
-  /// Base path for file operations.
-  ///
-  /// If null, defaults to the app data directory path (e.g. 'appname/data').
-  /// If the app data directory does not exist, falls back to the pod root ('').
-
-  final String? basePath;
-
   /// Current path in the file browser.
 
   final String? currentPath;
@@ -129,9 +124,25 @@ class SolidFile extends StatefulWidget {
 
   final bool autoConfig;
 
+  /// Optional resolver for mapping paths to file type configurations.
+  ///
+  /// Applications can supply their own resolver to provide custom upload
+  /// configurations, display names, and format configs based on the current
+  /// directory path. When the resolver returns `null`, the generic default
+  /// behaviour is used.
+
+  final FileTypeResolver? fileTypeResolver;
+
+  /// Optional map of directory basenames to display names.
+  ///
+  /// When provided, the file browser uses these overrides to display
+  /// user-friendly folder names (e.g. `{'blood_pressure': 'Blood Pressure
+  /// Data'}`). Entries not found in the map fall back to generic formatting.
+
+  final Map<String, String>? folderNameOverrides;
+
   const SolidFile({
     super.key,
-    this.basePath,
     this.currentPath,
     this.friendlyFolderName,
     this.showBackButton = true,
@@ -151,6 +162,8 @@ class SolidFile extends StatefulWidget {
     this.uploadState,
     this.browserKey,
     this.autoConfig = true,
+    this.fileTypeResolver,
+    this.folderNameOverrides,
   });
 
   /// Legacy constructor for backward compatibility.
@@ -161,8 +174,9 @@ class SolidFile extends StatefulWidget {
     required SolidFileCallbacks callbacks,
     required SolidFileState state,
     this.browserKey,
-  })  : basePath = config.basePath,
-        currentPath = state.currentPath,
+    this.fileTypeResolver,
+    this.folderNameOverrides,
+  })  : currentPath = state.currentPath,
         friendlyFolderName = state.friendlyFolderName,
         showBackButton = config.showBackButton,
         backButtonText = config.backButtonText,
@@ -181,7 +195,7 @@ class SolidFile extends StatefulWidget {
         uploadState = state.uploadState,
         autoConfig = false; // Legacy mode does not use auto-config.
 
-  /// Default base path constant representing the pod root.
+  /// Default path constant representing the POD root.
 
   static const String podRoot = '';
 
@@ -193,7 +207,7 @@ class _SolidFileState extends State<SolidFile> {
   late GlobalKey<SolidFileBrowserState> _browserKey;
   late String _currentPath;
 
-  /// The resolved base path (either from widget or computed default).
+  /// The resolved base path.
 
   String? _resolvedBasePath;
 
@@ -210,35 +224,32 @@ class _SolidFileState extends State<SolidFile> {
 
   /// Resolves the base path asynchronously.
   ///
-  /// If basePath is provided, uses it directly.
-  /// Otherwise, defaults to the app data directory path.
-  /// Falls back to pod root if the app data directory cannot be determined.
+  /// If [widget.currentPath] is explicitly provided, it is used as the base
+  /// path. This allows the widget to start from any location on the POD,
+  /// including the root. Otherwise, defaults to the app data directory path
+  /// via [getDataDirPath]. Falls back to POD root if the app data directory
+  /// cannot be determined.
 
   Future<void> _resolveBasePath() async {
-    if (widget.basePath != null) {
-      // Use the provided basePath directly.
+    if (widget.currentPath != null) {
+      // Use the explicitly provided path as the base.
 
-      _resolvedBasePath = widget.basePath;
-      _currentPath = widget.currentPath ?? _resolvedBasePath!;
-      setState(() {
-        _isResolvingBasePath = false;
-      });
-      return;
+      _resolvedBasePath = PathUtils.normalise(widget.currentPath!);
+    } else {
+      try {
+        final appDataPath = await getDataDirPath();
+        _resolvedBasePath = PathUtils.normalise(appDataPath);
+      } catch (e) {
+        // Fall back to POD root if getDataDirPath fails.
+
+        debugPrint(
+          'Failed to get app data path, falling back to POD root: $e',
+        );
+        _resolvedBasePath = SolidFile.podRoot;
+      }
     }
 
-    // Attempt to get the app data directory path.
-
-    try {
-      final appDataPath = await getDataDirPath();
-      _resolvedBasePath = appDataPath;
-    } catch (e) {
-      // Fall back to pod root if getDataDirPath fails.
-
-      debugPrint('Failed to get app data path, falling back to pod root: $e');
-      _resolvedBasePath = SolidFile.podRoot;
-    }
-
-    _currentPath = widget.currentPath ?? _resolvedBasePath!;
+    _currentPath = _resolvedBasePath!;
     setState(() {
       _isResolvingBasePath = false;
     });
@@ -251,13 +262,6 @@ class _SolidFileState extends State<SolidFile> {
   @override
   void didUpdateWidget(covariant SolidFile oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // Handle basePath changes.
-
-    if (oldWidget.basePath != widget.basePath) {
-      _resolveBasePath();
-      return;
-    }
 
     final oldPath = oldWidget.currentPath ?? _effectiveBasePath;
     final newPath = widget.currentPath ?? _effectiveBasePath;
@@ -289,13 +293,16 @@ class _SolidFileState extends State<SolidFile> {
   /// Handles directory changes and updates internal state.
 
   void _handleDirectoryChanged(String path) {
+    // Normalise the path to ensure consistent handling.
+
+    final normalisedPath = PathUtils.normalise(path);
     setState(() {
-      _currentPath = path;
+      _currentPath = normalisedPath;
     });
 
     // Call the external callback if provided.
 
-    widget.onDirectoryChanged?.call(path);
+    widget.onDirectoryChanged?.call(normalisedPath);
   }
 
   @override
@@ -370,6 +377,7 @@ class _SolidFileState extends State<SolidFile> {
                             widget.autoConfig,
                             widget.showUpload,
                             widget.uploadConfig,
+                            widget.fileTypeResolver,
                           ),
                           uploadCallbacks: _getEffectiveUploadCallbacks(),
                           uploadState: widget.uploadState ??
@@ -387,6 +395,7 @@ class _SolidFileState extends State<SolidFile> {
                             widget.autoConfig,
                             widget.showUpload,
                             widget.uploadConfig,
+                            widget.fileTypeResolver,
                           ),
                           uploadCallbacks: _getEffectiveUploadCallbacks(),
                           uploadState: widget.uploadState ??
@@ -403,23 +412,28 @@ class _SolidFileState extends State<SolidFile> {
   }
 
   /// Builds the file browser widget.
+  ///
+  /// Passes the resolved [_currentPath] as the initial path so the browser
+  /// starts from the correct location (e.g., POD root for "All POD Files").
 
   Widget _buildFileBrowser() {
     return SolidFileBrowserBuilder.build(
       browserKey: _browserKey,
-      basePath: _effectiveBasePath,
       friendlyFolderName: SolidFileHelpers.getEffectiveFriendlyFolderName(
         _currentPath,
         _effectiveBasePath,
         widget.autoConfig,
         widget.friendlyFolderName,
+        widget.fileTypeResolver,
       ),
+      initialPath: widget.currentPath,
       onFileSelected: widget.onFileSelected,
       onFileDownload: widget.onFileDownload,
       onFileDelete: widget.onFileDelete,
       onImportCsv: widget.onImportCsv,
       onDirectoryChanged: _handleDirectoryChanged,
       uploadCallbacks: widget.uploadCallbacks,
+      folderNameOverrides: widget.folderNameOverrides,
     );
   }
 }

@@ -66,10 +66,6 @@ class PathBar extends StatelessWidget {
 
   final String friendlyFolderName;
 
-  /// Base path of the file browser.
-
-  final String basePath;
-
   const PathBar({
     super.key,
     required this.currentPath,
@@ -80,7 +76,6 @@ class PathBar extends StatelessWidget {
     required this.currentDirFileCount,
     required this.currentDirDirectoryCount,
     required this.friendlyFolderName,
-    required this.basePath,
   });
 
   @override

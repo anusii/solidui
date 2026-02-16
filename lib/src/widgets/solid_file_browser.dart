@@ -34,6 +34,7 @@ import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/utils/file_operations.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
 import 'package:solidui/src/widgets/solid_file_browser_not_logged_in.dart';
@@ -72,9 +73,21 @@ class SolidFileBrowser extends StatefulWidget {
 
   final String friendlyFolderName;
 
-  /// The base path for the file browser.
+  /// Optional initial path for the browser to start from.
+  ///
+  /// If provided, the browser will start from this path instead of the
+  /// default app data directory path. Use an empty string to start from
+  /// the POD root.
 
-  final String basePath;
+  final String? initialPath;
+
+  /// Optional map of directory basenames to display names.
+  ///
+  /// When provided, these overrides are used to display user-friendly folder
+  /// names in the path bar. Entries not found in the map fall back to generic
+  /// formatting.
+
+  final Map<String, String>? folderNameOverrides;
 
   const SolidFileBrowser({
     super.key,
@@ -85,7 +98,8 @@ class SolidFileBrowser extends StatefulWidget {
     required this.onImportCsv,
     required this.onDirectoryChanged,
     required this.friendlyFolderName,
-    required this.basePath,
+    this.initialPath,
+    this.folderNameOverrides,
   });
 
   @override
@@ -135,11 +149,43 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   bool isLoggedIn = false;
 
+  /// The home path resolved from [getDataDirPath].
+
+  String _homePath = '';
+
   @override
   void initState() {
     super.initState();
-    currentPath = widget.basePath;
-    pathHistory = [widget.basePath];
+    _resolveHomePath();
+  }
+
+  /// Resolves the home path internally via [getDataDirPath].
+  ///
+  /// If [widget.initialPath] is provided, it is used as both the starting
+  /// path and the home path for navigation. This allows browsing from any
+  /// location on the POD, including the root.
+
+  Future<void> _resolveHomePath() async {
+    if (widget.initialPath != null) {
+      // Use the explicitly provided initial path as both the home path and
+      // the starting path. This ensures the "back to root" navigation and
+      // path history work correctly for non-default starting locations.
+
+      _homePath = PathUtils.normalise(widget.initialPath!);
+    } else {
+      try {
+        final appDataPath = await getDataDirPath();
+        _homePath = PathUtils.normalise(appDataPath);
+      } catch (e) {
+        debugPrint(
+          'Failed to get app data path, falling back to POD root: $e',
+        );
+        _homePath = '';
+      }
+    }
+
+    currentPath = _homePath;
+    pathHistory = [currentPath];
     _checkLoginStatus();
   }
 
@@ -178,7 +224,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   Future<void> navigateToDirectory(String dirName) async {
     if (!mounted) return;
     setState(() {
-      currentPath = '$currentPath/$dirName';
+      // Use PathUtils.combine to ensure consistent path joining without
+      // double slashes.
+
+      currentPath = PathUtils.combine(currentPath, dirName);
       pathHistory.add(currentPath);
     });
     await refreshFiles();
@@ -198,6 +247,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   }
 
   /// Refreshes the current directory's contents.
+  ///
+  /// Fetches resources from the container in a single REST call, then
+  /// processes files and defers subdirectory count loading to the background
+  /// to minimise the initial number of REST calls.
 
   Future<void> refreshFiles() async {
     if (!isLoggedIn) {
@@ -209,88 +262,124 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     setState(() => isLoading = true);
 
     try {
-      // Get current directory contents.
+      // Get current directory contents in a single REST call.
 
       final dirUrl = await getDirUrl(currentPath);
       final resources = await getResourcesInContainer(dirUrl);
 
       if (!mounted) return;
 
-      // Update directories list.
+      // Extract directory names from the fetched resources.
 
-      setState(() {
-        directories = resources.subDirs
-            .map((dirUrl) => FileOperations.extractResourceName(dirUrl))
-            .toList();
-        currentDirDirectoryCount = directories.length;
-      });
+      final fetchedDirectories = resources.subDirs
+          .map((dirUrl) => FileOperations.extractResourceName(dirUrl))
+          .toList();
 
-      // Count files in current directory.
+      // Count TTL files from the already-fetched resource list (no extra REST
+      // call needed).
 
-      currentDirFileCount = resources.files
+      final fileCount = resources.files
           .where((f) => f.endsWith('.enc.ttl') || f.endsWith('.ttl'))
           .length;
 
-      // Get file counts for all subdirectories.
-
-      final counts = await FileOperations.getDirectoryCounts(
-        currentPath,
-        directories,
-      );
-
-      if (!mounted) return;
-
-      // Process and validate files.
+      // Process and validate files, reusing the already-fetched file URL list
+      // to avoid a duplicate getResourcesInContainer REST call.
 
       final processedFiles = await FileOperations.getFiles(
         currentPath,
+        resources.files,
         context,
       );
 
       if (!mounted) return;
 
-      // Update state with processed data.
+      // Update state with the fetched data. Directory counts are not yet
+      // available and will be loaded in the background.
 
       setState(() {
+        directories = fetchedDirectories;
+        currentDirDirectoryCount = fetchedDirectories.length;
+        currentDirFileCount = fileCount;
         files = processedFiles;
-        directoryCounts = counts;
+        directoryCounts = {};
         isLoading = false;
       });
+
+      // Defer subdirectory file count fetching to the background so that the
+      // UI is displayed immediately without blocking on N additional REST
+      // calls (one per subdirectory).
+
+      _loadDirectoryCountsInBackground(fetchedDirectories);
     } catch (e) {
       debugPrint('Error loading files: $e');
       if (mounted) setState(() => isLoading = false);
     }
   }
 
+  /// Loads file counts for each subdirectory in the background.
+  ///
+  /// Updates the UI incrementally as each count becomes available, rather
+  /// than blocking the initial render on N REST calls.
+
+  Future<void> _loadDirectoryCountsInBackground(
+    List<String> dirs,
+  ) async {
+    // Capture the path at the time of the request so we can discard stale
+    // results if the user has navigated elsewhere.
+
+    final requestPath = currentPath;
+
+    final counts = await FileOperations.getDirectoryCounts(
+      requestPath,
+      dirs,
+    );
+
+    if (!mounted) return;
+
+    // Only apply the results if the user is still viewing the same directory.
+
+    if (currentPath == requestPath) {
+      setState(() => directoryCounts = counts);
+    }
+  }
+
   /// Navigate to a specific path in the file browser.
 
   void navigateToPath(String path) {
+    // Normalise the target path to ensure consistent comparison and prevent
+    // issues with leading slashes.
+
+    final normalisedPath = PathUtils.normalise(path);
+
     setState(() {
-      currentPath = path;
-      if (path == widget.basePath) {
-        pathHistory = [widget.basePath];
+      currentPath = normalisedPath;
+      if (normalisedPath == _homePath || normalisedPath.isEmpty) {
+        pathHistory = [_homePath];
       } else {
-        if (pathHistory.isEmpty || pathHistory.last != path) {
-          if (path.startsWith(widget.basePath)) {
-            pathHistory = [widget.basePath];
-            final relativePath = path.substring(widget.basePath.length);
-            if (relativePath.isNotEmpty && relativePath != '/') {
+        if (pathHistory.isEmpty || pathHistory.last != normalisedPath) {
+          // Check if the path is under the home path.
+
+          if (_homePath.isEmpty || normalisedPath.startsWith('$_homePath/')) {
+            pathHistory = [_homePath];
+            final relativePath =
+                PathUtils.relativeTo(normalisedPath, _homePath);
+            if (relativePath.isNotEmpty) {
               final segments =
                   relativePath.split('/').where((s) => s.isNotEmpty);
-              var currentBuildPath = widget.basePath;
+              var currentBuildPath = _homePath;
               for (final segment in segments) {
-                currentBuildPath = [currentBuildPath, segment].join('/');
+                currentBuildPath = PathUtils.combine(currentBuildPath, segment);
                 pathHistory.add(currentBuildPath);
               }
             }
           } else {
-            pathHistory.add(path);
+            pathHistory.add(normalisedPath);
           }
         }
       }
       refreshFiles();
     });
-    widget.onDirectoryChanged.call(path);
+    widget.onDirectoryChanged.call(normalisedPath);
   }
 
   /// Gets the effective friendly folder name based on the current path.
@@ -299,7 +388,8 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   String _getEffectiveFriendlyFolderName() {
     return SolidFileOperations.getFriendlyFolderName(
       currentPath,
-      widget.basePath,
+      _homePath,
+      widget.folderNameOverrides,
     );
   }
 
@@ -340,7 +430,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   currentDirFileCount: currentDirFileCount,
                   currentDirDirectoryCount: currentDirDirectoryCount,
                   friendlyFolderName: _getEffectiveFriendlyFolderName(),
-                  basePath: widget.basePath,
                 ),
               if (isLoggedIn) const SizedBox(height: 12),
               Expanded(child: _buildContent()),

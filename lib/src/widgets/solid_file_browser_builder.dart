@@ -30,8 +30,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart';
-
 import 'package:solidui/src/utils/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_browser.dart';
 import 'package:solidui/src/widgets/solid_file_upload_config.dart';
@@ -43,20 +41,22 @@ class SolidFileBrowserBuilder {
 
   static Widget build({
     required GlobalKey<SolidFileBrowserState> browserKey,
-    required String basePath,
     required String friendlyFolderName,
+    String? initialPath,
     Function(String fileName, String filePath)? onFileSelected,
     Function(String fileName, String filePath)? onFileDownload,
     Function(String fileName, String filePath)? onFileDelete,
     Function(String fileName, String filePath)? onImportCsv,
     required Function(String path) onDirectoryChanged,
     SolidFileUploadCallbacks? uploadCallbacks,
+    Map<String, String>? folderNameOverrides,
   }) {
     return SolidFileBrowser(
       key: browserKey,
       browserKey: browserKey,
-      basePath: basePath,
       friendlyFolderName: friendlyFolderName,
+      initialPath: initialPath,
+      folderNameOverrides: folderNameOverrides,
       onFileSelected: onFileSelected ??
           (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');
@@ -67,16 +67,17 @@ class SolidFileBrowserBuilder {
               browserKey.currentContext!,
               fileName,
               filePath,
-              pathType: basePath.trim().isEmpty ? PathType.relativeToPod : null,
             );
           },
       onFileDelete: onFileDelete ??
           (fileName, filePath) {
+            // filePath is already relative to the Pod root
+            // (e.g., 'myapp/data/subfolder').
+
             SolidFileOperations.deletePodFile(
               browserKey.currentContext!,
               fileName,
               filePath,
-              basePath: basePath,
               onSuccess: () {
                 // Refresh the browser after successful deletion.
 

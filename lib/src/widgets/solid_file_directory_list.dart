@@ -95,26 +95,38 @@ class DirectoryList extends StatelessWidget {
                   ),
                 ),
 
-                // File count badge.
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${directoryCounts[dir] ?? 0} files',
-                    style: TextStyle(
-                      fontSize: 12,
+                // File count badge. Shows a compact loading indicator while
+                // counts are being fetched in the background.
+
+                if (directoryCounts.containsKey(dir))
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${directoryCounts[dir]} files',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                    ),
+                  )
+                else
+                  SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
                       color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
                   ),
-                ),
               ],
             ),
             dense: true,
