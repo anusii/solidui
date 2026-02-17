@@ -265,6 +265,7 @@ extension _BrowserActions on SolidFileBrowserState {
                 labelText: 'Folder name',
                 hintText: 'Enter folder name',
                 border: OutlineInputBorder(),
+                errorMaxLines: 3,
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
