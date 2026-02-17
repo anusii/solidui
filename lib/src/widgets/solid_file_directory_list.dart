@@ -53,6 +53,11 @@ class DirectoryList extends StatelessWidget {
 
   final Function(String) onToggleSelection;
 
+  /// Callback to add or remove a batch of item keys in one operation.
+
+  final void Function(List<String> keys, {required bool selected})
+      onBatchSetSelection;
+
   const DirectoryList({
     super.key,
     required this.directories,
@@ -60,6 +65,7 @@ class DirectoryList extends StatelessWidget {
     required this.selectedItems,
     required this.onDirectorySelected,
     required this.onToggleSelection,
+    required this.onBatchSetSelection,
   });
 
   @override
@@ -68,20 +74,54 @@ class DirectoryList extends StatelessWidget {
 
     if (directories.isEmpty) return const SizedBox.shrink();
 
+    // Compute the selection state for the select-all checkbox.
+
+    final allKeys = directories.map((d) => 'dir:$d').toList();
+    final selectedCount =
+        allKeys.where((k) => selectedItems.contains(k)).length;
+    final allSelected = selectedCount == directories.length;
+    final noneSelected = selectedCount == 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header for directories.
+        // Section header with a select-all checkbox.
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Folders',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.titleLarge?.color,
-            ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: Checkbox(
+                  value: allSelected
+                      ? true
+                      : noneSelected
+                          ? false
+                          : null,
+                  tristate: true,
+                  onChanged: (_) {
+                    if (allSelected) {
+                      onBatchSetSelection(allKeys, selected: false);
+                    } else {
+                      onBatchSetSelection(allKeys, selected: true);
+                    }
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Folders',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                ),
+              ),
+            ],
           ),
         ),
 

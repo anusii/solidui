@@ -36,6 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
@@ -43,59 +44,6 @@ import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 class SolidFileDownloadOperations {
   const SolidFileDownloadOperations._();
-
-  /// Checks if a file is within the current app's folder on the POD.
-  ///
-  /// Returns `true` if the file belongs to the current app, indicating that
-  /// the current app can decrypt this file.
-  /// Returns `false` if the file is from another app's folder, meaning
-  /// decryption may fail as the security key is not available.
-
-  static Future<bool> _isFileInCurrentAppFolder(String filePath) async {
-    try {
-      // Validate that the file path is a POD-relative path rather than an
-      // absolute URL or empty string.
-
-      if (filePath.trim().isEmpty) {
-        debugPrint('Cannot check app folder ownership: file path is empty.');
-        return false;
-      }
-
-      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-        debugPrint(
-          'Cannot check app folder ownership: expected a POD-relative '
-          'path but received an absolute URL: $filePath',
-        );
-        return false;
-      }
-
-      // Resolve the relative file path into a full URL for reliable
-      // comparison.
-
-      final normalisedPath = PathUtils.normalise(filePath);
-      final fileUrl = await getFileUrl(normalisedPath);
-
-      // Derive the current app name from getDataDirPath(), which returns
-      // "APP_NAME/data". The first segment is the app name.
-
-      final appDataPath = await getDataDirPath();
-      if (appDataPath.isEmpty) return false;
-
-      final currentAppName = appDataPath.split('/').first;
-      if (currentAppName.isEmpty) return false;
-
-      // Build the current app's root directory URL and check whether the
-      // file URL falls under it. getDirUrl appends a trailing slash, which
-      // prevents false positives (e.g., "myapp2" matching "myapp").
-
-      final appRootUrl = await getDirUrl(currentAppName);
-
-      return fileUrl.startsWith(appRootUrl);
-    } catch (e) {
-      debugPrint('Error checking app folder ownership: $e');
-      return false;
-    }
-  }
 
   /// Shows a warning dialogue when attempting to download an encrypted file
   /// from another app's data folder.
@@ -175,7 +123,8 @@ class SolidFileDownloadOperations {
       // Check if the file belongs to another app's folder. If so, warn the
       // user that the file content may be encrypted.
 
-      final isInCurrentAppFolder = await _isFileInCurrentAppFolder(filePath);
+      final fullPath = PathUtils.combine(filePath, fileName);
+      final isInCurrentAppFolder = await isPathInCurrentApp(fullPath);
 
       if (!isInCurrentAppFolder) {
         if (!context.mounted) return;
@@ -315,6 +264,189 @@ class SolidFileDownloadOperations {
       // If base64 decode fails, treat as text content.
 
       await file.writeAsString(content);
+    }
+  }
+
+  /// Download a mixed batch of files and/or directories from the POD as a
+  /// single zip archive.
+  ///
+  /// When any selected item resides outside the current app's folder the
+  /// user is warned that decryption may not be possible and given the
+  /// option to cancel.
+  ///
+  /// [currentPath] is the POD-relative directory path containing the items.
+  ///
+  /// [fileNames] is the list of file names to include.
+  ///
+  /// [directoryNames] is the list of directory names to include.
+  ///
+  /// [zipFileName] is the suggested default name for the saved zip file.
+
+  static Future<void> downloadMultipleItems(
+    BuildContext context, {
+    required String currentPath,
+    List<String> fileNames = const [],
+    List<String> directoryNames = const [],
+    required String zipFileName,
+  }) async {
+    final totalCount = fileNames.length + directoryNames.length;
+    if (totalCount == 0) return;
+
+    try {
+      // Check whether any selected item falls outside the current app's
+      // folder. If so we need to warn about possible decryption failure.
+
+      final isInCurrentApp = await isPathInCurrentApp(currentPath);
+
+      if (!isInCurrentApp) {
+        if (!context.mounted) return;
+
+        final shouldProceed = await _showCrossAppDownloadWarning(context);
+
+        if (!shouldProceed) return;
+      }
+
+      if (!context.mounted) return;
+
+      // Let the user choose where to save the zip file.
+
+      final outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save zip as:',
+        fileName: zipFileName,
+      );
+
+      if (outputFile == null) return;
+
+      if (!context.mounted) return;
+
+      // Get security key if required.
+
+      await getKeyFromUserIfRequired(
+        context,
+        const Text('Please enter your security key to download the files'),
+      );
+
+      if (!context.mounted) return;
+
+      // Show a progress dialogue while downloading and zipping.
+
+      final progressNotifier = ValueNotifier<double>(0);
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Downloading'),
+            content: ValueListenableBuilder<double>(
+              valueListenable: progressNotifier,
+              builder: (_, progress, __) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LinearProgressIndicator(value: progress),
+                    const SizedBox(height: 12),
+                    Text('Reading files… '
+                        '${(progress * 100).round()}%'),
+                  ],
+                );
+              },
+            ),
+          );
+        },
+      );
+
+      try {
+        final result = await downloadItemsAsZip(
+          parentPath: currentPath,
+          fileNames: fileNames,
+          directoryNames: directoryNames,
+          onProgress: (completed, total) {
+            progressNotifier.value =
+                total > 0 ? completed / total : 0;
+          },
+        );
+
+        if (!context.mounted) return;
+
+        Navigator.of(context).pop();
+
+        if (!result.hasContent) {
+          // Neither files nor empty directories were added – nothing
+          // to save. Show a diagnostic message.
+
+          final msg = result.entriesFound == 0
+              ? 'No downloadable content was found.'
+              : '${result.entriesFound} file(s) found but none could '
+                  'be read. ${result.failed.length} error(s).';
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(msg),
+              backgroundColor: ActionColors.error,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+
+          return;
+        }
+
+        // Write zip to the selected output path.
+
+        await File(outputFile).writeAsBytes(result.zipBytes);
+
+        if (!context.mounted) return;
+
+        // Build a concise success message listing what was included.
+
+        final parts = <String>[];
+        if (result.filesAdded > 0) {
+          parts.add('${result.filesAdded} file(s)');
+        }
+        if (result.emptyDirsAdded > 0) {
+          parts.add('${result.emptyDirsAdded} empty folder(s)');
+        }
+        final summary = parts.join(', ');
+
+        final successMsg = result.failed.isEmpty
+            ? 'Downloaded $summary to $outputFile'
+            : 'Downloaded $summary to $outputFile '
+                '(${result.failed.length} could not be read)';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMsg),
+            backgroundColor: result.failed.isEmpty
+                ? ActionColors.success
+                : Colors.orange,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } catch (e) {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Download failed: ${e.toString()}'),
+              backgroundColor: ActionColors.error,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
+      } finally {
+        progressNotifier.dispose();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download error: ${e.toString()}'),
+            backgroundColor: ActionColors.error,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 }

@@ -56,6 +56,11 @@ class FileList extends StatelessWidget {
 
   final Function(String) onToggleSelection;
 
+  /// Callback to add or remove a batch of item keys in one operation.
+
+  final void Function(List<String> keys, {required bool selected})
+      onBatchSetSelection;
+
   const FileList({
     super.key,
     required this.files,
@@ -63,6 +68,7 @@ class FileList extends StatelessWidget {
     required this.selectedItems,
     required this.onFileSelected,
     required this.onToggleSelection,
+    required this.onBatchSetSelection,
   });
 
   @override
@@ -71,20 +77,54 @@ class FileList extends StatelessWidget {
 
     if (files.isEmpty) return const SizedBox.shrink();
 
+    // Compute the selection state for the select-all checkbox.
+
+    final allKeys = files.map((f) => 'file:${f.name}').toList();
+    final selectedCount =
+        allKeys.where((k) => selectedItems.contains(k)).length;
+    final allSelected = selectedCount == files.length;
+    final noneSelected = selectedCount == 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header for files.
+        // Section header with a select-all checkbox.
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Files',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.titleLarge?.color,
-            ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: Checkbox(
+                  value: allSelected
+                      ? true
+                      : noneSelected
+                          ? false
+                          : null,
+                  tristate: true,
+                  onChanged: (_) {
+                    if (allSelected) {
+                      onBatchSetSelection(allKeys, selected: false);
+                    } else {
+                      onBatchSetSelection(allKeys, selected: true);
+                    }
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Files',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                ),
+              ),
+            ],
           ),
         ),
 

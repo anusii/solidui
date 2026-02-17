@@ -457,14 +457,16 @@ class PathBar extends StatelessWidget {
 
   /// Builds the View dropdown menu for sorting options.
   ///
-  /// Displays all [FileSortOption] values as menu items, with a tick mark
-  /// next to the currently active option.
+  /// Uses compact [PopupMenuItem]s with a small leading tick icon instead
+  /// of the wider [CheckedPopupMenuItem] to keep the menu narrow.
 
   Widget _buildViewDropdown(BuildContext context) {
     return PopupMenuButton<FileSortOption>(
       tooltip: 'Sort options',
       onSelected: onSortChanged,
       position: PopupMenuPosition.under,
+      constraints: const BoxConstraints(minWidth: 0),
+      menuPadding: const EdgeInsets.symmetric(vertical: 4),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
@@ -494,28 +496,50 @@ class PathBar extends StatelessWidget {
       itemBuilder: (context) => [
         _buildSortMenuItem(context, FileSortOption.nameAscending),
         _buildSortMenuItem(context, FileSortOption.nameDescending),
-        const PopupMenuDivider(),
+        const PopupMenuDivider(height: 1),
         _buildSortMenuItem(context, FileSortOption.dateModifiedAscending),
         _buildSortMenuItem(context, FileSortOption.dateModifiedDescending),
-        const PopupMenuDivider(),
+        const PopupMenuDivider(height: 1),
         _buildSortMenuItem(context, FileSortOption.typeAscending),
         _buildSortMenuItem(context, FileSortOption.typeDescending),
       ],
     );
   }
 
-  /// Builds a single sort menu item with a check mark when active.
+  /// Builds a single compact sort menu item with a small tick when active.
 
   PopupMenuEntry<FileSortOption> _buildSortMenuItem(
     BuildContext context,
     FileSortOption option,
   ) {
-    return CheckedPopupMenuItem<FileSortOption>(
+    final isActive = currentSortOption == option;
+
+    return PopupMenuItem<FileSortOption>(
       value: option,
-      checked: currentSortOption == option,
-      child: Text(
-        option.displayLabel,
-        style: const TextStyle(fontSize: 13),
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 16,
+            child: isActive
+                ? Icon(
+                    Icons.check,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                : null,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            option.displayLabel,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -38,6 +38,7 @@ import 'package:solidui/src/models/file_sort_option.dart';
 import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_file_operations_delete.dart';
+import 'package:solidui/src/utils/solid_file_operations_download.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
 import 'package:solidui/src/widgets/solid_file_browser_not_logged_in.dart';
@@ -372,6 +373,21 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     }
   }
 
+  /// Adds or removes a batch of item keys in a single setState call.
+  ///
+  /// When [selected] is true every key in [keys] is added to the
+  /// selection; when false every key is removed.
+
+  void batchSetSelection(List<String> keys, {required bool selected}) {
+    setState(() {
+      if (selected) {
+        _selectedItems.addAll(keys);
+      } else {
+        _selectedItems.removeAll(keys);
+      }
+    });
+  }
+
   /// Changes the current sort option and re-sorts the displayed items.
 
   void changeSortOption(FileSortOption option) {
@@ -627,22 +643,61 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     widget.onDirectoryChanged.call(normalisedPath);
   }
 
-  /// Handles the toolbar Download action by invoking [widget.onFileDownload]
-  /// for each selected file. If [widget.onDownloadItems] is provided, it is
-  /// used instead for custom batch handling.
+  /// Handles the toolbar Download action.
+  ///
+  /// If [widget.onDownloadItems] is provided, it is used for custom batch
+  /// handling. Otherwise the built-in flow is used:
+  /// - A single file with no directories selected: delegates to
+  ///   [widget.onFileDownload] for a direct download.
+  /// - Multiple files, any directories, or a mix: bundles everything into
+  ///   a zip archive via [SolidFileDownloadOperations.downloadMultipleItems].
 
-  void _handleToolbarDownload() {
+  Future<void> _handleToolbarDownload() async {
     if (widget.onDownloadItems != null) {
       widget.onDownloadItems!(currentPath, selectedItems);
       return;
     }
 
-    for (final key in _selectedItems) {
-      if (key.startsWith('file:')) {
-        final fileName = key.substring(5);
-        widget.onFileDownload(fileName, currentPath);
-      }
+    final items = Set<String>.from(_selectedItems);
+
+    final fileNames =
+        items.where((k) => k.startsWith('file:')).map((k) => k.substring(5)).toList();
+    final dirNames =
+        items.where((k) => k.startsWith('dir:')).map((k) => k.substring(4)).toList();
+
+    // Single file, no directories → use the existing single-file download
+    // which supports save-as dialogue and individual decryption.
+
+    if (fileNames.length == 1 && dirNames.isEmpty) {
+      widget.onFileDownload(fileNames.first, currentPath);
+      return;
     }
+
+    if (fileNames.isEmpty && dirNames.isEmpty) return;
+
+    if (!mounted) return;
+
+    // Derive a sensible zip file name:
+    //  - Single folder selected  → use that folder's name.
+    //  - Multiple items or mix   → use the current directory name.
+    //  - Root directory ("")     → use "root".
+
+    final String zipBaseName;
+    if (dirNames.length == 1 && fileNames.isEmpty) {
+      zipBaseName = dirNames.first;
+    } else {
+      final current = PathUtils.basename(currentPath);
+      zipBaseName = current.isEmpty ? 'root' : current;
+    }
+    final zipFileName = '$zipBaseName.zip';
+
+    await SolidFileDownloadOperations.downloadMultipleItems(
+      context,
+      currentPath: currentPath,
+      fileNames: fileNames,
+      directoryNames: dirNames,
+      zipFileName: zipFileName,
+    );
   }
 
   /// Handles the toolbar Delete action.
@@ -960,6 +1015,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         widget.onFileSelected.call(name, path);
       },
       onToggleSelection: toggleItemSelection,
+      onBatchSetSelection: batchSetSelection,
     );
   }
 }

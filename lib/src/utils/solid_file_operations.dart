@@ -84,6 +84,23 @@ class SolidFileOperations {
         onSuccess: onSuccess,
       );
 
+  /// Download a mixed batch of files and/or directories as a zip archive.
+
+  static Future<void> downloadMultipleItems(
+    BuildContext context, {
+    required String currentPath,
+    List<String> fileNames = const [],
+    List<String> directoryNames = const [],
+    required String zipFileName,
+  }) =>
+      SolidFileDownloadOperations.downloadMultipleItems(
+        context,
+        currentPath: currentPath,
+        fileNames: fileNames,
+        directoryNames: directoryNames,
+        zipFileName: zipFileName,
+      );
+
   /// Upload a file to the POD.
 
   static Future<void> uploadFile(

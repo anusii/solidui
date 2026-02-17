@@ -69,6 +69,11 @@ class FileBrowserContent extends StatelessWidget {
 
   final Function(String) onToggleSelection;
 
+  /// Callback to add or remove a batch of item keys in one operation.
+
+  final void Function(List<String> keys, {required bool selected})
+      onBatchSetSelection;
+
   const FileBrowserContent({
     super.key,
     required this.directories,
@@ -79,6 +84,7 @@ class FileBrowserContent extends StatelessWidget {
     required this.onDirectorySelected,
     required this.onFileSelected,
     required this.onToggleSelection,
+    required this.onBatchSetSelection,
   });
 
   @override
@@ -112,6 +118,7 @@ class FileBrowserContent extends StatelessWidget {
                   selectedItems: selectedItems,
                   onDirectorySelected: onDirectorySelected,
                   onToggleSelection: onToggleSelection,
+                  onBatchSetSelection: onBatchSetSelection,
                 ),
 
                 // Add visual separator if both directories and files exist.
@@ -127,6 +134,7 @@ class FileBrowserContent extends StatelessWidget {
                   selectedItems: selectedItems,
                   onFileSelected: onFileSelected,
                   onToggleSelection: onToggleSelection,
+                  onBatchSetSelection: onBatchSetSelection,
                 ),
               ],
             ),
