@@ -362,8 +362,7 @@ class SolidFileDownloadOperations {
           fileNames: fileNames,
           directoryNames: directoryNames,
           onProgress: (completed, total) {
-            progressNotifier.value =
-                total > 0 ? completed / total : 0;
+            progressNotifier.value = total > 0 ? completed / total : 0;
           },
         );
 
@@ -416,9 +415,8 @@ class SolidFileDownloadOperations {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(successMsg),
-            backgroundColor: result.failed.isEmpty
-                ? ActionColors.success
-                : Colors.orange,
+            backgroundColor:
+                result.failed.isEmpty ? ActionColors.success : Colors.orange,
             duration: const Duration(seconds: 3),
           ),
         );

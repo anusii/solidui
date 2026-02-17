@@ -660,10 +660,14 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
     final items = Set<String>.from(_selectedItems);
 
-    final fileNames =
-        items.where((k) => k.startsWith('file:')).map((k) => k.substring(5)).toList();
-    final dirNames =
-        items.where((k) => k.startsWith('dir:')).map((k) => k.substring(4)).toList();
+    final fileNames = items
+        .where((k) => k.startsWith('file:'))
+        .map((k) => k.substring(5))
+        .toList();
+    final dirNames = items
+        .where((k) => k.startsWith('dir:'))
+        .map((k) => k.substring(4))
+        .toList();
 
     // Single file, no directories → use the existing single-file download
     // which supports save-as dialogue and individual decryption.
