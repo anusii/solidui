@@ -19,7 +19,9 @@ dependencies:
 
 dependency_overrides:
   solidpod:
-    path: ../../solidpod
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: tony/127_browserpod
   solidui:
     path: ..
 
