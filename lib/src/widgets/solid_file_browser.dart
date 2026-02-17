@@ -37,6 +37,7 @@ import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/models/file_sort_option.dart';
 import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/utils/path_utils.dart';
+import 'package:solidui/src/utils/solid_file_operations_delete.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
 import 'package:solidui/src/widgets/solid_file_browser_not_logged_in.dart';
@@ -647,10 +648,9 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// Handles the toolbar Delete action.
   ///
   /// If [widget.onDeleteItems] is provided, it is used for custom batch
-  /// handling. Otherwise the built-in flow is used:
-  /// - Files are deleted via [widget.onFileDelete].
-  /// - Directories are deleted via [deleteContainer] from solidpod after
-  ///   the user confirms through a dialog.
+  /// handling. Otherwise the built-in unified flow is used, which deletes
+  /// a mixed selection of files and directories in a single batch via
+  /// [SolidFileDeleteOperations.deleteMultipleItems].
 
   Future<void> _handleToolbarDelete() async {
     if (widget.onDeleteItems != null) {
@@ -664,112 +664,41 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
     // Separate files and directories.
 
-    final fileKeys = items.where((k) => k.startsWith('file:')).toList();
-    final dirKeys = items.where((k) => k.startsWith('dir:')).toList();
+    final fileNames = items
+        .where((k) => k.startsWith('file:'))
+        .map((k) => k.substring(5))
+        .toList();
+    final dirNames = items
+        .where((k) => k.startsWith('dir:'))
+        .map((k) => k.substring(4))
+        .toList();
 
-    // Delete individual files via the existing callback.
-
-    for (final key in fileKeys) {
-      final fileName = key.substring(5);
-      widget.onFileDelete(fileName, currentPath);
-    }
-
-    // Delete directories with a confirmation dialog.
-
-    if (dirKeys.isNotEmpty) {
-      await _handleDeleteDirectories(dirKeys);
-    }
-  }
-
-  /// Shows a confirmation dialog and deletes the selected directories.
-  ///
-  /// Each directory in [dirKeys] is expected to use the "dir:name" format.
-  /// The user is warned that all contents will be permanently removed.
-
-  Future<void> _handleDeleteDirectories(List<String> dirKeys) async {
-    final dirNames = dirKeys.map((k) => k.substring(4)).toList();
-
-    final isSingle = dirNames.length == 1;
-    final subject =
-        isSingle ? 'folder "${dirNames.first}"' : '${dirNames.length} folders';
-
-    // Show a confirmation dialog before proceeding.
+    if (fileNames.isEmpty && dirNames.isEmpty) return;
 
     if (!mounted) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Confirm Delete'),
-          content: Text(
-            'Are you sure you want to delete $subject?\n\n'
-            'All files and sub-folders inside will be permanently removed.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(dialogContext).colorScheme.error,
-              ),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
+
+    // Delegate to the unified batch delete UI which handles confirmation,
+    // progress reporting and result feedback.
+
+    await SolidFileDeleteOperations.deleteMultipleItems(
+      context,
+      currentPath: currentPath,
+      fileNames: fileNames,
+      directoryNames: dirNames,
+      onSuccess: () {
+        if (!mounted) return;
+
+        // Purge deleted directory paths from navigation history so the
+        // Back / Forward buttons cannot navigate into removed folders.
+
+        final deletedPaths =
+            dirNames.map((n) => PathUtils.combine(currentPath, n)).toList();
+        _purgeDeletedPathsFromHistory(deletedPaths);
+
+        _selectedItems.removeAll(items);
+        refreshFiles();
       },
     );
-
-    if (confirmed != true || !mounted) return;
-
-    setState(() => isLoading = true);
-
-    // Delete each selected directory via solidpod.
-
-    final failures = <String>[];
-    for (final name in dirNames) {
-      try {
-        await deleteContainer(currentPath, name);
-      } catch (e) {
-        debugPrint('Error deleting folder "$name": $e');
-        failures.add(name);
-      }
-    }
-
-    if (!mounted) return;
-
-    if (failures.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$subject deleted successfully.'),
-          backgroundColor: ActionColors.success,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Failed to delete: ${failures.join(", ")}',
-          ),
-          backgroundColor: ActionColors.error,
-        ),
-      );
-    }
-
-    // Remove deleted paths (and their children) from navigation history
-    // so the user cannot navigate back or forward into a non-existent
-    // directory.
-
-    final deletedPaths = dirNames
-        .where((n) => !failures.contains(n))
-        .map((n) => PathUtils.combine(currentPath, n))
-        .toList();
-    _purgeDeletedPathsFromHistory(deletedPaths);
-
-    _selectedItems.removeAll(dirKeys);
-    await refreshFiles();
   }
 
   /// Removes entries from [pathHistory] that match or are children of any

@@ -229,16 +229,14 @@ class PathBar extends StatelessWidget {
                               icon: Icons.drive_file_move,
                               label: 'Move to',
                               onPressed: hasSelection ? onMoveTo : null,
-                              tooltipMessage:
-                                  'Under development',
+                              tooltipMessage: 'Under development',
                             ),
                             _buildActionButton(
                               context,
                               icon: Icons.file_copy,
                               label: 'Copy to',
                               onPressed: hasSelection ? onCopyTo : null,
-                              tooltipMessage:
-                                  'Under development',
+                              tooltipMessage: 'Under development',
                             ),
                             _buildActionButton(
                               context,
@@ -251,8 +249,7 @@ class PathBar extends StatelessWidget {
                               icon: Icons.edit,
                               label: 'Rename',
                               onPressed: singleSelection ? onRename : null,
-                              tooltipMessage:
-                                  'Under development',
+                              tooltipMessage: 'Under development',
                             ),
                             _buildActionButton(
                               context,

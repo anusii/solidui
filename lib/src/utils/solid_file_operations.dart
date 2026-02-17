@@ -67,6 +67,23 @@ class SolidFileOperations {
         onSuccess: onSuccess,
       );
 
+  /// Delete a mixed batch of files and/or directories from the POD.
+
+  static Future<void> deleteMultipleItems(
+    BuildContext context, {
+    required String currentPath,
+    List<String> fileNames = const [],
+    List<String> directoryNames = const [],
+    VoidCallback? onSuccess,
+  }) =>
+      SolidFileDeleteOperations.deleteMultipleItems(
+        context,
+        currentPath: currentPath,
+        fileNames: fileNames,
+        directoryNames: directoryNames,
+        onSuccess: onSuccess,
+      );
+
   /// Upload a file to the POD.
 
   static Future<void> uploadFile(

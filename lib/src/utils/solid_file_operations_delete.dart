@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 
 /// Delete operations for SolidUI widgets.
@@ -165,6 +166,199 @@ class SolidFileDeleteOperations {
           ),
         );
       }
+    }
+  }
+
+  /// Delete a mixed batch of files and/or directories from the POD.
+  ///
+  /// Shows a unified confirmation dialog listing every item, a progress
+  /// indicator during the operation, and a result summary afterwards.
+  ///
+  /// [currentPath] is the directory path relative to the Pod root where
+  /// the items reside (e.g. `myapp/data`).
+  ///
+  /// [fileNames] is the list of file names to delete.
+  ///
+  /// [directoryNames] is the list of directory names to delete.
+  ///
+  /// [onSuccess] is called once the operation completes (even partially).
+
+  static Future<void> deleteMultipleItems(
+    BuildContext context, {
+    required String currentPath,
+    List<String> fileNames = const [],
+    List<String> directoryNames = const [],
+    VoidCallback? onSuccess,
+  }) async {
+    final totalCount = fileNames.length + directoryNames.length;
+    if (totalCount == 0) return;
+
+    // Build a concise description for the confirmation dialog.  When a
+    // single item is selected show its name; otherwise just show the count.
+
+    final isSingle = totalCount == 1;
+    final singleName = isSingle
+        ? (fileNames.isNotEmpty
+            ? fileNames.first
+            : '${directoryNames.first} (folder)')
+        : '';
+    final subject = isSingle ? '"$singleName"' : '$totalCount items';
+
+    // Compose a brief breakdown when multiple items are selected so the
+    // user knows how many files vs folders are involved.
+
+    final breakdownParts = <String>[
+      if (fileNames.isNotEmpty)
+        '${fileNames.length} file${fileNames.length > 1 ? 's' : ''}',
+      if (directoryNames.isNotEmpty)
+        '${directoryNames.length} folder${directoryNames.length > 1 ? 's' : ''}',
+    ];
+
+    // Show confirmation dialog.
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Are you sure you want to delete $subject?'),
+              if (!isSingle) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '(${breakdownParts.join(" and ")})',
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ],
+              if (directoryNames.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'Folders and all their contents will be permanently '
+                  'removed.',
+                  style: TextStyle(color: Colors.red, fontSize: 13),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(dialogContext).colorScheme.error,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    // Show a progress dialog that updates as items are deleted.
+
+    final progressNotifier = ValueNotifier<double>(0);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Deleting $subject'),
+          content: ValueListenableBuilder<double>(
+            valueListenable: progressNotifier,
+            builder: (_, progress, __) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LinearProgressIndicator(value: progress),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${(progress * totalCount).round()} / $totalCount',
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    try {
+      final result = await deleteItems(
+        parentPath: currentPath,
+        fileNames: fileNames,
+        directoryNames: directoryNames,
+        onProgress: (completed, total) {
+          progressNotifier.value = completed / total;
+        },
+      );
+
+      if (!context.mounted) return;
+
+      // Dismiss the progress dialog.
+
+      Navigator.of(context).pop();
+
+      // Show a result snackbar.
+
+      if (result.allSucceeded) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isSingle
+                  ? '$singleName deleted successfully.'
+                  : '${result.succeeded.length} items deleted successfully.',
+            ),
+            backgroundColor: ActionColors.success,
+          ),
+        );
+      } else if (result.succeeded.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to delete: ${result.failed.keys.join(", ")}',
+            ),
+            backgroundColor: ActionColors.error,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${result.succeeded.length} deleted, '
+              '${result.failed.length} failed: '
+              '${result.failed.keys.join(", ")}',
+            ),
+            backgroundColor: ActionColors.warning,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+
+      onSuccess?.call();
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Batch delete error: ${e.toString()}'),
+            backgroundColor: ActionColors.error,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } finally {
+      progressNotifier.dispose();
     }
   }
 }
