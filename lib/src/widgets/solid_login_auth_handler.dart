@@ -171,6 +171,7 @@ class SolidLoginAuthHandler {
           );
         } else {
           await markPodStructureInitialised();
+          if (!context.mounted) return false;
           await pushReplacement(context, childWidget);
         }
       }
