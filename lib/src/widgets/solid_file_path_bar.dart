@@ -341,27 +341,29 @@ class PathBar extends StatelessWidget {
 
                 // Refresh button.
 
-                IconButton(
-                  icon: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: isLoading
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.primary,
+                MarkdownTooltip(
+                  message: '**Refresh**',
+                  child: IconButton(
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: isLoading
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            )
+                          : Icon(
+                              Icons.refresh,
+                              color: Theme.of(context).iconTheme.color,
                             ),
-                          )
-                        : Icon(
-                            Icons.refresh,
-                            color: Theme.of(context).iconTheme.color,
-                          ),
+                    ),
+                    onPressed: isLoading ? null : onRefresh,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
-                  tooltip: 'Refresh',
-                  onPressed: isLoading ? null : onRefresh,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
@@ -390,7 +392,7 @@ class PathBar extends StatelessWidget {
     );
   }
 
-  /// Builds a compact navigation button with an icon and a text label.
+  /// Builds a compact icon-only navigation button with a tooltip.
 
   Widget _buildNavButton(
     BuildContext context, {
@@ -398,23 +400,27 @@ class PathBar extends StatelessWidget {
     required String label,
     VoidCallback? onPressed,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 2.0),
-      child: TextButton.icon(
-        icon: Icon(icon, size: 16),
-        label: Text(label, style: const TextStyle(fontSize: 12)),
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return MarkdownTooltip(
+      message: '**$label**',
+      child: Padding(
+        padding: const EdgeInsets.only(right: 2.0),
+        child: IconButton(
+          icon: Icon(icon, size: 16),
+          onPressed: onPressed,
+          padding: const EdgeInsets.all(6),
+          constraints: const BoxConstraints(),
+          style: IconButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
         ),
       ),
     );
   }
 
-  /// Builds a compact action button with an icon and a text label.
+  /// Builds a compact icon-only action button with a [MarkdownTooltip].
   ///
+  /// The button label is shown exclusively in the tooltip. When
+  /// [tooltipMessage] is provided it is appended beneath the label.
   /// When [isDestructive] is true, the button uses the error colour scheme
   /// to indicate a destructive action such as deletion.
 
@@ -430,29 +436,25 @@ class PathBar extends StatelessWidget {
         ? Theme.of(context).colorScheme.error
         : Theme.of(context).colorScheme.primary;
 
-    Widget button = Padding(
-      padding: const EdgeInsets.only(right: 2.0),
-      child: TextButton.icon(
-        icon: Icon(icon, size: 16),
-        label: Text(label, style: const TextStyle(fontSize: 12)),
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: onPressed != null ? colour : null,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    final tooltip =
+        tooltipMessage != null ? '**$label**\n\n$tooltipMessage' : '**$label**';
+
+    return MarkdownTooltip(
+      message: tooltip,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 2.0),
+        child: IconButton(
+          icon: Icon(icon, size: 16),
+          onPressed: onPressed,
+          padding: const EdgeInsets.all(6),
+          constraints: const BoxConstraints(),
+          style: IconButton.styleFrom(
+            foregroundColor: onPressed != null ? colour : null,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
         ),
       ),
     );
-
-    if (tooltipMessage != null) {
-      button = MarkdownTooltip(
-        message: '**$label**\n\n$tooltipMessage',
-        child: button,
-      );
-    }
-
-    return button;
   }
 
   /// Builds the View dropdown menu for sorting options.
@@ -461,48 +463,43 @@ class PathBar extends StatelessWidget {
   /// of the wider [CheckedPopupMenuItem] to keep the menu narrow.
 
   Widget _buildViewDropdown(BuildContext context) {
-    return PopupMenuButton<FileSortOption>(
-      tooltip: 'Sort options',
-      onSelected: onSortChanged,
-      position: PopupMenuPosition.under,
-      constraints: const BoxConstraints(minWidth: 0),
-      menuPadding: const EdgeInsets.symmetric(vertical: 4),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.sort,
-              size: 16,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              'View',
-              style: TextStyle(
-                fontSize: 12,
+    return MarkdownTooltip(
+      message: '**Sort options**',
+      child: PopupMenuButton<FileSortOption>(
+        tooltip: '',
+        onSelected: onSortChanged,
+        position: PopupMenuPosition.under,
+        constraints: const BoxConstraints(minWidth: 0),
+        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.sort,
+                size: 16,
                 color: Theme.of(context).colorScheme.primary,
               ),
-            ),
-            Icon(
-              Icons.arrow_drop_down,
-              size: 16,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ],
+              Icon(
+                Icons.arrow_drop_down,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ],
+          ),
         ),
+        itemBuilder: (context) => [
+          _buildSortMenuItem(context, FileSortOption.nameAscending),
+          _buildSortMenuItem(context, FileSortOption.nameDescending),
+          const PopupMenuDivider(height: 1),
+          _buildSortMenuItem(context, FileSortOption.dateModifiedAscending),
+          _buildSortMenuItem(context, FileSortOption.dateModifiedDescending),
+          const PopupMenuDivider(height: 1),
+          _buildSortMenuItem(context, FileSortOption.typeAscending),
+          _buildSortMenuItem(context, FileSortOption.typeDescending),
+        ],
       ),
-      itemBuilder: (context) => [
-        _buildSortMenuItem(context, FileSortOption.nameAscending),
-        _buildSortMenuItem(context, FileSortOption.nameDescending),
-        const PopupMenuDivider(height: 1),
-        _buildSortMenuItem(context, FileSortOption.dateModifiedAscending),
-        _buildSortMenuItem(context, FileSortOption.dateModifiedDescending),
-        const PopupMenuDivider(height: 1),
-        _buildSortMenuItem(context, FileSortOption.typeAscending),
-        _buildSortMenuItem(context, FileSortOption.typeDescending),
-      ],
     );
   }
 
