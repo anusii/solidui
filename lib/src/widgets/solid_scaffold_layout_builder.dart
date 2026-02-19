@@ -51,8 +51,9 @@ class SolidScaffoldLayoutBuilder {
     int? selectedIndex,
     Widget? effectiveChild,
     Function(int) onTabSelected,
-    Function(BuildContext, String, String?)? onShowAlert,
-  ) {
+    Function(BuildContext, String, String?)? onShowAlert, {
+    Widget? settingsWidget,
+  }) {
     final theme = Theme.of(context);
 
     if (effectiveChild == null) {
@@ -73,6 +74,7 @@ class SolidScaffoldLayoutBuilder {
                   selectedIndex: selectedIndex,
                   onTabSelected: onTabSelected,
                   onShowAlert: onShowAlert,
+                  settingsWidget: settingsWidget,
                 ),
                 Expanded(child: effectiveChild),
               ],

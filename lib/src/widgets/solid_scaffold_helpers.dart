@@ -303,6 +303,7 @@ class SolidScaffoldHelpers {
     double narrowScreenThreshold,
     bool Function() shouldShowVersion,
     String Function() getVersionToDisplay, {
+    Widget? settingsWidget,
     bool hideNavRail = false,
     bool showLogout = true,
     bool showLogin = true,
@@ -323,6 +324,7 @@ class SolidScaffoldHelpers {
       themeToggleCallback,
       aboutConfig,
       narrowScreenThreshold,
+      settingsWidget: settingsWidget,
       hideNavRail: hideNavRail,
       showLogout: showLogout,
       showLogin: showLogin,

@@ -165,6 +165,7 @@ class SolidScaffoldWidgetBuilder {
           widget.narrowScreenThreshold,
           shouldShowVersion,
           getVersionToDisplay,
+          settingsWidget: widget.settingsWidget,
           hideNavRail: widget.hideNavRail,
           showLogout: widget.showLogout,
           showLogin: widget.showLogin,
@@ -191,6 +192,7 @@ class SolidScaffoldWidgetBuilder {
           onUserNameTap: (drawerContext) =>
               SolidAuthHandler.instance.handleAuthAction(drawerContext),
           securityKeyStatus: _buildDrawerSecurityKeyStatus(widget, isKeySaved),
+          settingsWidget: widget.settingsWidget,
         );
       },
       endDrawer: widget.endDrawer,

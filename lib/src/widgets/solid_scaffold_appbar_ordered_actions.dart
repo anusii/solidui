@@ -60,6 +60,7 @@ class SolidAppBarOrderedActionsBuilder {
     required BuildContext context,
     bool showLogout = true,
     bool showLogin = true,
+    Widget? settingsWidget,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
@@ -86,6 +87,7 @@ class SolidAppBarOrderedActionsBuilder {
       isVeryNarrowScreen,
       context,
     );
+    _addSettingsButton(orderedActions, settingsWidget, isVeryNarrowScreen);
     _addAboutButton(
       orderedActions,
       aboutConfig,
@@ -240,6 +242,27 @@ class SolidAppBarOrderedActionsBuilder {
             onLogin: onLogin,
           ),
         ),
+      );
+    }
+  }
+
+  static void _addSettingsButton(
+    List<_OrderedAction> orderedActions,
+    Widget? settingsWidget,
+    bool isNarrowScreen,
+  ) {
+    if (settingsWidget == null) return;
+
+    final actionConfig = SolidAppBarActionsManager.getActionConfig(
+      SolidAppBarActionIds.preferences,
+    );
+    final isVisible = actionConfig?.isVisible ?? true;
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final order = actionConfig?.order ?? 850;
+
+    if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+      orderedActions.add(
+        _OrderedAction(order: order, widget: settingsWidget),
       );
     }
   }

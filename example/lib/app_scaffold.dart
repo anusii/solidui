@@ -30,14 +30,28 @@ import 'package:solidui/solidui.dart';
 import 'package:demopod/constants/app.dart';
 import 'package:demopod/home.dart';
 
-const appScaffold = AppScaffold();
+final appScaffold = AppScaffold();
 
-class AppScaffold extends StatelessWidget {
+class AppScaffold extends StatefulWidget {
   const AppScaffold({super.key});
+
+  @override
+  State<AppScaffold> createState() => _AppScaffoldState();
+}
+
+class _AppScaffoldState extends State<AppScaffold> {
+  final _scaffoldController = SolidScaffoldController();
+
+  @override
+  void dispose() {
+    _scaffoldController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SolidScaffold(
+      controller: _scaffoldController,
       menu: const [
         SolidMenuItem(
           icon: Icons.home,
@@ -121,7 +135,30 @@ class AppScaffold extends StatelessWidget {
       ),
       enableProfile: true,
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
-      child: const Home(),
+
+      // SETTINGS.
+
+      settingsWidget: IconButton(
+        icon: const Icon(Icons.settings),
+        onPressed: () => _scaffoldController.navigateToSubpage(
+          const _MySettings(),
+        ),
+        tooltip: 'Settings',
+      ),
+
+      child: const Home(title: appTitle),
+    );
+  }
+}
+
+class _MySettings extends StatelessWidget {
+  const _MySettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Custom Settings')),
+      body: const Center(child: Text('This is a custom settings page.')),
     );
   }
 }

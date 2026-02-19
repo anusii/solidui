@@ -59,6 +59,7 @@ class SolidScaffoldAppBarBuilder {
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
     double narrowScreenThreshold, {
+    Widget? settingsWidget,
     bool hideNavRail = false,
     bool showLogout = true,
     bool showLogin = true,
@@ -72,6 +73,7 @@ class SolidScaffoldAppBarBuilder {
       themeToggle,
       hasLogout: showLogout,
       hasLogin: showLogin,
+      hasSettings: settingsWidget != null,
     );
 
     final layoutWidth = constraints.maxWidth;
@@ -105,6 +107,7 @@ class SolidScaffoldAppBarBuilder {
       currentThemeMode: currentThemeMode,
       themeToggleCallback: themeToggleCallback,
       aboutConfig: aboutConfig,
+      settingsWidget: settingsWidget,
       context: context,
       showLogout: showLogout,
       showLogin: showLogin,

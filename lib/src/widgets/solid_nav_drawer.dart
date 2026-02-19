@@ -99,6 +99,10 @@ class SolidNavDrawer extends StatefulWidget {
 
   final ShapeBorder? drawerShape;
 
+  /// Optional custom Settings widget.
+
+  final Widget? settingsWidget;
+
   const SolidNavDrawer({
     super.key,
     this.userInfo,
@@ -114,6 +118,7 @@ class SolidNavDrawer extends StatefulWidget {
     this.securityKeyStatus,
     this.additionalMenuItems,
     this.drawerShape,
+    this.settingsWidget,
   });
 
   @override
@@ -201,6 +206,11 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                 }),
                 if (widget.additionalMenuItems != null)
                   ...widget.additionalMenuItems!,
+                if (widget.settingsWidget != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: widget.settingsWidget,
+                  ),
                 if (widget.securityKeyStatus != null ||
                     widget.onUserNameTap != null)
                   ..._buildBottomSection(context, theme),
