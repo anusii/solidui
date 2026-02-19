@@ -81,6 +81,10 @@ class SolidNavDrawer extends StatefulWidget {
 
   final ShapeBorder? drawerShape;
 
+  /// Optional custom Settings widget.
+
+  final Widget? settingsWidget;
+
   const SolidNavDrawer({
     super.key,
     this.userInfo,
@@ -93,6 +97,7 @@ class SolidNavDrawer extends StatefulWidget {
     this.showLogout = true,
     this.additionalMenuItems,
     this.drawerShape,
+    this.settingsWidget,
   });
 
   @override
@@ -175,6 +180,11 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                 }),
                 if (widget.additionalMenuItems != null)
                   ...widget.additionalMenuItems!,
+                if (widget.settingsWidget != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: widget.settingsWidget,
+                  ),
                 if (widget.showLogout && widget.onLogout != null)
                   ..._buildLogoutSection(context, theme),
               ],

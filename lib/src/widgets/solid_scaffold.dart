@@ -231,6 +231,10 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Optional custom Settings widget.
+
+  final Widget? settingsWidget;
+
   /// Option to force the navigation rail to be hidden.
 
   final bool hideNavRail;
@@ -278,6 +282,7 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.settingsWidget,
     this.hideNavRail = false,
   });
 

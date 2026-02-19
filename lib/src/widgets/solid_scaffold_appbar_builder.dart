@@ -55,6 +55,7 @@ class SolidScaffoldAppBarBuilder {
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
     double narrowScreenThreshold, {
+    Widget? settingsWidget,
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
@@ -65,6 +66,7 @@ class SolidScaffoldAppBarBuilder {
       config,
       themeToggle,
       hasLogout: true,
+      hasSettings: settingsWidget != null,
     );
 
     final isWideScreen = !hideNavRail &&
@@ -100,6 +102,7 @@ class SolidScaffoldAppBarBuilder {
       currentThemeMode: currentThemeMode,
       themeToggleCallback: themeToggleCallback,
       aboutConfig: aboutConfig,
+      settingsWidget: settingsWidget,
       context: context,
       onLogout: onLogout,
       onLogin: onLogin,

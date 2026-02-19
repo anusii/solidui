@@ -140,6 +140,7 @@ class SolidScaffoldWidgetBuilder {
           widget.narrowScreenThreshold,
           shouldShowVersion,
           getVersionToDisplay,
+          settingsWidget: widget.settingsWidget,
           hideNavRail: widget.hideNavRail,
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
@@ -158,6 +159,7 @@ class SolidScaffoldWidgetBuilder {
           onTabSelected: onMenuSelected,
           onLogout: effectiveLogout,
           showLogout: effectiveLogout != null,
+          settingsWidget: widget.settingsWidget,
         );
       },
       endDrawer: widget.endDrawer,

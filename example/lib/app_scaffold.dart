@@ -181,7 +181,29 @@ class AppScaffold extends StatelessWidget {
 
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
 
+      // SETTINGS.
+
+      settingsWidget: IconButton(
+        icon: const Icon(Icons.settings),
+        onPressed: () => _scaffoldController.navigateToSubpage(
+          const _MySettings(),
+        ),
+        tooltip: 'Settings',
+      ),
+
       child: const Home(title: appTitle),
+    );
+  }
+}
+
+class _MySettings extends StatelessWidget {
+  const _MySettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Custom Settings')),
+      body: const Center(child: Text('This is a custom settings page.')),
     );
   }
 }

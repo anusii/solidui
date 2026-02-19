@@ -75,6 +75,10 @@ class SolidNavBar extends StatelessWidget {
 
   final double? labelFontSize;
 
+  /// Optional custom Settings widget.
+
+  final Widget? settingsWidget;
+
   /// Creates a [SolidNavBar] with the specified configuration.
 
   const SolidNavBar({
@@ -87,6 +91,7 @@ class SolidNavBar extends StatelessWidget {
     this.groupAlignment,
     this.iconSize,
     this.labelFontSize,
+    this.settingsWidget,
   });
 
   @override
@@ -165,6 +170,12 @@ class SolidNavBar extends StatelessWidget {
                   letterSpacing: NavigationConstants.navLabelLetterSpacing,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
+                trailing: settingsWidget != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: settingsWidget,
+                      )
+                    : null,
               ),
             ),
           ),

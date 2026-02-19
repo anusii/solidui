@@ -253,6 +253,7 @@ class SolidScaffoldHelpers {
     double narrowScreenThreshold,
     bool Function() shouldShowVersion,
     String Function() getVersionToDisplay, {
+    Widget? settingsWidget,
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
@@ -269,6 +270,7 @@ class SolidScaffoldHelpers {
       themeToggleCallback,
       aboutConfig,
       narrowScreenThreshold,
+      settingsWidget: settingsWidget,
       hideNavRail: hideNavRail,
       onLogout: onLogout,
       onLogin: onLogin,
