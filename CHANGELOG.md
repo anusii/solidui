@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.3.0 Stabilise
 
++ Update SolidFile browser UI and functionals [0.2.1 20260219 tony]
 + Migrate remaining UI from solidpod to solidui [0.2.0 20260213 tony]
 
 ## 0.2.0 Complete UI Migration
