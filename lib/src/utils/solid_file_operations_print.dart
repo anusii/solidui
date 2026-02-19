@@ -81,15 +81,15 @@ Future<Uint8List> _generateTextPdf(_TextPdfParams p) async {
           ),
         ),
       ),
-      build: (pw.Context ctx) => [
-        pw.Text(
-          p.content,
-          style: pw.TextStyle(
-            font: contentFont,
-            fontSize: 10,
-          ),
-        ),
-      ],
+      build: (pw.Context ctx) {
+        final style = pw.TextStyle(font: contentFont, fontSize: 10);
+
+        // Split into individual lines so MultiPage can paginate between them.
+
+        return p.content.split('\n').map((line) {
+          return pw.Text(line.isEmpty ? ' ' : line, style: style);
+        }).toList();
+      },
     ),
   );
 
