@@ -163,28 +163,45 @@ SolidUI requires the following dependencies:
 
 ## Quick Start to Create an App
 
-To create a new Solid-based app using `solidui` named `myapp` and
-published by `example.com` begin with:
+To quickly create a new Solid-based app, we provide a [Mason](https://pub.dev/packages/mason) template. 
+
+### Using Mason (Recommended)
+
+1. Install Mason:
+   ```bash
+   dart pub global activate mason_cli
+   ```
+2. Initialize Mason in your project (if not already):
+   ```bash
+   mason init
+   ```
+3. Add the SolidUI brick:
+   ```bash
+   mason add solidui --path templates/solidui/brick
+   ```
+4. Create a new app from the template:
+   ```bash
+   mason make solidui
+   ```
+
+### Template Structure
+
+The template app consists of several files within the
+`lib/` directory:
+- `main.dart`: Initialises the application and launches the app.
+- `app.dart`: Implements the `App()` widget, instantiating `SolidLogin()`.
+- `app_scaffold.dart`: Implements `AppScaffold()` widget using `SolidScaffold()`.
+- `home.dart`: Implements the `Home()` widget for the main app functionality.
+- `constants/app.dart`: App-wide constants including title and description.
+- `utils/is_desktop.dart`: Desktop platform detection utility.
+
+### Synchronizing Template and Example
+
+If you are a contributor and want to update the `example/` app from the template (or vice-versa), use the provided sync script:
 
 ```bash
-flutter create --template solidui --domain com.example myapp
+python3 support/sync_template_to_example.py
 ```
-
-This will create a template app which we also included here under the
-`example/` directory. The app consists of several files within the
-`lib/` directory.  `main.dart` is the main entry point to the app. Its
-task in our framework is to initialise the application and then launch
-the app itself.  `app.dart` implements the `App()` which is typically
-where we instantiate a `SolidLogin()`, often as the `child:` of a
-`SolidThemeApp()`.  The `SolidLogin()` provides the login page for the
-app. After logging in the `AppScaffold()`, as the `child:` of the
-`SolidLogin()`, is instantiated to contain the main functionality of
-the app.  `app_scaffold.dart` implements the `AppScaffold()` widget
-which builds a `SolidScaffold()` to set up the framework for a typical
-Solid app. The child is the `Home()` widget. `home.dart` implements
-the `Home()` widget as the main app functionality. Constants are
-defined in `constants/app.dart` and utilities such as desktop platform
-detection are in `utils/is_desktop.dart`.
 
 ## SolidScaffold
 
