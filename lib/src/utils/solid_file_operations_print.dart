@@ -93,7 +93,8 @@ class SolidFilePrintOperations {
         SnackBar(
           content: Text(
             'Cannot print files with "$ext" format. '
-            'Supported formats: md, txt, json, yaml, log, jpg, png, gif, pdf.',
+            'Supported formats: md, txt, json, yaml, yml, log, jpg, png, gif, '
+            'pdf.',
           ),
           backgroundColor: ActionColors.error,
           duration: const Duration(seconds: 4),
