@@ -1,4 +1,4 @@
-/// All POD Files page - Displays all folders on the POD for testing.
+/// Sort options for the file browser.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -28,20 +28,48 @@
 
 library;
 
-import 'package:flutter/material.dart';
+/// Sorting options for files and directories in the file browser.
+///
+/// Each option combines a sort field with a direction (ascending or
+/// descending). The [displayLabel] property provides a human-readable
+/// description suitable for use in menus.
 
-import 'package:solidui/solidui.dart';
+enum FileSortOption {
+  /// Sort by file/directory name, A to Z.
 
-/// A page that browses all folders and files on the POD from the root.
+  nameAscending('Name', 'A → Z'),
 
-class AllPodFilesPage extends StatelessWidget {
-  const AllPodFilesPage({super.key});
+  /// Sort by file/directory name, Z to A.
 
-  @override
-  Widget build(BuildContext context) {
-    return const SolidFile(
-      currentPath: SolidFile.podRoot,
-      friendlyFolderName: 'All POD Files',
-    );
-  }
+  nameDescending('Name', 'Z → A'),
+
+  /// Sort by modification date, oldest first.
+
+  dateModifiedAscending('Date Modified', 'Oldest first'),
+
+  /// Sort by modification date, newest first.
+
+  dateModifiedDescending('Date Modified', 'Newest first'),
+
+  /// Sort by file type/extension, A to Z.
+
+  typeAscending('Type', 'A → Z'),
+
+  /// Sort by file type/extension, Z to A.
+
+  typeDescending('Type', 'Z → A');
+
+  /// Display label for the sort field.
+
+  final String fieldLabel;
+
+  /// Display label for the sort direction.
+
+  final String directionLabel;
+
+  const FileSortOption(this.fieldLabel, this.directionLabel);
+
+  /// Full display label combining field and direction.
+
+  String get displayLabel => '$fieldLabel ($directionLabel)';
 }

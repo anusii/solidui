@@ -91,6 +91,7 @@ export 'src/widgets/solid_file_upload_buttons.dart';
 export 'src/widgets/solid_file_preview_card.dart';
 
 export 'src/models/file_item.dart';
+export 'src/models/file_sort_option.dart';
 export 'src/models/file_state.dart';
 export 'src/models/data_format_config.dart';
 export 'src/models/file_type_config.dart';

@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Tony Chen (migrated from MovieStar)
+/// Authors: Tony Chen
 
 library;
 
@@ -32,15 +32,22 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/models/file_item.dart';
+import 'package:solidui/src/models/file_sort_option.dart';
 import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/utils/path_utils.dart';
+import 'package:solidui/src/utils/solid_file_operations_delete.dart';
+import 'package:solidui/src/utils/solid_file_operations_download.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
 import 'package:solidui/src/widgets/solid_file_browser_not_logged_in.dart';
 import 'package:solidui/src/widgets/solid_file_empty_directory_view.dart';
 import 'package:solidui/src/widgets/solid_file_operations.dart';
 import 'package:solidui/src/widgets/solid_file_path_bar.dart';
+
+part 'solid_file_browser_actions.dart';
+part 'solid_file_browser_navigation.dart';
 
 /// A file browser widget to interact with files and directories in user's POD.
 
@@ -89,6 +96,43 @@ class SolidFileBrowser extends StatefulWidget {
 
   final Map<String, String>? folderNameOverrides;
 
+  /// Callback for creating a new folder in the current directory.
+  /// Receives the current path.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath)? onCreateFolder;
+
+  /// Callback for moving selected items.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)? onMoveItems;
+
+  /// Callback for copying selected items.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)? onCopyItems;
+
+  /// Callback for downloading selected items from the toolbar.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)?
+      onDownloadItems;
+
+  /// Callback for renaming the selected item from the toolbar.
+  /// Receives the current path and the selected item key.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, String selectedItem)? onRenameItem;
+
+  /// Callback for deleting selected items from the toolbar.
+  /// Receives the current path and the set of selected item keys.
+  /// Null disables the toolbar button.
+
+  final Function(String currentPath, Set<String> selectedItems)? onDeleteItems;
+
   const SolidFileBrowser({
     super.key,
     required this.onFileSelected,
@@ -100,6 +144,12 @@ class SolidFileBrowser extends StatefulWidget {
     required this.friendlyFolderName,
     this.initialPath,
     this.folderNameOverrides,
+    this.onCreateFolder,
+    this.onMoveItems,
+    this.onCopyItems,
+    this.onDownloadItems,
+    this.onRenameItem,
+    this.onDeleteItems,
   });
 
   @override
@@ -125,10 +175,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   bool isLoading = true;
 
-  /// The currently selected file name.
-
-  String? selectedFile;
-
   /// The current directory path being displayed.
 
   late String currentPath;
@@ -136,6 +182,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// History of visited directories for navigation.
 
   late List<String> pathHistory;
+
+  /// Current position within [pathHistory] for back/forward navigation.
+
+  int _historyIndex = 0;
 
   /// Number of files in the current directory.
 
@@ -152,6 +202,39 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   /// The home path resolved from [getDataDirPath].
 
   String _homePath = '';
+
+  /// Set of currently selected item keys for multi-selection.
+  ///
+  /// Keys use a type prefix: "dir:folderName" for directories,
+  /// "file:fileName" for files.
+
+  final Set<String> _selectedItems = {};
+
+  /// Unmodifiable view of the currently selected item keys.
+
+  Set<String> get selectedItems => Set.unmodifiable(_selectedItems);
+
+  /// The current sort option for files and directories.
+
+  FileSortOption _currentSortOption = FileSortOption.nameAscending;
+
+  /// Whether the user can navigate back in history.
+
+  bool get canGoBack => _historyIndex > 0;
+
+  /// Whether the user can navigate forward in history.
+
+  bool get canGoForward => _historyIndex < pathHistory.length - 1;
+
+  /// Whether the user can navigate to the parent directory.
+
+  bool get canGoUp => currentPath != _homePath && currentPath.isNotEmpty;
+
+  /// Public wrapper around [setState].
+  /// [setState] is `@protected` and cannot be called directly from extensions.
+
+  // ignore: use_setters_to_change_properties
+  void updateState(VoidCallback fn) => setState(fn);
 
   @override
   void initState() {
@@ -186,6 +269,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
     currentPath = _homePath;
     pathHistory = [currentPath];
+    _historyIndex = 0;
     _checkLoginStatus();
   }
 
@@ -221,169 +305,92 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   /// Navigates into a subdirectory.
 
-  Future<void> navigateToDirectory(String dirName) async {
-    if (!mounted) return;
-    setState(() {
-      // Use PathUtils.combine to ensure consistent path joining without
-      // double slashes.
+  Future<void> navigateToDirectory(String dirName) =>
+      performNavigateToDirectory(dirName);
 
-      currentPath = PathUtils.combine(currentPath, dirName);
-      pathHistory.add(currentPath);
-    });
-    await refreshFiles();
-    widget.onDirectoryChanged.call(currentPath);
-  }
+  /// Navigates back in history (browser-style back).
+
+  Future<void> navigateBack() => performNavigateBack();
+
+  /// Navigates forward in history (browser-style forward).
+
+  Future<void> navigateForward() => performNavigateForward();
+
+  /// Navigates to the parent directory of the current path.
+
+  Future<void> navigateToParent() => performNavigateToParent();
+
+  /// Navigates to the home directory.
+
+  Future<void> navigateHome() => performNavigateHome();
 
   /// Navigates up one directory level.
 
-  Future<void> navigateUp() async {
-    if (pathHistory.length > 1) {
-      pathHistory.removeLast();
-      if (!mounted) return;
-      setState(() => currentPath = pathHistory.last);
-      widget.onDirectoryChanged.call(currentPath);
-      await refreshFiles();
-    }
-  }
+  Future<void> navigateUp() => performNavigateBack();
 
-  /// Refreshes the current directory's contents.
+  /// Toggles the selection state of an item identified by [itemKey].
   ///
-  /// Fetches resources from the container in a single REST call, then
-  /// processes files and defers subdirectory count loading to the background
-  /// to minimise the initial number of REST calls.
+  /// Keys follow the format "dir:folderName" or "file:fileName".
 
-  Future<void> refreshFiles() async {
-    if (!isLoggedIn) {
-      if (mounted) setState(() => isLoading = false);
-      return;
-    }
+  void toggleItemSelection(String itemKey) {
+    setState(() {
+      if (_selectedItems.contains(itemKey)) {
+        _selectedItems.remove(itemKey);
+      } else {
+        _selectedItems.add(itemKey);
+      }
+    });
+  }
 
-    if (!mounted) return;
-    setState(() => isLoading = true);
+  /// Clears all selected items.
 
-    try {
-      // Get current directory contents in a single REST call.
-
-      final dirUrl = await getDirUrl(currentPath);
-      final resources = await getResourcesInContainer(dirUrl);
-
-      if (!mounted) return;
-
-      // Extract directory names from the fetched resources.
-
-      final fetchedDirectories = resources.subDirs
-          .map((dirUrl) => FileOperations.extractResourceName(dirUrl))
-          .toList();
-
-      // Count TTL files from the already-fetched resource list (no extra REST
-      // call needed).
-
-      final fileCount = resources.files
-          .where((f) => f.endsWith('.enc.ttl') || f.endsWith('.ttl'))
-          .length;
-
-      // Process and validate files, reusing the already-fetched file URL list
-      // to avoid a duplicate getResourcesInContainer REST call.
-
-      final processedFiles = await FileOperations.getFiles(
-        currentPath,
-        resources.files,
-        context,
-      );
-
-      if (!mounted) return;
-
-      // Update state with the fetched data. Directory counts are not yet
-      // available and will be loaded in the background.
-
-      setState(() {
-        directories = fetchedDirectories;
-        currentDirDirectoryCount = fetchedDirectories.length;
-        currentDirFileCount = fileCount;
-        files = processedFiles;
-        directoryCounts = {};
-        isLoading = false;
-      });
-
-      // Defer subdirectory file count fetching to the background so that the
-      // UI is displayed immediately without blocking on N additional REST
-      // calls (one per subdirectory).
-
-      _loadDirectoryCountsInBackground(fetchedDirectories);
-    } catch (e) {
-      debugPrint('Error loading files: $e');
-      if (mounted) setState(() => isLoading = false);
+  void clearSelection() {
+    if (_selectedItems.isNotEmpty) {
+      setState(() => _selectedItems.clear());
     }
   }
 
-  /// Loads file counts for each subdirectory in the background.
+  /// Adds or removes a batch of item keys in a single setState call.
   ///
-  /// Updates the UI incrementally as each count becomes available, rather
-  /// than blocking the initial render on N REST calls.
+  /// When [selected] is true every key in [keys] is added to the
+  /// selection; when false every key is removed.
 
-  Future<void> _loadDirectoryCountsInBackground(
-    List<String> dirs,
-  ) async {
-    // Capture the path at the time of the request so we can discard stale
-    // results if the user has navigated elsewhere.
-
-    final requestPath = currentPath;
-
-    final counts = await FileOperations.getDirectoryCounts(
-      requestPath,
-      dirs,
-    );
-
-    if (!mounted) return;
-
-    // Only apply the results if the user is still viewing the same directory.
-
-    if (currentPath == requestPath) {
-      setState(() => directoryCounts = counts);
-    }
+  void batchSetSelection(List<String> keys, {required bool selected}) {
+    setState(() {
+      if (selected) {
+        _selectedItems.addAll(keys);
+      } else {
+        _selectedItems.removeAll(keys);
+      }
+    });
   }
+
+  /// Changes the current sort option and re-sorts the displayed items.
+
+  void changeSortOption(FileSortOption option) =>
+      performChangeSortOption(option);
+
+  /// Refreshes the current directory's contents from the Solid POD.
+
+  Future<void> refreshFiles() => performRefreshFiles();
 
   /// Navigate to a specific path in the file browser.
 
-  void navigateToPath(String path) {
-    // Normalise the target path to ensure consistent comparison and prevent
-    // issues with leading slashes.
+  void navigateToPath(String path) => performNavigateToPath(path);
 
-    final normalisedPath = PathUtils.normalise(path);
+  /// Handles the toolbar Download action.
 
-    setState(() {
-      currentPath = normalisedPath;
-      if (normalisedPath == _homePath || normalisedPath.isEmpty) {
-        pathHistory = [_homePath];
-      } else {
-        if (pathHistory.isEmpty || pathHistory.last != normalisedPath) {
-          // Check if the path is under the home path.
+  Future<void> _handleToolbarDownload() => handleToolbarDownload();
 
-          if (_homePath.isEmpty || normalisedPath.startsWith('$_homePath/')) {
-            pathHistory = [_homePath];
-            final relativePath =
-                PathUtils.relativeTo(normalisedPath, _homePath);
-            if (relativePath.isNotEmpty) {
-              final segments =
-                  relativePath.split('/').where((s) => s.isNotEmpty);
-              var currentBuildPath = _homePath;
-              for (final segment in segments) {
-                currentBuildPath = PathUtils.combine(currentBuildPath, segment);
-                pathHistory.add(currentBuildPath);
-              }
-            }
-          } else {
-            pathHistory.add(normalisedPath);
-          }
-        }
-      }
-      refreshFiles();
-    });
-    widget.onDirectoryChanged.call(normalisedPath);
-  }
+  /// Handles the toolbar Delete action.
+
+  Future<void> _handleToolbarDelete() => handleToolbarDelete();
+
+  /// Handles the "New Folder" action.
+
+  Future<void> _handleCreateFolder() => handleCreateFolder();
 
   /// Gets the effective friendly folder name based on the current path.
-  /// Uses SolidFileOperations for consistent title generation.
 
   String _getEffectiveFriendlyFolderName() {
     return SolidFileOperations.getFriendlyFolderName(
@@ -423,13 +430,42 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
               if (isLoggedIn)
                 PathBar(
                   currentPath: currentPath,
-                  pathHistory: pathHistory,
-                  onNavigateUp: navigateUp,
-                  onRefresh: refreshFiles,
+                  friendlyFolderName: _getEffectiveFriendlyFolderName(),
                   isLoading: isLoading,
                   currentDirFileCount: currentDirFileCount,
                   currentDirDirectoryCount: currentDirDirectoryCount,
-                  friendlyFolderName: _getEffectiveFriendlyFolderName(),
+                  canGoBack: canGoBack,
+                  canGoForward: canGoForward,
+                  canGoUp: canGoUp,
+                  selectedCount: _selectedItems.length,
+                  onNavigateBack: navigateBack,
+                  onNavigateForward: navigateForward,
+                  onNavigateUp: navigateToParent,
+                  onNavigateHome: navigateHome,
+                  onRefresh: refreshFiles,
+                  onNewFolder: _handleCreateFolder,
+                  onMoveTo: widget.onMoveItems != null
+                      ? () => widget.onMoveItems!(currentPath, selectedItems)
+                      : null,
+                  onCopyTo: widget.onCopyItems != null
+                      ? () => widget.onCopyItems!(currentPath, selectedItems)
+                      : null,
+
+                  // Download and Delete are always available since
+                  // onFileDownload and onFileDelete are required callbacks.
+                  // They use per-file callbacks unless batch overrides are
+                  // provided via onDownloadItems / onDeleteItems.
+
+                  onDownload: _handleToolbarDownload,
+                  onRename: widget.onRenameItem != null
+                      ? () => widget.onRenameItem!(
+                            currentPath,
+                            _selectedItems.first,
+                          )
+                      : null,
+                  onDelete: _handleToolbarDelete,
+                  currentSortOption: _currentSortOption,
+                  onSortChanged: changeSortOption,
                 ),
               if (isLoggedIn) const SizedBox(height: 12),
               Expanded(child: _buildContent()),
@@ -450,14 +486,13 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
       files: files,
       directoryCounts: directoryCounts,
       currentPath: currentPath,
-      selectedFile: selectedFile,
+      selectedItems: _selectedItems,
       onDirectorySelected: navigateToDirectory,
       onFileSelected: (name, path) {
-        setState(() => selectedFile = name);
         widget.onFileSelected.call(name, path);
       },
-      onFileDownload: widget.onFileDownload,
-      onFileDelete: widget.onFileDelete,
+      onToggleSelection: toggleItemSelection,
+      onBatchSetSelection: batchSetSelection,
     );
   }
 }
