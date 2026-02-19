@@ -21,7 +21,7 @@ dependency_overrides:
   solidpod:
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: tony/204_pod_initialisation
+      ref: dev
   solidui:
     path: ..
 
