@@ -34,7 +34,12 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show isUserLoggedIn, solidAuthenticate, initialStructureTest;
+    show
+        initialStructureTest,
+        isUserLoggedIn,
+        isPodStructureInitialised,
+        markPodStructureInitialised,
+        solidAuthenticate;
 
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -136,27 +141,39 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      // Navigate to the appropriate screen based on structure test.
+      // Returning users whose POD structure has already been verified can
+      // proceed directly.
 
-      final resCheckList = await initialStructureTest(
-        defaultFolders,
-        defaultFiles,
-      );
-      final allExists = resCheckList.first as bool;
+      final alreadyInitialised = await isPodStructureInitialised();
 
-      if (!context.mounted) return false;
-
-      if (!allExists) {
-        await pushReplacement(
-          context,
-          InitialSetupScreen(
-            resCheckList: resCheckList,
-            originalLogin: originalLoginWidget,
-            child: childWidget,
-          ),
-        );
-      } else {
+      if (alreadyInitialised) {
+        if (!context.mounted) return false;
         await pushReplacement(context, childWidget);
+      } else {
+        // First run or structure not yet verified — perform the check.
+
+        final resCheckList = await initialStructureTest(
+          defaultFolders,
+          defaultFiles,
+        );
+        final allExists = resCheckList.first as bool;
+
+        if (!context.mounted) return false;
+
+        if (!allExists) {
+          await pushReplacement(
+            context,
+            InitialSetupScreen(
+              resCheckList: resCheckList,
+              originalLogin: originalLoginWidget,
+              child: childWidget,
+            ),
+          );
+        } else {
+          await markPodStructureInitialised();
+          if (!context.mounted) return false;
+          await pushReplacement(context, childWidget);
+        }
       }
 
       return true;
