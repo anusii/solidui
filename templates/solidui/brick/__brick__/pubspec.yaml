@@ -1,4 +1,4 @@
-name: {{projectName.snakeCase()}}
+name: "{{projectName.snakeCase()}}"
 description: {{description}}
 publish_to: 'none'
 version: 0.1.0+1

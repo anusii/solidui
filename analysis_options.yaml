@@ -28,3 +28,4 @@ analyzer:
   exclude:
     - ignore/**
     - ignore/
+    - templates/**
