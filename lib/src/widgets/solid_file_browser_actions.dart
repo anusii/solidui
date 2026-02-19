@@ -92,6 +92,68 @@ extension _BrowserActions on SolidFileBrowserState {
     );
   }
 
+  /// Handles the toolbar Print action.
+  ///
+  /// Only a single file may be printed at a time. Directories are excluded
+  /// from the selection. If the file format is not printable, the user will be
+  /// notified via a snackbar.
+
+  Future<void> handleToolbarPrint() async {
+    debugPrint('[Print] handleToolbarPrint called');
+    debugPrint('[Print] selectedItems: $_selectedItems');
+
+    final items = Set<String>.from(_selectedItems);
+
+    final fileNames = items
+        .where((k) => k.startsWith('file:'))
+        .map((k) => k.substring(5))
+        .toList();
+
+    debugPrint('[Print] fileNames extracted: $fileNames');
+
+    if (fileNames.isEmpty) {
+      debugPrint('[Print] No files in selection, aborting');
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a file to print.'),
+          backgroundColor: ActionColors.warning,
+        ),
+      );
+
+      return;
+    }
+
+    if (fileNames.length > 1) {
+      debugPrint('[Print] Multiple files selected (${fileNames.length}), '
+          'aborting');
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Only one file can be printed at a time.'),
+          backgroundColor: ActionColors.warning,
+        ),
+      );
+
+      return;
+    }
+
+    if (!mounted) return;
+
+    debugPrint('[Print] Delegating to SolidFilePrintOperations.printFile '
+        'fileName=${fileNames.first}, currentPath=$currentPath');
+
+    await SolidFilePrintOperations.printFile(
+      context,
+      fileName: fileNames.first,
+      currentPath: currentPath,
+    );
+
+    debugPrint('[Print] handleToolbarPrint completed');
+  }
+
   /// Handles the toolbar Delete action.
   ///
   /// If [widget.onDeleteItems] is provided, it is used for custom batch
