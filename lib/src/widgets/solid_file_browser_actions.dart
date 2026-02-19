@@ -99,9 +99,6 @@ extension _BrowserActions on SolidFileBrowserState {
   /// notified via a snackbar.
 
   Future<void> handleToolbarPrint() async {
-    debugPrint('[Print] handleToolbarPrint called');
-    debugPrint('[Print] selectedItems: $_selectedItems');
-
     final items = Set<String>.from(_selectedItems);
 
     final fileNames = items
@@ -109,10 +106,7 @@ extension _BrowserActions on SolidFileBrowserState {
         .map((k) => k.substring(5))
         .toList();
 
-    debugPrint('[Print] fileNames extracted: $fileNames');
-
     if (fileNames.isEmpty) {
-      debugPrint('[Print] No files in selection, aborting');
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -126,8 +120,6 @@ extension _BrowserActions on SolidFileBrowserState {
     }
 
     if (fileNames.length > 1) {
-      debugPrint('[Print] Multiple files selected (${fileNames.length}), '
-          'aborting');
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -142,16 +134,11 @@ extension _BrowserActions on SolidFileBrowserState {
 
     if (!mounted) return;
 
-    debugPrint('[Print] Delegating to SolidFilePrintOperations.printFile '
-        'fileName=${fileNames.first}, currentPath=$currentPath');
-
     await SolidFilePrintOperations.printFile(
       context,
       fileName: fileNames.first,
       currentPath: currentPath,
     );
-
-    debugPrint('[Print] handleToolbarPrint completed');
   }
 
   /// Handles the toolbar Delete action.
