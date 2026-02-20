@@ -95,8 +95,8 @@ class AppScaffold extends StatelessWidget {
         // VERSION WIDGET.
 
         versionConfig: SolidVersionConfig(
-          changelogUrl: 'https://github.com/anusii/solidui/blob/dev/'
-              'CHANGELOG.md',
+          changelogUrl:
+              'https://github.com/anusii/solidui/blob/dev/CHANGELOG.md',
           showDate: true,
           userTextStyle: TextStyle(
             color: theme.colorScheme.onSurface,

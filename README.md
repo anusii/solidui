@@ -163,23 +163,30 @@ SolidUI requires the following dependencies:
 
 ## Quick Start to Create an App
 
-To quickly create a new Solid-based app, we provide a [Mason](https://pub.dev/packages/mason) template. 
+To quickly create a new Solid-based app, we provide a [Mason](https://pub.dev/packages/mason) template.
 
 ### Using Mason (Recommended)
 
 1. Install Mason:
+
    ```bash
    dart pub global activate mason_cli
    ```
+
 2. Initialize Mason in your project (if not already):
+
    ```bash
    mason init
    ```
+
 3. Add the SolidUI brick:
+
    ```bash
    mason add solidui --path templates/solidui/brick
    ```
+
 4. Create a new app from the template:
+
    ```bash
    mason make solidui
    ```
@@ -188,6 +195,7 @@ To quickly create a new Solid-based app, we provide a [Mason](https://pub.dev/pa
 
 The template app consists of several files within the
 `lib/` directory:
+
 - `main.dart`: Initialises the application and launches the app.
 - `app.dart`: Implements the `App()` widget, instantiating `SolidLogin()`.
 - `app_scaffold.dart`: Implements `AppScaffold()` widget using `SolidScaffold()`.
