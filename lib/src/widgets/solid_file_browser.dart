@@ -39,6 +39,7 @@ import 'package:solidui/src/utils/file_operations.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_file_operations_delete.dart';
 import 'package:solidui/src/utils/solid_file_operations_download.dart';
+import 'package:solidui/src/utils/solid_file_operations_print.dart';
 import 'package:solidui/src/widgets/solid_file_browser_content.dart';
 import 'package:solidui/src/widgets/solid_file_browser_loading_state.dart';
 import 'package:solidui/src/widgets/solid_file_browser_not_logged_in.dart';
@@ -386,6 +387,10 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   Future<void> _handleToolbarDelete() => handleToolbarDelete();
 
+  /// Handles the toolbar Print action.
+
+  Future<void> _handleToolbarPrint() => handleToolbarPrint();
+
   /// Handles the "New Folder" action.
 
   Future<void> _handleCreateFolder() => handleCreateFolder();
@@ -457,6 +462,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   // provided via onDownloadItems / onDeleteItems.
 
                   onDownload: _handleToolbarDownload,
+                  onPrint: _handleToolbarPrint,
                   onRename: widget.onRenameItem != null
                       ? () => widget.onRenameItem!(
                             currentPath,

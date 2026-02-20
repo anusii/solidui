@@ -110,6 +110,10 @@ class PathBar extends StatelessWidget {
 
   final VoidCallback? onDownload;
 
+  /// Callback for printing the selected file. Null disables the button.
+
+  final VoidCallback? onPrint;
+
   /// Callback for renaming the selected item. Null disables the button.
 
   final VoidCallback? onRename;
@@ -146,6 +150,7 @@ class PathBar extends StatelessWidget {
     this.onMoveTo,
     this.onCopyTo,
     this.onDownload,
+    this.onPrint,
     this.onRename,
     this.onDelete,
     required this.currentSortOption,
@@ -243,6 +248,12 @@ class PathBar extends StatelessWidget {
                               icon: Icons.download,
                               label: 'Download',
                               onPressed: hasSelection ? onDownload : null,
+                            ),
+                            _buildActionButton(
+                              context,
+                              icon: Icons.print,
+                              label: 'Print',
+                              onPressed: hasSelection ? onPrint : null,
                             ),
                             _buildActionButton(
                               context,

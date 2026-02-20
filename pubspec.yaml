@@ -26,6 +26,8 @@ dependencies:
   markdown_tooltip: ^0.0.10
   package_info_plus: ^9.0.0
   path: ^1.9.1
+  pdf: ^3.11.3
+  printing: ^5.14.2
   rdflib: ^0.2.12
   shared_preferences: ^2.5.4
   solidpod: ^0.11.1

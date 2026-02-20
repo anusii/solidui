@@ -92,6 +92,55 @@ extension _BrowserActions on SolidFileBrowserState {
     );
   }
 
+  /// Handles the toolbar Print action.
+  ///
+  /// Only a single file may be printed at a time. Directories are excluded
+  /// from the selection. If the file format is not printable, the user will be
+  /// notified via a snackbar.
+
+  Future<void> handleToolbarPrint() async {
+    final items = Set<String>.from(_selectedItems);
+
+    final fileNames = items
+        .where((k) => k.startsWith('file:'))
+        .map((k) => k.substring(5))
+        .toList();
+
+    if (fileNames.isEmpty) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a file to print.'),
+          backgroundColor: ActionColors.warning,
+        ),
+      );
+
+      return;
+    }
+
+    if (fileNames.length > 1) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Only one file can be printed at a time.'),
+          backgroundColor: ActionColors.warning,
+        ),
+      );
+
+      return;
+    }
+
+    if (!mounted) return;
+
+    await SolidFilePrintOperations.printFile(
+      context,
+      fileName: fileNames.first,
+      currentPath: currentPath,
+    );
+  }
+
   /// Handles the toolbar Delete action.
   ///
   /// If [widget.onDeleteItems] is provided, it is used for custom batch
