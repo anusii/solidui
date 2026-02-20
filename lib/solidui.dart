@@ -102,6 +102,7 @@ export 'src/utils/solid_file_operations.dart';
 export 'src/utils/is_phone.dart';
 export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_notifications.dart';
+export 'src/utils/path_utils.dart';
 export 'src/utils/solid_pod_helpers.dart'
     show loginIfRequired, getKeyFromUserIfRequired;
 
