@@ -102,9 +102,16 @@ class SolidLoginAuthHandler {
     }
 
     // Perform the actual authentication by contacting the server.
+    // Pass the already-computed login status so solidAuthenticate() does NOT
+    // repeat the same isUserLoggedIn() check (secure storage read + token
+    // expiry check) that we just performed above.
 
     if (!context.mounted) return false;
-    final authResult = await solidAuthenticate(podServer, context);
+    final authResult = await solidAuthenticate(
+      podServer,
+      context,
+      wasAlreadyLoggedIn: wasAlreadyLoggedIn,
+    );
 
     // If authentication succeeded and the user was already logged in,
     // it means they are using a cached session.

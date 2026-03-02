@@ -177,10 +177,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   AssetImage? _resolvedLogo;
 
-  /// Whether asset resolution has completed.
-
-  bool _assetsResolved = false;
-
   @override
   void initState() {
     super.initState();
@@ -232,7 +228,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       widget.logo,
       'app_icon',
     );
-    if (mounted) setState(() => _assetsResolved = true);
+    // Trigger a rebuild so the higher-quality resolved asset replaces the
+    // initial widget.image/widget.logo fallback.
+    if (mounted) setState(() {});
   }
 
   @override
@@ -268,18 +266,23 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   Future<void> _initPackageInfo() async {
     if (!mounted) return;
+    // Start fetching app info immediately — it is independent of appDirName.
+    final appInfoFuture = getAppNameVersion();
     await setAppDirName(widget.appDirectory);
-    final folders = await generateDefaultFolders();
-    final files = await generateDefaultFiles();
+    // Now that appDirName is set, resolve folders/files in parallel with the
+    // already-running appInfo future.
+    final results = await Future.wait([
+      generateDefaultFolders(),
+      generateDefaultFiles(),
+      appInfoFuture,
+    ]);
     final customFolders = generateCustomFolders(widget.customFolderPathList);
     if (!mounted) return;
+    // Single setState: avoids two separate widget rebuilds.
     setState(() {
-      defaultFolders = folders + customFolders;
-      defaultFiles = files;
-    });
-    final appInfo = await getAppNameVersion();
-    if (!mounted) return;
-    setState(() {
+      defaultFolders = (results[0] as List<String>) + customFolders;
+      defaultFiles = results[1] as Map<dynamic, dynamic>;
+      final appInfo = results[2] as ({String name, String version});
       appName = appInfo.name;
       appVersion = appInfo.version;
     });
@@ -316,21 +319,17 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // Show a loading indicator whilst assets are being resolved.
-
-    if (!_assetsResolved) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
     // Use the internal state for theme instead of system brightness.
 
     final currentTheme = isDarkMode
         ? widget.themeConfig.darkTheme
         : widget.themeConfig.lightTheme;
 
-    // Use resolved image with fallback support.
+    // Use resolved image if available, otherwise fall back to the widget's
+    // own AssetImage immediately — this prevents the UI being blocked by a
+    // loading spinner while assets are resolving in the background.
 
-    final effectiveImage = _resolvedImage ?? SolidConfig.soliduiDefaultImage;
+    final effectiveImage = _resolvedImage ?? widget.image;
 
     // The login box's default image Widget for the left/background panel
     // depending on screen width.
@@ -373,9 +372,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       focusNode: _infoFocusNode,
     );
 
-    // Use resolved logo with fallback support.
+    // Use resolved logo if available, otherwise fall back to widget's own logo.
 
-    final effectiveLogo = _resolvedLogo ?? SolidConfig.soliduiDefaultLogo;
+    final effectiveLogo = _resolvedLogo ?? widget.logo;
 
     // Build the login panel content.
 
