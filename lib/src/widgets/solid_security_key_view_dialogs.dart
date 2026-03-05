@@ -202,10 +202,10 @@ class SecurityKeyViewDialogs {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'The security key which is used to encrypt your data '
-                    'within your pod is stored in your pod using a one-way '
-                    'hash, which means we can not show you the actual key, '
-                    'but the information here can be used to verify the key '
+                    'The security key is used to encrypt data '
+                    'within your pod. It is also stored in your pod using a one-way '
+                    'hash, meaning that we can not show you the actual key. '
+                    'The hashed key is used to verify the actual key '
                     'that you supply.',
                     style: TextStyle(
                       fontSize: 14,
