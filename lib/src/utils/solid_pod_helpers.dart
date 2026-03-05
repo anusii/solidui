@@ -35,6 +35,8 @@ import 'package:solidpod/solidpod.dart'
     show isUserLoggedIn, getWebId, KeyManager, verifySecurityKey;
 
 import 'package:solidui/src/constants/ui.dart' show SecurityStrings;
+import 'package:solidui/src/services/solid_security_key_notifier.dart'
+    show securityKeyNotifier;
 import 'package:solidui/src/widgets/security_key_ui.dart' show SecurityKeyUI;
 import 'package:solidui/src/widgets/solid_login_webid_input_dialog.dart';
 
@@ -101,6 +103,9 @@ Future<void> getKeyFromUserIfRequired(
         context,
         MaterialPageRoute(builder: (context) => securityKeyInput),
       );
+      // Notify the global status bar notifier that the key status may have
+      // changed after the user submitted (or dismissed) the key prompt.
+      await securityKeyNotifier.refreshStatus();
     }
   }
 }
