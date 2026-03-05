@@ -332,12 +332,15 @@ MarkdownTooltip getSolidServerTooltip(
   TextEditingController webIdController,
   SolidLoginThemeMode themeMode, {
   FocusNode? focusNode,
+  ValueChanged<String>? onFieldSubmitted,
 }) =>
     MarkdownTooltip(
       message: defaultServerTooltip,
       child: TextFormField(
         controller: webIdController,
         focusNode: focusNode,
+        textInputAction: TextInputAction.go,
+        onFieldSubmitted: onFieldSubmitted,
         style: TextStyle(color: themeMode.textColor, fontSize: 16),
         decoration: InputDecoration(
           border: const UnderlineInputBorder(),

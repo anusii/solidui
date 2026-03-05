@@ -134,7 +134,7 @@ class SolidLoginAuthHandler {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       showSnackbar(
-        'Unable to authenticate with the server. '
+        'Unable to authenticate with $podServer. '
         'The server may be inaccessible or down.',
         duration: const Duration(seconds: 5),
       );
@@ -233,7 +233,7 @@ class SolidLoginAuthHandler {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       showSnackbar(
-        'Unable to authenticate with the server. '
+        'Unable to authenticate with $podServer. '
         'The server may be inaccessible or down.',
         duration: const Duration(seconds: 5),
       );

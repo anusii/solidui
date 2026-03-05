@@ -103,12 +103,12 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Unable to authenticate with the server. '
+              'Unable to authenticate with $webId. '
               'The server may be inaccessible or down.',
             ),
-            duration: Duration(seconds: 5),
+            duration: const Duration(seconds: 5),
           ),
         );
       }
