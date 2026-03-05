@@ -215,31 +215,31 @@ class SecurityKeyViewDialogs {
                   const SizedBox(height: 16),
                   Center(
                     child: DataTable(
-                columnSpacing: 30.0,
-                columns: [
-                  DataColumn(
-                    label: Text(
-                      'Parameter',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: dialogTheme.colorScheme.onSurface,
-                      ),
+                      columnSpacing: 30.0,
+                      columns: [
+                        DataColumn(
+                          label: Text(
+                            'Parameter',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: dialogTheme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Value',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: dialogTheme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                      rows: dataRows,
                     ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Value',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: dialogTheme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                ],
-                rows: dataRows,
-              ),
                   ),
                 ],
               ),
