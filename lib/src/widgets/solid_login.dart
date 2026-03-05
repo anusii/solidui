@@ -45,6 +45,7 @@ import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_login_asset_helper.dart';
+import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_build_helper.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_login_panel.dart';
@@ -340,6 +341,27 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     );
     final webIdController = TextEditingController()..text = widget.webID;
 
+    // Shared login action used by the login button and the server text field's
+    // onFieldSubmitted callback so that pressing Enter in either triggers
+    // login.
+
+    Future<void> performLogin() async {
+      final podServer = webIdController.text.trim().isNotEmpty
+          ? webIdController.text.trim()
+          : SolidConfig.defaultServerUrl;
+      await SolidLoginAuthHandler.handleLogin(
+        context: context,
+        podServer: podServer,
+        defaultFolders: defaultFolders,
+        defaultFiles: defaultFiles,
+        originalLoginWidget: widget,
+        childWidget: widget.child,
+        isDialogCanceled: isDialogCanceled,
+        updateDialogCanceledState: updateState,
+        showSnackbar: _showSnackbar,
+      );
+    }
+
     final registerButton = SolidLoginBuildHelper.buildRegisterButton(
       style: widget.registerButtonStyle,
       webIdController: webIdController,
@@ -349,14 +371,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     final loginButton = SolidLoginBuildHelper.buildLoginButton(
       context: context,
       style: widget.loginButtonStyle,
-      webIdController: webIdController,
-      defaultFolders: defaultFolders,
-      defaultFiles: defaultFiles,
-      originalWidget: widget,
-      childWidget: widget.child,
-      getIsDialogCanceled: () => isDialogCanceled,
-      updateDialogCanceledState: updateState,
-      showSnackbar: _showSnackbar,
+      performLogin: performLogin,
       focusNode: _loginFocusNode,
     );
 
@@ -392,6 +407,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       isRequired: widget.required,
       currentTheme: currentTheme,
       serverInputFocusNode: _serverInputFocusNode,
+      onServerSubmitted: performLogin,
     );
 
     final loginPanelDecor = SolidLoginPanel.buildPanelWithThemeToggle(

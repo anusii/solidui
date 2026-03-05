@@ -53,6 +53,7 @@ class SolidLoginPanel {
     required bool isRequired,
     required SolidLoginThemeMode currentTheme,
     FocusNode? serverInputFocusNode,
+    VoidCallback? onServerSubmitted,
   }) {
     const boxTextHeight = 20.0;
 
@@ -83,6 +84,8 @@ class SolidLoginPanel {
               webIdController,
               currentTheme,
               focusNode: serverInputFocusNode,
+              onFieldSubmitted:
+                  onServerSubmitted != null ? (_) => onServerSubmitted() : null,
             ),
           ),
           const SizedBox(height: 20.0),
