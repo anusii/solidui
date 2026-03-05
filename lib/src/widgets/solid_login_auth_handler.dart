@@ -31,6 +31,8 @@ library;
 
 // ignore_for_file: public_member_api_docs
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
@@ -82,29 +84,67 @@ class SolidLoginAuthHandler {
 
     if (!context.mounted) return false;
 
-    // Only show the browser login instructions if user is not already logged
-    // in.
+    // Show the animation immediately. Delay the browser login prompt so it only
+    // appears after the server responds. If authentication fails quickly,
+    // cancel the timer to avoid showing a misleading browser instruction.
 
     if (!wasAlreadyLoggedIn) {
-      // Use a longer duration for this snackbar since it's replacing the login
-      // animation.
-
-      const loginDuration = Duration(seconds: 30);
-      showSnackbar(
-        'Please complete the login process in your browser...',
-        duration: loginDuration,
-      );
-
-      // Show the animation after the snackbar.
-
-      await Future.delayed(const Duration(milliseconds: 500));
       showBusyAnimation();
+    }
+
+    Timer? browserMessageTimer;
+    if (!wasAlreadyLoggedIn) {
+      browserMessageTimer = Timer(const Duration(milliseconds: 200), () {
+        if (context.mounted) {
+          showSnackbar(
+            'Please complete the login process in your browser...',
+            duration: const Duration(seconds: 5),
+          );
+        }
+      });
     }
 
     // Perform the actual authentication by contacting the server.
 
-    if (!context.mounted) return false;
-    final authResult = await solidAuthenticate(podServer, context);
+    if (!context.mounted) {
+      browserMessageTimer?.cancel();
+
+      return false;
+    }
+
+    List<dynamic>? authResult;
+    try {
+      authResult = await solidAuthenticate(podServer, context);
+    } on Object catch (e) {
+      // Authentication failed due to a network or server error (e.g. DNS
+      // lookup failure, socket exception, HTTP 502, or any other
+      // connectivity issue).
+
+      browserMessageTimer?.cancel();
+      debugPrint('solidAuthenticate() exception: $e');
+
+      if (!context.mounted) return false;
+
+      // Dismiss any active animation dialog or snackbar before showing the
+      // error message.
+
+      if (!wasAlreadyLoggedIn) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      showSnackbar(
+        'Unable to authenticate with the server. '
+        'The server may be inaccessible or down.',
+        duration: const Duration(seconds: 5),
+      );
+
+      await pushReplacement(context, originalLoginWidget);
+
+      return false;
+    }
+
+    browserMessageTimer?.cancel();
 
     // If authentication succeeded and the user was already logged in,
     // it means they are using a cached session.
@@ -178,7 +218,9 @@ class SolidLoginAuthHandler {
 
       return true;
     } else {
-      // Authentication failed.
+      // Authentication failed. solidAuthenticate() catches all exceptions
+      // internally and returns null, so server errors (e.g. HTTP 502, DNS
+      // lookup failure) surface here rather than in the catch block above.
 
       if (!context.mounted) return false;
 
@@ -187,6 +229,14 @@ class SolidLoginAuthHandler {
       if (!wasAlreadyLoggedIn) {
         Navigator.of(context, rootNavigator: true).pop();
       }
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      showSnackbar(
+        'Unable to authenticate with the server. '
+        'The server may be inaccessible or down.',
+        duration: const Duration(seconds: 5),
+      );
 
       // Navigate back to the login screen after authentication failed.
 
