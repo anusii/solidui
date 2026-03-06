@@ -136,6 +136,24 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
+      // Show animation dialog to provide feedback during initialization check.
+
+      bool isInitDialogCanceled = false;
+      void updateInitDialogCanceledState() {
+        isInitDialogCanceled = true;
+        updateDialogCanceledState();
+      }
+
+      if (!context.mounted) return false;
+
+      showAnimationDialog(
+        context,
+        7,
+        'Checking your Pod\'s structure...',
+        false,
+        updateInitDialogCanceledState,
+      );
+
       // Navigate to the appropriate screen based on structure test.
 
       final resCheckList = await initialStructureTest(
@@ -146,6 +164,14 @@ class SolidLoginAuthHandler {
       final webId = await getWebId() ?? 'Unknown User';
 
       if (!context.mounted) return false;
+
+      // Close the initialization animation dialog if not already canceled by user.
+
+      if (!isInitDialogCanceled) {
+        Navigator.of(context, rootNavigator: true).pop();
+      } else {
+        return false;
+      }
 
       if (!allExists) {
         await pushReplacement(
