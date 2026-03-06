@@ -197,31 +197,51 @@ class SecurityKeyViewDialogs {
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 800),
             child: SingleChildScrollView(
-              child: DataTable(
-                columnSpacing: 30.0,
-                columns: [
-                  DataColumn(
-                    label: Text(
-                      'Parameter',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: dialogTheme.colorScheme.onSurface,
-                      ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'The security key is used to encrypt data '
+                    'within your pod. It is also stored in your pod using a one-way '
+                    'hash, meaning that we can not show you the actual key. '
+                    'The hashed key is used to verify the actual key '
+                    'that you supply.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: dialogTheme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  DataColumn(
-                    label: Text(
-                      'Value',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: dialogTheme.colorScheme.onSurface,
-                      ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: DataTable(
+                      columnSpacing: 30.0,
+                      columns: [
+                        DataColumn(
+                          label: Text(
+                            'Parameter',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: dialogTheme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Value',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: dialogTheme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                      rows: dataRows,
                     ),
                   ),
                 ],
-                rows: dataRows,
               ),
             ),
           ),

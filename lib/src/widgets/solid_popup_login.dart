@@ -100,6 +100,19 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
       return true;
     } on Object catch (e) {
       debugPrint('solidAuthenticate() failed: $e');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to authenticate with $webId. '
+              'The server may be inaccessible or down.',
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+
       return false;
     }
   }

@@ -33,8 +33,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/solid_config.dart';
-import 'package:solidui/src/widgets/solid_login.dart';
-import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
@@ -68,37 +66,14 @@ class SolidLoginBuildHelper {
   static Widget buildLoginButton({
     required BuildContext context,
     required LoginButtonStyle style,
-    required TextEditingController webIdController,
-    required List<String> defaultFolders,
-    required Map<dynamic, dynamic> defaultFiles,
-    required SolidLogin originalWidget,
-    required Widget childWidget,
-    required bool Function() getIsDialogCanceled,
-    required VoidCallback updateDialogCanceledState,
-    required void Function(String, {Duration? duration, bool showAction})
-        showSnackbar,
+    required Future<void> Function() performLogin,
     required FocusNode focusNode,
   }) {
     return FocusTraversalOrder(
       order: const NumericFocusOrder(1),
       child: SolidLoginButtons.buildLoginButton(
         style: style,
-        onPressed: () async {
-          final podServer = webIdController.text.trim().isNotEmpty
-              ? webIdController.text.trim()
-              : SolidConfig.defaultServerUrl;
-          await SolidLoginAuthHandler.handleLogin(
-            context: context,
-            podServer: podServer,
-            defaultFolders: defaultFolders,
-            defaultFiles: defaultFiles,
-            originalLoginWidget: originalWidget,
-            childWidget: childWidget,
-            isDialogCanceled: getIsDialogCanceled(),
-            updateDialogCanceledState: updateDialogCanceledState,
-            showSnackbar: showSnackbar,
-          );
-        },
+        onPressed: performLogin,
         focusNode: focusNode,
         autofocus: true,
       ),
