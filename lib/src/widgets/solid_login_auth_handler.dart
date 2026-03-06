@@ -34,7 +34,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show isUserLoggedIn, solidAuthenticate, initialStructureTest;
+    show isUserLoggedIn, solidAuthenticate, initialStructureTest, getWebId;
 
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -143,6 +143,7 @@ class SolidLoginAuthHandler {
         defaultFiles,
       );
       final allExists = resCheckList.first as bool;
+      final webId = await getWebId() ?? 'Unknown User';
 
       if (!context.mounted) return false;
 
@@ -151,6 +152,7 @@ class SolidLoginAuthHandler {
           context,
           InitialSetupScreen(
             resCheckList: resCheckList,
+            webId: webId,
             originalLogin: originalLoginWidget,
             child: childWidget,
           ),

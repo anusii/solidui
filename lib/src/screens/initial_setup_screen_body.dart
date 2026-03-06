@@ -51,6 +51,7 @@ class InitialSetupScreenBody extends StatefulWidget {
   const InitialSetupScreenBody({
     required this.resNeedToCreate,
     required this.child,
+    required this.webId,
     this.originalLogin,
     super.key,
   });
@@ -62,8 +63,9 @@ class InitialSetupScreenBody extends StatefulWidget {
   // Authentication data coming from the Solid server.
   // final Map<dynamic, dynamic> authData;
 
-  // A URI that is uniquely assigned to the POD.
-  // final String webId;
+  /// A URI that is uniquely assigned to the POD.
+
+  final String webId;
 
   // Name of the app.
   // final String appName;
@@ -171,7 +173,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                 child: ListView(
                   primary: false,
                   children: [
-                    initialSetupWelcome(context, _appName),
+                    initialSetupWelcome(context, _appName, widget.webId),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
