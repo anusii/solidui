@@ -85,14 +85,14 @@ class SolidLoginBuildHelper {
   static Widget buildContinueButton({
     required BuildContext context,
     required ContinueButtonStyle style,
-    required Widget childWidget,
+    required Future<void> Function() performContinue,
     required FocusNode focusNode,
   }) {
     return FocusTraversalOrder(
       order: const NumericFocusOrder(2),
       child: SolidLoginButtons.buildContinueButton(
         style: style,
-        onPressed: () async => await pushReplacement(context, childWidget),
+        onPressed: performContinue,
         focusNode: focusNode,
       ),
     );
