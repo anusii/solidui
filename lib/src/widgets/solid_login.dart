@@ -35,15 +35,20 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
     show
+        clearPodStructureInitialised,
         getAppNameVersion,
         generateDefaultFolders,
         generateDefaultFiles,
         generateCustomFolders,
+        initialStructureTest,
+        isUserLoggedIn,
+        logoutPod,
         setAppDirName;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
+import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_asset_helper.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_build_helper.dart';
@@ -362,6 +367,72 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       );
     }
 
+    // When the user taps Continue with an existing cached session, verify
+    // the remote POD directory structure before proceeding. If the remote
+    // directories are missing, clear stale credentials and ask the user to
+    // re-login so the setup wizard can re-initialise the POD.
+
+    Future<void> performContinue() async {
+      final isLoggedIn = await isUserLoggedIn();
+
+      if (isLoggedIn && defaultFolders.isNotEmpty) {
+        if (!context.mounted) return;
+
+        showAnimationDialog(
+          context,
+          7,
+          'Verifying POD structure...',
+          false,
+          updateState,
+        );
+
+        try {
+          final resCheckList = await initialStructureTest(
+            defaultFolders,
+            defaultFiles,
+          );
+          final allExists = resCheckList.first as bool;
+
+          if (!context.mounted) return;
+
+          Navigator.of(context, rootNavigator: true).pop();
+
+          if (!allExists) {
+            await clearPodStructureInitialised();
+            await logoutPod();
+
+            if (!context.mounted) return;
+
+            _showSnackbar(
+              'Your POD directory structure is incomplete or has been '
+              'removed. Please log in again to re-initialise your POD.',
+              duration: const Duration(seconds: 5),
+            );
+
+            return;
+          }
+        } on Object catch (e) {
+          debugPrint('Continue: POD structure check failed: $e');
+
+          if (!context.mounted) return;
+
+          Navigator.of(context, rootNavigator: true).pop();
+
+          _showSnackbar(
+            'Unable to verify POD structure. '
+            'The server may be inaccessible.',
+            duration: const Duration(seconds: 5),
+          );
+
+          return;
+        }
+      }
+
+      if (!context.mounted) return;
+
+      await pushReplacement(context, widget.child);
+    }
+
     final registerButton = SolidLoginBuildHelper.buildRegisterButton(
       style: widget.registerButtonStyle,
       webIdController: webIdController,
@@ -378,7 +449,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     final continueButton = SolidLoginBuildHelper.buildContinueButton(
       context: context,
       style: widget.continueButtonStyle,
-      childWidget: widget.child,
+      performContinue: performContinue,
       focusNode: _continueFocusNode,
     );
 

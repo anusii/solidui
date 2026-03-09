@@ -37,9 +37,9 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
     show
+        clearPodStructureInitialised,
         initialStructureTest,
         isUserLoggedIn,
-        isPodStructureInitialised,
         markPodStructureInitialised,
         solidAuthenticate;
 
@@ -181,39 +181,39 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      // Returning users whose POD structure has already been verified can
-      // proceed directly.
+      // Always verify the remote POD directory structure regardless of the
+      // local initialisation flag. The remote folders may have been deleted
+      // independently (e.g. via the server admin UI), so relying solely on
+      // the cached flag would let the user enter a broken environment.
 
-      final alreadyInitialised = await isPodStructureInitialised();
+      final resCheckList = await initialStructureTest(
+        defaultFolders,
+        defaultFiles,
+      );
+      final allExists = resCheckList.first as bool;
 
-      if (alreadyInitialised) {
+      if (!context.mounted) return false;
+
+      if (!allExists) {
+        // Remote structure is incomplete — clear the stale local flag and
+        // launch the setup wizard so the user can re-initialise.
+
+        await clearPodStructureInitialised();
+
+        if (!context.mounted) return false;
+
+        await pushReplacement(
+          context,
+          InitialSetupScreen(
+            resCheckList: resCheckList,
+            originalLogin: originalLoginWidget,
+            child: childWidget,
+          ),
+        );
+      } else {
+        await markPodStructureInitialised();
         if (!context.mounted) return false;
         await pushReplacement(context, childWidget);
-      } else {
-        // First run or structure not yet verified — perform the check.
-
-        final resCheckList = await initialStructureTest(
-          defaultFolders,
-          defaultFiles,
-        );
-        final allExists = resCheckList.first as bool;
-
-        if (!context.mounted) return false;
-
-        if (!allExists) {
-          await pushReplacement(
-            context,
-            InitialSetupScreen(
-              resCheckList: resCheckList,
-              originalLogin: originalLoginWidget,
-              child: childWidget,
-            ),
-          );
-        } else {
-          await markPodStructureInitialised();
-          if (!context.mounted) return false;
-          await pushReplacement(context, childWidget);
-        }
       }
 
       return true;
