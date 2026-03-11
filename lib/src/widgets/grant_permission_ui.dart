@@ -86,7 +86,7 @@ class GrantPermissionUi extends StatefulWidget {
         ),
         assert(
           (showAppBar == true && customAppBar != null) ||
-              (showAppBar == true && child != null && onNavigateBack != null) ||
+              (showAppBar == true && child != null) ||
               showAppBar == false,
           'Either customAppBar, or child and onNavigateBack function, must be provided if showAppBar is selected',
         );
