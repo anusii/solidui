@@ -170,21 +170,22 @@ published by `example.com` begin with:
 flutter create --template solidui --domain com.example myapp
 ```
 
-A standalone example application is available in the
-[FilePod](https://github.com/anusii/filepod) repository. The app
-consists of several files within the `lib/` directory.  `main.dart`
-is the main entry point to the app. Its task in our framework is to
-initialise the application and then launch the app
-itself.  `app.dart` implements the `App()` which is typically where
-we instantiate a `SolidLogin()`, often as the `child:` of a
-`SolidThemeApp()`.  The `SolidLogin()` provides the login page for
-the app. After logging in the `AppScaffold()`, as the `child:` of
-the `SolidLogin()`, is instantiated to contain the main
-functionality of the app.  `app_scaffold.dart` implements the
-`AppScaffold()` widget which builds a `SolidScaffold()` to set up
-the framework for a typical Solid app. The child is the `Home()`
-widget. `home.dart` implements the `Home()` widget as the main app
-functionality. Constants are defined in `constants/app.dart` and
+A demonstrator example application (DemoPod) is available in the
+[example](example/) folder of this repository. DemoPod showcases the
+suite of functionality provided by `solidpod` and `solidui`,
+including reading and writing encrypted data, ACL inheritance,
+permission management, large file transfers, and more.
+
+A standalone file browser application is available in the
+[FilePod](https://github.com/anusii/filepod) repository. FilePod
+demonstrates building a complete Solid app using `SolidScaffold`,
+`SolidFile`, and the broader `solidui` framework.
+
+Both applications consist of several files within their `lib/`
+directory.  `main.dart` is the main entry point to the app. Its task
+in our framework is to initialise the application and then launch the
+app itself. `home.dart` implements the `Home()` widget as the main
+app functionality. Constants are defined in `constants/app.dart` and
 utilities such as desktop platform detection are in
 `utils/is_desktop.dart`.
 
