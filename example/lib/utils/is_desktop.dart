@@ -1,41 +1,55 @@
 /// Check if we are running a desktop (and not a browser).
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+// Time-stamp: <Sunday 2023-12-31 16:40:28 +1100 Graham Williams>
 ///
-/// Licensed under the MIT License (the "License").
+/// Copyright (C) 2024, Software Innovation Institute, ANU.
 ///
-/// License: https://choosealicense.com/licenses/mit/.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+/// Licensed under the GNU General Public License, Version 3 (the "License").
 ///
-/// Authors: Tony Chen
+/// License: https://opensource.org/license/gpl-3-0.
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program.  If not, see <https://opensource.org/license/gpl-3-0>.
+///
+/// Authors: Graham Williams, Ninad Bhat
 
 library;
 
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-/// Test if we are running on a desktop platform but not in a browser.
+import 'package:universal_io/io.dart' show Platform;
 
-bool get isDesktop {
-  if (kIsWeb) return false;
+bool isDesktop(PlatformWrapper platformWrapper) {
+  /// platformWrapper: PlatformWrapper class is passed in to allow mocking for testing.
+  /// Returns true if running on Linux, macOS or Windows.
 
-  return Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  if (platformWrapper.isWeb) {
+    return false;
+  }
+
+  return platformWrapper.isLinux ||
+      platformWrapper.isMacOS ||
+      platformWrapper.isWindows;
 }
+
+// PlatformWrapper coverage is ignored as it is created to test isDesktop() and
+// Platform and kIsWeb are not mockable.
+// coverage:ignore-start
+class PlatformWrapper {
+  /// Wraps the Platform class to allow mocking for testing.
+  bool get isLinux => Platform.isLinux;
+  bool get isMacOS => Platform.isMacOS;
+  bool get isWeb => kIsWeb;
+  bool get isWindows => Platform.isWindows;
+}
+// coverage:ignore-end

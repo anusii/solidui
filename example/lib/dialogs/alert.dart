@@ -1,6 +1,4 @@
-/// Constants used throughout the app.
-///
-// Time-stamp: <Wednesday 2024-05-15 10:07:05 +1000 Graham Williams>
+/// Show an Alert dialog
 ///
 /// Copyright (C) 2024, Software Innovation Institute, ANU.
 ///
@@ -21,33 +19,26 @@
 // You should have received a copy of the GNU General Public License along with
 // this program.  If not, see <https://opensource.org/license/gpl-3-0>.
 ///
-/// Authors: Graham Williams
+/// Authors: Dawei Chen
 
 library;
 
 import 'package:flutter/material.dart';
 
-const titleBackgroundColor = Color(0xFFF0E4D7);
-
-// const dataFile = 'key-value.ttl';
-const dataFile = 'keyvalue/key-value.ttl';
-
-//const dataFilePlain = 'key-value-plain.ttl';
-const dataFilePlain = dataFile;
-
-String createDemoTtlStr(String fileName) {
-  return '''@prefix demo: <#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-
-demo:sampleData$fileName a demo:DemoResource ;
-    rdfs:label "Demo File $fileName" ;
-    demo:created "${DateTime.now().toIso8601String()}" ;
-    demo:description "This is a file containing some demo ttl content" ;
-    foaf:maker "Solid Demo" .
-
-demo:exampleData$fileName
-    demo:sampleProperty "Sample value" ;
-    demo:category "demo-data".
-''';
+// Show an alert dialog
+Future<void> alert(BuildContext context, String msg,
+    [String title = 'Notice']) async {
+  await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: Text(title),
+            content: Text(msg),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK'))
+            ],
+          ));
 }

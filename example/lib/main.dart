@@ -1,64 +1,99 @@
-/// SolidUI Template Application
+/// A template app to begin a Solid Pod project.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+// Time-stamp: <Monday 2025-07-14 11:46:50 +1000 Graham Williams>
 ///
-/// Licensed under the MIT License (the "License").
+/// Copyright (C) 2024, Software Innovation Institute, ANU.
 ///
-/// License: https://choosealicense.com/licenses/mit/.
+/// Licensed under the GNU General Public License, Version 3 (the "License").
+///
+/// License: https://opensource.org/license/gpl-3-0.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// You should have received a copy of the GNU General Public License along withk
+// this program.  If not, see <https://opensource.org/license/gpl-3-0>.
 ///
-/// Authors: Tony Chen, Graham Williams
+/// Authors: Graham Williams
 
 library;
 
 import 'package:flutter/material.dart';
 
+import 'package:demopod/home.dart';
+import 'package:demopod/utils/is_desktop.dart';
+import 'package:solidui/solidui.dart' show SolidLogin, InfoButtonStyle;
 import 'package:window_manager/window_manager.dart';
 
-import 'app.dart';
-import 'constants/app.dart';
-import 'utils/is_desktop.dart';
-
-/// Main entry point for the [MyApp] application.
-
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Remove [debugPrint] messages from production code.
 
-  // Set window options for desktop platforms (Windows, Linux, macOS).
+  debugPrint = (String? message, {int? wrapWidth}) {
+    null;
+  };
 
-  if (isDesktop) {
+  // Suport window size and top placement for desktop apps.
+
+  if (isDesktop(PlatformWrapper())) {
+    WidgetsFlutterBinding.ensureInitialized();
+
     await windowManager.ensureInitialized();
 
     const windowOptions = WindowOptions(
-      title: appTitle,
-      minimumSize: Size(500, 800),
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
+      // Setting [alwaysOnTop] here will ensure the app starts on top of other
+      // apps on the desktop so that it is visible. We later turn it of as we
+      // don't want to force it always on top.
+
+      alwaysOnTop: true,
+
+      // The [title] is used for the window manager's window title.
+
+      title: 'DemoPod - Demonstrate Private Solid Pod',
     );
 
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
+      await windowManager.setAlwaysOnTop(false);
     });
   }
 
-  runApp(const App());
+  // Ready to run the app.
+
+  runApp(const DemoPod());
+}
+
+class DemoPod extends StatelessWidget {
+  const DemoPod({super.key});
+
+  // This widget is the root of our application.
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: 'Solid Pod Demonstrator',
+      home: SolidLogin(
+        // Images generated using Bing Image Creator from Designer, powered by
+        // DALL-E3.
+
+        title: 'SOLID POD DEMONSTRATOR',
+        appDirectory: 'exampleApp',
+        image: AssetImage('assets/images/demopod_image.jpg'),
+        logo: AssetImage('assets/images/demopod_logo.png'),
+        link: 'https://github.com/anusii/solidpod/blob/main/demopod/README.md',
+        required: false,
+        infoButtonStyle: InfoButtonStyle(
+          tooltip: 'Visit the DemoPod documentation.',
+        ),
+        child: Home(),
+      ),
+    );
+  }
 }
