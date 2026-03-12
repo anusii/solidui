@@ -103,8 +103,10 @@ Future<void> getKeyFromUserIfRequired(
         context,
         MaterialPageRoute(builder: (context) => securityKeyInput),
       );
+
       // Notify the global status bar notifier that the key status may have
       // changed after the user submitted (or dismissed) the key prompt.
+
       await securityKeyNotifier.refreshStatus();
     }
   }
