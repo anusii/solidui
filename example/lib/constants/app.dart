@@ -27,6 +27,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+const String appTitle = 'DemoPod - Solid Pod Demonstrator';
+
 const titleBackgroundColor = Color(0xFFF0E4D7);
 
 // const dataFile = 'key-value.ttl';

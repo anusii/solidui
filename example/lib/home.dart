@@ -40,6 +40,7 @@ import 'package:solidui/solidui.dart'
         GrantPermissionUi,
         InitialSetupScreenBody,
         SharedResourcesUi,
+        SolidScaffold,
         changeKeyPopup,
         getKeyFromUserIfRequired,
         largeGapV,
@@ -47,8 +48,8 @@ import 'package:solidui/solidui.dart'
         logoutPopup,
         smallGapV;
 
+import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
-import 'package:demopod/dialogs/about.dart';
 import 'package:demopod/dialogs/alert.dart';
 import 'package:demopod/features/create_acl_inherited_file.dart';
 import 'package:demopod/features/edit_keyvalue.dart';
@@ -56,7 +57,6 @@ import 'package:demopod/features/file_service.dart';
 import 'package:demopod/features/permission_callback_demo.dart';
 import 'package:demopod/features/read_acl_inherited_file.dart';
 import 'package:demopod/features/view_keys.dart';
-import 'package:demopod/main.dart';
 import 'package:demopod/utils/rdf.dart';
 
 /// A widget for the demonstration screen of the application.
@@ -72,14 +72,17 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   String sampleText = '';
+
   // Step 1: Loading state variable.
 
   bool _isLoading = false;
 
   // Indicator for write encrypted/plaintext data
+
   bool _writeEncrypted = true;
 
   // The current webID
+
   String? _webId;
 
   @override
@@ -93,7 +96,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     });
   }
 
-  Future<void> _showPrivateData(String title) async {
+  Future<void> _showPrivateData() async {
     setState(() {
       // Begin loading.
 
@@ -106,17 +109,15 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
         pathType: PathType.relativeToPod,
       );
 
-      //await Navigator.pushReplacement( // this won't show the file content if POD initialisation has just been performed
       await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ViewKeys(
             keyInfo: fileContent,
-            title: title,
+            title: appTitle,
           ),
         ),
       );
-      //}
     } on Exception catch (e) {
       debugPrint('Exception: $e');
     } finally {
@@ -136,15 +137,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
       _isLoading = true;
     });
 
-    // final appName = await getAppName();
-
-    // final fileName = 'test-101.ttl';
-    // final fileContent = 'This is for testing writePod.';
-
     final fileName = _writeEncrypted ? dataFile : dataFilePlain;
-
-    // final dataDirPath = await getDataDirPath();
-    // final filePath = [dataDirPath, fileName].join('/');
 
     List<({String key, dynamic value})>? pairs;
 
@@ -282,30 +275,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _build(BuildContext context, String title) {
-    // Build the widget.
-
-    // Include a timestamp on the screen.
-
+  Widget _buildContent(BuildContext context) {
     final dateStr = DateFormat('HH:mm:ss dd MMMM yyyy').format(DateTime.now());
 
-    // A small horizontal spacing for the widget.
-
     const smallGapH = SizedBox(width: 10.0);
-
-    // Some handy widgets that will be displyed. These are defined here to
-    // reduce the complexity of the code below.
-
-    final about = IconButton(
-      icon: const Icon(
-        Icons.info,
-        color: Colors.purple,
-      ),
-      onPressed: () async {
-        await aboutDialog(context);
-      },
-      tooltip: 'Popup a window about the app.',
-    );
 
     final date = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,479 +392,455 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
         },
         child: const Text('Read Resource with ACL Inheritance'));
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: titleBackgroundColor,
-        title: Text(title),
-        actions: [
-          about,
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          smallGapV,
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: [
+                date,
+                webid,
+                largeGapV,
+                welcomeHeading,
+                smallGapV,
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      smallGapH,
+                      const Text(
+                        'Encrypt Data?',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      smallGapH,
+                      Switch(
+                        value: _writeEncrypted,
+                        onChanged: (val) {
+                          setState(() {
+                            _writeEncrypted = val;
+                          });
+                        },
+                      )
+                    ]),
+                smallGapV,
+
+                ElevatedButton(
+                  child: const Text('Read/Write Pod Data File'),
+                  onPressed: () async {
+                    await loginIfRequired(context);
+                    await _readWritePrivateData();
+                  },
+                ),
+                smallGapV,
+
+                ElevatedButton(
+                  child: const Text('Read Metadata of Pod Data File'),
+                  onPressed: () async {
+                    await loginIfRequired(context);
+                    await _readMetaData();
+                  },
+                ),
+                smallGapV,
+
+                ElevatedButton(
+                    onPressed: () async {
+                      final loggedIn = await loginIfRequired(
+                        context,
+                      );
+                      if (loggedIn) {
+                        deleteDataFileDialog(dataFile, context);
+                      }
+                    },
+                    child: const Text('Delete Pod Data File')),
+                smallGapV,
+
+                fileDemoButton,
+
+                largeGapV,
+
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ACL Inheritance',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+
+                inheritanceDemoButton,
+
+                smallGapV,
+
+                inheritanceReadButton,
+
+                largeGapV,
+
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Local Security Key Management',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                smallGapV,
+                ElevatedButton(
+                  child: const Text('Show Security Key (Encrypted)'),
+                  onPressed: () async {
+                    await _showPrivateData();
+                  },
+                ),
+                smallGapV,
+                ElevatedButton(
+                  child: const Text(
+                      'Show Security Key Prompt (For Demonstration)'),
+                  onPressed: () async {
+                    await _showSecurityKeyPrompt();
+                  },
+                ),
+                smallGapV,
+                ElevatedButton(
+                    onPressed: () {
+                      changeKeyPopup(context, widget);
+                    },
+                    child: const Text('Change Security Key on Pod')),
+                smallGapV,
+                ElevatedButton(
+                  child: const Text('Forget Security Key Locally'),
+                  onPressed: () async {
+                    late String msg;
+                    try {
+                      await KeyManager.forgetSecurityKey();
+                      msg = 'Successfully forgot local security key.';
+                      _resetWebId();
+                    } on Exception catch (e) {
+                      msg = 'Failed to forget local security key: $e';
+                    }
+                    await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Notice'),
+                        content: Text(msg),
+                        actions: [
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('OK'))
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                largeGapV,
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Solid Server Login Management',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                MarkdownTooltip(
+                  message:
+                      'This will remove from our local device\'s memory the '
+                      'solid pod login information so that the next time you '
+                      'start up the app you will need to login to your solid '
+                      'server hosting your pod.',
+                  child: ElevatedButton(
+                    child:
+                        const Text('Forget Remote Solid Server Login'),
+                    onPressed: () async {
+                      final deleteRes = await deleteLogIn();
+
+                      var deleteMsg = '';
+
+                      if (deleteRes) {
+                        deleteMsg =
+                            'Successfully forgot remote solid server login info';
+                      } else {
+                        deleteMsg =
+                            'Failed to forget login info. Try again in a while';
+                      }
+
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Notice'),
+                          content: Text(deleteMsg),
+                          actions: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('OK'))
+                          ],
+                        ),
+                      );
+
+                      _resetWebId();
+                    },
+                  ),
+                ),
+                smallGapV,
+                MarkdownTooltip(
+                  message:
+                      'This will send a request through the browser to the '
+                      'remote solid server to log you out of your Pod.',
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await logoutPopup(context, const App());
+                    },
+                    child:
+                        const Text('Logout From Remote Solid Server'),
+                  ),
+                ),
+                largeGapV,
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Resource Permission Management',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  child: const Text(
+                      'Add/Delete Permissions from a Specific Resource (key-value.ttl)'),
+                  onPressed: () async {
+                    final loggedIn = await loginIfRequired(
+                      context,
+                    );
+
+                    if (loggedIn) {
+                      await getKeyFromUserIfRequired(context, widget);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const GrantPermissionUi(
+                            backgroundColor: titleBackgroundColor,
+                            resourceName: 'keyvalue/key-value.ttl',
+                            child: Home(),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                smallGapV,
+                ElevatedButton(
+                  child: const Text('Permission Callback Demo'),
+                  onPressed: () async {
+                    final loggedIn = await loginIfRequired(
+                      context,
+                    );
+
+                    if (loggedIn) {
+                      await getKeyFromUserIfRequired(context, widget);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const PermissionCallbackDemo(
+                            child: Home(),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                smallGapV,
+                ElevatedButton(
+                  child: const Text(
+                      'Add/Delete Permissions from any Resource'),
+                  onPressed: () async {
+                    final loggedIn = await loginIfRequired(
+                      context,
+                    );
+
+                    if (loggedIn) {
+                      await getKeyFromUserIfRequired(context, widget);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const GrantPermissionUi(
+                            backgroundColor: titleBackgroundColor,
+                            child: Home(),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                largeGapV,
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Manage External Resources with Access',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  child: const Text(
+                      'View specific resource (key-value.ttl) your WebID has access to'),
+                  onPressed: () async {
+                    final loggedIn = await loginIfRequired(
+                      context,
+                    );
+
+                    if (loggedIn) {
+                      await getKeyFromUserIfRequired(context, widget);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SharedResourcesUi(
+                            backgroundColor: titleBackgroundColor,
+                            fileName: 'key-value.ttl',
+                            child: Home(),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                smallGapV,
+                ElevatedButton(
+                  child: const Text(
+                      'View ALL Resources your WebID has access to'),
+                  onPressed: () async {
+                    final loggedIn = await loginIfRequired(
+                      context,
+                    );
+
+                    if (loggedIn) {
+                      await getKeyFromUserIfRequired(context, widget);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SharedResourcesUi(
+                            backgroundColor: titleBackgroundColor,
+                            child: Home(),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                smallGapV,
+                largeGapV,
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Setup Wizard Demo',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                smallGapV,
+                ElevatedButton(
+                  onPressed: () async {
+                    final loggedIn = await loginIfRequired(context);
+
+                    if (!loggedIn) {
+                      debugPrint('Please login to run the demo');
+                      return;
+                    }
+
+                    final webId = await getWebId();
+                    if (webId == null) {
+                      debugPrint('web ID is not available');
+                      return;
+                    }
+
+                    final sampleDirUrl = await getDirUrl([
+                      await getDataDirPath(),
+                      'setup_wizard_demo',
+                    ].join('/'));
+                    final sampleFileName = 'setup_wizard_demo.ttl';
+                    final sampleFileUrl = await getFileUrl([
+                      await getDataDirPath(),
+                      'sampleFileName',
+                    ].join('/'));
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SolidScaffold(
+                          body: SafeArea(
+                            child: InitialSetupScreenBody(
+                              resNeedToCreate: {
+                                'folders': [sampleDirUrl],
+                                'files': [sampleFileUrl],
+                                'fileNames': [sampleFileName],
+                              },
+                              child: const Home(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                      'Show Solid Pod Setup Wizard (Using Real Component)'),
+                ),
+                smallGapV,
+              ],
+            ),
+          ),
         ],
       ),
-      body: _isLoading
-          // If loading show the loading indicator.
-          ? const Center(child: CircularProgressIndicator())
-          // Otherwise we show the screen.
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  smallGapV,
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      children: [
-                        date,
-                        webid,
-                        largeGapV,
-                        welcomeHeading,
-                        smallGapV,
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              smallGapH,
-                              const Text(
-                                'Encrypt Data?',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              smallGapH,
-                              Switch(
-                                value: _writeEncrypted,
-                                onChanged: (val) {
-                                  setState(() {
-                                    _writeEncrypted = val;
-                                  });
-                                },
-                              )
-                            ]),
-                        smallGapV,
-
-                        ElevatedButton(
-                          child: const Text('Read/Write Pod Data File'),
-                          onPressed: () async {
-                            await loginIfRequired(context);
-                            await _readWritePrivateData();
-                          },
-                        ),
-                        smallGapV,
-
-                        ElevatedButton(
-                          child: const Text('Read Metadata of Pod Data File'),
-                          onPressed: () async {
-                            await loginIfRequired(context);
-                            await _readMetaData();
-                          },
-                        ),
-                        smallGapV,
-
-                        // SolidPod API: deleteDataFile()
-                        ElevatedButton(
-                            onPressed: () async {
-                              final loggedIn = await loginIfRequired(
-                                context,
-                              );
-                              if (loggedIn) {
-                                deleteDataFileDialog(dataFile, context);
-                              }
-                            },
-                            child: const Text('Delete Pod Data File')),
-                        smallGapV,
-
-                        fileDemoButton,
-
-                        largeGapV,
-
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'ACL Inheritance',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        inheritanceDemoButton,
-
-                        smallGapV,
-
-                        inheritanceReadButton,
-
-                        largeGapV,
-
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Local Security Key Management',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        smallGapV,
-                        ElevatedButton(
-                          child: const Text('Show Security Key (Encrypted)'),
-                          onPressed: () async {
-                            await _showPrivateData(title);
-                          },
-                        ),
-                        smallGapV,
-                        ElevatedButton(
-                          child: const Text(
-                              'Show Security Key Prompt (For Demonstration)'),
-                          onPressed: () async {
-                            // Use the dedicated helper method.
-
-                            await _showSecurityKeyPrompt();
-                          },
-                        ),
-                        smallGapV,
-                        ElevatedButton(
-                            onPressed: () {
-                              changeKeyPopup(context, widget);
-                            },
-                            child: const Text('Change Security Key on Pod')),
-                        smallGapV,
-                        ElevatedButton(
-                          child: const Text('Forget Security Key Locally'),
-                          onPressed: () async {
-                            late String msg;
-                            try {
-                              await KeyManager.forgetSecurityKey();
-                              msg = 'Successfully forgot local security key.';
-                              _resetWebId();
-                            } on Exception catch (e) {
-                              msg = 'Failed to forget local security key: $e';
-                            }
-                            await showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Notice'),
-                                content: Text(msg),
-                                actions: [
-                                  ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('OK'))
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                        largeGapV,
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Solid Server Login Management',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        MarkdownTooltip(
-                          message:
-                              'This will remove from our local device\'s memory the '
-                              'solid pod login information so that the next time you '
-                              'start up the app you will need to login to your solid '
-                              'server hosting your pod.',
-                          child: ElevatedButton(
-                            child:
-                                const Text('Forget Remote Solid Server Login'),
-                            onPressed: () async {
-                              final deleteRes = await deleteLogIn();
-
-                              var deleteMsg = '';
-
-                              if (deleteRes) {
-                                deleteMsg =
-                                    'Successfully forgot remote solid server login info';
-                              } else {
-                                deleteMsg =
-                                    'Failed to forget login info. Try again in a while';
-                              }
-
-                              await showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Notice'),
-                                  content: Text(deleteMsg),
-                                  actions: [
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('OK'))
-                                  ],
-                                ),
-                              );
-
-                              _resetWebId();
-                            },
-                          ),
-                        ),
-                        smallGapV,
-                        MarkdownTooltip(
-                          message:
-                              'This will send a request through the browser to the '
-                              'remote solid server to log you out of your Pod.',
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              await logoutPopup(context, const DemoPod());
-                            },
-                            child:
-                                const Text('Logout From Remote Solid Server'),
-                          ),
-                        ),
-                        largeGapV,
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Resource Permission Management',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          child: const Text(
-                              'Add/Delete Permissions from a Specific Resource (key-value.ttl)'),
-                          onPressed: () async {
-                            final loggedIn = await loginIfRequired(
-                              context,
-                            );
-
-                            if (loggedIn) {
-                              await getKeyFromUserIfRequired(context, widget);
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const GrantPermissionUi(
-                                    backgroundColor: titleBackgroundColor,
-                                    resourceName: 'keyvalue/key-value.ttl',
-                                    // accessModeList: ['read', 'write'],
-                                    // recipientTypeList: ['indi', 'group'],
-                                    // isFile: false,
-                                    child: Home(),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        smallGapV,
-                        ElevatedButton(
-                          child: const Text('Permission Callback Demo'),
-                          onPressed: () async {
-                            final loggedIn = await loginIfRequired(
-                              context,
-                            );
-
-                            if (loggedIn) {
-                              await getKeyFromUserIfRequired(context, widget);
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PermissionCallbackDemo(
-                                    child: Home(),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        smallGapV,
-                        ElevatedButton(
-                          child: const Text(
-                              'Add/Delete Permissions from any Resource'),
-                          onPressed: () async {
-                            final loggedIn = await loginIfRequired(
-                              context,
-                            );
-
-                            if (loggedIn) {
-                              await getKeyFromUserIfRequired(context, widget);
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const GrantPermissionUi(
-                                    backgroundColor: titleBackgroundColor,
-                                    child: Home(),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        largeGapV,
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Manage External Resources with Access',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          child: const Text(
-                              'View specific resource (key-value.ttl) your WebID has access to'),
-                          onPressed: () async {
-                            final loggedIn = await loginIfRequired(
-                              context,
-                            );
-
-                            if (loggedIn) {
-                              await getKeyFromUserIfRequired(context, widget);
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SharedResourcesUi(
-                                    backgroundColor: titleBackgroundColor,
-                                    fileName: 'key-value.ttl',
-                                    child: Home(),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        smallGapV,
-                        ElevatedButton(
-                          child: const Text(
-                              'View ALL Resources your WebID has access to'),
-                          onPressed: () async {
-                            final loggedIn = await loginIfRequired(
-                              context,
-                            );
-
-                            if (loggedIn) {
-                              await getKeyFromUserIfRequired(context, widget);
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SharedResourcesUi(
-                                    backgroundColor: titleBackgroundColor,
-                                    child: Home(),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        smallGapV,
-                        largeGapV,
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Setup Wizard Demo',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        smallGapV,
-                        ElevatedButton(
-                          onPressed: () async {
-                            // Now that the back button issue is fixed in InitialSetupScreenBody,
-                            // we can use it directly without any custom wrapper.
-
-                            final loggedIn = await loginIfRequired(context);
-
-                            if (!loggedIn) {
-                              debugPrint('Please login to run the demo');
-                              return;
-                            }
-
-                            final webId = await getWebId();
-                            if (webId == null) {
-                              debugPrint('web ID is not available');
-                              return;
-                            }
-
-                            final sampleDirUrl = await getDirUrl([
-                              await getDataDirPath(),
-                              'setup_wizard_demo',
-                            ].join('/'));
-                            final sampleFileName = 'setup_wizard_demo.ttl';
-                            final sampleFileUrl = await getFileUrl([
-                              await getDataDirPath(),
-                              'sampleFileName',
-                            ].join('/'));
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Scaffold(
-                                  body: SafeArea(
-                                    child: InitialSetupScreenBody(
-                                      // Sample resources that would need to be created.
-
-                                      resNeedToCreate: {
-                                        'folders': [sampleDirUrl],
-                                        'files': [sampleFileUrl],
-                                        'fileNames': [sampleFileName],
-                                      },
-                                      child: const Home(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                              'Show Solid Pod Setup Wizard (Using Real Component)'),
-                        ),
-                        smallGapV,
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
     );
   }
 
-  Future<({String name, String? webId})> _getInfo() async =>
-      (name: await AppInfo.name, webId: await getWebId());
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<({String name, String? webId})>(
-      future: _getInfo(),
+    return FutureBuilder<String?>(
+      future: getWebId(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final appName = snapshot.data?.name;
-          final title = 'Demonstrating solidpod functionality using '
-              '${appName!.isNotEmpty ? appName[0].toUpperCase() + appName.substring(1) : ""}';
-          _webId = snapshot.data?.webId;
-          return _build(context, title);
-        } else {
-          return const CircularProgressIndicator();
+        if (snapshot.connectionState == ConnectionState.waiting && _webId == null) {
+          return const Center(child: CircularProgressIndicator());
         }
+
+        if (snapshot.hasData && snapshot.data != null) {
+          _webId = snapshot.data;
+        }
+
+        return _buildContent(context);
       },
     );
   }
