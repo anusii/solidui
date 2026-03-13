@@ -50,8 +50,6 @@ import 'package:solidui/src/widgets/revoke_permission_button.dart';
 /// - [isExternalRes] - Boolean flag describing whether the resource
 /// is externally owned.
 /// - [updatePermissionsFunction] is the function to be called to refresh the permission table.
-/// - [parentWidget] is the widget to return to after an action Eg: deletion of a
-/// permission
 ///
 
 class PermissionTable extends StatefulWidget {
@@ -84,10 +82,6 @@ class PermissionTable extends StatefulWidget {
 
   final Function updatePermissionsFunction;
 
-  /// Parent widget to return to.
-
-  final Widget parentWidget;
-
   /// Layout constraints
 
   final BoxConstraints constraints;
@@ -99,7 +93,6 @@ class PermissionTable extends StatefulWidget {
     required this.ownerWebId,
     required this.granterWebId,
     required this.updatePermissionsFunction,
-    required this.parentWidget,
     required this.isFile,
     this.isExternalRes = false,
     required this.constraints,

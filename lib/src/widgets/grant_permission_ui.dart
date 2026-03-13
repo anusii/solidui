@@ -62,7 +62,7 @@ import 'package:solidui/solidui.dart';
 
 class GrantPermissionUi extends StatefulWidget {
   const GrantPermissionUi({
-    required this.child,
+    this.child,
     this.title = 'Demonstrating data sharing functionality',
     this.backgroundColor = const Color.fromARGB(255, 210, 210, 210),
     this.showAppBar = true,
@@ -78,17 +78,23 @@ class GrantPermissionUi extends StatefulWidget {
     this.onPermissionGranted,
     this.onNavigateBack,
     super.key,
-  }) : assert(
+  })  : assert(
           // Requires ownerWebId if resource
           // is an externally owned.
           isExternalRes == false || ownerWebId != null,
           'ownerWebId must be provided if isExternalRes == true',
+        ),
+        assert(
+          (showAppBar == true && customAppBar != null) ||
+              (showAppBar == true && child != null) ||
+              showAppBar == false,
+          'Either customAppBar, or child and onNavigateBack function, must be provided if showAppBar is selected',
         );
 
   /// The child widget to return to when back button is pressed and/or when
   /// page is reloaded after a permission is granted or revoked.
 
-  final Widget child;
+  final Widget? child;
 
   /// The text appearing in the app bar.
 
@@ -454,16 +460,21 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
     bool getIsFile() => widget.resourceName != null ? widget.isFile : isFile;
 
-    // Use customAppBar if provided
-    final customAppBar = widget.customAppBar ??
-        defaultAppBar(
-          context,
-          widget.title,
-          widget.backgroundColor,
-          widget.child,
-          onNavigateBack: () => widget.onNavigateBack?.call(),
-          getResult: () => permissionsGrantedSuccessfully,
-        );
+    // If showAppBar selected, use customAppBar if provided
+    final PreferredSizeWidget? appBar;
+    if (widget.showAppBar) {
+      appBar = widget.customAppBar ??
+          defaultAppBar(
+            context,
+            widget.title,
+            widget.backgroundColor,
+            widget.child as Widget,
+            onNavigateBack: () => widget.onNavigateBack?.call(),
+            getResult: () => permissionsGrantedSuccessfully,
+          );
+    } else {
+      appBar = null;
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -471,7 +482,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
           // Display app bar if showAppBar selected
           // AppBar will be defaultAppBar() if customAppBar()
           // not provided
-          appBar: widget.showAppBar ? customAppBar : null,
+          appBar: appBar,
 
           body: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -608,7 +619,6 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                         ownerWebId: _ownerWebId,
                         granterWebId: _granterWebId,
                         updatePermissionsFunction: _updatePermissions,
-                        parentWidget: widget.child,
                         isFile: getIsFile(),
                         isExternalRes: widget.isExternalRes,
                         constraints: constraints,
@@ -648,7 +658,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
             final List<LogRecord> initPermHistoryList =
                 snapshot.data![1] as List<LogRecord>;
             return initCurrentPerm.permissionMap.isEmpty
-                ? widget.child
+                ? _buildPermPage(context)
                 : _buildPermPage(context, initCurrentPerm, initPermHistoryList);
           },
         );
