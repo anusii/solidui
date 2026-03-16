@@ -582,8 +582,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 smallGapV,
                 _buttonRow([
                   ElevatedButton(
-                    child: const Text(
-                        'Add/Delete Permissions (key-value.ttl)'),
+                    child: const Text('Add/Delete Permissions (key-value.ttl)'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -621,8 +620,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     },
                   ),
                   ElevatedButton(
-                    child: const Text(
-                        'Add/Delete Permissions (any Resource)'),
+                    child: const Text('Add/Delete Permissions (any Resource)'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -651,8 +649,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 smallGapV,
                 _buttonRow([
                   ElevatedButton(
-                    child: const Text(
-                        'View specific resource (key-value.ttl)'),
+                    child: const Text('View specific resource (key-value.ttl)'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -764,7 +761,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return FutureBuilder<String?>(
       future: getWebId(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting && _webId == null) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            _webId == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
