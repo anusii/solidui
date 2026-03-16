@@ -50,6 +50,53 @@ import 'package:solidui/src/widgets/solid_login_helper.dart';
 /// A handler class for Solid Pod authentication logic.
 
 class SolidLoginAuthHandler {
+  /// Notifies the user that their POD is not initialised, verifies the remote
+  /// directory structure, and navigates to the appropriate screen (setup wizard
+  /// or child widget).
+
+  static Future<bool> _proceedWithPodSetup({
+    required BuildContext context,
+    required List<String> defaultFolders,
+    required Map<dynamic, dynamic> defaultFiles,
+    required dynamic originalLoginWidget,
+    required Widget childWidget,
+    required Function(String message, {Duration? duration, bool showAction})
+        showSnackbar,
+  }) async {
+    showSnackbar(
+      'The POD is not initialised. Setting up your POD...',
+      duration: const Duration(seconds: 5),
+    );
+
+    final resCheckList = await initialStructureTest(
+      defaultFolders,
+      defaultFiles,
+    );
+    final allExists = resCheckList.first as bool;
+
+    if (!context.mounted) return false;
+
+    if (!allExists) {
+      await clearPodStructureInitialised();
+      if (!context.mounted) return false;
+
+      await pushReplacement(
+        context,
+        InitialSetupScreen(
+          resCheckList: resCheckList,
+          originalLogin: originalLoginWidget,
+          child: childWidget,
+        ),
+      );
+    } else {
+      await markPodStructureInitialised();
+      if (!context.mounted) return false;
+      await pushReplacement(context, childWidget);
+    }
+
+    return true;
+  }
+
   /// Handles the login process including authentication and navigation.
   ///
   /// Returns true if login was successful, false otherwise.
@@ -116,12 +163,13 @@ class SolidLoginAuthHandler {
     try {
       authResult = await solidAuthenticate(podServer, context);
     } on Object catch (e) {
-      // Authentication failed due to a network or server error (e.g. DNS
-      // lookup failure, socket exception, HTTP 502, or any other
-      // connectivity issue).
+      // Check whether auth data was persisted before the failure (i.e. POD
+      // not initialised) vs a genuine server/network error.
 
       browserMessageTimer?.cancel();
       debugPrint('solidAuthenticate() exception: $e');
+
+      final isNowLoggedIn = await isUserLoggedIn();
 
       if (!context.mounted) return false;
 
@@ -133,15 +181,26 @@ class SolidLoginAuthHandler {
       }
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-      showSnackbar(
-        'Unable to authenticate with $podServer. '
-        'The server may be inaccessible or down.',
-        duration: const Duration(seconds: 5),
-      );
+      if (isNowLoggedIn) {
+        return _proceedWithPodSetup(
+          context: context,
+          defaultFolders: defaultFolders,
+          defaultFiles: defaultFiles,
+          originalLoginWidget: originalLoginWidget,
+          childWidget: childWidget,
+          showSnackbar: showSnackbar,
+        );
+      } else {
+        showSnackbar(
+          'Unable to authenticate with $podServer. '
+          'The server may be inaccessible or down.',
+          duration: const Duration(seconds: 5),
+        );
 
-      await pushReplacement(context, originalLoginWidget);
+        await pushReplacement(context, originalLoginWidget);
 
-      return false;
+        return false;
+      }
     }
 
     browserMessageTimer?.cancel();
@@ -218,13 +277,18 @@ class SolidLoginAuthHandler {
 
       return true;
     } else {
-      // Authentication failed. solidAuthenticate() catches all exceptions
-      // internally and returns null, so server errors (e.g. HTTP 502, DNS
-      // lookup failure) surface here rather than in the catch block above.
+      // solidAuthenticate() returned null. This can happen when:
+      //   (a) Auth succeeded but the subsequent profile fetch failed because
+      //       the POD is not yet initialised.
+      //   (b) The server is genuinely unreachable (HTTP 502, DNS failure, etc.)
+      //   (c) The user cancelled the browser login.
+      //
+      // Distinguish (a) from (b)/(c) by checking whether auth data was
+      // persisted before the failure.
+
+      final isNowLoggedIn = await isUserLoggedIn();
 
       if (!context.mounted) return false;
-
-      // Close the animation dialog before navigating back to login.
 
       if (!wasAlreadyLoggedIn) {
         Navigator.of(context, rootNavigator: true).pop();
@@ -232,17 +296,29 @@ class SolidLoginAuthHandler {
 
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-      showSnackbar(
-        'Unable to authenticate with $podServer. '
-        'The server may be inaccessible or down.',
-        duration: const Duration(seconds: 5),
-      );
+      if (isNowLoggedIn) {
+        return _proceedWithPodSetup(
+          context: context,
+          defaultFolders: defaultFolders,
+          defaultFiles: defaultFiles,
+          originalLoginWidget: originalLoginWidget,
+          childWidget: childWidget,
+          showSnackbar: showSnackbar,
+        );
+      } else {
+        // Authentication truly failed – server may be down or the user
+        // cancelled the browser login.
 
-      // Navigate back to the login screen after authentication failed.
+        showSnackbar(
+          'Unable to authenticate with $podServer. '
+          'The server may be inaccessible or down.',
+          duration: const Duration(seconds: 5),
+        );
 
-      await pushReplacement(context, originalLoginWidget);
+        await pushReplacement(context, originalLoginWidget);
 
-      return false;
+        return false;
+      }
     }
   }
 }
