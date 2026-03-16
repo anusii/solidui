@@ -31,7 +31,7 @@ import 'package:demopod/constants/app.dart';
 import 'package:demopod/dialogs/alert.dart';
 import 'package:demopod/utils/rdf.dart';
 import 'package:editable/editable.dart';
-import 'package:solidui/solidui.dart' show getKeyFromUserIfRequired;
+import 'package:solidui/solidui.dart' show SolidScaffold, getKeyFromUserIfRequired;
 
 import 'package:solidpod/solidpod.dart' show isUserLoggedIn, writePod;
 
@@ -211,8 +211,8 @@ class _KeyValueEditState extends State<KeyValueEdit> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
+    return SolidScaffold(
+        scaffoldAppBar: AppBar(
           title: Text(widget.title),
           backgroundColor: titleBackgroundColor,
           leadingWidth: 100,

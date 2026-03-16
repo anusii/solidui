@@ -85,7 +85,7 @@ Future<dynamic> loginWebIdInputDialog(BuildContext context) {
                 await alert(context, 'Please enter a valid URL/WebID');
               }
             },
-            child: const Text('Ok'),
+            child: const Text('OK'),
           ),
           TextButton(
             onPressed: () {

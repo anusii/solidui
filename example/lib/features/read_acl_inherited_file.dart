@@ -26,6 +26,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show readPod;
+import 'package:solidui/solidui.dart' show SolidScaffold;
 
 // A widget to create a resource with inherited ACL.
 //
@@ -78,8 +79,8 @@ class ReadAclInheritedFileState extends State<ReadAclInheritedFile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return SolidScaffold(
+      scaffoldAppBar: AppBar(
         title: const Text('Read a resource with ACL inheritance'),
       ),
       body: SingleChildScrollView(

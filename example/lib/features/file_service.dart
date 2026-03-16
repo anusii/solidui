@@ -25,10 +25,11 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:demopod/dialogs/alert.dart';
 import 'package:file_picker/file_picker.dart';
-
 import 'package:solidpod/solidpod.dart';
+import 'package:solidui/solidui.dart' show SolidScaffold;
+
+import 'package:demopod/dialogs/alert.dart';
 
 class FileService extends StatefulWidget {
   const FileService({required this.child, required this.webId, super.key});
@@ -557,39 +558,58 @@ class _FileServiceState extends State<FileService> {
       deleteButton,
     ];
 
-    return Scaffold(
+    return SolidScaffold(
+      scaffoldAppBar: AppBar(
+        title: const Text('Upload/Download Large File'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Text(
+              'WEB ID - ${widget.webId}',
+              style: const TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Stack(
           children: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                largeGapV,
-                largeGapV,
+            SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  largeGapV,
 
-                // Upload
+                  // Upload
 
-                ...uploadSection,
+                  ...uploadSection,
 
-                largeGapV,
+                  largeGapV,
 
-                // Download
+                  // Download
 
-                ...downloadSection,
+                  ...downloadSection,
 
-                largeGapV,
+                  largeGapV,
 
-                // Delete
+                  // Delete
 
-                ...deleteSection,
+                  ...deleteSection,
 
-                largeGapV,
+                  largeGapV,
 
-                // Download shared file
+                  // Download shared file
 
-                ...downloadSharedSection,
-              ],
+                  ...downloadSharedSection,
+
+                  largeGapV,
+                ],
+              ),
             ),
 
             // Uploading progress bar
@@ -633,29 +653,6 @@ class _FileServiceState extends State<FileService> {
                 right: 0,
                 child: getProgressBar('Deleting:', deleteDone, deletePercent),
               ),
-
-            // Navigate back to demo page
-            Positioned(
-              top: 10,
-              left: 10,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Back to Demo'),
-              ),
-            ),
-
-            // Widget to show Web ID
-            Positioned(
-              bottom: 10,
-              right: 10,
-              child: Text(
-                'WEB ID - ${widget.webId}',
-                style: const TextStyle(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
           ],
         ),
       ),
