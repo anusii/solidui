@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
 
+import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_overflow_menu_helpers.dart';
@@ -151,10 +152,56 @@ class SolidScaffoldHelpers {
   static List<Widget> buildOverflowIconButtons(SolidAppBarConfig config) =>
       SolidOverflowMenuHelpers.buildOverflowIconButtons(config);
 
-  /// Determines if screen is wide.
+  /// Determines if the screen width is below the narrow threshold.
 
-  static bool isWideScreen(BuildContext context, double narrowScreenThreshold) {
-    return MediaQuery.of(context).size.width > narrowScreenThreshold;
+  static bool isNarrowScreen(
+    BuildContext context,
+    double narrowScreenThreshold,
+  ) {
+    return MediaQuery.of(context).size.width < narrowScreenThreshold;
+  }
+
+  /// Determines if the screen width is below the very narrow threshold.
+
+  static bool isVeryNarrowScreen(
+    BuildContext context, {
+    double veryNarrowScreenThreshold =
+        NavigationConstants.veryNarrowScreenThreshold,
+  }) {
+    return MediaQuery.of(context).size.width < veryNarrowScreenThreshold;
+  }
+
+  /// Determines if the screen width is between the narrow and wide thresholds
+  /// (medium range).
+
+  static bool isMedScreen(
+    BuildContext context, {
+    double narrowThreshold = NavigationConstants.narrowScreenThreshold,
+    double wideThreshold = NavigationConstants.wideScreenThreshold,
+  }) {
+    final width = MediaQuery.of(context).size.width;
+    return width >= narrowThreshold && width < wideThreshold;
+  }
+
+  /// Determines if the screen width is between the wide and very wide
+  /// thresholds.
+
+  static bool isWideScreen(
+    BuildContext context, {
+    double wideThreshold = NavigationConstants.wideScreenThreshold,
+    double veryWideThreshold = NavigationConstants.veryWideScreenThreshold,
+  }) {
+    final width = MediaQuery.of(context).size.width;
+    return width >= wideThreshold && width < veryWideThreshold;
+  }
+
+  /// Determines if the screen width exceeds the very wide threshold.
+
+  static bool isVeryWideScreen(
+    BuildContext context, {
+    double veryWideThreshold = NavigationConstants.veryWideScreenThreshold,
+  }) {
+    return MediaQuery.of(context).size.width >= veryWideThreshold;
   }
 
   /// Gets effective child widget.

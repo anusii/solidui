@@ -67,8 +67,8 @@ class SolidScaffoldAppBarBuilder {
       hasLogout: true,
     );
 
-    final isWideScreen = !hideNavRail &&
-        SolidScaffoldHelpers.isWideScreen(context, narrowScreenThreshold);
+    final isNarrowScreen = hideNavRail ||
+        SolidScaffoldHelpers.isNarrowScreen(context, narrowScreenThreshold);
     final screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
 
@@ -124,7 +124,7 @@ class SolidScaffoldAppBarBuilder {
     return AppBar(
       title: Text(config.title),
       backgroundColor: config.backgroundColor,
-      automaticallyImplyLeading: !isWideScreen,
+      automaticallyImplyLeading: isNarrowScreen,
       actions: actions.isEmpty ? null : actions,
     );
   }

@@ -42,10 +42,10 @@ const int veryNarrowScreenLimit = 750;
 
 double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
 
-bool isNarrowScreen(BuildContext context) =>
+bool isNarrowLoginScreen(BuildContext context) =>
     screenWidth(context) < narrowScreenLimit;
 
-bool isVeryNarrowScreen(BuildContext context) =>
+bool isVeryNarrowLoginScreen(BuildContext context) =>
     screenWidth(context) < veryNarrowScreenLimit;
 
 /// Button styles used in the Solid Login widget.

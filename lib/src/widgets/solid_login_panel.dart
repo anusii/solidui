@@ -170,7 +170,9 @@ class SolidLoginPanel {
     required SolidLoginThemeMode currentTheme,
   }) {
     final loginPanelInset =
-        (isVeryNarrowScreen(context) || !isNarrowScreen(context)) ? 0.05 : 0.25;
+        (isVeryNarrowLoginScreen(context) || !isNarrowLoginScreen(context))
+            ? 0.05
+            : 0.25;
 
     return Container(
       margin: EdgeInsets.symmetric(

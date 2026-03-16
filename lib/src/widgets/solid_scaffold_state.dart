@@ -167,9 +167,9 @@ class SolidScaffoldState extends State<SolidScaffold> {
     }
   }
 
-  bool _isWideScreen(BuildContext c) =>
-      !widget.hideNavRail &&
-      SolidScaffoldHelpers.isWideScreen(c, widget.narrowScreenThreshold);
+  bool _isNarrowScreen(BuildContext c) =>
+      widget.hideNavRail ||
+      SolidScaffoldHelpers.isNarrowScreen(c, widget.narrowScreenThreshold);
 
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
@@ -188,13 +188,13 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = _isWideScreen(context);
+    final isNarrow = _isNarrowScreen(context);
     final isCompat = widget.menu == null;
     final bodyContent = isCompat
         ? widget.body
         : SolidScaffoldLayoutBuilder.buildBody(
             context,
-            isWide,
+            !isNarrow,
             SolidScaffoldHelpers.convertToNavTabs(widget.menu),
             _currentSelectedIndex,
             SolidScaffoldHelpers.getEffectiveChild(
@@ -220,7 +220,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
         context: context,
         scaffoldKey: _scaffoldKey,
         widget: widget,
-        isWideScreen: isWide,
+        isWideScreen: !isNarrow,
         isCompatibilityMode: isCompat,
         bodyContent: bodyContent,
         isKeySaved: _isKeySaved,

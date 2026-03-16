@@ -130,12 +130,12 @@ class SolidLoginBuildHelper {
           behavior: HitTestBehavior.deferToChild,
           child: SafeArea(
             child: DecoratedBox(
-              decoration: isNarrowScreen(context)
+              decoration: isNarrowLoginScreen(context)
                   ? loginBoxDecor
                   : const BoxDecoration(),
               child: Row(
                 children: [
-                  isNarrowScreen(context)
+                  isNarrowLoginScreen(context)
                       ? Container()
                       : Expanded(
                           flex: 7,
