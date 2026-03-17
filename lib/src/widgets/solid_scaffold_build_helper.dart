@@ -162,6 +162,8 @@ class SolidScaffoldBuildHelper {
           shouldShowVersion,
           getVersionToDisplay,
           hideNavRail: config.hideNavRail,
+          showLogout: config.onLogout != null,
+          onLogout: config.onLogout,
         ),
       ),
       buildDrawer: () {
