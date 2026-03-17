@@ -13,6 +13,10 @@ The package is available from
 Coding documentation is available from [solid community
 au](https://solidcommunity.au/docs/solidui)
 
+## 0.4.0 TBD
+
++ Bug fix to support SolidScaffold(showLogout:) [0.3.1 20260318 tony]
+
 ## 0.3.0 Stabilise
 
 + Publish to pub.dev [0.3.0 20260316 gjw]
