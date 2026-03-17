@@ -76,19 +76,20 @@ class SolidLoginButtons {
     );
   }
 
-  /// Creates a CONTINUE button that skips authentication.
+  /// Creates a CONTINUE button that resumes a cached login session.
 
   static Widget buildContinueButton({
     required ContinueButtonStyle style,
     required VoidCallback onPressed,
     FocusNode? focusNode,
+    bool enabled = true,
   }) {
     return PodButton(
       text: style.text,
       background: style.background,
       foreground: style.foreground,
       tooltip: style.tooltip,
-      onPressed: onPressed,
+      onPressed: enabled ? onPressed : null,
       focusNode: focusNode,
     );
   }
