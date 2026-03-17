@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 TBD
 
++ Bug fix notification of uninitialised pod [0.3.2 20260318 tony]
 + Bug fix to support SolidScaffold(showLogout:) [0.3.1 20260318 tony]
 
 ## 0.3.0 Stabilise
