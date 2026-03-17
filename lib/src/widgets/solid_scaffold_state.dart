@@ -169,7 +169,11 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   bool _isNarrowScreen(BuildContext c) =>
       widget.hideNavRail ||
-      SolidScaffoldHelpers.isNarrowScreen(c, widget.narrowScreenThreshold);
+      SolidScaffoldHelpers.isNarrowScreen(
+        c,
+        narrowThreshold: widget.narrowScreenThreshold,
+      ) ||
+      SolidScaffoldHelpers.isVeryNarrowScreen(c);
 
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);

@@ -62,26 +62,32 @@ class SolidAppBarOrderedActionsBuilder {
     void Function(BuildContext)? onLogin,
   }) {
     final List<_OrderedAction> orderedActions = [];
-    final isNarrowScreen = screenWidth < config.narrowScreenThreshold;
+    final isVeryNarrowScreen = screenWidth < config.veryNarrowScreenThreshold;
 
     _addThemeToggle(
       orderedActions,
       themeToggle,
       config,
       screenWidth,
-      isNarrowScreen,
+      isVeryNarrowScreen,
       currentThemeMode,
       themeToggleCallback,
     );
-    _addCustomActions(orderedActions, config, screenWidth, isNarrowScreen);
-    _addOverflowItems(orderedActions, config, isNarrowScreen);
-    _addAuthButton(orderedActions, onLogout, onLogin, isNarrowScreen, context);
+    _addCustomActions(orderedActions, config, screenWidth, isVeryNarrowScreen);
+    _addOverflowItems(orderedActions, config, isVeryNarrowScreen);
+    _addAuthButton(
+      orderedActions,
+      onLogout,
+      onLogin,
+      isVeryNarrowScreen,
+      context,
+    );
     _addAboutButton(
       orderedActions,
       aboutConfig,
       config,
       screenWidth,
-      isNarrowScreen,
+      isVeryNarrowScreen,
     );
 
     orderedActions.sort((a, b) => a.order.compareTo(b.order));
@@ -93,7 +99,7 @@ class SolidAppBarOrderedActionsBuilder {
     SolidThemeToggleConfig? themeToggle,
     SolidAppBarConfig config,
     double screenWidth,
-    bool isNarrowScreen,
+    bool isVeryNarrowScreen,
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
   ) {
@@ -107,7 +113,7 @@ class SolidAppBarOrderedActionsBuilder {
     final order = actionConfig?.order ?? 0;
 
     final shouldShow = isVisible &&
-        (!isNarrowScreen || !isInOverflow) &&
+        (!isVeryNarrowScreen || !isInOverflow) &&
         SolidAppBarVisibilityHelper.shouldShowThemeToggle(
           themeToggle,
           config,
@@ -132,7 +138,7 @@ class SolidAppBarOrderedActionsBuilder {
     List<_OrderedAction> orderedActions,
     SolidAppBarConfig config,
     double screenWidth,
-    bool isNarrowScreen,
+    bool isVeryNarrowScreen,
   ) {
     for (int i = 0; i < config.actions.length; i++) {
       final action = config.actions[i];
@@ -143,7 +149,7 @@ class SolidAppBarOrderedActionsBuilder {
       final order = actionConfig?.order ?? (100 + i);
 
       final shouldShow = isVisible &&
-          (!isNarrowScreen || !isInOverflow) &&
+          (!isVeryNarrowScreen || !isInOverflow) &&
           SolidAppBarVisibilityHelper.shouldShowAction(
             action,
             config,
@@ -172,7 +178,7 @@ class SolidAppBarOrderedActionsBuilder {
   static void _addOverflowItems(
     List<_OrderedAction> orderedActions,
     SolidAppBarConfig config,
-    bool isNarrowScreen,
+    bool isVeryNarrowScreen,
   ) {
     for (int i = 0; i < config.overflowItems.length; i++) {
       final item = config.overflowItems[i];
@@ -181,7 +187,7 @@ class SolidAppBarOrderedActionsBuilder {
       final isInOverflow = actionConfig?.showInOverflow ?? true;
       final order = actionConfig?.order ?? (200 + i);
 
-      if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+      if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
         Widget iconButton = IconButton(
           icon: Icon(item.icon),
           onPressed: item.onSelected,
@@ -200,7 +206,7 @@ class SolidAppBarOrderedActionsBuilder {
     List<_OrderedAction> orderedActions,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
-    bool isNarrowScreen,
+    bool isVeryNarrowScreen,
     BuildContext context,
   ) {
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
@@ -210,7 +216,7 @@ class SolidAppBarOrderedActionsBuilder {
     final isInOverflow = actionConfig?.showInOverflow ?? false;
     final order = actionConfig?.order ?? 400;
 
-    if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+    if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
       orderedActions.add(
         _OrderedAction(
           order: order,
@@ -225,7 +231,7 @@ class SolidAppBarOrderedActionsBuilder {
     SolidAboutConfig aboutConfig,
     SolidAppBarConfig config,
     double screenWidth,
-    bool isNarrowScreen,
+    bool isVeryNarrowScreen,
   ) {
     if (!aboutConfig.enabled ||
         !aboutConfig.shouldShow(
@@ -243,7 +249,7 @@ class SolidAppBarOrderedActionsBuilder {
     final isInOverflow = actionConfig?.showInOverflow ?? false;
     final order = actionConfig?.order ?? 900;
 
-    if (isVisible && (!isNarrowScreen || !isInOverflow)) {
+    if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
       orderedActions.add(
         _OrderedAction(
           order: order,

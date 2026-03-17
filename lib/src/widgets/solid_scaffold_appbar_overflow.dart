@@ -58,14 +58,14 @@ class SolidAppBarOverflowHandler {
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
-    // Use narrowScreenThreshold to determine when to show overflow menu.
+    // Use veryNarrowScreenThreshold to determine when to show overflow menu.
 
-    final isNarrowScreen = screenWidth < config.narrowScreenThreshold;
+    final isVeryNarrowScreen = screenWidth < config.veryNarrowScreenThreshold;
 
-    // Only show overflow menu on narrow screens.
-    // On wide screens, all buttons are displayed directly in AppBar.
+    // Only show overflow menu on very narrow screens.
+    // On wider screens, all buttons are displayed directly in AppBar.
 
-    if (!isNarrowScreen) return;
+    if (!isVeryNarrowScreen) return;
 
     actions.add(
       _buildOverflowMenu(

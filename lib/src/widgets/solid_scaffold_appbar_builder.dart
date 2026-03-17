@@ -68,7 +68,11 @@ class SolidScaffoldAppBarBuilder {
     );
 
     final isNarrowScreen = hideNavRail ||
-        SolidScaffoldHelpers.isNarrowScreen(context, narrowScreenThreshold);
+        SolidScaffoldHelpers.isNarrowScreen(
+          context,
+          narrowThreshold: narrowScreenThreshold,
+        ) ||
+        SolidScaffoldHelpers.isVeryNarrowScreen(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
 
@@ -106,7 +110,7 @@ class SolidScaffoldAppBarBuilder {
     );
     actions.addAll(orderedActions);
 
-    // Handle overflow menu if on narrow screen.
+    // Handle overflow menu if on very narrow screen.
 
     SolidAppBarOverflowHandler.handleOverflowMenu(
       actions,

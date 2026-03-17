@@ -152,13 +152,16 @@ class SolidScaffoldHelpers {
   static List<Widget> buildOverflowIconButtons(SolidAppBarConfig config) =>
       SolidOverflowMenuHelpers.buildOverflowIconButtons(config);
 
-  /// Determines if the screen width is below the narrow threshold.
+  /// Determines if the screen width is between the very narrow and narrow
+  /// thresholds.
 
   static bool isNarrowScreen(
-    BuildContext context,
-    double narrowScreenThreshold,
-  ) {
-    return MediaQuery.of(context).size.width < narrowScreenThreshold;
+    BuildContext context, {
+    double veryNarrowThreshold = NavigationConstants.veryNarrowScreenThreshold,
+    double narrowThreshold = NavigationConstants.narrowScreenThreshold,
+  }) {
+    final width = MediaQuery.of(context).size.width;
+    return width >= veryNarrowThreshold && width < narrowThreshold;
   }
 
   /// Determines if the screen width is below the very narrow threshold.

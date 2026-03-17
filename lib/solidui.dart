@@ -41,6 +41,7 @@ export 'src/widgets/solid_nav_models.dart';
 
 export 'src/widgets/solid_scaffold.dart';
 export 'src/widgets/solid_scaffold_controller.dart';
+export 'src/widgets/solid_scaffold_helpers.dart' show SolidScaffoldHelpers;
 export 'src/widgets/solid_scaffold_models.dart';
 
 export 'src/widgets/solid_status_bar.dart';
