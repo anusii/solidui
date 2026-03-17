@@ -363,6 +363,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
       await logoutPod();
 
+      if (!context.mounted) return;
+
       final podServer = webIdController.text.trim().isNotEmpty
           ? webIdController.text.trim()
           : SolidConfig.defaultServerUrl;
