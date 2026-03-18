@@ -28,7 +28,7 @@
 
 part of 'grant_permission_ui.dart';
 
-/// State class that manages permission data loading, searching and filtering.
+/// State class that manages permission data loading, searching and filtering, and permission granting and revoking.
 
 class GrantPermissionUiState extends State<GrantPermissionUi>
     with SingleTickerProviderStateMixin {
