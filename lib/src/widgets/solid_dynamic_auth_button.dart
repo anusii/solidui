@@ -42,6 +42,11 @@ import 'package:solidui/src/handlers/solid_auth_handler.dart';
 /// When user is logged in: shows logout icon, triggers logout on tap.
 
 class SolidDynamicAuthButton extends StatefulWidget {
+  /// Whether to show the logout button when user is logged in.
+  /// When false, only the login button is shown when logged out.
+
+  final bool showLogout;
+
   /// Callback function triggered when user taps logout (when logged in).
   /// If null, uses SolidAuthHandler.instance.handleLogout().
 
@@ -62,6 +67,7 @@ class SolidDynamicAuthButton extends StatefulWidget {
 
   const SolidDynamicAuthButton({
     super.key,
+    this.showLogout = true,
     this.onLogout,
     this.onLogin,
     this.loginTooltip = 'Log in to your Solid POD',
@@ -165,6 +171,11 @@ class _SolidDynamicAuthButtonState extends State<SolidDynamicAuthButton> {
           ),
         ),
       );
+    }
+
+    // When showLogout is false and user is logged in, hide the button.
+    if (!widget.showLogout && _isLoggedIn) {
+      return const SizedBox.shrink();
     }
 
     final icon = _isLoggedIn ? Icons.logout : Icons.login;

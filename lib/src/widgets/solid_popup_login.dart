@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
     show
+        isUserLoggedIn,
         solidAuthenticate,
         initialStructureTest,
         generateDefaultFolders,
@@ -63,6 +64,35 @@ class SolidPopupLogin extends StatefulWidget {
 class _SolidPopupLoginState extends State<SolidPopupLogin> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  // Verify the remote POD directory structure and navigate to the setup
+  // screen when resources are missing.
+
+  Future<bool> _checkAndSetupPod(BuildContext context) async {
+    final defaultFolders = await generateDefaultFolders();
+    final defaultFiles = await generateDefaultFiles();
+    final resCheckList = await initialStructureTest(
+      defaultFolders,
+      defaultFiles,
+    );
+    final allExists = resCheckList.first as bool;
+
+    if (!context.mounted) return false;
+
+    if (!allExists) {
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => InitialSetupScreen(
+            resCheckList: resCheckList,
+            child: _successDialog(),
+          ),
+        ),
+      );
+    }
+
+    return true;
+  }
+
   // Login and check POD initialisation status.
   // If POD structure is incomplete, navigate to InitialSetupScreen.
 
@@ -70,38 +100,31 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     try {
       await solidAuthenticate(webId, context);
 
-      if (context.mounted) {
-        // Check POD structure.
+      if (!context.mounted) return false;
 
-        final defaultFolders = await generateDefaultFolders();
-        final defaultFiles = await generateDefaultFiles();
-        final resCheckList = await initialStructureTest(
-          defaultFolders,
-          defaultFiles,
-        );
-        final allExists = resCheckList.first as bool;
-
-        if (!context.mounted) return false;
-
-        if (!allExists) {
-          // Navigate to initial setup screen if POD structure is incomplete.
-
-          await Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => InitialSetupScreen(
-                resCheckList: resCheckList,
-                child: _successDialog(),
-              ),
-            ),
-          );
-        }
-      }
-      return true;
+      return _checkAndSetupPod(context);
     } on Object catch (e) {
       debugPrint('solidAuthenticate() failed: $e');
 
-      if (context.mounted) {
+      // Check whether auth data was persisted before the failure – if so,
+      // the POD is not initialised rather than the server being down.
+
+      final isNowLoggedIn = await isUserLoggedIn();
+
+      if (!context.mounted) return false;
+
+      if (isNowLoggedIn) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'The POD is not initialised. Setting up your POD...',
+            ),
+            duration: Duration(seconds: 5),
+          ),
+        );
+
+        return _checkAndSetupPod(context);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
