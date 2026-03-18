@@ -304,6 +304,7 @@ class SolidScaffoldHelpers {
     bool Function() shouldShowVersion,
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
+    bool showLogout = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
@@ -320,6 +321,7 @@ class SolidScaffoldHelpers {
       aboutConfig,
       narrowScreenThreshold,
       hideNavRail: hideNavRail,
+      showLogout: showLogout,
       onLogout: onLogout,
       onLogin: onLogin,
     );

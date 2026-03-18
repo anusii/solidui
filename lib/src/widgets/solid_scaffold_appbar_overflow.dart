@@ -55,6 +55,7 @@ class SolidAppBarOverflowHandler {
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
     BuildContext context, {
+    bool showLogout = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
@@ -78,7 +79,7 @@ class SolidAppBarOverflowHandler {
         shouldShowAboutInOverflow(aboutConfig, forceOverflow: true),
         context,
         hasLogoutInOverflow: shouldShowLogoutInOverflow(
-          true,
+          showLogout,
           forceOverflow: true,
         ),
         onLogout: onLogout,
