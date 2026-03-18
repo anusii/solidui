@@ -56,15 +56,14 @@ class SolidScaffoldAppBarBuilder {
     SolidAboutConfig aboutConfig,
     double narrowScreenThreshold, {
     bool hideNavRail = false,
+    bool showLogout = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
-    // Always show auth button (login/logout) regardless of onLogout callback.
-
     SolidAppBarActionsManager.initializeIfNeeded(
       config,
       themeToggle,
-      hasLogout: true,
+      hasLogout: showLogout,
     );
 
     final isWideScreen = !hideNavRail &&
@@ -101,6 +100,7 @@ class SolidScaffoldAppBarBuilder {
       themeToggleCallback: themeToggleCallback,
       aboutConfig: aboutConfig,
       context: context,
+      showLogout: showLogout,
       onLogout: onLogout,
       onLogin: onLogin,
     );
@@ -117,6 +117,7 @@ class SolidScaffoldAppBarBuilder {
       themeToggleCallback,
       aboutConfig,
       context,
+      showLogout: showLogout,
       onLogout: onLogout,
       onLogin: onLogin,
     );

@@ -30,15 +30,23 @@ utilising the solidui package.
 ## Table of Contents
 
 - [Installation](#installation)
+- [Features](#features)
 - [Requirements](#requirements)
+- [Quick Start to Create an App](#quick-start-to-create-an-app)
 - [SolidScaffold](#solidscaffold)
+- [Appearance Preferences](#appearance-preferences)
 - [SolidFile](#solidfile)
+- [Login Example](#login-example)
+- [Change Security Key Example](#change-security-key-example)
 - [Grant Permission UI Example](#grant-permission-ui-example)
 - [View Permission UI Example](#view-permission-ui-example)
 - [Authentication and Login Detection](#authentication-and-login-detection)
 - [Security Key Management](#security-key-management)
 - [API Reference](#api-reference)
 - [Examples](#examples)
+- [Licence](#licence)
+- [Authors](#authors)
+- [Additional information](#additional-information)
 
 ## Installation
 
@@ -447,6 +455,44 @@ class SolidThemeToggleConfig {
                                      // (default: true)
 }
 ```
+
+### Appearance Preferences
+
+SolidUI stores user appearance preferences via `SolidPreferencesNotifier`
+and `SolidPreferencesConfig`. These preferences persist across sessions
+using `shared_preferences`. The `SolidPreferencesDialog` provides a UI
+for configuring AppBar layout.
+
+#### AppBar Layout Preferences
+
+AppBar action buttons can be customised via the AppBar Layout Preferences
+dialogue (typically opened from the AppBar Layout Preferences button in the
+About Dialogue):
+
+- **Button order**: Drag to reorder buttons. Order is saved and used
+  across screen sizes.
+- **Visibility**: Use the eye icon to show or hide individual buttons.
+  Hidden buttons are not shown in the AppBar or overflow menu.
+- **Overflow behaviour**: Use the menu icon to choose whether a button
+  appears in the AppBar or only in the overflow menu on narrow screens.
+  Buttons in the overflow menu are accessible via the "more" (⋮) icon.
+
+Preferences are stored per application and persist across restarts.
+
+#### Theme Mode Configuration
+
+`SolidThemeModeConfig` controls which theme modes appear in the theme
+toggle cycle and how switching behaves:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `lightModeEnabled` | `true` | Include Light mode in the toggle cycle. When enabled, users can switch to a light theme optimised for bright viewing conditions. |
+| `darkModeEnabled` | `true` | Include Dark mode in the toggle cycle. When enabled, users can switch to a dark theme for low-light viewing. |
+| `systemModeEnabled` | `true` | Include System mode in the toggle cycle. When enabled, the app follows the device's light/dark setting. |
+| `smartToggle` | `true` | When all three modes are enabled: in System mode, tapping the theme toggle switches to the opposite of the current system brightness (e.g. light → dark), then toggles between Light and Dark. When `false`, the toggle cycles mechanically: System → Light → Dark → System. |
+
+At least one of `lightModeEnabled`, `darkModeEnabled`, or
+`systemModeEnabled` must be `true`.
 
 ### About Dialogue Configuration
 
@@ -1077,8 +1123,7 @@ class NavigationConstants {
   static const double veryNarrowScreenThreshold = 400.0;
   static const double statusBarHeight = 32.0; // Default status bar height
   static const double navRailWidth = 72.0; // Navigation rail width
-  static const double navRailExtendedWidth = 256.0; // Extended navigation
-  rail width
+  static const double navRailExtendedWidth = 256.0; // Extended navigation rail width
 }
 ```
 
