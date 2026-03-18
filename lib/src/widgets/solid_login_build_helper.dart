@@ -87,7 +87,6 @@ class SolidLoginBuildHelper {
     required ContinueButtonStyle style,
     required Future<void> Function() performContinue,
     required FocusNode focusNode,
-    bool enabled = true,
   }) {
     return FocusTraversalOrder(
       order: const NumericFocusOrder(2),
@@ -95,7 +94,6 @@ class SolidLoginBuildHelper {
         style: style,
         onPressed: performContinue,
         focusNode: focusNode,
-        enabled: enabled,
       ),
     );
   }

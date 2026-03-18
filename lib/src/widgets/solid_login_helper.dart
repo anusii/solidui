@@ -114,9 +114,10 @@ actual help page navigated to on your browser depends on the particular app.
 
 const String defaultContinueTooltip = '''
 
-**Continue:** Tap here to continue to the app using your previously cached
-login session. This button is only available when a cached session exists. If
-you need to log in with a different WebID, use the Login button instead.
+**Continue:** Tap here to continue on to the app without logging into a Solid
+server. The app will generally be able to save data locally or else prompt to
+log in to a Solid server when needed. No data will be shared beyond your local
+device until you connect to a Solid server hosting your Data Vault.
 
 ''';
 
@@ -135,7 +136,7 @@ class PodButton extends StatelessWidget {
   final Color background;
   final Color foreground;
   final String tooltip;
-  final VoidCallback? onPressed;
+  final VoidCallback onPressed;
 
   /// Optional focus node for controlling keyboard focus.
 

@@ -160,10 +160,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool isDialogCanceled = false;
 
-  /// Whether a cached login session exists, used to enable/disable CONTINUE.
-
-  bool _hasCachedLogin = false;
-
   /// Default folders will be generated after user logged in.
 
   List<String> defaultFolders = [];
@@ -293,10 +289,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       appName = appInfo.name;
       appVersion = appInfo.version;
     });
-
-    final loggedIn = await isUserLoggedIn();
-    if (!mounted) return;
-    setState(() => _hasCachedLogin = loggedIn);
   }
 
   // Function to update [_isDialogCanceled].
@@ -359,12 +351,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // login.
 
     Future<void> performLogin() async {
-      // Always clear any cached session so the user is prompted afresh.
-
-      await logoutPod();
-
-      if (!context.mounted) return;
-
       final podServer = webIdController.text.trim().isNotEmpty
           ? webIdController.text.trim()
           : SolidConfig.defaultServerUrl;
@@ -465,7 +451,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       style: widget.continueButtonStyle,
       performContinue: performContinue,
       focusNode: _continueFocusNode,
-      enabled: _hasCachedLogin,
     );
 
     final infoButton = SolidLoginBuildHelper.buildInfoButton(
