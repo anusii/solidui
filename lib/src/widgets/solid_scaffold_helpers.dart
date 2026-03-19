@@ -154,7 +154,8 @@ class SolidScaffoldHelpers {
 
   /// Delegates to [WindowSize.isNarrow] using [BoxConstraints].
 
-  static bool isNarrowScreen(BoxConstraints constraints, {
+  static bool isNarrowScreen(
+    BoxConstraints constraints, {
     double? narrowThreshold,
   }) {
     if (narrowThreshold != null) {
