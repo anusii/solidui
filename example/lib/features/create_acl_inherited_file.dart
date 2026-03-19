@@ -25,9 +25,10 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:demopod/constants/app.dart';
-
 import 'package:solidpod/solidpod.dart' show writePod, setInheritKeyDir;
+import 'package:solidui/solidui.dart' show SolidScaffold;
+
+import 'package:demopod/constants/app.dart';
 
 // A widget to create a resource with inherited ACL.
 //
@@ -106,8 +107,8 @@ class CreateAclInheritedFileState extends State<CreateAclInheritedFile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return SolidScaffold(
+      scaffoldAppBar: AppBar(
         title: const Text('Create a resource with ACL inheritance'),
       ),
       body: Padding(
