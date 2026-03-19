@@ -167,13 +167,14 @@ class SolidScaffoldState extends State<SolidScaffold> {
     }
   }
 
-  bool _isNarrowScreen(BuildContext c) =>
-      widget.hideNavRail ||
-      SolidScaffoldHelpers.isNarrowScreen(
-        c,
-        narrowThreshold: widget.narrowScreenThreshold,
-      ) ||
-      SolidScaffoldHelpers.isVeryNarrowScreen(c);
+  bool _isNarrowScreen(BoxConstraints constraints) {
+    return widget.hideNavRail ||
+        SolidScaffoldHelpers.isNarrowScreen(
+          constraints,
+          narrowThreshold: widget.narrowScreenThreshold,
+        ) ||
+        SolidScaffoldHelpers.isVeryNarrowScreen(constraints);
+  }
 
   bool _getUsesInternalManagement() => _cachedUsesInternalManagement ??=
       SolidScaffoldHelpers.getUsesInternalManagement(widget.themeToggle);
@@ -192,49 +193,54 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final isNarrow = _isNarrowScreen(context);
-    final isCompat = widget.menu == null;
-    final bodyContent = isCompat
-        ? widget.body
-        : SolidScaffoldLayoutBuilder.buildBody(
-            context,
-            !isNarrow,
-            SolidScaffoldHelpers.convertToNavTabs(widget.menu),
-            _currentSelectedIndex,
-            SolidScaffoldHelpers.getEffectiveChild(
-              widget.menu,
-              _currentSelectedIndex,
-              widget.child,
-              widget.body,
-              widget.bodyOverride ?? widget.controller?.currentSubpage,
-            ),
-            _onMenuSelected,
-            widget.onShowAlert,
-          );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = _isNarrowScreen(constraints);
+        final isCompat = widget.menu == null;
+        final bodyContent = isCompat
+            ? widget.body
+            : SolidScaffoldLayoutBuilder.buildBody(
+                context,
+                !isNarrow,
+                SolidScaffoldHelpers.convertToNavTabs(widget.menu),
+                _currentSelectedIndex,
+                SolidScaffoldHelpers.getEffectiveChild(
+                  widget.menu,
+                  _currentSelectedIndex,
+                  widget.child,
+                  widget.body,
+                  widget.bodyOverride ?? widget.controller?.currentSubpage,
+                ),
+                _onMenuSelected,
+                widget.onShowAlert,
+              );
 
-    return NotificationListener<SecurityKeyStatusChangedNotification>(
-      onNotification: (n) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          securityKeyNotifier.refreshStatus();
-          _loadCurrentWebId();
-        });
-        return true;
+        return NotificationListener<SecurityKeyStatusChangedNotification>(
+          onNotification: (n) {
+            Future.delayed(const Duration(milliseconds: 300), () {
+              securityKeyNotifier.refreshStatus();
+              _loadCurrentWebId();
+            });
+            return true;
+          },
+          child: SolidScaffoldWidgetBuilder.buildFromWidget(
+            context: context,
+            constraints: constraints,
+            scaffoldKey: _scaffoldKey,
+            widget: widget,
+            isWideScreen: !isNarrow,
+            isCompatibilityMode: isCompat,
+            bodyContent: bodyContent,
+            isKeySaved: _isKeySaved,
+            currentSelectedIndex: _currentSelectedIndex,
+            onMenuSelected: _onMenuSelected,
+            getUsesInternalManagement: _getUsesInternalManagement,
+            shouldShowVersion: _shouldShowVersion,
+            getVersionToDisplay: _getVersionToDisplay,
+            currentWebId: _currentWebId,
+          ),
+        );
       },
-      child: SolidScaffoldWidgetBuilder.buildFromWidget(
-        context: context,
-        scaffoldKey: _scaffoldKey,
-        widget: widget,
-        isWideScreen: !isNarrow,
-        isCompatibilityMode: isCompat,
-        bodyContent: bodyContent,
-        isKeySaved: _isKeySaved,
-        currentSelectedIndex: _currentSelectedIndex,
-        onMenuSelected: _onMenuSelected,
-        getUsesInternalManagement: _getUsesInternalManagement,
-        shouldShowVersion: _shouldShowVersion,
-        getVersionToDisplay: _getVersionToDisplay,
-        currentWebId: _currentWebId,
-      ),
     );
   }
 }

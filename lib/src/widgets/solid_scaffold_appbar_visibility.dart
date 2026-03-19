@@ -34,38 +34,40 @@ import 'package:solidui/src/widgets/solid_theme_models.dart';
 /// Provides visibility checks for AppBar actions.
 
 class SolidAppBarVisibilityHelper {
-  /// Determines if an action should be shown based on screen width.
+  /// Determines if an action should be shown based on the available
+  /// layout width from [LayoutBuilder] constraints.
 
   static bool shouldShowAction(
     SolidAppBarAction action,
     SolidAppBarConfig config,
-    double screenWidth,
+    double layoutWidth,
   ) {
     if (!action.showOnVeryNarrowScreen &&
-        screenWidth < config.veryNarrowScreenThreshold) {
+        layoutWidth < config.veryNarrowScreenThreshold) {
       return false;
     } else if (!action.showOnNarrowScreen &&
-        screenWidth < config.narrowScreenThreshold) {
+        layoutWidth < config.narrowScreenThreshold) {
       return false;
     }
     return true;
   }
 
-  /// Determines if theme toggle should be shown.
+  /// Determines if theme toggle should be shown based on the available
+  /// layout width from [LayoutBuilder] constraints.
 
   static bool shouldShowThemeToggle(
     SolidThemeToggleConfig? themeToggle,
     SolidAppBarConfig config,
-    double screenWidth,
+    double layoutWidth,
   ) {
     if (themeToggle == null || !themeToggle.enabled) return false;
     if (!themeToggle.showInAppBarActions) return false;
 
     if (!themeToggle.showOnVeryNarrowScreen &&
-        screenWidth < config.veryNarrowScreenThreshold) {
+        layoutWidth < config.veryNarrowScreenThreshold) {
       return false;
     } else if (!themeToggle.showOnNarrowScreen &&
-        screenWidth < config.narrowScreenThreshold) {
+        layoutWidth < config.narrowScreenThreshold) {
       return false;
     }
 

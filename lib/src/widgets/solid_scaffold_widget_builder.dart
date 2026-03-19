@@ -91,6 +91,7 @@ class SolidScaffoldWidgetBuilder {
 
   static Widget buildFromWidget({
     required BuildContext context,
+    required BoxConstraints constraints,
     required GlobalKey<ScaffoldState> scaffoldKey,
     required SolidScaffold widget,
     required bool isWideScreen,
@@ -104,8 +105,6 @@ class SolidScaffoldWidgetBuilder {
     required String Function() getVersionToDisplay,
     String? currentWebId,
   }) {
-    // Get the effective login/logout callbacks (built-in or custom).
-
     final effectiveLogout = _getEffectiveLogout(widget);
     final effectiveLogin = _getEffectiveLogin(widget);
 
@@ -144,6 +143,7 @@ class SolidScaffoldWidgetBuilder {
           showLogout: widget.showLogout,
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
+          constraints: constraints,
         ),
       ),
       buildDrawer: () {

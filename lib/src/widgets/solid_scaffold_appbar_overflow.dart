@@ -49,7 +49,7 @@ class SolidAppBarOverflowHandler {
   static void handleOverflowMenu(
     List<Widget> actions,
     SolidAppBarConfig config,
-    double screenWidth,
+    double layoutWidth,
     SolidThemeToggleConfig? themeToggle,
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
@@ -59,9 +59,7 @@ class SolidAppBarOverflowHandler {
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
-    // Use veryNarrowScreenThreshold to determine when to show overflow menu.
-
-    final isVeryNarrowScreen = screenWidth < config.veryNarrowScreenThreshold;
+    final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
 
     // Only show overflow menu on very narrow screens.
     // On wider screens, all buttons are displayed directly in AppBar.

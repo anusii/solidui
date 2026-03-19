@@ -33,7 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
 
-import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/constants/ui_window.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_overflow_menu_helpers.dart';
@@ -152,59 +152,42 @@ class SolidScaffoldHelpers {
   static List<Widget> buildOverflowIconButtons(SolidAppBarConfig config) =>
       SolidOverflowMenuHelpers.buildOverflowIconButtons(config);
 
-  /// Determines if the screen width is between the very narrow and narrow
-  /// thresholds.
+  /// Delegates to [WindowSize.isNarrow] using [BoxConstraints].
 
-  static bool isNarrowScreen(
-    BuildContext context, {
-    double veryNarrowThreshold = NavigationConstants.veryNarrowScreenThreshold,
-    double narrowThreshold = NavigationConstants.narrowScreenThreshold,
+  static bool isNarrowScreen(BoxConstraints constraints, {
+    double? narrowThreshold,
   }) {
-    final width = MediaQuery.of(context).size.width;
-    return width >= veryNarrowThreshold && width < narrowThreshold;
+    if (narrowThreshold != null) {
+      return WindowSize.isNarrow(
+        constraints,
+        narrowThreshold: narrowThreshold,
+      );
+    }
+    return WindowSize.isNarrow(constraints);
   }
 
-  /// Determines if the screen width is below the very narrow threshold.
+  /// Delegates to [WindowSize.isVeryNarrow] using [BoxConstraints].
 
-  static bool isVeryNarrowScreen(
-    BuildContext context, {
-    double veryNarrowScreenThreshold =
-        NavigationConstants.veryNarrowScreenThreshold,
-  }) {
-    return MediaQuery.of(context).size.width < veryNarrowScreenThreshold;
+  static bool isVeryNarrowScreen(BoxConstraints constraints) {
+    return WindowSize.isVeryNarrow(constraints);
   }
 
-  /// Determines if the screen width is between the narrow and wide thresholds
-  /// (medium range).
+  /// Delegates to [WindowSize.isMedium] using [BoxConstraints].
 
-  static bool isMedScreen(
-    BuildContext context, {
-    double narrowThreshold = NavigationConstants.narrowScreenThreshold,
-    double wideThreshold = NavigationConstants.wideScreenThreshold,
-  }) {
-    final width = MediaQuery.of(context).size.width;
-    return width >= narrowThreshold && width < wideThreshold;
+  static bool isMedScreen(BoxConstraints constraints) {
+    return WindowSize.isMedium(constraints);
   }
 
-  /// Determines if the screen width is between the wide and very wide
-  /// thresholds.
+  /// Delegates to [WindowSize.isWide] using [BoxConstraints].
 
-  static bool isWideScreen(
-    BuildContext context, {
-    double wideThreshold = NavigationConstants.wideScreenThreshold,
-    double veryWideThreshold = NavigationConstants.veryWideScreenThreshold,
-  }) {
-    final width = MediaQuery.of(context).size.width;
-    return width >= wideThreshold && width < veryWideThreshold;
+  static bool isWideScreen(BoxConstraints constraints) {
+    return WindowSize.isWide(constraints);
   }
 
-  /// Determines if the screen width exceeds the very wide threshold.
+  /// Delegates to [WindowSize.isVeryWide] using [BoxConstraints].
 
-  static bool isVeryWideScreen(
-    BuildContext context, {
-    double veryWideThreshold = NavigationConstants.veryWideScreenThreshold,
-  }) {
-    return MediaQuery.of(context).size.width >= veryWideThreshold;
+  static bool isVeryWideScreen(BoxConstraints constraints) {
+    return WindowSize.isVeryWide(constraints);
   }
 
   /// Gets effective child widget.
@@ -307,6 +290,7 @@ class SolidScaffoldHelpers {
     bool showLogout = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
+    required BoxConstraints constraints,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -324,6 +308,7 @@ class SolidScaffoldHelpers {
       showLogout: showLogout,
       onLogout: onLogout,
       onLogin: onLogin,
+      constraints: constraints,
     );
   }
 

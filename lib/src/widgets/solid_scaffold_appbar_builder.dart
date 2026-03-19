@@ -59,6 +59,7 @@ class SolidScaffoldAppBarBuilder {
     bool showLogout = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
+    required BoxConstraints constraints,
   }) {
     SolidAppBarActionsManager.initializeIfNeeded(
       config,
@@ -66,23 +67,19 @@ class SolidScaffoldAppBarBuilder {
       hasLogout: showLogout,
     );
 
+    final layoutWidth = constraints.maxWidth;
     final isNarrowScreen = hideNavRail ||
         SolidScaffoldHelpers.isNarrowScreen(
-          context,
+          constraints,
           narrowThreshold: narrowScreenThreshold,
         ) ||
-        SolidScaffoldHelpers.isVeryNarrowScreen(context);
-    final screenWidth = MediaQuery.of(context).size.width;
+        SolidScaffoldHelpers.isVeryNarrowScreen(constraints);
     final theme = Theme.of(context);
-
-    // Build action buttons.
 
     List<Widget> actions = [];
 
-    // Add version widget if configured and screen is not too narrow.
-
     if (config.versionConfig != null &&
-        screenWidth >= config.veryNarrowScreenThreshold &&
+        layoutWidth >= config.veryNarrowScreenThreshold &&
         shouldShowVersion) {
       actions.add(
         SolidScaffoldHelpers.buildVersionWidget(
@@ -94,11 +91,9 @@ class SolidScaffoldAppBarBuilder {
       actions.add(const Gap(8));
     }
 
-    // Build ordered actions based on preferences.
-
     final orderedActions = SolidAppBarOrderedActionsBuilder.build(
       config: config,
-      screenWidth: screenWidth,
+      layoutWidth: layoutWidth,
       themeToggle: themeToggle,
       currentThemeMode: currentThemeMode,
       themeToggleCallback: themeToggleCallback,
@@ -110,12 +105,10 @@ class SolidScaffoldAppBarBuilder {
     );
     actions.addAll(orderedActions);
 
-    // Handle overflow menu if on very narrow screen.
-
     SolidAppBarOverflowHandler.handleOverflowMenu(
       actions,
       config,
-      screenWidth,
+      layoutWidth,
       themeToggle,
       currentThemeMode,
       themeToggleCallback,

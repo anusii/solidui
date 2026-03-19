@@ -30,33 +30,78 @@ library;
 
 import 'package:flutter/material.dart';
 
-/// Thresholds for window size.
+import 'package:solidui/src/constants/navigation.dart';
+
+/// Responsive layout helpers using [LayoutBuilder] constraints.
 
 class WindowSize {
   /// Small width threshold.
 
-  static const double smallWidthLimit = 600;
+  static const double smallWidthLimit =
+      NavigationConstants.veryNarrowScreenThreshold;
 
   /// Small height threshold.
 
   static const double smallHeightLimit = 600;
 
-  /// Boolean describing whether the parent widget is narrow.
-  /// Derived from the box constraints found by LayoutBuilder().
-  ///
-  /// Arguments:
-  /// - [constraints] - The box constraints of the parent widget
-  ///   where LayoutBuilder() was called.
+  /// Legacy method — equivalent to [isVeryNarrow].
 
   bool isNarrowWindow(BoxConstraints constraints) {
-    final bool isNarrow;
-    if (constraints.maxWidth < WindowSize.smallWidthLimit) {
-      isNarrow = true;
-    } else {
-      isNarrow = false;
-    }
+    return isVeryNarrow(constraints);
+  }
 
-    return isNarrow;
+  /// Whether [constraints] width is below the very narrow threshold.
+
+  static bool isVeryNarrow(
+    BoxConstraints constraints, {
+    double threshold = NavigationConstants.veryNarrowScreenThreshold,
+  }) {
+    return constraints.maxWidth < threshold;
+  }
+
+  /// Whether [constraints] width falls in the narrow range, i.e. between
+  /// [veryNarrowThreshold] (inclusive) and [narrowThreshold] (exclusive).
+
+  static bool isNarrow(
+    BoxConstraints constraints, {
+    double veryNarrowThreshold = NavigationConstants.veryNarrowScreenThreshold,
+    double narrowThreshold = NavigationConstants.narrowScreenThreshold,
+  }) {
+    return constraints.maxWidth >= veryNarrowThreshold &&
+        constraints.maxWidth < narrowThreshold;
+  }
+
+  /// Whether [constraints] width falls in the medium range, i.e. between
+  /// [narrowThreshold] (inclusive) and [wideThreshold] (exclusive).
+
+  static bool isMedium(
+    BoxConstraints constraints, {
+    double narrowThreshold = NavigationConstants.narrowScreenThreshold,
+    double wideThreshold = NavigationConstants.wideScreenThreshold,
+  }) {
+    return constraints.maxWidth >= narrowThreshold &&
+        constraints.maxWidth < wideThreshold;
+  }
+
+  /// Whether [constraints] width falls in the wide range, i.e. between
+  /// [wideThreshold] (inclusive) and [veryWideThreshold] (exclusive).
+
+  static bool isWide(
+    BoxConstraints constraints, {
+    double wideThreshold = NavigationConstants.wideScreenThreshold,
+    double veryWideThreshold = NavigationConstants.veryWideScreenThreshold,
+  }) {
+    return constraints.maxWidth >= wideThreshold &&
+        constraints.maxWidth < veryWideThreshold;
+  }
+
+  /// Whether [constraints] width exceeds the very wide threshold.
+
+  static bool isVeryWide(
+    BoxConstraints constraints, {
+    double threshold = NavigationConstants.veryWideScreenThreshold,
+  }) {
+    return constraints.maxWidth >= threshold;
   }
 }
 
@@ -87,9 +132,7 @@ class ListItemSize {
 
     final double cardAspectRatio;
 
-    // Derive card aspect ratio (width / height).
-
-    if (constraints.maxWidth < WindowSize.smallWidthLimit) {
+    if (WindowSize.isVeryNarrow(constraints)) {
       cardAspectRatio = constraints.maxWidth / compressedItemHeight;
     } else {
       cardAspectRatio = constraints.maxWidth / uncompressedItemHeight;
