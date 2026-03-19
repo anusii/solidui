@@ -100,7 +100,7 @@ class SolidNavBar extends StatelessWidget {
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height,
+              minHeight: MediaQuery.sizeOf(context).height,
             ),
             child: IntrinsicHeight(
               child: NavigationRail(
