@@ -87,10 +87,13 @@ your data store.
 const String defaultLoginTooltip = '''
 
 **Login:** Tap here to log in to a Solid server of your choice to access your
-private data. Through a browser popup you will be connected to the specified
-Solid server and you can then log in with your username and password. This app
-does not need to know your username/password. The app will use a token from the
-server to establish your secure conenction.
+private data. If a cached session exists for the specified server it will be
+reused automatically. If the cached session belongs to a different server it
+will be cleared and a fresh browser login will be initiated against the newly
+specified server. Otherwise a browser popup will connect you to the specified
+Solid server where you can log in with your username and password. This app
+does not need to know your username or password. The app will use a token from
+the server to establish your secure connection.
 
 ''';
 const String defaultRegisterTooltip = '''
@@ -114,10 +117,11 @@ actual help page navigated to on your browser depends on the particular app.
 
 const String defaultContinueTooltip = '''
 
-**Continue:** Tap here to continue on to the app without logging into a Solid
-server. The app will generally be able to save data locally or else prompt to
-log in to a Solid server when needed. No data will be shared beyond your local
-device until you connect to a Solid server hosting your Data Vault.
+**Continue:** Tap here to continue on to the app. If a cached login session
+exists it will be used automatically. If no cached session is available you
+will proceed as a guest and may browse publicly available information. The app
+may later prompt you to log in to a Solid server when access to your Data
+Vault is required.
 
 ''';
 

@@ -40,6 +40,7 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFolders,
         generateDefaultFiles,
         generateCustomFolders,
+        getWebId,
         initialStructureTest,
         isUserLoggedIn,
         logoutPod,
@@ -349,11 +350,40 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // Shared login action used by the login button and the server text field's
     // onFieldSubmitted callback so that pressing Enter in either triggers
     // login.
+    //
+    // When a cached session already exists the server origin is compared with
+    // the server currently entered in the text field:
+    //   - Same server  → reuse the cached session.
+    //   - Different    → clear stale credentials and start a fresh browser
+    //                    login against the newly specified server.
+    //   - No cache     → start the browser login flow as normal.
 
     Future<void> performLogin() async {
       final podServer = webIdController.text.trim().isNotEmpty
           ? webIdController.text.trim()
           : SolidConfig.defaultServerUrl;
+
+      final alreadyLoggedIn = await isUserLoggedIn();
+
+      if (alreadyLoggedIn) {
+        final cachedWebId = await getWebId();
+        if (cachedWebId != null && cachedWebId.isNotEmpty) {
+          try {
+            final cachedOrigin = Uri.parse(cachedWebId).origin;
+            final requestedOrigin = Uri.parse(podServer).origin;
+
+            if (cachedOrigin != requestedOrigin) {
+              await logoutPod();
+            }
+          } on FormatException {
+            // If either URL cannot be parsed, fall through and let
+            // handleLogin deal with the server as-is.
+          }
+        }
+      }
+
+      if (!context.mounted) return;
+
       await SolidLoginAuthHandler.handleLogin(
         context: context,
         podServer: podServer,

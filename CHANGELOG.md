@@ -1,4 +1,4 @@
-# SolidUI Changelog
+# SolidUI Change Log
 
 Noted here are the high level changes for the package.
 
@@ -15,15 +15,17 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 TBD
 
-+ Bug fix notification of uninitialised pod [0.3.2 20260318 tony]
-+ Bug fix to support SolidScaffold(showLogout:) [0.3.1 20260318 tony]
++ Login again if webid changed [0.3.3 20260319 tonypioneer]
++ Fixed locmax issue with GrantPermissionUi [0.3.2 20260318 tonypioneer]
++ Bug fix notification of uninitialised pod [0.3.2 20260318 tonypioneer]
++ Bug fix to support SolidScaffold(showLogout:) [0.3.1 20260318 tonypioneer]
 
 ## 0.3.0 Stabilise
 
 + Publish to pub.dev [0.3.0 20260316 gjw]
-+ Optimse pod initialisation check [0.2.2 20260219 tony]
-+ Update SolidFile browser UI and functionals [0.2.1 20260219 tony]
-+ Migrate remaining UI from solidpod to solidui [0.2.0 20260213 tony]
++ Optimise pod initialisation check [0.2.2 20260219 tonypioneer]
++ Update SolidFile browser UI and functionals [0.2.1 20260219 tonypioneer]
++ Migrate remaining UI from solidpod to solidui [0.2.0 20260213 tonypioneer]
 
 ## 0.2.0 Complete UI Migration
 
@@ -64,7 +66,7 @@ au](https://solidcommunity.au/docs/solidui)
 + Updated readPod and writePod [0.0.9 20251123 cdawei]
 + Show username in status bar uri [0.0.8 20251030 tonypioneer]
 + Remove solidui/solidpod circular dependency [0.0.7 20251029 tonypioneer]
-+ Refactor SOlidLogin for max 300 loc lint [0.0.6 20251017 cdawei]
++ Refactor SolidLogin for max 300 loc lint [0.0.6 20251017 cdawei]
 + Fix security key handling [0.0.5 20251027 tchen]
 + Add webid to an info header in navdrawer [0.0.4 20251017 tchen]
 + Update version widget dependency [0.0.3 20251008 gjw]

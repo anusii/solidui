@@ -27,10 +27,11 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart' show KeyManager;
+import 'package:solidui/solidui.dart' show SolidScaffold;
+
 import 'package:demopod/constants/app.dart';
 import 'package:demopod/utils/rdf.dart' show getEncKeyContent;
-
-import 'package:solidpod/solidpod.dart' show KeyManager;
 
 /// A widget to show the user all the encryption keys stored in their Solid Pod.
 
@@ -57,8 +58,6 @@ class ViewKeys extends StatefulWidget {
 }
 
 class _ViewKeysState extends State<ViewKeys> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   /// Decrypted data cache
   Map<dynamic, dynamic>? _decryptedData;
   bool _isDecrypting = false;
@@ -129,9 +128,8 @@ class _ViewKeysState extends State<ViewKeys> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
+    return SolidScaffold(
+        scaffoldAppBar: AppBar(
           title: Text(widget.title),
           backgroundColor: titleBackgroundColor,
         ),

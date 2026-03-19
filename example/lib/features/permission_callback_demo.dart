@@ -26,7 +26,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
-import 'package:solidui/solidui.dart' show GrantPermissionUi;
+import 'package:solidui/solidui.dart' show GrantPermissionUi, SolidScaffold;
 
 /// A widget demonstrating the onPermissionGranted callback functionality.
 
@@ -245,9 +245,9 @@ demo:exampleData$fileNumber
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SolidScaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
+      scaffoldAppBar: AppBar(
         title: const Text('Permission Callback Demo'),
         backgroundColor: Colors.blue[700],
         foregroundColor: Colors.white,

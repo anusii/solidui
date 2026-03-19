@@ -1,6 +1,4 @@
-/// A template app to begin a Solid Pod project.
-///
-// Time-stamp: <Monday 2025-07-14 11:46:50 +1000 Graham Williams>
+/// The primary App widget.
 ///
 /// Copyright (C) 2024, Software Innovation Institute, ANU.
 ///
@@ -27,31 +25,37 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:window_manager/window_manager.dart';
+import 'package:solidui/solidui.dart';
 
-import 'package:demopod/app.dart';
+import 'package:demopod/app_scaffold.dart';
 import 'package:demopod/constants/app.dart';
-import 'package:demopod/utils/is_desktop.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+class App extends StatelessWidget {
+  const App({super.key});
 
-  if (isDesktop(PlatformWrapper())) {
-    await windowManager.ensureInitialized();
-
-    const windowOptions = WindowOptions(
+  @override
+  Widget build(BuildContext context) {
+    return SolidThemeApp(
+      debugShowCheckedModeBanner: false,
       title: appTitle,
-      minimumSize: Size(500, 800),
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFF0E4D7),
+        ),
+        useMaterial3: true,
+      ),
+      home: const SolidLogin(
+        title: 'SOLID POD DEMONSTRATOR',
+        appDirectory: 'demopod',
+        image: AssetImage('assets/images/demopod_image.jpg'),
+        logo: AssetImage('assets/images/demopod_logo.png'),
+        link: 'https://github.com/anusii/solidpod/blob/main/demopod/README.md',
+        required: false,
+        infoButtonStyle: InfoButtonStyle(
+          tooltip: 'Visit the DemoPod documentation.',
+        ),
+        child: appScaffold,
+      ),
     );
-
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
   }
-
-  runApp(const App());
 }
