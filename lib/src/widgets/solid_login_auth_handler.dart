@@ -35,9 +35,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart'
     show
         clearPodStructureInitialised,
+        deleteLogIn,
         initialStructureTest,
         isUserLoggedIn,
         markPodStructureInitialised,
@@ -50,6 +52,22 @@ import 'package:solidui/src/widgets/solid_login_helper.dart';
 /// A handler class for Solid Pod authentication logic.
 
 class SolidLoginAuthHandler {
+  /// SharedPreferences key for scheduling session clearance on next startup.
+
+  static const clearSessionKey = 'solidui_clear_session_on_startup';
+
+  /// Clears the cached login session if a previous session opted out of
+  /// "Stay signed in". Call this early during login page initialisation.
+
+  static Future<void> clearSessionIfRequired() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shouldClear = prefs.getBool(clearSessionKey) ?? false;
+    if (shouldClear) {
+      await deleteLogIn();
+      await prefs.remove(clearSessionKey);
+    }
+  }
+
   /// Notifies the user that their POD is not initialised, verifies the remote
   /// directory structure, and navigates to the appropriate screen (setup wizard
   /// or child widget).
@@ -62,6 +80,7 @@ class SolidLoginAuthHandler {
     required Widget childWidget,
     required Function(String message, {Duration? duration, bool showAction})
         showSnackbar,
+    bool staySignedIn = true,
   }) async {
     showSnackbar(
       'The POD is not initialised. Setting up your POD...',
@@ -94,6 +113,11 @@ class SolidLoginAuthHandler {
       await pushReplacement(context, childWidget);
     }
 
+    if (!staySignedIn) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(clearSessionKey, true);
+    }
+
     return true;
   }
 
@@ -112,6 +136,7 @@ class SolidLoginAuthHandler {
     required VoidCallback updateDialogCanceledState,
     required Function(String message, {Duration? duration, bool showAction})
         showSnackbar,
+    bool staySignedIn = true,
   }) async {
     // Method to show busy animation requiring BuildContext.
 
@@ -189,6 +214,7 @@ class SolidLoginAuthHandler {
           originalLoginWidget: originalLoginWidget,
           childWidget: childWidget,
           showSnackbar: showSnackbar,
+          staySignedIn: staySignedIn,
         );
       } else {
         showSnackbar(
@@ -275,6 +301,11 @@ class SolidLoginAuthHandler {
         await pushReplacement(context, childWidget);
       }
 
+      if (!staySignedIn) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(clearSessionKey, true);
+      }
+
       return true;
     } else {
       // solidAuthenticate() returned null. This can happen when:
@@ -304,6 +335,7 @@ class SolidLoginAuthHandler {
           originalLoginWidget: originalLoginWidget,
           childWidget: childWidget,
           showSnackbar: showSnackbar,
+          staySignedIn: staySignedIn,
         );
       } else {
         // Authentication truly failed – server may be down or the user

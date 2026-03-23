@@ -33,9 +33,11 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show
         clearPodStructureInitialised,
+        deleteLogIn,
         getAppNameVersion,
         generateDefaultFolders,
         generateDefaultFiles,
@@ -43,8 +45,8 @@ import 'package:solidpod/solidpod.dart'
         getWebId,
         initialStructureTest,
         isUserLoggedIn,
-        logoutPod,
-        setAppDirName;
+        setAppDirName,
+        silentLogout;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
@@ -188,6 +190,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _assetsResolved = false;
 
+  /// Whether the user wishes to persist the login session across app restarts.
+
+  bool _staySignedIn = true;
+
   @override
   void initState() {
     super.initState();
@@ -203,7 +209,12 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _serverInputFocusNode = FocusNode(debugLabel: 'serverInput');
 
     // Resolve image assets with fallback logic.
+
     _resolveImageAssets();
+
+    // Clear any stale session from a previous "Stay signed in" opt-out.
+
+    SolidLoginAuthHandler.clearSessionIfRequired();
 
     // dc 20251022: please explain why calling an async without await.
 
@@ -373,7 +384,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
             final requestedOrigin = Uri.parse(podServer).origin;
 
             if (cachedOrigin != requestedOrigin) {
-              await logoutPod();
+              await deleteLogIn();
             }
           } on FormatException {
             // If either URL cannot be parsed, fall through and let
@@ -394,6 +405,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         isDialogCanceled: isDialogCanceled,
         updateDialogCanceledState: updateState,
         showSnackbar: _showSnackbar,
+        staySignedIn: _staySignedIn,
       );
     }
 
@@ -429,7 +441,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
           if (!allExists) {
             await clearPodStructureInitialised();
-            await logoutPod();
+            await silentLogout();
 
             if (!context.mounted) return;
 
@@ -463,6 +475,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       await pushReplacement(context, widget.child);
     }
 
+    Future<void> performTryAnotherAccount() async {
+      await silentLogout();
+      await clearPodStructureInitialised();
+      if (!context.mounted) return;
+
+      await performLogin();
+    }
+
     final registerButton = SolidLoginBuildHelper.buildRegisterButton(
       style: widget.registerButtonStyle,
       webIdController: webIdController,
@@ -493,6 +513,50 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     final effectiveLogo = _resolvedLogo ?? SolidConfig.soliduiDefaultLogo;
 
+    // "Stay signed in" checkbox.
+
+    final staySignedInCheckbox = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        MarkdownTooltip(
+          message:
+              '**Stay signed in:** When ticked, your login session will be '
+              'cached so you can skip the browser login next time. '
+              'Untick to require a fresh login on every launch.',
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: Checkbox(
+              value: _staySignedIn,
+              onChanged: (value) =>
+                  setState(() => _staySignedIn = value ?? true),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () => setState(() => _staySignedIn = !_staySignedIn),
+          child: Text(
+            'Stay signed in',
+            style: TextStyle(color: currentTheme.textColor, fontSize: 14),
+          ),
+        ),
+      ],
+    );
+
+    final tryAnotherAccountButton = TextButton(
+      onPressed: performTryAnotherAccount,
+      child: Text(
+        'Try another WebID',
+        style: TextStyle(
+          color: currentTheme.textColor.withValues(alpha: 0.7),
+          fontSize: 14,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+
     // Build the login panel content.
 
     final loginPanelContent = SolidLoginPanel.buildPanelContent(
@@ -509,6 +573,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       currentTheme: currentTheme,
       serverInputFocusNode: _serverInputFocusNode,
       onServerSubmitted: performLogin,
+      staySignedInCheckbox: staySignedInCheckbox,
+      tryAnotherAccountButton: tryAnotherAccountButton,
     );
 
     final loginPanelDecor = SolidLoginPanel.buildPanelWithThemeToggle(
