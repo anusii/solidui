@@ -49,6 +49,7 @@ class SolidNavDrawerHeader {
     required bool isVersionLoaded,
     required String? appVersion,
     required String Function() getVersionToDisplay,
+    VoidCallback? onUserNameTap,
   }) {
     final bool willShowVersion = user.versionConfig != null;
     final double bottomPadding =
@@ -70,14 +71,7 @@ class SolidNavDrawerHeader {
                 color: theme.colorScheme.onPrimaryContainer,
               ),
           const Gap(NavigationConstants.userInfoSpacing),
-          Text(
-            user.effectiveUserName,
-            style: TextStyle(
-              color: theme.colorScheme.onPrimaryContainer,
-              fontSize: NavigationConstants.userNameFontSize,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          _buildUserName(theme, user, onUserNameTap),
           if (user.showWebId && user.webId != null && user.webId!.isNotEmpty)
             ..._buildWebIdSection(context, theme, user),
           if (user.versionConfig != null)
@@ -90,6 +84,32 @@ class SolidNavDrawerHeader {
               getVersionToDisplay,
             ),
         ],
+      ),
+    );
+  }
+
+  static Widget _buildUserName(
+    ThemeData theme,
+    SolidNavUserInfo user,
+    VoidCallback? onUserNameTap,
+  ) {
+    final text = Text(
+      user.effectiveUserName,
+      style: TextStyle(
+        color: theme.colorScheme.onPrimaryContainer,
+        fontSize: NavigationConstants.userNameFontSize,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
+    if (onUserNameTap == null) return text;
+
+    return InkWell(
+      onTap: onUserNameTap,
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        child: text,
       ),
     );
   }

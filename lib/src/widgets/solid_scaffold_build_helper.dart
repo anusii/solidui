@@ -31,11 +31,13 @@ library;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
+import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// Helper for building the main Scaffold in SolidScaffold.
@@ -168,6 +170,22 @@ class SolidScaffoldBuildHelper {
       ),
       buildDrawer: () {
         if (isWideScreen || config.menu == null) return null;
+
+        SolidSecurityKeyStatus? drawerSecurityKeyStatus;
+        final original = config.statusBar?.securityKeyStatus;
+        if (original != null) {
+          drawerSecurityKeyStatus = SolidSecurityKeyStatus(
+            isKeySaved: isKeySaved,
+            onTap: original.onTap,
+            onKeyStatusChanged: original.onKeyStatusChanged,
+            title: original.title,
+            appWidget: original.appWidget,
+            keySavedText: original.keySavedText,
+            keyNotSavedText: original.keyNotSavedText,
+            tooltip: original.tooltip,
+          );
+        }
+
         return SolidNavDrawer(
           userInfo: config.userInfo,
           tabs: SolidScaffoldHelpers.convertToNavTabs(config.menu),
@@ -175,6 +193,9 @@ class SolidScaffoldBuildHelper {
           onTabSelected: onMenuSelected,
           onLogout: config.onLogout,
           showLogout: config.onLogout != null,
+          onUserNameTap: (drawerContext) =>
+              SolidAuthHandler.instance.handleAuthAction(drawerContext),
+          securityKeyStatus: drawerSecurityKeyStatus,
         );
       },
       endDrawer: config.endDrawer,
