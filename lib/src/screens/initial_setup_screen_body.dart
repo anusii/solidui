@@ -37,6 +37,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:solidpod/solidpod.dart' show getWebId;
 
 import 'package:solidui/solidui.dart' show SolidLogin, logoutPopup;
 import 'package:solidui/src/constants/initial_setup.dart';
@@ -88,11 +89,13 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
   final _formKey = GlobalKey<FormBuilderState>();
 
   String _appName = 'the App';
+  String? _webId;
 
   @override
   void initState() {
     super.initState();
     _loadAppName();
+    _loadWebId();
   }
 
   Future<void> _loadAppName() async {
@@ -104,6 +107,15 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         _appName = name.isNotEmpty
             ? name[0].toUpperCase() + name.substring(1)
             : 'the App';
+      });
+    }
+  }
+
+  Future<void> _loadWebId() async {
+    final webId = await getWebId();
+    if (mounted) {
+      setState(() {
+        _webId = webId;
       });
     }
   }
@@ -171,7 +183,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                 child: ListView(
                   primary: false,
                   children: [
-                    initialSetupWelcome(context, _appName),
+                    initialSetupWelcome(context, _appName, _webId),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
