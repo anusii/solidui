@@ -30,7 +30,7 @@ dependencies:
   printing: ^5.14.2
   rdflib: ^0.2.12
   shared_preferences: ^2.5.4
-  solidpod: ^0.12.0
+  solidpod: ^0.12.2
   url_launcher: ^6.3.2
   version_widget: ^1.0.6
 
@@ -38,14 +38,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   window_manager: ^0.5.1
 
-dependency_overrides:
-  solidpod:
-    git:
-      url: https://github.com/anusii/solidpod.git
-      ref: dev
-
 flutter:
   uses-material-design: true
-
   assets:
     - assets/images/
