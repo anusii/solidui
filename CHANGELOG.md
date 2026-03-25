@@ -13,8 +13,9 @@ The package is available from
 Coding documentation is available from [solid community
 au](https://solidcommunity.au/docs/solidui)
 
-## 0.4.0 TBD
+## 0.4.0 Refine and Tune
 
++ Add checkbox and new webid widgets to SolidLogin() [0.3.5 20260325 tonypioneer]
 + Add WebID to SetupWizard [0.3.4 20260325 tonypioneer]
 + Login again if webid changed [0.3.3 20260319 tonypioneer]
 + Fixed locmax issue with GrantPermissionUi [0.3.2 20260318 tonypioneer]
