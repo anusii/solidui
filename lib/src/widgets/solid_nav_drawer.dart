@@ -154,8 +154,6 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
     return '0.0.0+0';
   }
 
-  bool _canLogout() => widget.showLogout && widget.onLogout != null;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -197,7 +195,8 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                 }),
                 if (widget.additionalMenuItems != null)
                   ...widget.additionalMenuItems!,
-                if (widget.securityKeyStatus != null || _canLogout())
+                if (widget.securityKeyStatus != null ||
+                    widget.onUserNameTap != null)
                   ..._buildBottomSection(context, theme),
               ],
             ),
@@ -239,6 +238,9 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
     );
   }
 
+  bool get _isLoggedIn =>
+      widget.userInfo?.webId != null && widget.userInfo!.webId!.isNotEmpty;
+
   List<Widget> _buildBottomSection(BuildContext context, ThemeData theme) {
     return [
       Divider(
@@ -247,21 +249,8 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
       ),
       if (widget.securityKeyStatus != null)
         _buildSecurityKeyTile(context, theme),
-      if (_canLogout())
-        ListTile(
-          leading: Icon(
-            widget.logoutIcon ?? Icons.logout,
-            color: theme.colorScheme.error,
-          ),
-          title: Text(
-            widget.logoutText ?? 'Logout',
-            style: TextStyle(color: theme.colorScheme.error),
-          ),
-          onTap: () {
-            Navigator.of(context).pop();
-            widget.onLogout!(context);
-          },
-        ),
+      if (widget.onUserNameTap != null)
+        _buildLoginStatusTile(context, theme),
     ];
   }
 
@@ -270,16 +259,10 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
     final isKeySaved = status.isKeySaved == true;
 
     return ListTile(
-      leading: Icon(
-        isKeySaved ? Icons.key : Icons.key_off,
-        color:
-            isKeySaved ? theme.colorScheme.tertiary : theme.colorScheme.error,
-      ),
       title: Text(
         status.displayText,
         style: TextStyle(
-          color:
-              isKeySaved ? theme.colorScheme.tertiary : theme.colorScheme.error,
+          color: isKeySaved ? null : theme.colorScheme.primary,
         ),
       ),
       onTap: () {
@@ -289,6 +272,23 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
         } else {
           _showSecurityKeyManager(context, status);
         }
+      },
+    );
+  }
+
+  Widget _buildLoginStatusTile(BuildContext context, ThemeData theme) {
+    final statusText = _isLoggedIn ? 'Logged In' : 'Not Logged In';
+
+    return ListTile(
+      title: Text(
+        'Login Status: $statusText',
+        style: TextStyle(
+          color: _isLoggedIn ? null : theme.colorScheme.primary,
+        ),
+      ),
+      onTap: () {
+        Navigator.of(context).pop();
+        widget.onUserNameTap!(context);
       },
     );
   }
