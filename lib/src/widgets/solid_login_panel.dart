@@ -54,6 +54,8 @@ class SolidLoginPanel {
     required SolidLoginThemeMode currentTheme,
     FocusNode? serverInputFocusNode,
     VoidCallback? onServerSubmitted,
+    Widget? staySignedInCheckbox,
+    Widget? tryAnotherAccountButton,
   }) {
     const boxTextHeight = 20.0;
 
@@ -121,6 +123,12 @@ class SolidLoginPanel {
               const SizedBox(height: 15.0),
             ],
           ),
+
+          if (staySignedInCheckbox != null) staySignedInCheckbox,
+          if (tryAnotherAccountButton != null) ...[
+            const SizedBox(height: 4.0),
+            tryAnotherAccountButton,
+          ],
 
           const SizedBox(height: 20.0),
 

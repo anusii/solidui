@@ -1,6 +1,6 @@
 /// Solid Status Bar Models.
 ///
-// Time-stamp: <Sunday 2025-10-26 13:36:17 +1100 Graham Williams>
+// Time-stamp: <Wednesday 2026-03-25 08:57:39 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -368,9 +368,9 @@ class SolidSecurityKeyStatus {
 
   String get displayText {
     if (isKeySaved == true) {
-      return keySavedText ?? 'Security Key: Cached Locally';
+      return keySavedText ?? 'Security Key Cached Locally';
     } else {
-      return keyNotSavedText ?? 'Security Key: Not Cached';
+      return keyNotSavedText ?? 'Security Key Not Cached';
     }
   }
 
