@@ -24,7 +24,7 @@ dependency_overrides:
   solidpod:
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: tony/250_optimise_login_page
+      ref: dev
   solidui:
     path: ..
 
