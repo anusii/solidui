@@ -50,8 +50,15 @@ import 'package:solidui/src/widgets/build_message_container.dart';
 ///
 /// The [appName] parameter is used to display the actual app name in the
 /// message instead of a generic reference.
+///
+/// The [webId] parameter, when provided, is displayed beneath the welcome
+/// title so that the user can identify which POD is being set up.
 
-SizedBox initialSetupWelcome(BuildContext context, String appName) {
+SizedBox initialSetupWelcome(
+  BuildContext context,
+  String appName,
+  String? webId,
+) {
   return SizedBox(
     child: Padding(
       padding: const EdgeInsets.all(30.0),
@@ -80,6 +87,31 @@ SizedBox initialSetupWelcome(BuildContext context, String appName) {
               fontWeight: FontWeight.w500,
             ),
           ),
+          if (webId != null && webId.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.person_outline,
+                  size: 18,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.grey[700],
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: SelectableText(
+                    webId,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).textTheme.bodyMedium?.color ??
+                          Colors.grey[700],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 20),
           Center(
             child: buildMsgBox(
