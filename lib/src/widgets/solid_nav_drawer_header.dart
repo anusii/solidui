@@ -58,7 +58,7 @@ class SolidNavDrawerHeader {
     return Container(
       padding: EdgeInsets.only(
         top: NavigationConstants.userHeaderTopPadding +
-            MediaQuery.of(context).padding.top,
+            MediaQuery.paddingOf(context).top,
         bottom: bottomPadding,
       ),
       decoration: BoxDecoration(color: theme.colorScheme.primaryContainer),

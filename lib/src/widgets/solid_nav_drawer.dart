@@ -167,7 +167,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
             ),
           ),
       child: ListView(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
         children: <Widget>[
           if (widget.userInfo != null)
             SolidNavDrawerHeader.build(

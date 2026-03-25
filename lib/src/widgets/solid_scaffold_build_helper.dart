@@ -120,6 +120,7 @@ class SolidScaffoldBuildHelper {
 
   static Widget buildConfiguredScaffold({
     required BuildContext context,
+    required BoxConstraints constraints,
     required GlobalKey<ScaffoldState> scaffoldKey,
     required SolidScaffoldInternalConfig config,
     required bool isWideScreen,
@@ -166,6 +167,7 @@ class SolidScaffoldBuildHelper {
           hideNavRail: config.hideNavRail,
           showLogout: config.onLogout != null,
           onLogout: config.onLogout,
+          constraints: constraints,
         ),
       ),
       buildDrawer: () {

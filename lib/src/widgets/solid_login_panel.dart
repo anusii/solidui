@@ -112,7 +112,7 @@ class SolidLoginPanel {
                   if (isRequired)
                     Expanded(
                       child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.5,
+                        width: MediaQuery.sizeOf(context).width * 0.5,
                         child: infoButton,
                       ),
                     ),
@@ -178,7 +178,9 @@ class SolidLoginPanel {
     required SolidLoginThemeMode currentTheme,
   }) {
     final loginPanelInset =
-        (isVeryNarrowScreen(context) || !isNarrowScreen(context)) ? 0.05 : 0.25;
+        (isVeryNarrowLoginScreen(context) || !isNarrowLoginScreen(context))
+            ? 0.05
+            : 0.25;
 
     return Container(
       margin: EdgeInsets.symmetric(
