@@ -1,2 +1,6 @@
 ignore:
   - cupertino_icons  # An asset repository.
+  - demopod          # Example app package name.
+  - editable         # Example app dependency.
+  - intl             # Example app dependency.
+  - universal_io     # Example app dependency.
