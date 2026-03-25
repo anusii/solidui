@@ -56,6 +56,10 @@ class SolidLoginAuthHandler {
 
   static const clearSessionKey = 'solidui_clear_session_on_startup';
 
+  /// SharedPreferences key for persisting the "Stay signed in" preference.
+
+  static const staySignedInKey = 'solidui_stay_signed_in';
+
   /// Clears the cached login session if a previous session opted out of
   /// "Stay signed in". Call this early during login page initialisation.
 
@@ -66,6 +70,21 @@ class SolidLoginAuthHandler {
       await deleteLogIn();
       await prefs.remove(clearSessionKey);
     }
+  }
+
+  /// Returns the persisted "Stay signed in" preference, defaulting to true.
+
+  static Future<bool> getStaySignedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return prefs.getBool(staySignedInKey) ?? true;
+  }
+
+  /// Persists the "Stay signed in" preference.
+
+  static Future<void> setStaySignedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(staySignedInKey, value);
   }
 
   /// Notifies the user that their POD is not initialised, verifies the remote
@@ -95,6 +114,13 @@ class SolidLoginAuthHandler {
 
     if (!context.mounted) return false;
 
+    // When the user has opted out of staying signed in, clear the
+    // session cache immediately rather than deferring to next startup.
+
+    if (!staySignedIn) {
+      await deleteLogIn();
+    }
+
     if (!allExists) {
       await clearPodStructureInitialised();
       if (!context.mounted) return false;
@@ -111,11 +137,6 @@ class SolidLoginAuthHandler {
       await markPodStructureInitialised();
       if (!context.mounted) return false;
       await pushReplacement(context, childWidget);
-    }
-
-    if (!staySignedIn) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(clearSessionKey, true);
     }
 
     return true;
@@ -279,6 +300,13 @@ class SolidLoginAuthHandler {
 
       if (!context.mounted) return false;
 
+      // When the user has opted out of staying signed in, clear the
+      // session cache immediately rather than deferring to next startup.
+
+      if (!staySignedIn) {
+        await deleteLogIn();
+      }
+
       if (!allExists) {
         // Remote structure is incomplete — clear the stale local flag and
         // launch the setup wizard so the user can re-initialise.
@@ -299,11 +327,6 @@ class SolidLoginAuthHandler {
         await markPodStructureInitialised();
         if (!context.mounted) return false;
         await pushReplacement(context, childWidget);
-      }
-
-      if (!staySignedIn) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(clearSessionKey, true);
       }
 
       return true;
