@@ -124,11 +124,21 @@ class SolidLoginPanel {
             ],
           ),
 
-          if (staySignedInCheckbox != null) staySignedInCheckbox,
-          if (tryAnotherAccountButton != null) ...[
-            const SizedBox(height: 4.0),
+          if (staySignedInCheckbox != null) ...[
+            if (tryAnotherAccountButton != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  staySignedInCheckbox,
+                  const SizedBox(width: 16.0),
+                  tryAnotherAccountButton,
+                ],
+              )
+            else
+              staySignedInCheckbox,
+          ] else if (tryAnotherAccountButton != null)
             tryAnotherAccountButton,
-          ],
 
           const SizedBox(height: 20.0),
 
