@@ -1,6 +1,6 @@
 /// Solid Navigation Drawer.
 ///
-// Time-stamp: <Friday 2025-10-17 10:33:35 +1100 Graham Williams>
+// Time-stamp: <Thursday 2026-03-26 09:22:09 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -280,7 +280,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
 
     return ListTile(
       title: Text(
-        'Login Status: $statusText',
+        statusText,
         style: TextStyle(
           color: _isLoggedIn ? null : theme.colorScheme.primary,
         ),

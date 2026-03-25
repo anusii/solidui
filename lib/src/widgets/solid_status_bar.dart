@@ -1,6 +1,6 @@
 /// Solid Status Bar.
 ///
-// Time-stamp: <Monday 2025-08-11 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Thursday 2026-03-26 09:23:47 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -141,7 +141,7 @@ class SolidStatusBar extends StatelessWidget {
       message: loginStatus.tooltipText,
       child: _createInteractiveText(
         context: context,
-        text: 'Login Status: ${loginStatus.displayText}',
+        text: loginStatus.displayText,
         onTap: loginStatus.onTap ??
             () => SolidAuthHandler.instance.handleAuthAction(context),
         style: theme.textTheme.bodyMedium?.copyWith(
