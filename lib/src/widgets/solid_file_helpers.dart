@@ -45,7 +45,7 @@ class SolidFileHelpers {
     if (forceWideScreen != null) {
       return forceWideScreen;
     }
-    return MediaQuery.of(context).size.width > 800;
+    return MediaQuery.sizeOf(context).width > 800;
   }
 
   /// Gets the effective browser height.
@@ -54,7 +54,7 @@ class SolidFileHelpers {
     if (browserHeight != null) {
       return browserHeight;
     }
-    return MediaQuery.of(context).size.height * 0.7;
+    return MediaQuery.sizeOf(context).height * 0.7;
   }
 
   /// Gets the effective upload configuration, either from the provided config

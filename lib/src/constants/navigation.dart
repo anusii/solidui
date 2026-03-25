@@ -33,16 +33,21 @@ library;
 /// Navigation constants used throughout the application.
 
 class NavigationConstants {
-  /// The width threshold for determining narrow/wide screen layout.
-  ///
-  /// Screens wider than this value will use the navigation rail,
-  /// while narrower screens will use the navigation drawer.
-
-  static const double narrowScreenThreshold = 800.0;
-
   /// The width threshold for determining very narrow screen layout.
 
   static const double veryNarrowScreenThreshold = 600.0;
+
+  /// The width threshold for determining narrow/wide screen layout.
+
+  static const double narrowScreenThreshold = 800.0;
+
+  /// The width threshold for wide screen layout.
+
+  static const double wideScreenThreshold = 900.0;
+
+  /// The width threshold for very wide screen layout.
+
+  static const double veryWideScreenThreshold = 1000.0;
 
   /// Minimum width for the navigation rail.
 

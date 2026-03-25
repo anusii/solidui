@@ -40,12 +40,12 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 const int narrowScreenLimit = 1175;
 const int veryNarrowScreenLimit = 750;
 
-double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
+double screenWidth(BuildContext context) => MediaQuery.sizeOf(context).width;
 
-bool isNarrowScreen(BuildContext context) =>
+bool isNarrowLoginScreen(BuildContext context) =>
     screenWidth(context) < narrowScreenLimit;
 
-bool isVeryNarrowScreen(BuildContext context) =>
+bool isVeryNarrowLoginScreen(BuildContext context) =>
     screenWidth(context) < veryNarrowScreenLimit;
 
 /// Button styles used in the Solid Login widget.

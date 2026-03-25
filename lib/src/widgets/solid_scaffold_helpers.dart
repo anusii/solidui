@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
 
+import 'package:solidui/src/constants/ui_window.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_overflow_menu_helpers.dart';
@@ -151,10 +152,43 @@ class SolidScaffoldHelpers {
   static List<Widget> buildOverflowIconButtons(SolidAppBarConfig config) =>
       SolidOverflowMenuHelpers.buildOverflowIconButtons(config);
 
-  /// Determines if screen is wide.
+  /// Delegates to [WindowSize.isNarrow] using [BoxConstraints].
 
-  static bool isWideScreen(BuildContext context, double narrowScreenThreshold) {
-    return MediaQuery.of(context).size.width > narrowScreenThreshold;
+  static bool isNarrowScreen(
+    BoxConstraints constraints, {
+    double? narrowThreshold,
+  }) {
+    if (narrowThreshold != null) {
+      return WindowSize.isNarrow(
+        constraints,
+        narrowThreshold: narrowThreshold,
+      );
+    }
+    return WindowSize.isNarrow(constraints);
+  }
+
+  /// Delegates to [WindowSize.isVeryNarrow] using [BoxConstraints].
+
+  static bool isVeryNarrowScreen(BoxConstraints constraints) {
+    return WindowSize.isVeryNarrow(constraints);
+  }
+
+  /// Delegates to [WindowSize.isMedium] using [BoxConstraints].
+
+  static bool isMedScreen(BoxConstraints constraints) {
+    return WindowSize.isMedium(constraints);
+  }
+
+  /// Delegates to [WindowSize.isWide] using [BoxConstraints].
+
+  static bool isWideScreen(BoxConstraints constraints) {
+    return WindowSize.isWide(constraints);
+  }
+
+  /// Delegates to [WindowSize.isVeryWide] using [BoxConstraints].
+
+  static bool isVeryWideScreen(BoxConstraints constraints) {
+    return WindowSize.isVeryWide(constraints);
   }
 
   /// Gets effective child widget.
@@ -257,6 +291,7 @@ class SolidScaffoldHelpers {
     bool showLogout = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
+    required BoxConstraints constraints,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -274,6 +309,7 @@ class SolidScaffoldHelpers {
       showLogout: showLogout,
       onLogout: onLogout,
       onLogin: onLogin,
+      constraints: constraints,
     );
   }
 

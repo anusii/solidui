@@ -95,7 +95,7 @@ Container buildMsgBox(
   // ignore: unused_local_variable
   var isRTL = false;
 
-  final size = MediaQuery.of(context).size;
+  final size = MediaQuery.sizeOf(context);
   final loc = Localizations.maybeLocaleOf(context);
   final localeLanguageCode = loc?.languageCode;
 
