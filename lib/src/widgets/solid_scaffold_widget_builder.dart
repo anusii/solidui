@@ -38,6 +38,7 @@ import 'package:solidui/src/widgets/solid_scaffold.dart';
 import 'package:solidui/src/widgets/solid_scaffold_build_helper.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
+import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 /// Widget builder specifically for SolidScaffold.
@@ -84,6 +85,28 @@ class SolidScaffoldWidgetBuilder {
       showWebId: currentWebId != null && currentWebId.isNotEmpty,
       avatarIcon: Icons.account_circle,
       versionConfig: versionConfig,
+    );
+  }
+
+  /// Builds an effective security key status for the drawer with the current
+  /// [isKeySaved] value from scaffold state.
+
+  static SolidSecurityKeyStatus? _buildDrawerSecurityKeyStatus(
+    SolidScaffold widget,
+    bool isKeySaved,
+  ) {
+    final original = widget.statusBar?.securityKeyStatus;
+    if (original == null) return null;
+
+    return SolidSecurityKeyStatus(
+      isKeySaved: isKeySaved,
+      onTap: original.onTap,
+      onKeyStatusChanged: original.onKeyStatusChanged,
+      title: original.title,
+      appWidget: original.appWidget,
+      keySavedText: original.keySavedText,
+      keyNotSavedText: original.keyNotSavedText,
+      tooltip: original.tooltip,
     );
   }
 
@@ -159,6 +182,9 @@ class SolidScaffoldWidgetBuilder {
           onTabSelected: onMenuSelected,
           onLogout: effectiveLogout,
           showLogout: effectiveLogout != null,
+          onUserNameTap: (drawerContext) =>
+              SolidAuthHandler.instance.handleAuthAction(drawerContext),
+          securityKeyStatus: _buildDrawerSecurityKeyStatus(widget, isKeySaved),
         );
       },
       endDrawer: widget.endDrawer,
