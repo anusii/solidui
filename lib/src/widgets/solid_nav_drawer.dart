@@ -249,8 +249,7 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
       ),
       if (widget.securityKeyStatus != null)
         _buildSecurityKeyTile(context, theme),
-      if (widget.onUserNameTap != null)
-        _buildLoginStatusTile(context, theme),
+      if (widget.onUserNameTap != null) _buildLoginStatusTile(context, theme),
     ];
   }
 
