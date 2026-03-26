@@ -114,7 +114,16 @@ class SolidScaffoldState extends State<SolidScaffold> {
     super.dispose();
   }
 
-  void _onPreferencesChanged() => mounted ? setState(() {}) : null;
+  // Deferred to avoid triggering setState while the framework is building
+  // widgets (e.g. when initializeIfNeeded updates the notifier during build).
+
+  void _onPreferencesChanged() {
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
   void _onControllerChanged() => mounted ? setState(() {}) : null;
   void _onThemeChanged() => mounted ? setState(() {}) : null;
 
