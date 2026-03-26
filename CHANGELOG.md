@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Add keep login and other webid to SolidLogin() [0.3.8 20260326 tonypioneer]
 + Adds additional layout width checks [0.3.7 20260326 tonypioneer]
 + Add Security Key and Logged In to Nav menu [0.3.6 20260326 tonypioneer]
 + Add checkbox and new webid widgets to SolidLogin() [0.3.5 20260325 tonypioneer]
