@@ -114,15 +114,18 @@ class SolidLoginAuthHandler {
 
     if (!context.mounted) return false;
 
-    // When the user has opted out of staying signed in, clear the
-    // session cache immediately rather than deferring to next startup.
-
-    if (!staySignedIn) {
-      await deleteLogIn();
-    }
-
     if (!allExists) {
       await clearPodStructureInitialised();
+
+      // Schedule session clearance for next startup when the user has
+      // opted out of staying signed in. We must not call deleteLogIn()
+      // here because InitialSetupScreen still needs valid auth data.
+
+      if (!staySignedIn) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(clearSessionKey, true);
+      }
+
       if (!context.mounted) return false;
 
       await pushReplacement(
@@ -135,6 +138,16 @@ class SolidLoginAuthHandler {
       );
     } else {
       await markPodStructureInitialised();
+
+      // Schedule session clearance for next startup when the user has
+      // opted out of staying signed in. deleteLogIn() must come after
+      // markPodStructureInitialised() which requires valid auth data.
+
+      if (!staySignedIn) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(clearSessionKey, true);
+      }
+
       if (!context.mounted) return false;
       await pushReplacement(context, childWidget);
     }
@@ -300,18 +313,20 @@ class SolidLoginAuthHandler {
 
       if (!context.mounted) return false;
 
-      // When the user has opted out of staying signed in, clear the
-      // session cache immediately rather than deferring to next startup.
-
-      if (!staySignedIn) {
-        await deleteLogIn();
-      }
-
       if (!allExists) {
         // Remote structure is incomplete — clear the stale local flag and
         // launch the setup wizard so the user can re-initialise.
 
         await clearPodStructureInitialised();
+
+        // Schedule session clearance for next startup when the user has
+        // opted out of staying signed in. We must not call deleteLogIn()
+        // here because InitialSetupScreen still needs valid auth data.
+
+        if (!staySignedIn) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(clearSessionKey, true);
+        }
 
         if (!context.mounted) return false;
 
@@ -325,6 +340,16 @@ class SolidLoginAuthHandler {
         );
       } else {
         await markPodStructureInitialised();
+
+        // Schedule session clearance for next startup when the user has
+        // opted out of staying signed in. deleteLogIn() must come after
+        // markPodStructureInitialised() which requires valid auth data.
+
+        if (!staySignedIn) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(clearSessionKey, true);
+        }
+
         if (!context.mounted) return false;
         await pushReplacement(context, childWidget);
       }
