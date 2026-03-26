@@ -123,6 +123,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
       if (mounted) setState(() {});
     });
   }
+
   void _onControllerChanged() => mounted ? setState(() {}) : null;
   void _onThemeChanged() => mounted ? setState(() {}) : null;
 
