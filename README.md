@@ -165,36 +165,79 @@ SolidUI requires the following dependencies:
 
 To quickly create a new Solid-based app, we provide a [Mason](https://pub.dev/packages/mason) template.
 
-### Using Mason (Recommended)
+### For Users (External)
 
+External users can use the template by first cloning the repository:
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/anusii/solidui.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```bash
+   cd solidui
+   ```
+
+3. Install Mason:
+
+<<<<<<< Updated upstream
 1. Install Mason:
 
+=======
+>>>>>>> Stashed changes
    ```bash
    dart pub global activate mason_cli
    ```
 
+<<<<<<< Updated upstream
 2. Initialize Mason in your project (if not already):
+=======
+4. Initialize Mason:
+>>>>>>> Stashed changes
 
    ```bash
    mason init
    ```
 
+<<<<<<< Updated upstream
 3. Add the SolidUI brick:
+=======
+5. Add the SolidUI brick:
+>>>>>>> Stashed changes
 
    ```bash
    mason add solidui --path templates/solidui/brick
    ```
 
+<<<<<<< Updated upstream
 4. Create a new app from the template:
+=======
+6. Create a new app from the template:
+>>>>>>> Stashed changes
 
    ```bash
    mason make solidui
    ```
 
+### For Contributors
+
+If you are a contributor and want to update the `example/` app from the template (or vice-versa), use the provided sync script from the root:
+
+```bash
+python3 support/sync_template_to_example.py
+```
+
 ### Template Structure
 
+<<<<<<< Updated upstream
 The template app consists of several files within the
 `lib/` directory:
+=======
+The template app consists of several files within the `lib/` directory:
+>>>>>>> Stashed changes
 
 - `main.dart`: Initialises the application and launches the app.
 - `app.dart`: Implements the `App()` widget, instantiating `SolidLogin()`.
@@ -202,14 +245,6 @@ The template app consists of several files within the
 - `home.dart`: Implements the `Home()` widget for the main app functionality.
 - `constants/app.dart`: App-wide constants including title and description.
 - `utils/is_desktop.dart`: Desktop platform detection utility.
-
-### Synchronizing Template and Example
-
-If you are a contributor and want to update the `example/` app from the template (or vice-versa), use the provided sync script:
-
-```bash
-python3 support/sync_template_to_example.py
-```
 
 ## SolidScaffold
 
@@ -1107,7 +1142,7 @@ class NavigationConstants {
 #### Responsive Behaviour Summary
 
 | Screen Width (px) | Navigation | App Bar Actions | Status Bar | File Layout |
-|------|------------|-----------------|-----------|-------------|
+| :--- | :--- | :--- | :--- | :--- |
 | ≥800 | SolidNavBar | All actions visible | Full status | Side-by-side |
 | 400-799 | SolidNavDrawer | Selected actions + overflow | Compact | Stacked |
 | <400 | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |

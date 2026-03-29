@@ -118,6 +118,13 @@ class AppScaffold extends StatelessWidget {
             ),
             tooltip: 'Sample Page',
           ),
+          SolidAppBarAction(
+            icon: Icons.settings,
+            onPressed: () => _scaffoldController.navigateToSubpage(
+              const _MySettings(),
+            ),
+            tooltip: 'Settings',
+          ),
         ],
       ),
 
@@ -180,16 +187,6 @@ class AppScaffold extends StatelessWidget {
       // LOGOUT.
 
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
-
-      // SETTINGS.
-
-      settingsWidget: IconButton(
-        icon: const Icon(Icons.settings),
-        onPressed: () => _scaffoldController.navigateToSubpage(
-          const _MySettings(),
-        ),
-        tooltip: 'Settings',
-      ),
 
       child: const Home(title: appTitle),
     );

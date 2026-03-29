@@ -2,7 +2,7 @@ name: solidui
 description: A starting point for a SolidUI application.
 version: 0.0.1
 environment:
-  mason: 0.1.0-dev.50
+  mason: ">=0.1.0-dev.50 <1.0.0"
 
 vars:
   projectName:

@@ -11,25 +11,36 @@ def sync():
     print(f"Syncing template from {template_dir} to {example_dir}...")
     
     # 1. Ensure mason is initialized and get the brick
-    subprocess.run(['mason', 'get'], cwd=root_dir, check=True)
-    
+    try:
+        subprocess.run(['mason', 'get'], cwd=root_dir, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        print("Mason CLI check failed. Please ensure it's installed: 'dart pub global activate mason_cli'")
+        return
+
     # 2. Run mason make to a temporary directory
     temp_gen_dir = os.path.join(root_dir, '.temp_template_gen')
     if os.path.exists(temp_gen_dir):
         shutil.rmtree(temp_gen_dir)
     os.makedirs(temp_gen_dir)
     
-    subprocess.run([
-        'mason', 'make', 'solidui',
-        '--projectName', 'myapp',
-        '--description', 'My App - A SolidUI Template Application',
-        '--author', 'Software Innovation Institute, ANU',
-        '-o', temp_gen_dir
-    ], cwd=root_dir, check=True)
-    
+    try:
+        subprocess.run([
+            'mason', 'make', 'solidui',
+            '--projectName', 'myapp',
+            '--description', 'My App - A SolidUI Template Application',
+            '--author', 'Software Innovation Institute, ANU',
+            '-o', temp_gen_dir
+        ], cwd=root_dir, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        print("Failed to run 'mason make'. Check if Mason is properly configured.")
+        shutil.rmtree(temp_gen_dir)
+        return
+
     # 3. Copy generated files back to example
     # Generated files are usually lib/, assets/, pubspec.yaml, etc.
-    gen_content_dir = os.path.join(temp_gen_dir) # mason make -o temp_gen_dir puts files directly there
+    gen_content_dir = temp_gen_dir  # mason make -o temp_gen_dir puts files directly there
     
     for item in os.listdir(gen_content_dir):
         s = os.path.join(gen_content_dir, item)
