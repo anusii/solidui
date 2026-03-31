@@ -30,14 +30,14 @@ library;
 
 import 'package:flutter/material.dart';
 
-/// A widget that displays a list of directories with their file counts.
+/// A widget that displays a list of directories with their item counts.
 
 class DirectoryList extends StatelessWidget {
   /// List of directory names to display.
 
   final List<String> directories;
 
-  /// Map of directory names to their file counts.
+  /// Map of directory names to their item counts (files + folders).
 
   final Map<String, int> directoryCounts;
 
@@ -172,7 +172,7 @@ class DirectoryList extends StatelessWidget {
                   ),
                 ),
 
-                // File count badge. Shows a compact loading indicator while
+                // Item count badge. Shows a compact loading indicator while
                 // counts are being fetched in the background.
 
                 if (directoryCounts.containsKey(dir))
@@ -188,7 +188,8 @@ class DirectoryList extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${directoryCounts[dir]} files',
+                      '${directoryCounts[dir]}'
+                      ' item${directoryCounts[dir] == 1 ? '' : 's'}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).textTheme.bodySmall?.color,
