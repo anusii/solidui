@@ -1,0 +1,134 @@
+/// Notification Button - AppBar button with unread badge overlay.
+///
+/// Copyright (C) 2026, Software Innovation Institute, ANU.
+///
+/// Licensed under the MIT License (the "License").
+///
+/// License: https://choosealicense.com/licenses/mit/.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+///
+/// Authors: Tony Chen
+
+library;
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:solidpod/solidpod.dart';
+
+import 'package:solidui/src/widgets/solid_notification_centre.dart';
+
+/// Polling interval for background unread-count refreshes.
+
+const Duration _pollInterval = Duration(seconds: 30);
+
+/// An AppBar icon button that shows a notification bell with an unread count
+/// badge. Tapping it navigates to the [SolidNotificationCentre]. The badge
+/// count is refreshed when the button is mounted, periodically via a polling
+/// timer, and again after returning from the notification centre.
+
+class SolidNotificationButton extends StatefulWidget {
+  const SolidNotificationButton({super.key});
+
+  @override
+  State<SolidNotificationButton> createState() =>
+      _SolidNotificationButtonState();
+}
+
+class _SolidNotificationButtonState extends State<SolidNotificationButton> {
+  int _unreadCount = 0;
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshUnreadCount();
+    _pollTimer = Timer.periodic(_pollInterval, (_) => _refreshUnreadCount());
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refreshUnreadCount() async {
+    try {
+      if (!await isUserLoggedIn()) {
+        if (mounted) setState(() => _unreadCount = 0);
+        return;
+      }
+
+      final notifDirPath = [appDirName, notificationDir].join('/');
+      final dirUrl = await getDirUrl(notifDirPath);
+
+      final status = await checkResourceStatus(dirUrl, isFile: false);
+      if (status != ResourceStatus.exist) {
+        if (mounted) setState(() => _unreadCount = 0);
+        return;
+      }
+
+      final (:subDirs, :files) = await getResourcesInContainer(dirUrl);
+      final jsonFiles = files.where((f) => f.endsWith('.json')).toList();
+
+      final prefs = await SharedPreferences.getInstance();
+      final readList =
+          prefs.getStringList(solidReadNotificationsKey) ?? [];
+      final readTimestamps =
+          readList.map((s) => int.tryParse(s)).whereType<int>().toSet();
+
+      int unread = 0;
+      for (final f in jsonFiles) {
+        final tsStr = f.replaceAll('.json', '');
+        final ts = int.tryParse(tsStr);
+        if (ts != null && !readTimestamps.contains(ts)) {
+          unread++;
+        }
+      }
+
+      if (mounted) setState(() => _unreadCount = unread);
+    } on Object catch (e) {
+      debugPrint('[NOTIF] Failed to refresh unread count: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Badge(
+        isLabelVisible: _unreadCount > 0,
+        label: Text('$_unreadCount'),
+        child: const Icon(Icons.notifications_outlined),
+      ),
+      onPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const SolidNotificationCentre(),
+          ),
+        );
+        _refreshUnreadCount();
+      },
+      tooltip: 'Notifications',
+    );
+  }
+}

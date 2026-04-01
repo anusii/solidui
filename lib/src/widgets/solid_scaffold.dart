@@ -231,6 +231,12 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Whether to show the notification button in the AppBar.
+  /// Defaults to false. When true, a notification bell icon with an unread
+  /// badge is displayed and tapping it opens the notification centre.
+
+  final bool showNotifications;
+
   /// Option to force the navigation rail to be hidden.
 
   final bool hideNavRail;
@@ -278,6 +284,7 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.showNotifications = false,
     this.hideNavRail = false,
   });
 

@@ -74,6 +74,8 @@ class SolidOverflowMenuHelpers {
         _addAuthMenuItem(items, hasLogoutInOverflow, isLoggedIn);
       } else if (actionItem.id == SolidAppBarActionIds.about) {
         _addAbout(items, hasAboutInOverflow, aboutConfig);
+      } else if (actionItem.id == SolidAppBarActionIds.notifications) {
+        _addNotifications(items, actionItem);
       } else if (actionItem.id.startsWith('action_')) {
         _addCustomAction(items, actionItem, config);
       } else {
@@ -156,6 +158,24 @@ class SolidOverflowMenuHelpers {
             Icon(aboutConfig.effectiveIcon),
             const SizedBox(width: 8),
             const Text('About'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static void _addNotifications(
+    List<PopupMenuItem<String>> items,
+    SolidAppBarActionItem actionItem,
+  ) {
+    items.add(
+      PopupMenuItem<String>(
+        value: SolidAppBarActionIds.notifications,
+        child: Row(
+          children: [
+            Icon(actionItem.icon),
+            const SizedBox(width: 8),
+            Text(actionItem.label),
           ],
         ),
       ),

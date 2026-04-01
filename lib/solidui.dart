@@ -70,6 +70,9 @@ export 'src/widgets/solid_preferences_dialog.dart';
 export 'src/widgets/solid_about_models.dart';
 export 'src/widgets/solid_about_button.dart';
 
+export 'src/widgets/solid_notification_button.dart';
+export 'src/widgets/solid_notification_centre.dart';
+
 export 'src/widgets/solid_security_key_utils.dart';
 export 'src/widgets/solid_security_key_manager.dart';
 export 'src/widgets/solid_security_key_view.dart';

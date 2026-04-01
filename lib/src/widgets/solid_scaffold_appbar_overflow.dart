@@ -36,6 +36,7 @@ import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_about_button.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_notification_centre.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
@@ -268,6 +269,13 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
       } else {
         SolidAuthHandler.instance.handleLogout(context);
       }
+    } else if (id == SolidAppBarActionIds.notifications) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const SolidNotificationCentre(),
+        ),
+      );
     } else if (id == 'login') {
       // User tapped login whilst logged out.
 

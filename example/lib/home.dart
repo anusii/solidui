@@ -275,6 +275,154 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
   }
 
+  Future<void> _showSendNotificationDialog() async {
+    final loggedIn = await loginIfRequired(context);
+    if (!loggedIn) return;
+
+    final recipientController = TextEditingController();
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+    int selectedPriority = 1;
+    String? recipientError;
+    String? titleError;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (stfContext, setDialogState) {
+            return AlertDialog(
+              title: const Text('Send Notification'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: recipientController,
+                      decoration: InputDecoration(
+                        labelText: 'Recipient WebID *',
+                        errorText: recipientError,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        labelText: 'Title *',
+                        errorText: titleError,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: contentController,
+                      decoration: const InputDecoration(
+                        labelText: 'Content (optional)',
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int>(
+                      value: selectedPriority,
+                      decoration: const InputDecoration(
+                        labelText: 'Priority',
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 0, child: Text('Low')),
+                        DropdownMenuItem(value: 1, child: Text('Medium')),
+                        DropdownMenuItem(value: 2, child: Text('High')),
+                      ],
+                      onChanged: (value) {
+                        setDialogState(() {
+                          selectedPriority = value ?? 1;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final recipient = recipientController.text.trim();
+                    final notifTitle = titleController.text.trim();
+
+                    final hasErrors =
+                        recipient.isEmpty || notifTitle.isEmpty;
+
+                    setDialogState(() {
+                      recipientError = recipient.isEmpty
+                          ? 'Recipient WebID is required'
+                          : null;
+                      titleError =
+                          notifTitle.isEmpty ? 'Title is required' : null;
+                    });
+
+                    if (hasErrors) return;
+
+                    Navigator.pop(dialogContext);
+
+                    try {
+                      await sendNotification(
+                        recipientWebId: recipient,
+                        title: notifTitle,
+                        content: contentController.text.trim().isEmpty
+                            ? null
+                            : contentController.text.trim(),
+                        priority: selectedPriority,
+                      );
+
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Success'),
+                            content: const Text(
+                              'Notification sent successfully.',
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    } on Exception catch (e) {
+                      debugPrint('Failed to send notification: $e');
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Error'),
+                            content: Text(
+                              'Failed to send notification:\n$e',
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Send'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _sectionHeading(String title, {Widget? trailing}) {
     return Row(
       children: [
@@ -454,6 +602,19 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       }
                     },
                     child: const Text('Read Resource with ACL Inheritance'),
+                  ),
+                ]),
+
+                largeGapV,
+
+                // Notifications section.
+
+                _sectionHeading('Notifications'),
+                smallGapV,
+                _buttonRow([
+                  ElevatedButton(
+                    onPressed: _showSendNotificationDialog,
+                    child: const Text('Send Notification'),
                   ),
                 ]),
 

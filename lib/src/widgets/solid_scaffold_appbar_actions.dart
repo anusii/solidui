@@ -29,6 +29,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
@@ -50,13 +51,20 @@ class SolidAppBarActionsManager {
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle, {
     bool hasLogout = false,
+    bool hasNotifications = false,
   }) {
     // Check if we need to add missing buttons (standard or custom).
 
     final existingActions = solidPreferencesNotifier.appBarActions;
     final needsInit = existingActions.isEmpty;
     final needsMerge = !needsInit &&
-        _hasMissingButtons(existingActions, config, themeToggle, hasLogout);
+        _hasMissingButtons(
+          existingActions,
+          config,
+          themeToggle,
+          hasLogout,
+          hasNotifications,
+        );
 
     if (!needsInit && !needsMerge) return;
 
@@ -79,6 +87,23 @@ class SolidAppBarActionsManager {
             showInOverflow: false, // Show in AppBar by default.
           ),
           initialIndex: 0, // Theme toggle defaults to first position.
+        ),
+      );
+    }
+
+    // Add notification button if enabled.
+    // Default: show in AppBar, second-to-last (just before About).
+
+    if (hasNotifications) {
+      actionEntries.add(
+        _ActionEntry(
+          item: const SolidAppBarActionItem(
+            id: SolidAppBarActionIds.notifications,
+            label: 'Notifications',
+            icon: Icons.notifications_outlined,
+            showInOverflow: false,
+          ),
+          initialIndex: 800, // After logout (300), just before About (900).
         ),
       );
     }
@@ -164,13 +189,17 @@ class SolidAppBarActionsManager {
     }
 
     // If merging, combine existing actions with new ones.
+    // Defer the notifier update to a post-frame callback to avoid calling
+    // setState() during the build phase, since initializeIfNeeded is
+    // invoked from within buildAppBar.
 
-    if (needsMerge) {
-      final mergedActions = _mergeActions(existingActions, actions);
-      solidPreferencesNotifier.setAppBarActions(mergedActions);
-    } else {
-      solidPreferencesNotifier.setAppBarActions(actions);
-    }
+    final actionsToSet = needsMerge
+        ? _mergeActions(existingActions, actions)
+        : actions;
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      solidPreferencesNotifier.setAppBarActions(actionsToSet);
+    });
   }
 
   /// Checks if any buttons are missing from existing actions.
@@ -182,6 +211,7 @@ class SolidAppBarActionsManager {
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle,
     bool hasLogout,
+    bool hasNotifications,
   ) {
     final existingIds = actions.map((a) => a.id).toSet();
 
@@ -206,6 +236,12 @@ class SolidAppBarActionsManager {
 
     for (final item in config.overflowItems) {
       expectedIds.add(item.id);
+    }
+
+    // Notification button (if enabled).
+
+    if (hasNotifications) {
+      expectedIds.add(SolidAppBarActionIds.notifications);
     }
 
     // Logout button (only if application has provided a logout callback).

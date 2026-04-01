@@ -187,6 +187,7 @@ class SolidAppBarActionIds {
   static const String about = 'about';
   static const String logout = 'logout';
   static const String preferences = 'preferences';
+  static const String notifications = 'notifications';
 
   SolidAppBarActionIds._();
 }

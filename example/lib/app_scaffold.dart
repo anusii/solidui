@@ -111,6 +111,7 @@ class AppScaffold extends StatelessWidget {
 
         ''',
       ),
+      showNotifications: true,
       themeToggle: const SolidThemeToggleConfig(
         enabled: true,
         showInAppBarActions: true,

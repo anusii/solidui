@@ -36,6 +36,7 @@ import 'package:solidui/src/widgets/solid_about_button.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_dynamic_auth_button.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_notification_button.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_visibility.dart';
@@ -59,12 +60,18 @@ class SolidAppBarOrderedActionsBuilder {
     required SolidAboutConfig aboutConfig,
     required BuildContext context,
     bool showLogout = true,
+    bool showNotifications = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
     final List<_OrderedAction> orderedActions = [];
     final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
 
+    _addNotificationButton(
+      orderedActions,
+      showNotifications,
+      isVeryNarrowScreen,
+    );
     _addThemeToggle(
       orderedActions,
       themeToggle,
@@ -131,6 +138,30 @@ class SolidAppBarOrderedActionsBuilder {
             currentThemeMode,
             themeToggleCallback,
           ),
+        ),
+      );
+    }
+  }
+
+  static void _addNotificationButton(
+    List<_OrderedAction> orderedActions,
+    bool showNotifications,
+    bool isVeryNarrowScreen,
+  ) {
+    if (!showNotifications) return;
+
+    final actionConfig = SolidAppBarActionsManager.getActionConfig(
+      SolidAppBarActionIds.notifications,
+    );
+    final isVisible = actionConfig?.isVisible ?? true;
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final order = actionConfig?.order ?? 800;
+
+    if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
+      orderedActions.add(
+        _OrderedAction(
+          order: order,
+          widget: const SolidNotificationButton(),
         ),
       );
     }
