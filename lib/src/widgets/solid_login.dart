@@ -208,6 +208,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _infoFocusNode = FocusNode(debugLabel: 'infoButton');
     _serverInputFocusNode = FocusNode(debugLabel: 'serverInput');
 
+    // Restore the persisted "Stay signed in" preference.
+
+    _loadStaySignedInPreference();
+
     // Resolve image assets with fallback logic.
 
     _resolveImageAssets();
@@ -251,6 +255,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       'app_icon',
     );
     if (mounted) setState(() => _assetsResolved = true);
+  }
+
+  /// Loads the persisted "Stay signed in" preference from SharedPreferences.
+
+  Future<void> _loadStaySignedInPreference() async {
+    final value = await SolidLoginAuthHandler.getStaySignedIn();
+    if (mounted) setState(() => _staySignedIn = value);
   }
 
   @override
@@ -370,6 +381,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     //   - No cache     → start the browser login flow as normal.
 
     Future<void> performLogin() async {
+      // When the user has opted out of staying signed in, discard any
+      // existing cached session immediately so browser authentication
+      // is always required.
+
+      if (!_staySignedIn) {
+        await deleteLogIn();
+      }
+
       final podServer = webIdController.text.trim().isNotEmpty
           ? webIdController.text.trim()
           : SolidConfig.defaultServerUrl;
@@ -415,6 +434,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // re-login so the setup wizard can re-initialise the POD.
 
     Future<void> performContinue() async {
+      // When the user has opted out of staying signed in, discard any
+      // existing cached session immediately so the user proceeds in a
+      // logged-out state.
+
+      if (!_staySignedIn) {
+        await deleteLogIn();
+      }
+
       final isLoggedIn = await isUserLoggedIn();
 
       if (isLoggedIn && defaultFolders.isNotEmpty) {
@@ -529,14 +556,21 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
             height: 24,
             child: Checkbox(
               value: _staySignedIn,
-              onChanged: (value) =>
-                  setState(() => _staySignedIn = value ?? true),
+              onChanged: (value) {
+                final newValue = value ?? true;
+                setState(() => _staySignedIn = newValue);
+                SolidLoginAuthHandler.setStaySignedIn(newValue);
+              },
             ),
           ),
         ),
         const SizedBox(width: 8),
         GestureDetector(
-          onTap: () => setState(() => _staySignedIn = !_staySignedIn),
+          onTap: () {
+            final newValue = !_staySignedIn;
+            setState(() => _staySignedIn = newValue);
+            SolidLoginAuthHandler.setStaySignedIn(newValue);
+          },
           child: Text(
             'Stay signed in',
             style: TextStyle(color: currentTheme.textColor, fontSize: 14),

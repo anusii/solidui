@@ -56,6 +56,10 @@ class SolidLoginAuthHandler {
 
   static const clearSessionKey = 'solidui_clear_session_on_startup';
 
+  /// SharedPreferences key for persisting the "Stay signed in" preference.
+
+  static const staySignedInKey = 'solidui_stay_signed_in';
+
   /// Clears the cached login session if a previous session opted out of
   /// "Stay signed in". Call this early during login page initialisation.
 
@@ -66,6 +70,21 @@ class SolidLoginAuthHandler {
       await deleteLogIn();
       await prefs.remove(clearSessionKey);
     }
+  }
+
+  /// Returns the persisted "Stay signed in" preference, defaulting to true.
+
+  static Future<bool> getStaySignedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return prefs.getBool(staySignedInKey) ?? true;
+  }
+
+  /// Persists the "Stay signed in" preference.
+
+  static Future<void> setStaySignedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(staySignedInKey, value);
   }
 
   /// Notifies the user that their POD is not initialised, verifies the remote
@@ -97,6 +116,16 @@ class SolidLoginAuthHandler {
 
     if (!allExists) {
       await clearPodStructureInitialised();
+
+      // Schedule session clearance for next startup when the user has
+      // opted out of staying signed in. We must not call deleteLogIn()
+      // here because InitialSetupScreen still needs valid auth data.
+
+      if (!staySignedIn) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(clearSessionKey, true);
+      }
+
       if (!context.mounted) return false;
 
       await pushReplacement(
@@ -109,13 +138,18 @@ class SolidLoginAuthHandler {
       );
     } else {
       await markPodStructureInitialised();
+
+      // Schedule session clearance for next startup when the user has
+      // opted out of staying signed in. deleteLogIn() must come after
+      // markPodStructureInitialised() which requires valid auth data.
+
+      if (!staySignedIn) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(clearSessionKey, true);
+      }
+
       if (!context.mounted) return false;
       await pushReplacement(context, childWidget);
-    }
-
-    if (!staySignedIn) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(clearSessionKey, true);
     }
 
     return true;
@@ -285,6 +319,15 @@ class SolidLoginAuthHandler {
 
         await clearPodStructureInitialised();
 
+        // Schedule session clearance for next startup when the user has
+        // opted out of staying signed in. We must not call deleteLogIn()
+        // here because InitialSetupScreen still needs valid auth data.
+
+        if (!staySignedIn) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(clearSessionKey, true);
+        }
+
         if (!context.mounted) return false;
 
         await pushReplacement(
@@ -297,13 +340,18 @@ class SolidLoginAuthHandler {
         );
       } else {
         await markPodStructureInitialised();
+
+        // Schedule session clearance for next startup when the user has
+        // opted out of staying signed in. deleteLogIn() must come after
+        // markPodStructureInitialised() which requires valid auth data.
+
+        if (!staySignedIn) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(clearSessionKey, true);
+        }
+
         if (!context.mounted) return false;
         await pushReplacement(context, childWidget);
-      }
-
-      if (!staySignedIn) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(clearSessionKey, true);
       }
 
       return true;
