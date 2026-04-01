@@ -161,7 +161,9 @@ class SolidAppBarOrderedActionsBuilder {
       orderedActions.add(
         _OrderedAction(
           order: order,
-          widget: const SolidNotificationButton(),
+          widget: const SolidNotificationButton(
+            key: ValueKey('solid_notifications'),
+          ),
         ),
       );
     }

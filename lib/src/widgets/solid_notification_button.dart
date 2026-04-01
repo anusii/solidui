@@ -54,24 +54,58 @@ class SolidNotificationButton extends StatefulWidget {
       _SolidNotificationButtonState();
 }
 
-class _SolidNotificationButtonState extends State<SolidNotificationButton> {
+class _SolidNotificationButtonState extends State<SolidNotificationButton>
+    with WidgetsBindingObserver {
   int _unreadCount = 0;
   Timer? _pollTimer;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _refreshUnreadCount();
-    _pollTimer = Timer.periodic(_pollInterval, (_) => _refreshUnreadCount());
+    _startTimer();
   }
 
   @override
   void dispose() {
     _pollTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// Refresh immediately when the application returns to the foreground,
+  /// because [Timer.periodic] does not fire whilst the app is suspended.
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshUnreadCount();
+      _restartTimer();
+    }
+  }
+
+  void _startTimer() {
+    _pollTimer = Timer.periodic(_pollInterval, (_) => _refreshUnreadCount());
+  }
+
+  /// Cancel and re-create the periodic timer so the next tick is a full
+  /// [_pollInterval] away. Call after any manual refresh to avoid a near-
+  /// immediate duplicate poll.
+
+  void _restartTimer() {
+    _pollTimer?.cancel();
+    _startTimer();
+  }
+
+  /// Fetch the current unread-notification count from the POD and update
+  /// the badge. Concurrent invocations are skipped to avoid redundant
+  /// network traffic.
+
   Future<void> _refreshUnreadCount() async {
+    if (_isRefreshing) return;
+    _isRefreshing = true;
     try {
       if (!await isUserLoggedIn()) {
         if (mounted) setState(() => _unreadCount = 0);
@@ -107,6 +141,8 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton> {
       if (mounted) setState(() => _unreadCount = unread);
     } on Object catch (e) {
       debugPrint('[NOTIF] Failed to refresh unread count: $e');
+    } finally {
+      _isRefreshing = false;
     }
   }
 
@@ -125,7 +161,8 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton> {
             builder: (_) => const SolidNotificationCentre(),
           ),
         );
-        _refreshUnreadCount();
+        await _refreshUnreadCount();
+        _restartTimer();
       },
       tooltip: 'Notifications',
     );
