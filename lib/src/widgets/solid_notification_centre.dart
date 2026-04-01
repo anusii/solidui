@@ -68,10 +68,8 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
   Future<void> _loadReadState() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getStringList(solidReadNotificationsKey) ?? [];
-    _readTimestamps = stored
-        .map((s) => int.tryParse(s))
-        .whereType<int>()
-        .toSet();
+    _readTimestamps =
+        stored.map((s) => int.tryParse(s)).whereType<int>().toSet();
   }
 
   Future<void> _markAsRead(int timestamp) async {
@@ -322,8 +320,7 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
             itemBuilder: (context, index) {
               final n = _notifications[index];
               final isRead = _readTimestamps.contains(n.timestamp);
-              final dateTime =
-                  DateTime.fromMillisecondsSinceEpoch(n.timestamp);
+              final dateTime = DateTime.fromMillisecondsSinceEpoch(n.timestamp);
 
               return ListTile(
                 leading: Stack(
@@ -349,8 +346,7 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
                   TextSpan(
                     text: n.title,
                     style: TextStyle(
-                      fontWeight:
-                          isRead ? FontWeight.normal : FontWeight.bold,
+                      fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
                     ),
                     children: [
                       if (_priorityIcon(n.priority) != null)
@@ -389,10 +385,7 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
       final uri = Uri.parse(webId);
       return uri.pathSegments.firstWhere(
         (s) =>
-            s.isNotEmpty &&
-            s != 'profile' &&
-            s != 'card' &&
-            !s.startsWith('#'),
+            s.isNotEmpty && s != 'profile' && s != 'card' && !s.startsWith('#'),
         orElse: () => webId,
       );
     } catch (_) {

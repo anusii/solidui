@@ -91,8 +91,7 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton> {
       final jsonFiles = files.where((f) => f.endsWith('.json')).toList();
 
       final prefs = await SharedPreferences.getInstance();
-      final readList =
-          prefs.getStringList(solidReadNotificationsKey) ?? [];
+      final readList = prefs.getStringList(solidReadNotificationsKey) ?? [];
       final readTimestamps =
           readList.map((s) => int.tryParse(s)).whereType<int>().toSet();
 
