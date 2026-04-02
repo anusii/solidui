@@ -37,9 +37,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
+part 'solid_notification_centre_helpers.dart';
+part 'solid_notification_centre_ui.dart';
+
 /// SharedPreferences key for storing read notification timestamps.
 
 const String solidReadNotificationsKey = 'solid_read_notification_timestamps';
+
+/// Page-size options for the notification list pagination.
+
+const List<int> _pageSizeOptions = [10, 20, 50, 100];
 
 /// Available sort modes for the notification list.
 
@@ -71,17 +78,18 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
   bool _isLoading = true;
   String? _error;
 
-  // Pagination state.
-
-  static const List<int> _pageSizeOptions = [10, 20, 50, 100];
   int _itemsPerPage = 10;
   int _currentPage = 0;
-
-  // Sort state — newest first by default.
 
   _SortMode _sortMode = _SortMode.timeDesc;
 
   final ScrollController _scrollController = ScrollController();
+
+  /// Public wrapper around [setState].
+  /// [setState] is `@protected` and cannot be called directly from extensions.
+
+  // ignore: use_setters_to_change_properties
+  void updateState(VoidCallback fn) => setState(fn);
 
   @override
   void initState() {
@@ -170,59 +178,6 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
     }
   }
 
-  // Delete.
-
-  Future<void> _confirmAndDelete(PodNotification notification) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete Notification'),
-        content: const Text(
-          'Are you sure you want to delete this notification?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    try {
-      final notifDirPath = [appDirName, notificationDir].join('/');
-      final dirUrl = await getDirUrl(notifDirPath);
-      final fileUrl = '$dirUrl${notification.timestamp}.json';
-
-      await deleteFile(fileUrl: fileUrl);
-
-      _readTimestamps.remove(notification.timestamp);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(
-        solidReadNotificationsKey,
-        _readTimestamps.map((t) => t.toString()).toList(),
-      );
-
-      setState(() {
-        _notifications.remove(notification);
-        _clampCurrentPage();
-      });
-    } on Object catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete notification: $e')),
-        );
-      }
-    }
-  }
-
   // Sorting.
 
   List<PodNotification> get _sortedNotifications {
@@ -234,14 +189,14 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
         sorted.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       case _SortMode.senderAsc:
         sorted.sort(
-          (a, b) => _extractName(a.senderWebId).toLowerCase().compareTo(
-                _extractName(b.senderWebId).toLowerCase(),
+          (a, b) => extractName(a.senderWebId).toLowerCase().compareTo(
+                extractName(b.senderWebId).toLowerCase(),
               ),
         );
       case _SortMode.senderDesc:
         sorted.sort(
-          (a, b) => _extractName(b.senderWebId).toLowerCase().compareTo(
-                _extractName(a.senderWebId).toLowerCase(),
+          (a, b) => extractName(b.senderWebId).toLowerCase().compareTo(
+                extractName(a.senderWebId).toLowerCase(),
               ),
         );
     }
@@ -267,138 +222,6 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
     }
   }
 
-  // Detail dialog.
-
-  void _showNotificationDetail(PodNotification notification) {
-    _markAsRead(notification.timestamp);
-
-    final dateTime =
-        DateTime.fromMillisecondsSinceEpoch(notification.timestamp);
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(notification.title)),
-            if (_priorityIcon(notification.priority) != null)
-              _priorityIcon(notification.priority)!,
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _formatDateTime(dateTime),
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              _detailRow('From', notification.senderWebId),
-              const SizedBox(height: 8),
-              _detailRow('To', notification.recipientWebId),
-              if (notification.content != null) ...[
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 8),
-                SelectableText(notification.content!),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton.icon(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            label: const Text('Delete', style: TextStyle(color: Colors.red)),
-            onPressed: () {
-              Navigator.pop(ctx);
-              _confirmAndDelete(notification);
-            },
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Small helpers.
-
-  Widget? _priorityIcon(int priority) {
-    switch (priority) {
-      case 2:
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          padding: const EdgeInsets.all(1),
-          child: const Icon(Icons.error, color: Colors.red, size: 20),
-        );
-      case 0:
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          padding: const EdgeInsets.all(1),
-          child: const Icon(
-            Icons.arrow_downward,
-            color: Colors.blue,
-            size: 20,
-          ),
-        );
-      default:
-        return null;
-    }
-  }
-
-  Widget _detailRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-        Expanded(child: SelectableText(value)),
-      ],
-    );
-  }
-
-  String _extractName(String webId) {
-    try {
-      final uri = Uri.parse(webId);
-      return uri.pathSegments.firstWhere(
-        (s) =>
-            s.isNotEmpty &&
-            s != 'profile' &&
-            s != 'card' &&
-            !s.startsWith('#'),
-        orElse: () => webId,
-      );
-    } catch (_) {
-      return webId;
-    }
-  }
-
-  String _formatRelativeTime(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inHours < 1) return '${diff.inMinutes}m ago';
-    if (diff.inDays < 1) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${dt.day}/${dt.month}/${dt.year}';
-  }
-
-  String _formatDateTime(DateTime dt) {
-    final date = '${dt.day}/${dt.month}/${dt.year}';
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final second = dt.second.toString().padLeft(2, '0');
-    return '$date $hour:$minute:$second';
-  }
-
   // Build.
 
   @override
@@ -414,292 +237,7 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
           ),
         ],
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
-
-    if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text('Error: $_error', textAlign: TextAlign.center),
-        ),
-      );
-    }
-
-    if (_notifications.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.notifications_none, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No notifications',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800),
-        child: Column(
-          children: [
-            _buildToolbar(),
-            Expanded(child: _buildCardList()),
-            _buildPaginationBar(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Toolbar.
-
-  Widget _buildToolbar() {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          // Sort dropdown.
-
-          Icon(Icons.sort, size: 20, color: theme.colorScheme.primary),
-          const SizedBox(width: 6),
-          DropdownButton<_SortMode>(
-            value: _sortMode,
-            underline: const SizedBox.shrink(),
-            isDense: true,
-            style: theme.textTheme.bodyMedium,
-            items: [
-              for (final mode in _SortMode.values)
-                DropdownMenuItem(value: mode, child: Text(mode.label)),
-            ],
-            onChanged: (mode) {
-              if (mode == null) return;
-              setState(() {
-                _sortMode = mode;
-                _currentPage = 0;
-              });
-            },
-          ),
-
-          const Spacer(),
-
-          // Items-per-page selector.
-
-          Text(
-            'Per page:',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          const SizedBox(width: 6),
-          DropdownButton<int>(
-            value: _itemsPerPage,
-            underline: const SizedBox.shrink(),
-            isDense: true,
-            style: theme.textTheme.bodyMedium,
-            items: [
-              for (final size in _pageSizeOptions)
-                DropdownMenuItem(value: size, child: Text('$size')),
-            ],
-            onChanged: (size) {
-              if (size == null) return;
-              setState(() {
-                _itemsPerPage = size;
-                _currentPage = 0;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Card list.
-
-  Widget _buildCardList() {
-    final theme = Theme.of(context);
-    final items = _pageItems;
-
-    return RefreshIndicator(
-      onRefresh: _loadNotifications,
-      child: Scrollbar(
-        thumbVisibility: true,
-        controller: _scrollController,
-        child: ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final n = items[index];
-            final isRead = _readTimestamps.contains(n.timestamp);
-            final dateTime = DateTime.fromMillisecondsSinceEpoch(n.timestamp);
-
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isRead ? null : theme.colorScheme.onInverseSurface,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  leading: _buildLeadingIcon(isRead, n.priority),
-                  title: Text(
-                    n.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      'From: ${_extractName(n.senderWebId)}'
-                      '  ·  ${_formatRelativeTime(dateTime)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => _confirmAndDelete(n),
-                    tooltip: 'Delete notification',
-                  ),
-                  onTap: () => _showNotificationDetail(n),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  /// Leading icon with an unread indicator dot and optional priority badge.
-
-  Widget _buildLeadingIcon(bool isRead, int priority) {
-    return SizedBox(
-      width: 36,
-      child: Center(
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Icon(
-              isRead ? Icons.mail_outline : Icons.mail,
-              size: 28,
-            ),
-            if (!isRead)
-              Positioned(
-                right: -3,
-                top: -3,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            if (_priorityIcon(priority) != null)
-              Positioned(
-                right: -6,
-                bottom: -4,
-                child: _priorityIcon(priority)!,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Pagination bar.
-
-  Widget _buildPaginationBar() {
-    final theme = Theme.of(context);
-    final totalPages = _totalPages;
-    final totalItems = _sortedNotifications.length;
-    final rangeStart = _currentPage * _itemsPerPage + 1;
-    final rangeEnd =
-        (rangeStart + _itemsPerPage - 1).clamp(rangeStart, totalItems);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Item range summary.
-
-          Text(
-            '$rangeStart–$rangeEnd of $totalItems',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-
-          // Page navigation.
-
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.first_page, size: 20),
-                onPressed: _currentPage > 0
-                    ? () => setState(() => _currentPage = 0)
-                    : null,
-                tooltip: 'First page',
-                visualDensity: VisualDensity.compact,
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_left, size: 20),
-                onPressed: _currentPage > 0
-                    ? () => setState(() => _currentPage--)
-                    : null,
-                tooltip: 'Previous page',
-                visualDensity: VisualDensity.compact,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  'Page ${_currentPage + 1} of $totalPages',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right, size: 20),
-                onPressed: _currentPage < totalPages - 1
-                    ? () => setState(() => _currentPage++)
-                    : null,
-                tooltip: 'Next page',
-                visualDensity: VisualDensity.compact,
-              ),
-              IconButton(
-                icon: const Icon(Icons.last_page, size: 20),
-                onPressed: _currentPage < totalPages - 1
-                    ? () => setState(() => _currentPage = totalPages - 1)
-                    : null,
-                tooltip: 'Last page',
-                visualDensity: VisualDensity.compact,
-              ),
-            ],
-          ),
-        ],
-      ),
+      body: buildBody(),
     );
   }
 }

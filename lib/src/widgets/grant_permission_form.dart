@@ -397,8 +397,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                   if (selectedRecipientType == RecipientType.individual ||
                       selectedRecipientType == RecipientType.group) {
-                    final displayName = widget.resourceDisplayName ??
-                        widget.resourceName;
+                    final displayName =
+                        widget.resourceDisplayName ?? widget.resourceName;
 
                     for (final recipientWebId in finalWebIdList) {
                       try {
@@ -406,8 +406,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                           recipientWebId: recipientWebId as String,
                           title:
                               'A resource has been shared with you: $displayName',
-                          content:
-                              'You have been granted '
+                          content: 'You have been granted '
                               '${selectedPermList.join(", ")} '
                               'access to "$displayName".',
                           priority: 1,
