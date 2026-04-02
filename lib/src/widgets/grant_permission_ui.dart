@@ -79,6 +79,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
+    this.resourceDisplayName,
     super.key,
   })  : assert(
           // Requires ownerWebId if resource
@@ -169,6 +170,12 @@ class GrantPermissionUi extends StatefulWidget {
   /// Callback function called when navigating back from the screen.
 
   final VoidCallback? onNavigateBack;
+
+  /// Optional human-readable name for the resource, used in notification
+  /// messages sent to recipients upon successful permission granting.
+  /// Falls back to [resourceName] when not provided.
+
+  final String? resourceDisplayName;
 
   @override
   GrantPermissionUiState createState() => GrantPermissionUiState();

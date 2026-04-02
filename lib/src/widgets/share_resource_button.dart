@@ -102,6 +102,11 @@ class ShareResourceButton extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional human-readable name for the resource, used in notification
+  /// messages sent to recipients upon successful permission granting.
+
+  final String? resourceDisplayName;
+
   const ShareResourceButton({
     super.key,
     required this.fileNameController,
@@ -115,6 +120,7 @@ class ShareResourceButton extends StatefulWidget {
     required this.isFile,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.resourceDisplayName,
   });
 
   @override
@@ -203,6 +209,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
                   updatePermissionGrantedFunction:
                       _updatePermissionGrantedStatus,
                   onPermissionGranted: widget.onPermissionGranted,
+                  resourceDisplayName: widget.resourceDisplayName,
                 );
               },
             );

@@ -124,6 +124,11 @@ class GrantPermissionForm extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional human-readable name for the resource, used in notification
+  /// messages sent to recipients upon successful permission granting.
+
+  final String? resourceDisplayName;
+
   const GrantPermissionForm({
     super.key,
     required this.updatePermissionsFunction,
@@ -137,6 +142,7 @@ class GrantPermissionForm extends StatefulWidget {
     required this.updatePermissionGrantedFunction,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.resourceDisplayName,
   });
 
   @override
@@ -384,9 +390,40 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                 if (result == SolidFunctionCallStatus.success) {
                   _showSnackBar(successMsg, ActionColors.success);
+
+                  // Send notification to each specific recipient (individual
+                  // or group members) in the background. Non-specific types
+                  // such as public or authenticated users are skipped.
+
+                  if (selectedRecipientType == RecipientType.individual ||
+                      selectedRecipientType == RecipientType.group) {
+                    final displayName = widget.resourceDisplayName ??
+                        widget.resourceName;
+
+                    for (final recipientWebId in finalWebIdList) {
+                      try {
+                        await sendNotification(
+                          recipientWebId: recipientWebId as String,
+                          title:
+                              'A resource has been shared with you: $displayName',
+                          content:
+                              'You have been granted '
+                              '${selectedPermList.join(", ")} '
+                              'access to "$displayName".',
+                          priority: 1,
+                        );
+                      } on Object catch (e) {
+                        debugPrint(
+                          '[GrantPermissionForm] '
+                          'Failed to send notification to $recipientWebId: $e',
+                        );
+                      }
+                    }
+                  }
+
                   // Update permissions table
                   await widget.updatePermissionsFunction(
-                    widget.resourceName, //_resourceName,
+                    widget.resourceName,
                     isFile: widget.isFile,
                     isExternalRes: widget.isExternalRes,
                   );

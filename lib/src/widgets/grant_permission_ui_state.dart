@@ -304,6 +304,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   isFile: widget.isFile,
                   dataFilesMap: widget.dataFilesMap,
                   onPermissionGranted: widget.onPermissionGranted,
+                  resourceDisplayName: widget.resourceDisplayName,
                 ),
                 mediumGapV,
                 makeSubHeading(
