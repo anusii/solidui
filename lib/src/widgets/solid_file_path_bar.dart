@@ -330,10 +330,14 @@ class PathBar extends StatelessWidget {
                 else
                   Builder(
                     builder: (context) {
-                      final totalItems =
+                      final total =
                           currentDirDirectoryCount + currentDirFileCount;
+                      final dirs = currentDirDirectoryCount;
+                      final files = currentDirFileCount;
                       return Text(
-                        '$totalItems item${totalItems == 1 ? '' : 's'}',
+                        '$total item${total == 1 ? '' : 's'}'
+                        ' ($dirs director${dirs == 1 ? 'y' : 'ies'}'
+                        ' and $files file${files == 1 ? '' : 's'})',
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: 12,
