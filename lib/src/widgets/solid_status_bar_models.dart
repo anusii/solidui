@@ -477,9 +477,9 @@ class SolidStatusBarConfig {
     this.showOnNarrowScreens = false,
     this.narrowScreenThreshold,
     this.backgroundColor,
-    this.narrowLayoutHeight = 100.0,
-    this.mediumLayoutHeight = 80.0,
-    this.wideLayoutHeight = 60.0,
+    this.narrowLayoutHeight = 80.0,
+    this.mediumLayoutHeight = 56.0,
+    this.wideLayoutHeight = 40.0,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
     this.itemSpacing = 16.0,
   });
