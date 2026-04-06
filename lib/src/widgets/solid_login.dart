@@ -501,6 +501,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
       if (!context.mounted) return;
 
+      // Ensure security key has been fetched once logged in
       if (isLoggedIn) {
         await getKeyFromUserIfRequired(context, widget.child);
         if (!context.mounted) return;
