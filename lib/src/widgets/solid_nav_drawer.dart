@@ -32,10 +32,10 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidpod/solidpod.dart' show isUserLoggedIn;
 
-import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer_header.dart';
@@ -157,13 +157,14 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Drawer(
       shape: widget.drawerShape ??
           const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
-              topRight: Radius.circular(0),
-              bottomRight: Radius.circular(0),
+              topRight: Radius.circular(16),
+              bottomRight: Radius.circular(16),
             ),
           ),
       child: ListView(
@@ -184,14 +185,14 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
                     }
                   : null,
             ),
-          Container(
-            padding: const EdgeInsets.all(NavigationConstants.navDrawerPadding),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
               children: [
                 ...widget.tabs.asMap().entries.map((entry) {
                   final index = entry.key;
                   final tab = entry.value;
-                  return _buildNavTile(context, theme, index, tab);
+                  return _buildNavTile(context, cs, index, tab);
                 }),
                 if (widget.additionalMenuItems != null)
                   ...widget.additionalMenuItems!,
@@ -208,33 +209,53 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
 
   Widget _buildNavTile(
     BuildContext context,
-    ThemeData theme,
+    ColorScheme cs,
     int index,
     SolidNavTab tab,
   ) {
-    return ListTile(
-      leading: Icon(
-        tab.icon,
-        color: index == widget.selectedIndex
-            ? theme.colorScheme.primary
-            : theme.colorScheme.onSurface.withValues(alpha: 0.7),
-      ),
-      title: Text(
-        tab.title,
-        style: TextStyle(
-          fontWeight:
-              index == widget.selectedIndex ? FontWeight.w600 : FontWeight.w400,
-          color: index == widget.selectedIndex
-              ? theme.colorScheme.primary
-              : theme.colorScheme.onSurface,
+    final selected = index == widget.selectedIndex;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Material(
+        color: selected
+            ? cs.primaryContainer.withValues(alpha: 0.5)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            widget.onTabSelected(index);
+            Navigator.of(context).pop();
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Icon(
+                  tab.icon,
+                  size: 22,
+                  color: selected
+                      ? cs.primary
+                      : cs.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    tab.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                      color: selected ? cs.primary : cs.onSurface,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      selected: index == widget.selectedIndex,
-      selectedTileColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-      onTap: () {
-        widget.onTabSelected(index);
-        Navigator.of(context).pop();
-      },
     );
   }
 
@@ -242,28 +263,38 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
       widget.userInfo?.webId != null && widget.userInfo!.webId!.isNotEmpty;
 
   List<Widget> _buildBottomSection(BuildContext context, ThemeData theme) {
+    final cs = theme.colorScheme;
+
     return [
-      Divider(
-        height: NavigationConstants.navDividerHeight,
-        color: theme.dividerColor,
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Divider(
+          height: 1,
+          color: cs.outlineVariant.withValues(alpha: 0.4),
+        ),
       ),
-      if (widget.securityKeyStatus != null)
-        _buildSecurityKeyTile(context, theme),
-      if (widget.onUserNameTap != null) _buildLoginStatusTile(context, theme),
+      if (widget.securityKeyStatus != null) _buildSecurityKeyTile(context, cs),
+      if (widget.onUserNameTap != null) _buildLoginStatusTile(context, cs),
     ];
   }
 
-  Widget _buildSecurityKeyTile(BuildContext context, ThemeData theme) {
+  Widget _buildSecurityKeyTile(BuildContext context, ColorScheme cs) {
     final status = widget.securityKeyStatus!;
     final isKeySaved = status.isKeySaved == true;
 
-    return ListTile(
-      title: Text(
-        status.displayText,
-        style: TextStyle(
-          color: isKeySaved ? null : theme.colorScheme.primary,
-        ),
-      ),
+    return _buildBottomTile(
+      context: context,
+      cs: cs,
+      icon: isKeySaved ? Icons.key : Icons.key_off,
+      label: status.displayText,
+      color: isKeySaved ? cs.tertiary : cs.error,
+      tooltip: isKeySaved
+          ? '**Security Key Cached**\n\n'
+              'Your encryption key is saved locally. '
+              'Tap to view, change, or forget the key.'
+          : '**No Security Key**\n\n'
+              'No encryption key is cached. '
+              'Tap to set up a key for encrypting data on your Solid Pod.',
       onTap: () {
         Navigator.of(context).pop();
         if (status.onTap != null) {
@@ -275,21 +306,67 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
     );
   }
 
-  Widget _buildLoginStatusTile(BuildContext context, ThemeData theme) {
+  Widget _buildLoginStatusTile(BuildContext context, ColorScheme cs) {
     final statusText = _isLoggedIn ? 'Logged In' : 'Not Logged In';
 
-    return ListTile(
-      title: Text(
-        statusText,
-        style: TextStyle(
-          color: _isLoggedIn ? null : theme.colorScheme.primary,
-        ),
-      ),
+    return _buildBottomTile(
+      context: context,
+      cs: cs,
+      icon: _isLoggedIn ? Icons.person : Icons.person_outline,
+      label: statusText,
+      color: _isLoggedIn ? cs.tertiary : cs.error,
+      tooltip: _isLoggedIn
+          ? '**Logged In**\n\n'
+              'You are authenticated with your Solid Pod. '
+              'Tap to manage your session.'
+          : '**Not Logged In**\n\n'
+              'You are not connected to a Solid Pod. '
+              'Tap to log in and access your data.',
       onTap: () {
         Navigator.of(context).pop();
         widget.onUserNameTap!(context);
       },
     );
+  }
+
+  Widget _buildBottomTile({
+    required BuildContext context,
+    required ColorScheme cs,
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+    String? tooltip,
+  }) {
+    final tile = Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: color),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (tooltip == null) return tile;
+
+    return MarkdownTooltip(message: tooltip, child: tile);
   }
 
   Future<void> _showSecurityKeyManager(

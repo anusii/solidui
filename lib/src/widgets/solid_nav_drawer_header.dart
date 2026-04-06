@@ -61,7 +61,16 @@ class SolidNavDrawerHeader {
             MediaQuery.paddingOf(context).top,
         bottom: bottomPadding,
       ),
-      decoration: BoxDecoration(color: theme.colorScheme.primaryContainer),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.primaryContainer,
+            theme.colorScheme.primaryContainer.withValues(alpha: 0.7),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
       child: Column(
         children: [
           user.avatar ??
