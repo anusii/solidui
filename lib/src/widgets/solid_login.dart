@@ -51,6 +51,8 @@ import 'package:solidpod/solidpod.dart'
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
+import 'package:solidui/src/utils/solid_pod_helpers.dart'
+    show getKeyFromUserIfRequired;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_asset_helper.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
@@ -498,6 +500,12 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       }
 
       if (!context.mounted) return;
+
+      // Ensure security key has been fetched once logged in
+      if (isLoggedIn) {
+        await getKeyFromUserIfRequired(context, widget.child);
+        if (!context.mounted) return;
+      }
 
       await pushReplacement(context, widget.child);
     }
