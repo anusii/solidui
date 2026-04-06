@@ -160,9 +160,12 @@ class SolidAppBarOrderedActionsBuilder {
 
       if (shouldShow) {
         Widget iconButton = IconButton(
-          icon: Icon(action.icon),
+          icon: Icon(action.icon, size: 22),
           onPressed: action.onPressed,
           color: action.color,
+          splashRadius: 20,
+          padding: const EdgeInsets.all(8),
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
         );
 
         if (action.tooltip != null) {
@@ -191,8 +194,11 @@ class SolidAppBarOrderedActionsBuilder {
 
       if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
         Widget iconButton = IconButton(
-          icon: Icon(item.icon),
+          icon: Icon(item.icon, size: 22),
           onPressed: item.onSelected,
+          splashRadius: 20,
+          padding: const EdgeInsets.all(8),
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
         );
 
         iconButton = MarkdownTooltip(message: item.label, child: iconButton);

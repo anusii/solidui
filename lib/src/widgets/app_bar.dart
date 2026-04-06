@@ -47,7 +47,13 @@ PreferredSizeWidget defaultAppBar(
 }) {
   return AppBar(
     leading: IconButton(
-      icon: const Icon(Icons.arrow_back, color: Colors.black),
+      icon: Icon(
+        Icons.arrow_back,
+        color: ThemeData.estimateBrightnessForColor(backgroundColor) ==
+                Brightness.dark
+            ? Colors.white
+            : Colors.black87,
+      ),
       onPressed: () {
         // Call the callback if provided.
 
@@ -61,15 +67,19 @@ PreferredSizeWidget defaultAppBar(
           // Use the original pushReplacement behaviour.
 
           pushReplacement(context, child);
-
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => child),
-          // );
         }
       },
     ),
     backgroundColor: backgroundColor,
-    title: Text(title),
+    elevation: 0,
+    scrolledUnderElevation: 0.5,
+    title: Text(
+      title,
+      style: const TextStyle(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+        fontSize: 18,
+      ),
+    ),
   );
 }
