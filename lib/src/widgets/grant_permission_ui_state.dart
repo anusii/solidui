@@ -295,14 +295,11 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  widget.resourceNames != null
-                      ? widget.isFile
-                          ? 'Sharing multiple files'
-                          : 'Sharing multiple folders'
-                      : makeSharingTitleStr(
-                          fileName: resolvedResourceName,
-                          isFile: widget.isFile,
-                        ),
+                  makeSharingTitleStr(
+                    resourceName: resolvedResourceName,
+                    resourceNames: widget.resourceNames,
+                    isFile: widget.isFile,
+                  ),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
