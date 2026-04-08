@@ -57,6 +57,8 @@ part 'grant_permission_ui_state.dart';
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
 /// - [granterWebId] - WebId of the granter of the resource. Required if the resource is externall owned.
 /// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - Alternatively provide a list of file urls of resources
+/// to perform the same permission granting operation all file urls in the list.
 /// - [isFile] - Boolean flag describing whether the resource is a file. If false, the resource is assumed to be a directory.
 /// - [customAppBar] - Specify a custom app bar widget.
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
