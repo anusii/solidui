@@ -374,28 +374,78 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               smallGapV,
               // Dropdown to select which resource's permission table/history to show.
               if (widget.resourceNames != null) ...[
-                // TODO: fix width and alignment of drop down relative to layout
-                DropdownButton<String>(
-                  value: _selectedResourceName,
-                  focusColor: DropdownColors.primary,
-                  dropdownColor: DropdownColors.accent,
-                  isExpanded: true,
-                  padding: const EdgeInsets.all(10),
-                  // menuWidth: 600,
-                  alignment: AlignmentGeometry.centerRight,
-                  style: const TextStyle(fontSize: 12),
-                  items: widget.resourceNames!
-                      .map(
-                        (name) => DropdownMenuItem(
-                          value: name,
-                          child: Text(
-                            _displayName(name),
-                            style: const TextStyle(fontSize: 12),
+                DropdownMenu<String>(
+                  // Force rebuild if showFullPath
+                  key: ValueKey(_showFullPath),
+                  // Set inset padding on sides of dropdown
+                  // to zero to align with other elements
+                  // in the layout
+                  expandedInsets: const EdgeInsets.symmetric(horizontal: 0),
+                  initialSelection: _selectedResourceName,
+                  label: Text(widget.isFile ? 'Select File' : 'Select Folder'),
+                  textStyle: Theme.of(context)
+                          .dropdownMenuTheme
+                          .textStyle
+                          ?.copyWith(fontSize: 12) ??
+                      const TextStyle(fontSize: 12),
+                  // Setting edge insets to zero also helped with
+                  // left-right edge alignment
+                  inputDecorationTheme: const InputDecorationTheme(
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  menuStyle: MenuStyle(
+                    backgroundColor: WidgetStateProperty.all(
+                      Theme.of(context)
+                              .dropdownMenuTheme
+                              .menuStyle
+                              ?.backgroundColor
+                              ?.resolve({}) ??
+                          DropdownColors.accent,
+                    ),
+                  ),
+                  dropdownMenuEntries: widget.resourceNames!.map(
+                    (name) {
+                      final isSelected = name == _selectedResourceName;
+                      final textColor =
+                          Theme.of(context).dropdownMenuTheme.textStyle?.color;
+                      return DropdownMenuEntry(
+                        value: name,
+                        label: _displayName(name),
+                        trailingIcon: isSelected
+                            ? Icon(Icons.check, color: textColor)
+                            : null,
+                        style: ButtonStyle(
+                          textStyle: WidgetStatePropertyAll(
+                            Theme.of(context)
+                                    .dropdownMenuTheme
+                                    .textStyle
+                                    ?.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ) ??
+                                TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                          ),
+                          foregroundColor: WidgetStatePropertyAll(textColor),
+                          backgroundColor: WidgetStatePropertyAll(
+                            isSelected
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer
+                                    .withValues(alpha: 0.4)
+                                : null,
                           ),
                         ),
-                      )
-                      .toList(),
-                  onChanged: (name) async {
+                      );
+                    },
+                  ).toList(),
+                  onSelected: (name) async {
                     if (name != null && name != _selectedResourceName) {
                       setState(() => _selectedResourceName = name);
                       await _updatePermissions(
@@ -406,6 +456,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                     }
                   },
                 ),
+                smallGapV,
               ],
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
