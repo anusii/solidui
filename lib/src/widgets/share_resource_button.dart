@@ -211,7 +211,11 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
             ),
             Switch(
               value: widget.showFullPath,
-              activeThumbColor: ActionColors.success,
+              activeThumbColor:
+                  Theme.of(context).switchTheme.thumbColor?.resolve(
+                        {WidgetState.selected},
+                      ) ??
+                      ActionColors.success,
               onChanged: widget.onShowFullPathChanged,
             ),
           ],
