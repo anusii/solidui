@@ -33,6 +33,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/solidui.dart' show SharingPageLayout;
+import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
 
@@ -108,6 +109,15 @@ class ShareResourceButton extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Whether to display full resource paths or just the last path segment.
+  /// Only relevant when [resourceNames] is provided.
+
+  final bool showFullPath;
+
+  /// Called when the user toggles the Show Full Path slider.
+
+  final ValueChanged<bool>? onShowFullPathChanged;
+
   const ShareResourceButton({
     super.key,
     required this.fileNameController,
@@ -120,6 +130,8 @@ class ShareResourceButton extends StatefulWidget {
     this.recipientTypeList = const ['public', 'indi', 'auth', 'group'],
     required this.isExternalRes,
     required this.isFile,
+    this.showFullPath = true,
+    this.onShowFullPathChanged,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
   });
@@ -187,7 +199,22 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
       padding: SharingPageLayout.inputPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
+        spacing: 5,
         children: [
+          if (widget.resourceNames != null || widget.resourceName != null) ...[
+            const Text(
+              'Show\nFull Path',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              // style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+            Switch(
+              value: widget.showFullPath,
+              activeThumbColor: ActionColors.success,
+              onChanged: widget.onShowFullPathChanged,
+            ),
+          ],
           ElevatedButton.icon(
             icon: const Icon(Icons.share),
             onPressed: () async {

@@ -61,6 +61,15 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
   String? _selectedResourceName;
 
+  /// Whether to show full resource paths or just the last path segment.
+
+  bool _showFullPath = true;
+
+  /// Returns the display label for a resource name, respecting [_showFullPath].
+
+  String _displayName(String name) =>
+      _showFullPath ? name : name.split('/').last;
+
   /// Loads permission details data from the ACL on the POD server.
 
   Future<PermissionDetails?> loadACLData(
@@ -307,7 +316,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Text(
-                          name,
+                          _displayName(name),
                           style: const TextStyle(fontSize: 12),
                         ),
                       ),
@@ -347,6 +356,9 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   isFile: widget.isFile,
                   dataFilesMap: widget.dataFilesMap,
                   onPermissionGranted: widget.onPermissionGranted,
+                  showFullPath: _showFullPath,
+                  onShowFullPathChanged: (v) =>
+                      setState(() => _showFullPath = v),
                 ),
                 const Divider(),
                 // Dropdown to select which resource's permission table/history to show.
@@ -360,7 +372,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                           (name) => DropdownMenuItem(
                             value: name,
                             child: Text(
-                              name,
+                              _displayName(name),
                               style: const TextStyle(fontSize: 12),
                             ),
                           ),
