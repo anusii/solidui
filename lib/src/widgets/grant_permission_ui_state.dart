@@ -55,6 +55,12 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   bool showCurrentPermOnly = true;
   bool isFile = true;
 
+  /// The resource currently selected for the permission table/history display.
+  /// Defaults to the first (or only) resource; updated when the user picks a
+  /// different entry from the resource selector dropdown.
+
+  String? _selectedResourceName;
+
   /// Loads permission details data from the ACL on the POD server.
 
   Future<PermissionDetails?> loadACLData(
@@ -110,6 +116,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     // otherwise use the first entry from resourceNames.
     final displayResource =
         widget.resourceName ?? widget.resourceNames?.firstOrNull;
+    _selectedResourceName = displayResource;
     if (displayResource != null) {
       getACLPerm = loadACLData(
         displayResource,
@@ -292,20 +299,27 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   addPadding: false,
                 ),
                 smallGapV,
+                // Resource list: left-aligned text items.
                 if (widget.resourceNames != null) ...[
                   for (final name in widget.resourceNames!)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text(
-                        name,
-                        style: const TextStyle(fontSize: 12),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Text(
+                          name,
+                          style: const TextStyle(fontSize: 12),
+                        ),
                       ),
                     ),
                   smallGapV,
                 ] else if (resolvedResourceName != null) ...[
-                  Text(
-                    resolvedResourceName,
-                    style: const TextStyle(fontSize: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      resolvedResourceName,
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   ),
                   smallGapV,
                 ],
@@ -334,7 +348,37 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   dataFilesMap: widget.dataFilesMap,
                   onPermissionGranted: widget.onPermissionGranted,
                 ),
-                mediumGapV,
+                const Divider(),
+                // Dropdown to select which resource's permission table/history to show.
+                if (widget.resourceNames != null) ...[
+                  DropdownButton<String>(
+                    value: _selectedResourceName,
+                    isExpanded: true,
+                    style: const TextStyle(fontSize: 12),
+                    items: widget.resourceNames!
+                        .map(
+                          (name) => DropdownMenuItem(
+                            value: name,
+                            child: Text(
+                              name,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (name) async {
+                      if (name != null && name != _selectedResourceName) {
+                        setState(() => _selectedResourceName = name);
+                        await _updatePermissions(
+                          name,
+                          isFile: widget.isFile,
+                          isExternalRes: widget.isExternalRes,
+                        );
+                      }
+                    },
+                  ),
+                  smallGapV,
+                ],
                 makeSubHeading(
                   showCurrentPermOnly
                       ? 'People with current access'

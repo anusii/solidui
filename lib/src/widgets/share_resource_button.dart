@@ -185,44 +185,50 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   Widget build(BuildContext context) {
     return Padding(
       padding: SharingPageLayout.inputPadding,
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.share),
-        onPressed: () async {
-          // Assign dataFile if null (first Grant press)
-          _resourceName = widget.resourceName ?? _fileNameController.text;
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton.icon(
+            icon: const Icon(Icons.share),
+            onPressed: () async {
+              // Assign dataFile if null (first Grant press)
+              _resourceName = widget.resourceName ?? _fileNameController.text;
 
-          if (_resourceName != '') {
-            // Display GrantPermissionForm dialog to enter
-            // recipient and access modes
-            await showDialog(
-              context: context,
-              builder: (BuildContext dialogContext) {
-                return GrantPermissionForm(
-                  resourceName: _resourceName,
-                  resourceNames: widget.resourceNames,
-                  accessModeList: widget.accessModeList,
-                  recipientTypeList: widget.recipientTypeList,
-                  updatePermissionsFunction: widget.updatePermissionsFunction,
-                  ownerWebId: _ownerWebId,
-                  granterWebId: _granterWebId,
-                  isExternalRes: widget.isExternalRes,
-                  isFile: _getIsFile(),
-                  dataFilesMap: widget.dataFilesMap,
-                  updatePermissionGrantedFunction:
-                      _updatePermissionGrantedStatus,
-                  onPermissionGranted: widget.onPermissionGranted,
+              if (_resourceName != '') {
+                // Display GrantPermissionForm dialog to enter
+                // recipient and access modes
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext dialogContext) {
+                    return GrantPermissionForm(
+                      resourceName: _resourceName,
+                      resourceNames: widget.resourceNames,
+                      accessModeList: widget.accessModeList,
+                      recipientTypeList: widget.recipientTypeList,
+                      updatePermissionsFunction:
+                          widget.updatePermissionsFunction,
+                      ownerWebId: _ownerWebId,
+                      granterWebId: _granterWebId,
+                      isExternalRes: widget.isExternalRes,
+                      isFile: _getIsFile(),
+                      dataFilesMap: widget.dataFilesMap,
+                      updatePermissionGrantedFunction:
+                          _updatePermissionGrantedStatus,
+                      onPermissionGranted: widget.onPermissionGranted,
+                    );
+                  },
                 );
-              },
-            );
-          } else {
-            await _alert('Please select one or more recipients');
-          }
-        },
-        label: Text(
-          (widget.resourceNames != null && widget.resourceNames!.length > 1)
-              ? 'Share Resources'
-              : 'Share Resource',
-        ),
+              } else {
+                await _alert('Please select one or more recipients');
+              }
+            },
+            label: Text(
+              (widget.resourceNames != null && widget.resourceNames!.length > 1)
+                  ? 'Share Resources'
+                  : 'Share Resource',
+            ),
+          ),
+        ],
       ),
     );
   }
