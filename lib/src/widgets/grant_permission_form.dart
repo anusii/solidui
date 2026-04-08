@@ -88,6 +88,13 @@ class GrantPermissionForm extends StatefulWidget {
 
   final String resourceName;
 
+  /// Optional list of resource names when granting permission to multiple
+  /// resources at once. When provided, [grantPermission] is called
+  /// sequentially for each name using the same recipient and permission
+  /// selections. [resourceName] is used for display and ACL table refresh.
+
+  final List<String>? resourceNames;
+
   final bool isExternalRes;
 
   /// A flag to determine whether the given resource is a file or not.
@@ -128,6 +135,7 @@ class GrantPermissionForm extends StatefulWidget {
     super.key,
     required this.updatePermissionsFunction,
     required this.resourceName,
+    this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -359,20 +367,31 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
             if (selectedRecipientType.type.isNotEmpty) {
               if (selectedPermList.isNotEmpty) {
-                SolidFunctionCallStatus result;
+                // Grant permission for each resource sequentially.
+                // When resourceNames is provided all resources share the
+                // same recipient and permission selections.
+                final resourcesToGrant =
+                    widget.resourceNames ?? [widget.resourceName];
+                SolidFunctionCallStatus result =
+                    SolidFunctionCallStatus.success;
                 try {
-                  // Update ACL and permission logs to grant permission
-                  result = await grantPermission(
-                    fileName: widget.resourceName,
-                    isFile: widget.isFile,
-                    permissionList: selectedPermList,
-                    recipientType: selectedRecipientType,
-                    recipientWebIdList: finalWebIdList,
-                    ownerWebId: widget.ownerWebId,
-                    granterWebId: widget.granterWebId,
-                    isExternalRes: widget.isExternalRes,
-                    groupName: selectedGroupName,
-                  );
+                  for (final name in resourcesToGrant) {
+                    final r = await grantPermission(
+                      fileName: name,
+                      isFile: widget.isFile,
+                      permissionList: selectedPermList,
+                      recipientType: selectedRecipientType,
+                      recipientWebIdList: finalWebIdList,
+                      ownerWebId: widget.ownerWebId,
+                      granterWebId: widget.granterWebId,
+                      isExternalRes: widget.isExternalRes,
+                      groupName: selectedGroupName,
+                    );
+                    if (r != SolidFunctionCallStatus.success) {
+                      result = r;
+                      break;
+                    }
+                  }
 
                   // Close grant permission dialog
                   if (!context.mounted) return;

@@ -74,6 +74,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.ownerWebId,
     this.granterWebId,
     this.resourceName,
+    this.resourceNames,
     this.isFile = true,
     this.dataFilesMap = const {},
     this.customAppBar,
@@ -140,6 +141,13 @@ class GrantPermissionUi extends StatefulWidget {
   /// value should be the url of the resource.
 
   final String? resourceName;
+
+  /// Optional list of resource names when granting permission to multiple
+  /// resources at once. The first entry is used for display and ACL table
+  /// initialisation; [grantPermission] is called for each entry in the list.
+  /// When provided, [resourceName] may be omitted.
+
+  final List<String>? resourceNames;
 
   /// A flag to determine whether the given resource is a file or not. This is
   /// a parameter with default value true. In the case where [resourceName] is

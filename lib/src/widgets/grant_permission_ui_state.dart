@@ -106,14 +106,18 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   @override
   void initState() {
     super.initState();
-    if (widget.resourceName != null) {
+    // Resolve the display resource: explicit resourceName takes priority,
+    // otherwise use the first entry from resourceNames.
+    final displayResource =
+        widget.resourceName ?? widget.resourceNames?.firstOrNull;
+    if (displayResource != null) {
       getACLPerm = loadACLData(
-        widget.resourceName as String,
+        displayResource,
         isFile: widget.isFile,
         isExternalRes: widget.isExternalRes,
       );
       getPermHistoryList =
-          sharedResourcesHistory(resourceName: widget.resourceName as String);
+          sharedResourcesHistory(resourceName: displayResource);
     }
   }
 
@@ -223,7 +227,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       permDataMap = initPermDetails.permissionMap;
       _ownerWebId = initPermDetails.ownerWebId;
       _granterWebId = initPermDetails.granterWebId;
-      permDataFile = widget.resourceName!;
+      permDataFile = widget.resourceName ?? widget.resourceNames!.first;
       permTableInitialied = true;
     }
 
@@ -245,7 +249,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       },
     );
 
-    bool getIsFile() => widget.resourceName != null ? widget.isFile : isFile;
+    // A resource is resolved if resourceName or resourceNames is provided.
+    final resolvedResourceName =
+        widget.resourceName ?? widget.resourceNames?.firstOrNull;
+    bool getIsFile() => resolvedResourceName != null ? widget.isFile : isFile;
 
     final PreferredSizeWidget? appBar;
     if (widget.showAppBar) {
@@ -273,7 +280,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 smallGapV,
                 makeHeading(
                   makeSharingTitleStr(
-                    fileName: widget.resourceName,
+                    fileName: resolvedResourceName,
                     isFile: widget.isFile,
                   ),
                   bold: false,
@@ -281,7 +288,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   addPadding: false,
                 ),
                 smallGapV,
-                if (widget.resourceName == null) ...[
+                if (resolvedResourceName == null) ...[
                   getResourceForm(
                     formController: fileNameController,
                     isFile: isFile,
@@ -293,7 +300,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   smallGapV,
                 ],
                 ShareResourceButton(
-                  resourceName: widget.resourceName,
+                  resourceName: resolvedResourceName,
+                  resourceNames: widget.resourceNames,
                   fileNameController: fileNameController,
                   accessModeList: widget.accessModeList,
                   recipientTypeList: widget.recipientTypeList,
@@ -391,7 +399,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       )
                     : PermissionHistory(
                         key: ValueKey(permHistoryList),
-                        resourceName: widget.resourceName!,
+                        resourceName: resolvedResourceName!,
                         permHistory: permHistoryList,
                         constraints: constraints,
                       ),
@@ -404,7 +412,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   }
 
   @override
-  Widget build(BuildContext context) => widget.resourceName == null
+  Widget build(BuildContext context) => (widget.resourceName == null &&
+          widget.resourceNames == null)
       ? _buildPermPage(context)
       : FutureBuilder(
           future: Future.wait([

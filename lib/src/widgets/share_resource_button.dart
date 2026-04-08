@@ -70,6 +70,12 @@ class ShareResourceButton extends StatefulWidget {
 
   final String? resourceName;
 
+  /// Optional list of resource names when granting permission to multiple
+  /// resources at once. When provided, [resourceName] is used for display
+  /// only and the form grants permission to all names in the list.
+
+  final List<String>? resourceNames;
+
   final bool isExternalRes;
 
   /// A flag to determine whether the given resource is a file or not.
@@ -107,6 +113,7 @@ class ShareResourceButton extends StatefulWidget {
     required this.fileNameController,
     required this.updatePermissionsFunction,
     this.resourceName,
+    this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -192,6 +199,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
               builder: (BuildContext dialogContext) {
                 return GrantPermissionForm(
                   resourceName: _resourceName,
+                  resourceNames: widget.resourceNames,
                   accessModeList: widget.accessModeList,
                   recipientTypeList: widget.recipientTypeList,
                   updatePermissionsFunction: widget.updatePermissionsFunction,
