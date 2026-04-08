@@ -218,7 +218,11 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
             await _alert('Please select one or more recipients');
           }
         },
-        label: const Text('Share Resource'),
+        label: Text(
+          (widget.resourceNames != null && widget.resourceNames!.length > 1)
+              ? 'Share Resources'
+              : 'Share Resource',
+        ),
       ),
     );
   }

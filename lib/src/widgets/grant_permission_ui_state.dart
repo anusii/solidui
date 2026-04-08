@@ -279,15 +279,36 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               children: [
                 smallGapV,
                 makeHeading(
-                  makeSharingTitleStr(
-                    fileName: resolvedResourceName,
-                    isFile: widget.isFile,
-                  ),
+                  widget.resourceNames != null
+                      ? widget.isFile
+                          ? 'Sharing multiple files'
+                          : 'Sharing multiple folders'
+                      : makeSharingTitleStr(
+                          fileName: resolvedResourceName,
+                          isFile: widget.isFile,
+                        ),
                   bold: false,
                   addColor: false,
                   addPadding: false,
                 ),
                 smallGapV,
+                if (widget.resourceNames != null) ...[
+                  for (final name in widget.resourceNames!)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        name,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  smallGapV,
+                ] else if (resolvedResourceName != null) ...[
+                  Text(
+                    resolvedResourceName,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  smallGapV,
+                ],
                 if (resolvedResourceName == null) ...[
                   getResourceForm(
                     formController: fileNameController,
