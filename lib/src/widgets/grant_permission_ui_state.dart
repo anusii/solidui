@@ -287,14 +287,14 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Scaffold(
-          appBar: appBar,
-          body: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                smallGapV,
-                makeHeading(
+        final body = Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              smallGapV,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
                   widget.resourceNames != null
                       ? widget.isFile
                           ? 'Sharing multiple files'
@@ -303,201 +303,210 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                           fileName: resolvedResourceName,
                           isFile: widget.isFile,
                         ),
-                  bold: false,
-                  addColor: false,
-                  addPadding: false,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                smallGapV,
-                // Resource list: left-aligned text items, styled to match
-                // the dropdown items.
-                if (widget.resourceNames != null) ...[
-                  for (final name in widget.resourceNames!)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Text(
-                          _displayName(name),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  smallGapV,
-                ] else if (resolvedResourceName != null) ...[
+              ),
+              smallGapV,
+              // Resource list: left-aligned text items, styled to match
+              // the dropdown items.
+              if (widget.resourceNames != null) ...[
+                for (final name in widget.resourceNames!)
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      resolvedResourceName,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontSize: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        _displayName(name),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontSize: 12),
+                      ),
                     ),
                   ),
-                  smallGapV,
-                ],
-                if (resolvedResourceName == null) ...[
-                  getResourceForm(
-                    formController: fileNameController,
-                    isFile: isFile,
-                    onResourceTypeChange: (bool v) =>
-                        setState(() => isFile = v),
+                smallGapV,
+              ] else if (resolvedResourceName != null) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _displayName(resolvedResourceName),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontSize: 12),
                   ),
-                  smallGapV,
-                  retrievePermissionButton,
-                  smallGapV,
-                ],
-                ShareResourceButton(
-                  resourceName: resolvedResourceName,
-                  resourceNames: widget.resourceNames,
-                  fileNameController: fileNameController,
-                  accessModeList: widget.accessModeList,
-                  recipientTypeList: widget.recipientTypeList,
-                  updatePermissionsFunction: _updatePermissions,
-                  ownerWebId: _ownerWebId,
-                  granterWebId: _granterWebId,
-                  isExternalRes: widget.isExternalRes,
-                  isFile: widget.isFile,
-                  dataFilesMap: widget.dataFilesMap,
-                  onPermissionGranted: widget.onPermissionGranted,
-                  showFullPath: _showFullPath,
-                  onShowFullPathChanged: (v) =>
-                      setState(() => _showFullPath = v),
-                ),
-                // Separator between Sharing and Permissions sections
-                const Divider(),
-                smallGapV,
-                makeSubHeading(
-                  showCurrentPermOnly
-                      ? 'People with current access'
-                      : 'Permission history',
-                  addPadding: false,
                 ),
                 smallGapV,
-                // Dropdown to select which resource's permission table/history to show.
-                if (widget.resourceNames != null) ...[
-                  // TODO: fix width and alignment of drop down relative to layout
-                  DropdownButton<String>(
-                    value: _selectedResourceName,
-                    focusColor: DropdownColors.primary,
-                    dropdownColor: DropdownColors.accent,
-                    isExpanded: true,
-                    padding: const EdgeInsets.all(10),
-                    // menuWidth: 600,
-                    alignment: AlignmentGeometry.centerRight,
-                    style: const TextStyle(fontSize: 12),
-                    items: widget.resourceNames!
-                        .map(
-                          (name) => DropdownMenuItem(
-                            value: name,
-                            child: Text(
-                              _displayName(name),
-                              style: const TextStyle(fontSize: 12),
+              ],
+              if (resolvedResourceName == null) ...[
+                getResourceForm(
+                  formController: fileNameController,
+                  isFile: isFile,
+                  onResourceTypeChange: (bool v) => setState(() => isFile = v),
+                ),
+                smallGapV,
+                retrievePermissionButton,
+                smallGapV,
+              ],
+              ShareResourceButton(
+                resourceName: resolvedResourceName,
+                resourceNames: widget.resourceNames,
+                fileNameController: fileNameController,
+                accessModeList: widget.accessModeList,
+                recipientTypeList: widget.recipientTypeList,
+                updatePermissionsFunction: _updatePermissions,
+                ownerWebId: _ownerWebId,
+                granterWebId: _granterWebId,
+                isExternalRes: widget.isExternalRes,
+                isFile: widget.isFile,
+                dataFilesMap: widget.dataFilesMap,
+                onPermissionGranted: widget.onPermissionGranted,
+                showFullPath: _showFullPath,
+                onShowFullPathChanged: (v) => setState(() => _showFullPath = v),
+              ),
+              // Separator between Sharing and Permissions sections
+              const Divider(),
+              smallGapV,
+              makeSubHeading(
+                showCurrentPermOnly
+                    ? 'People with current access'
+                    : 'Permission history',
+                addPadding: false,
+              ),
+              smallGapV,
+              // Dropdown to select which resource's permission table/history to show.
+              if (widget.resourceNames != null) ...[
+                // TODO: fix width and alignment of drop down relative to layout
+                DropdownButton<String>(
+                  value: _selectedResourceName,
+                  focusColor: DropdownColors.primary,
+                  dropdownColor: DropdownColors.accent,
+                  isExpanded: true,
+                  padding: const EdgeInsets.all(10),
+                  // menuWidth: 600,
+                  alignment: AlignmentGeometry.centerRight,
+                  style: const TextStyle(fontSize: 12),
+                  items: widget.resourceNames!
+                      .map(
+                        (name) => DropdownMenuItem(
+                          value: name,
+                          child: Text(
+                            _displayName(name),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (name) async {
+                    if (name != null && name != _selectedResourceName) {
+                      setState(() => _selectedResourceName = name);
+                      await _updatePermissions(
+                        name,
+                        isFile: widget.isFile,
+                        isExternalRes: widget.isExternalRes,
+                      );
+                    }
+                  },
+                ),
+              ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                spacing: 5.0,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: showCurrentPermOnly
+                        ? const Text('')
+                        : TextField(
+                            onChanged: (value) => _searchLogs(value),
+                            decoration: const InputDecoration(
+                              labelText:
+                                  'Search access level, permission type, recipient or granter name',
+                              labelStyle: TextStyle(fontSize: 12),
+                              hintText: 'Enter search text',
+                              hintStyle: TextStyle(fontSize: 12),
+                              prefixIcon: Icon(Icons.search),
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25.0)),
+                              ),
                             ),
                           ),
-                        )
-                        .toList(),
-                    onChanged: (name) async {
-                      if (name != null && name != _selectedResourceName) {
-                        setState(() => _selectedResourceName = name);
-                        await _updatePermissions(
-                          name,
-                          isFile: widget.isFile,
-                          isExternalRes: widget.isExternalRes,
-                        );
-                      }
-                    },
+                  ),
+                  SizedBox(
+                    width: 170.0,
+                    child: MarkdownTooltip(
+                      message:
+                          'Switch between current people with access and permission history log',
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        spacing: 5.0,
+                        children: [
+                          SizedBox(
+                            width: 100,
+                            child: Text(
+                              showCurrentPermOnly
+                                  ? 'Current Permissions'
+                                  : 'All Permissions',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                          Switch(
+                            value: showCurrentPermOnly,
+                            activeThumbColor: Theme.of(context)
+                                    .switchTheme
+                                    .thumbColor
+                                    ?.resolve(
+                                  {WidgetState.selected},
+                                ) ??
+                                ActionColors.success,
+                            onChanged: (bool value) {
+                              setState(() {
+                                showCurrentPermOnly = value;
+                              });
+                              if (!showCurrentPermOnly) {
+                                setState(() {
+                                  permHistoryList = unFilteredPermHistoryList;
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  spacing: 5.0,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: showCurrentPermOnly
-                          ? const Text('')
-                          : TextField(
-                              onChanged: (value) => _searchLogs(value),
-                              decoration: const InputDecoration(
-                                labelText:
-                                    'Search access level, permission type, recipient or granter name',
-                                labelStyle: TextStyle(fontSize: 12),
-                                hintText: 'Enter search text',
-                                hintStyle: TextStyle(fontSize: 12),
-                                prefixIcon: Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25.0)),
-                                ),
-                              ),
-                            ),
+              ),
+              vSmallGapV,
+              showCurrentPermOnly
+                  ? PermissionTable(
+                      resourceName: permDataFile,
+                      permDataMap: permDataMap,
+                      ownerWebId: _ownerWebId,
+                      granterWebId: _granterWebId,
+                      updatePermissionsFunction: _updatePermissions,
+                      isFile: getIsFile(),
+                      isExternalRes: widget.isExternalRes,
+                      constraints: constraints,
+                    )
+                  : PermissionHistory(
+                      key: ValueKey(permHistoryList),
+                      resourceName: resolvedResourceName!,
+                      permHistory: permHistoryList,
+                      constraints: constraints,
                     ),
-                    SizedBox(
-                      width: 170.0,
-                      child: MarkdownTooltip(
-                        message:
-                            'Switch between current people with access and permission history log',
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          spacing: 5.0,
-                          children: [
-                            SizedBox(
-                              width: 100,
-                              child: Text(
-                                showCurrentPermOnly
-                                    ? 'Current Permissions'
-                                    : 'All Permissions',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.end,
-                              ),
-                            ),
-                            Switch(
-                              value: showCurrentPermOnly,
-                              activeThumbColor: ActionColors.success,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  showCurrentPermOnly = value;
-                                });
-                                if (!showCurrentPermOnly) {
-                                  setState(() {
-                                    permHistoryList = unFilteredPermHistoryList;
-                                  });
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                vSmallGapV,
-                showCurrentPermOnly
-                    ? PermissionTable(
-                        resourceName: permDataFile,
-                        permDataMap: permDataMap,
-                        ownerWebId: _ownerWebId,
-                        granterWebId: _granterWebId,
-                        updatePermissionsFunction: _updatePermissions,
-                        isFile: getIsFile(),
-                        isExternalRes: widget.isExternalRes,
-                        constraints: constraints,
-                      )
-                    : PermissionHistory(
-                        key: ValueKey(permHistoryList),
-                        resourceName: resolvedResourceName!,
-                        permHistory: permHistoryList,
-                        constraints: constraints,
-                      ),
-              ],
-            ),
+            ],
           ),
         );
+        return appBar == null
+            ? body
+            : Scaffold(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                appBar: appBar,
+                body: body,
+              );
       },
     );
   }
