@@ -52,7 +52,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
   List<LogRecord> permHistoryList = [];
   List<LogRecord> unFilteredPermHistoryList = [];
-  bool showCurrentPermOnly = false;
+  bool showCurrentPermOnly = true;
   bool isFile = true;
 
   /// Loads permission details data from the ACL on the POD server.
