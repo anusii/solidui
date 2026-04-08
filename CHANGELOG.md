@@ -15,7 +15,8 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
-+ Add get key if required to login [0.3.10 20260406 tonypioneer]
++ Add get key if required to login [0.3.11 20260406 tonypioneer]
++ Fine tune UX for SolidScaffold elements [0.3.10 20260406 gjw]
 + List files/folder count in FileBrowser, not just file count [0.3.9 20260402 gjw]
 + Add keep login and other webid to SolidLogin() [0.3.8 20260326 tonypioneer]
 + Adds additional layout width checks [0.3.7 20260326 tonypioneer]
