@@ -308,7 +308,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   addPadding: false,
                 ),
                 smallGapV,
-                // Resource list: left-aligned text items.
+                // Resource list: left-aligned text items, styled to match
+                // the dropdown items.
                 if (widget.resourceNames != null) ...[
                   for (final name in widget.resourceNames!)
                     Align(
@@ -317,7 +318,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Text(
                           _displayName(name),
-                          style: const TextStyle(fontSize: 12),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(fontSize: 12),
                         ),
                       ),
                     ),
@@ -327,7 +331,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                     alignment: Alignment.centerLeft,
                     child: Text(
                       resolvedResourceName,
-                      style: const TextStyle(fontSize: 12),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontSize: 12),
                     ),
                   ),
                   smallGapV,
@@ -360,12 +367,27 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   onShowFullPathChanged: (v) =>
                       setState(() => _showFullPath = v),
                 ),
+                // Separator between Sharing and Permissions sections
                 const Divider(),
+                smallGapV,
+                makeSubHeading(
+                  showCurrentPermOnly
+                      ? 'People with current access'
+                      : 'Permission history',
+                  addPadding: false,
+                ),
+                smallGapV,
                 // Dropdown to select which resource's permission table/history to show.
                 if (widget.resourceNames != null) ...[
+                  // TODO: fix width and alignment of drop down relative to layout
                   DropdownButton<String>(
                     value: _selectedResourceName,
+                    focusColor: DropdownColors.primary,
+                    dropdownColor: DropdownColors.accent,
                     isExpanded: true,
+                    padding: const EdgeInsets.all(10),
+                    // menuWidth: 600,
+                    alignment: AlignmentGeometry.centerRight,
                     style: const TextStyle(fontSize: 12),
                     items: widget.resourceNames!
                         .map(
@@ -389,15 +411,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       }
                     },
                   ),
-                  smallGapV,
                 ],
-                makeSubHeading(
-                  showCurrentPermOnly
-                      ? 'People with current access'
-                      : 'Permission history',
-                  addPadding: false,
-                ),
-                smallGapV,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   spacing: 5.0,
