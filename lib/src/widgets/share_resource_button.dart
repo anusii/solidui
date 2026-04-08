@@ -118,6 +118,11 @@ class ShareResourceButton extends StatefulWidget {
 
   final ValueChanged<bool>? onShowFullPathChanged;
 
+  /// Optional background color for the Share Resource button.
+  /// When provided, overrides the theme's elevated button background.
+
+  final Color? shareButtonColor;
+
   const ShareResourceButton({
     super.key,
     required this.fileNameController,
@@ -134,6 +139,7 @@ class ShareResourceButton extends StatefulWidget {
     this.onShowFullPathChanged,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.shareButtonColor,
   });
 
   @override
@@ -201,13 +207,13 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
         mainAxisAlignment: MainAxisAlignment.end,
         spacing: 5,
         children: [
+          // Show full path switch
           if (widget.resourceNames != null || widget.resourceName != null) ...[
             const Text(
               'Show\nFull Path',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
-              // style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
             ),
             Switch(
               value: widget.showFullPath,
@@ -219,8 +225,20 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
               onChanged: widget.onShowFullPathChanged,
             ),
           ],
+          // Share Resource/s button
           ElevatedButton.icon(
             icon: const Icon(Icons.share),
+            // Set share button background color to
+            // parameter shareButtonColor or
+            // theme elevated button color
+            // or elevated button default (grey)
+            style: widget.shareButtonColor != null
+                ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                        widget.shareButtonColor!,
+                      ),
+                    )
+                : Theme.of(context).elevatedButtonTheme.style,
             onPressed: () async {
               // Assign dataFile if null (first Grant press)
               _resourceName = widget.resourceName ?? _fileNameController.text;

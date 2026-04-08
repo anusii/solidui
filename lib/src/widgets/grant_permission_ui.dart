@@ -79,6 +79,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.resourceNames,
     this.isFile = true,
     this.dataFilesMap = const {},
+    this.shareButtonColor,
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
@@ -167,6 +168,11 @@ class GrantPermissionUi extends StatefulWidget {
   /// fetch the ACLs needed to derive the user's recipient list.
 
   final Map<String, dynamic> dataFilesMap;
+
+  /// Optional background color for the Share Resource button.
+  /// When provided, it overrides the theme's elevated button background.
+
+  final Color? shareButtonColor;
 
   /// App specific app bar
 

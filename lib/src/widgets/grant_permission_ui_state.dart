@@ -363,6 +363,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 onPermissionGranted: widget.onPermissionGranted,
                 showFullPath: _showFullPath,
                 onShowFullPathChanged: (v) => setState(() => _showFullPath = v),
+                shareButtonColor: widget.shareButtonColor,
               ),
               // Separator between Sharing and Permissions sections
               const Divider(),
