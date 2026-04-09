@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Add showLogin to support no login button [0.3.15 20260410 gjw]
 + Support invisible LOGIN/CONTINUE buttons [0.3.14 20260409 gjw]
 + Support invisible REGISTER/INFO buttons for SolidLogin [0.3.13 20260409 gjw]
 + Retain app theme across restart [0.3.12 20260409 gjw]

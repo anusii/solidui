@@ -50,6 +50,7 @@ class SolidAppBarActionsManager {
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle, {
     bool hasLogout = false,
+    bool hasLogin = true,
   }) {
     // Check if we need to add missing buttons (standard or custom).
 

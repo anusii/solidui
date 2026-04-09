@@ -460,7 +460,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         showAnimationDialog(
           context,
           7,
-          'Verifying POD structure...',
+          '',
+          // 20260410 gjw Replaced the original 'Verifying POD structure...'
+          // message with nothing. It suddenly started appearing when I enter
+          // the app via CONTINUE and we are already logged in. I'm not sure
+          // that as a user I want to know this.
           false,
           updateState,
         );

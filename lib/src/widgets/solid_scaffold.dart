@@ -143,6 +143,12 @@ class SolidScaffold extends StatefulWidget {
 
   final bool showLogout;
 
+  /// Whether to show the login button in the app bar when logged out.
+  /// Defaults to true. Set to false when the app uses a dedicated login
+  /// screen (e.g. [SolidLogin]) and the app bar login button is unwanted.
+
+  final bool showLogin;
+
   /// Optional alert dialogue callback.
 
   final void Function(BuildContext, String, String?)? onShowAlert;
@@ -256,6 +262,7 @@ class SolidScaffold extends StatefulWidget {
     this.onLogout,
     this.onLogin,
     this.showLogout = true,
+    this.showLogin = true,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,
