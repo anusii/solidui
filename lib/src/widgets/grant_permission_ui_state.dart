@@ -395,7 +395,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                     setState(() => showCurrentPermOnly = value);
                     if (!showCurrentPermOnly) {
                       setState(
-                          () => permHistoryList = unFilteredPermHistoryList);
+                        () => permHistoryList = unFilteredPermHistoryList,
+                      );
                     }
                   },
                   onSearchLogs: _searchLogs,

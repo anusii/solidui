@@ -32,13 +32,11 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart';
 
 import 'package:solidui/src/widgets/grant_permission_resource_list.dart';
-import 'package:solidui/src/widgets/permission_dropdown_resource_list.dart';
 import 'package:solidui/src/widgets/permission_section.dart';
 
 part 'grant_permission_ui_state.dart';
