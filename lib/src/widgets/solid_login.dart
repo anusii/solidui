@@ -202,6 +202,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     solidThemeNotifier.addListener(_onThemeChanged);
 
+    // Load the persisted theme preference before the first build.
+    _initTheme();
+
     // Initialise focus nodes for keyboard navigation.
 
     _loginFocusNode = FocusNode(debugLabel: 'loginButton');
@@ -296,6 +299,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   void _onThemeChanged() => mounted ? setState(() {}) : null;
   bool get isDarkMode => SolidLoginThemeHelper.isDarkMode(context);
+
+  Future<void> _initTheme() async {
+    await solidThemeNotifier.initialize();
+    if (mounted) setState(() {});
+  }
 
   Future<void> _initPackageInfo() async {
     if (!mounted) return;
