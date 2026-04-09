@@ -66,19 +66,20 @@ Future<dynamic> loginWebIdInputDialog(BuildContext context) {
             if (!uri.isScheme('HTTPS') || !uri.toString().contains('://')) {
               return 'Must start with https://';
             }
-            // Check WebID contains host followed by '/'
 
-            if (!uri.path.contains('/')) {
-              return 'Must have form https://[POD server host]/[their username]/profile/card#me';
+            // Allow just the server URL (e.g. host with just / as path)
+            // If they entered more than just a '/', assume they are entering a WebID.
+            if (uri.path.length > 1) {
+              // Check for WebID path with profile suffix
+              if (!uri.path.toLowerCase().contains('/profile/card')) {
+                return 'Must end with \'/[your username]/profile/card#me\'';
+              }
+              // Check ends in #me
+              if (!(uri.fragment.toLowerCase() == 'me')) {
+                return 'Must end with URL fragment #me after /profile/card';
+              }
             }
-            // Check for WebID path with profile suffix
-            if (!uri.path.toLowerCase().contains('/profile/card')) {
-              return 'Must end with \'/[their username]/profile/card#me\'';
-            }
-            // Check ends in #me
-            if (!(uri.fragment.toLowerCase() == 'me')) {
-              return 'Must end with URL fragment #me after /profile/card';
-            }
+
             // Check fully qualified web address
             // 20250721 jm Retaining this check, may not be needed
             if (!Uri.parse(text.replaceAll('#me', '')).isAbsolute) {
@@ -104,7 +105,7 @@ Future<dynamic> loginWebIdInputDialog(BuildContext context) {
                 TextFormField(
                   controller: formControllerWebId,
                   decoration: InputDecoration(
-                    labelText: 'Individual\'s webID',
+                    labelText: 'Server URL or WebID',
                     hintText: '${SolidConfig.defaultServerUrl}/'
                         'username/profile/card#me',
                     errorText: textEntered ? getHelpText() : null,
