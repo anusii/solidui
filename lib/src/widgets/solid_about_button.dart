@@ -1,6 +1,6 @@
 /// Solid About Button.
 ///
-// Time-stamp: <Monday 2025-08-25 09:43:05 +1000 Graham Williams>
+// Time-stamp: <Thursday 2026-04-09 11:51:44 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -316,7 +316,7 @@ class SolidAbout {
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
               icon: const Icon(Icons.tune),
-              label: const Text('AppBar Layout Preferences'),
+              label: const Text('AppBar Preferences'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 SolidPreferencesDialog.show(context);
