@@ -151,14 +151,6 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
   late final TextEditingController _fileNameController;
 
-  /// Owner WebId
-
-  late final String _ownerWebId;
-
-  /// Granter WebId
-
-  late final String _granterWebId;
-
   /// Selected resource - assigned on Share Resource button press
 
   String _resourceName = '';
@@ -176,8 +168,6 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
     super.initState();
 
     _fileNameController = widget.fileNameController;
-    _ownerWebId = widget.ownerWebId;
-    _granterWebId = widget.granterWebId;
   }
 
   @override
@@ -256,8 +246,8 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
                       recipientTypeList: widget.recipientTypeList,
                       updatePermissionsFunction:
                           widget.updatePermissionsFunction,
-                      ownerWebId: _ownerWebId,
-                      granterWebId: _granterWebId,
+                      ownerWebId: widget.ownerWebId,
+                      granterWebId: widget.granterWebId,
                       isExternalRes: widget.isExternalRes,
                       isFile: _getIsFile(),
                       dataFilesMap: widget.dataFilesMap,
