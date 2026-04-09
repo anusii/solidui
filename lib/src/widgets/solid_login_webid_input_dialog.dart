@@ -31,7 +31,11 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:solidpod/solidpod.dart' show whatIsWebID, demoWebID;
 
+import 'package:solidui/solidui.dart'
+    show smallGapV, makeSubHeading, WebIdLayout;
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/solid_popup_login.dart';
@@ -41,59 +45,113 @@ import 'package:solidui/src/widgets/solid_popup_login.dart';
 /// [context] is the BuildContext from which this function is called.
 
 Future<dynamic> loginWebIdInputDialog(BuildContext context) {
-  final formControllerWebId = TextEditingController()
-    ..text = SolidConfig.defaultServerUrl;
   return showDialog(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 50),
-        title: const Text('Input server URL/your WebId to login'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Web ID text field.
-            TextFormField(
-              controller: formControllerWebId,
-              decoration: const InputDecoration(
-                hintText: '${SolidConfig.defaultServerUrl}/'
-                    'username/profile/card#me',
-              ),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () async {
-              final receiverWebId = formControllerWebId.text.trim();
+      final formControllerWebId = TextEditingController()
+        ..text = SolidConfig.defaultServerUrl;
+      bool textEntered = false;
 
-              // Check the web ID field is not empty and it is a true link.
+      return StatefulBuilder(
+        builder: (context, setState) {
+          String? getHelpText() {
+            final text = formControllerWebId.text.trim();
+            final uri = Uri.tryParse(text);
 
-              if (receiverWebId.isNotEmpty &&
-                  Uri.parse(receiverWebId.replaceAll('#me', '')).isAbsolute) {
-                if (!context.mounted) return;
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SolidPopupLogin(webId: receiverWebId),
-                  ),
-                );
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
-              } else {
-                if (!context.mounted) return;
-                await alert(context, 'Please enter a valid URL/WebID');
+            if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+              return 'Must start with https://';
+            }
+
+            // Check for https scheme and ://
+            if (!uri.isScheme('HTTPS') || !uri.toString().contains('://')) {
+              return 'Must start with https://';
+            }
+
+            // Allow just the server URL (e.g. host with just / as path)
+            // If they entered more than just a '/', assume they are entering a WebID.
+            if (uri.path.length > 1) {
+              // Check for WebID path with profile suffix
+              if (!uri.path.toLowerCase().contains('/profile/card')) {
+                return 'Must end with \'/[your username]/profile/card#me\'';
               }
-            },
-            child: const Text('Ok'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel'),
-          ),
-        ],
+              // Check ends in #me
+              if (!(uri.fragment.toLowerCase() == 'me')) {
+                return 'Must end with URL fragment #me after /profile/card';
+              }
+            }
+
+            // Check fully qualified web address
+            // 20250721 jm Retaining this check, may not be needed
+            if (!Uri.parse(text.replaceAll('#me', '')).isAbsolute) {
+              return 'Must be a fully qualified web address';
+            }
+            // return null if the text is valid
+            return null;
+          }
+
+          return AlertDialog(
+            insetPadding: WebIdLayout.contentPadding,
+            title: const Text('Input server URL/your WebId to login'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MarkdownTooltip(
+                  message: '$whatIsWebID Eg: $demoWebID',
+                  child: makeSubHeading('Enter your WebId'),
+                ),
+                smallGapV,
+                // Web ID text field.
+                TextFormField(
+                  controller: formControllerWebId,
+                  decoration: InputDecoration(
+                    labelText: 'Server URL or WebID',
+                    hintText: '${SolidConfig.defaultServerUrl}/'
+                        'username/profile/card#me',
+                    errorText: textEntered ? getHelpText() : null,
+                  ),
+                  onChanged: (value) => setState(() {
+                    textEntered = true;
+                  }),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () async {
+                  final receiverWebId = formControllerWebId.text.trim();
+
+                  // Check the web ID field is not empty and it is a true link.
+
+                  if (receiverWebId.isNotEmpty &&
+                      Uri.parse(receiverWebId.replaceAll('#me', ''))
+                          .isAbsolute) {
+                    if (!context.mounted) return;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SolidPopupLogin(webId: receiverWebId),
+                      ),
+                    );
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop();
+                  } else {
+                    if (!context.mounted) return;
+                    await alert(context, 'Please enter a valid URL/WebID');
+                  }
+                },
+                child: const Text('Ok'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+            ],
+          );
+        },
       );
     },
   );
