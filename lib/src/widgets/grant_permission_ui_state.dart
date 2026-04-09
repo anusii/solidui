@@ -363,7 +363,13 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   onResourceTypeChange: (bool v) => setState(() => isFile = v),
                 ),
                 smallGapV,
-                retrievePermissionButton,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  spacing: 5,
+                  children: [
+                    retrievePermissionButton,
+                  ],
+                ),
                 smallGapV,
               ],
               ShareResourceButton(
