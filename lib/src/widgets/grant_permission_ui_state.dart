@@ -307,23 +307,36 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 ),
               ),
               smallGapV,
-              // Resource list: left-aligned text items, styled to match
-              // the dropdown items.
+              // Resource list: left-aligned text items in a height-capped
+              // scrollable section so a long list doesn't overflow.
               if (widget.resourceNames != null) ...[
-                for (final name in widget.resourceNames!)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text(
-                        _displayName(name),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontSize: 12),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 120),
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final name in widget.resourceNames!)
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child: Text(
+                                  _displayName(name),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(fontSize: 12),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
+                ),
                 smallGapV,
               ] else if (resolvedResourceName != null) ...[
                 Align(
