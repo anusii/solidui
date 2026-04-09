@@ -392,7 +392,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               // Separator between Sharing and Permissions sections
               const Divider(),
               if (widget.resourceNames != null ||
-                  widget.resourceName != null) ...[
+                  widget.resourceName != null ||
+                  permDataFile.isNotEmpty) ...[
                 smallGapV,
                 makeSubHeading(
                   showCurrentPermOnly
@@ -500,7 +501,9 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   ),
                 smallGapV,
               ],
-              if (widget.resourceNames != null || widget.resourceName != null)
+              if (widget.resourceNames != null ||
+                  widget.resourceName != null ||
+                  permDataFile.isNotEmpty)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   spacing: 5.0,
@@ -590,7 +593,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       )
                     : PermissionHistory(
                         key: ValueKey(permHistoryList),
-                        resourceName: resolvedResourceName!,
+                        resourceName: resolvedResourceName ?? permDataFile,
                         permHistory: permHistoryList,
                         constraints: constraints,
                       ),
