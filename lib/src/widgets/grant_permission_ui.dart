@@ -37,6 +37,10 @@ import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart';
 
+import 'package:solidui/src/widgets/grant_permission_resource_list.dart';
+import 'package:solidui/src/widgets/permission_dropdown_resource_list.dart';
+import 'package:solidui/src/widgets/permission_section.dart';
+
 part 'grant_permission_ui_state.dart';
 
 /// A [StatefulWidget] for showing and editing access permissions to a

@@ -197,7 +197,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
         mainAxisAlignment: MainAxisAlignment.end,
         spacing: 5,
         children: [
-          // Show full path switch
+          // Show full path switch if not a user selected value
           if (widget.resourceNames != null || widget.resourceName != null) ...[
             const Text(
               'Show\nFull Path',
