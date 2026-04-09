@@ -125,7 +125,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     // otherwise use the first entry from resourceNames.
     final displayResource =
         widget.resourceName ?? widget.resourceNames?.firstOrNull;
-    _selectedResourceName = displayResource;
+    // When resourceNames is provided, start with no selection so the
+    // permission table/history are hidden until the user picks a resource.
+    _selectedResourceName =
+        widget.resourceNames != null ? null : displayResource;
     if (displayResource != null) {
       getACLPerm = loadACLData(
         displayResource,
@@ -364,14 +367,17 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               ),
               // Separator between Sharing and Permissions sections
               const Divider(),
-              smallGapV,
-              makeSubHeading(
-                showCurrentPermOnly
-                    ? 'People with current access'
-                    : 'Permission history',
-                addPadding: false,
-              ),
-              smallGapV,
+              if (widget.resourceNames != null ||
+                  widget.resourceName != null) ...[
+                smallGapV,
+                makeSubHeading(
+                  showCurrentPermOnly
+                      ? 'People with current access'
+                      : 'Permission history',
+                  addPadding: false,
+                ),
+                smallGapV,
+              ],
               // Dropdown to select which resource's permission table/history to show.
               if (widget.resourceNames != null) ...[
                 DropdownMenu<String>(
@@ -381,7 +387,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   // to zero to align with other elements
                   // in the layout
                   expandedInsets: const EdgeInsets.symmetric(horizontal: 0),
-                  initialSelection: _selectedResourceName,
+                  initialSelection: null,
                   label: Text(widget.isFile ? 'Select File' : 'Select Folder'),
                   textStyle: Theme.of(context)
                           .dropdownMenuTheme
@@ -457,95 +463,114 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   },
                 ),
                 smallGapV,
+                if (_selectedResourceName != null)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      _displayName(_selectedResourceName!),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontSize: 12),
+                    ),
+                  ),
+                smallGapV,
               ],
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 5.0,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: showCurrentPermOnly
-                        ? const Text('')
-                        : TextField(
-                            onChanged: (value) => _searchLogs(value),
-                            decoration: const InputDecoration(
-                              labelText:
-                                  'Search access level, permission type, recipient or granter name',
-                              labelStyle: TextStyle(fontSize: 12),
-                              hintText: 'Enter search text',
-                              hintStyle: TextStyle(fontSize: 12),
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(25.0)),
+              if (widget.resourceNames != null || widget.resourceName != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  spacing: 5.0,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: showCurrentPermOnly
+                          ? const Text('')
+                          : TextField(
+                              onChanged: (value) => _searchLogs(value),
+                              decoration: const InputDecoration(
+                                labelText:
+                                    'Search access level, permission type, recipient or granter name',
+                                labelStyle: TextStyle(fontSize: 12),
+                                hintText: 'Enter search text',
+                                hintStyle: TextStyle(fontSize: 12),
+                                prefixIcon: Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25.0)),
+                                ),
                               ),
                             ),
-                          ),
-                  ),
-                  SizedBox(
-                    width: 170.0,
-                    child: MarkdownTooltip(
-                      message:
-                          'Switch between current people with access and permission history log',
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        spacing: 5.0,
-                        children: [
-                          SizedBox(
-                            width: 100,
-                            child: Text(
-                              showCurrentPermOnly
-                                  ? 'Current Permissions'
-                                  : 'All Permissions',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.end,
+                    ),
+                    SizedBox(
+                      width: 170.0,
+                      child: MarkdownTooltip(
+                        message:
+                            'Switch between current people with access and permission history log',
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          spacing: 5.0,
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              child: Text(
+                                showCurrentPermOnly
+                                    ? 'Current Permissions'
+                                    : 'All Permissions',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.end,
+                              ),
                             ),
-                          ),
-                          Switch(
-                            value: showCurrentPermOnly,
-                            activeThumbColor: Theme.of(context)
-                                    .switchTheme
-                                    .thumbColor
-                                    ?.resolve(
-                                  {WidgetState.selected},
-                                ) ??
-                                ActionColors.success,
-                            onChanged: (bool value) {
-                              setState(() {
-                                showCurrentPermOnly = value;
-                              });
-                              if (!showCurrentPermOnly) {
+                            Switch(
+                              value: showCurrentPermOnly,
+                              activeThumbColor: Theme.of(context)
+                                      .switchTheme
+                                      .thumbColor
+                                      ?.resolve(
+                                    {WidgetState.selected},
+                                  ) ??
+                                  ActionColors.success,
+                              onChanged: (bool value) {
                                 setState(() {
-                                  permHistoryList = unFilteredPermHistoryList;
+                                  showCurrentPermOnly = value;
                                 });
-                              }
-                            },
-                          ),
-                        ],
+                                if (!showCurrentPermOnly) {
+                                  setState(() {
+                                    permHistoryList = unFilteredPermHistoryList;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               vSmallGapV,
-              showCurrentPermOnly
-                  ? PermissionTable(
-                      resourceName: permDataFile,
-                      permDataMap: permDataMap,
-                      ownerWebId: _ownerWebId,
-                      granterWebId: _granterWebId,
-                      updatePermissionsFunction: _updatePermissions,
-                      isFile: getIsFile(),
-                      isExternalRes: widget.isExternalRes,
-                      constraints: constraints,
-                    )
-                  : PermissionHistory(
-                      key: ValueKey(permHistoryList),
-                      resourceName: resolvedResourceName!,
-                      permHistory: permHistoryList,
-                      constraints: constraints,
-                    ),
+              // Show the permission table/history
+              // if single resource name or if
+              // a resource is selected from a resource list
+              if (widget.resourceNames == null ||
+                  _selectedResourceName != null) ...[
+                showCurrentPermOnly
+                    ? PermissionTable(
+                        resourceName: permDataFile,
+                        permDataMap: permDataMap,
+                        ownerWebId: _ownerWebId,
+                        granterWebId: _granterWebId,
+                        updatePermissionsFunction: _updatePermissions,
+                        isFile: getIsFile(),
+                        isExternalRes: widget.isExternalRes,
+                        constraints: constraints,
+                      )
+                    : PermissionHistory(
+                        key: ValueKey(permHistoryList),
+                        resourceName: resolvedResourceName!,
+                        permHistory: permHistoryList,
+                        constraints: constraints,
+                      ),
+              ],
             ],
           ),
         );
