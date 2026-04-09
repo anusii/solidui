@@ -313,6 +313,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxHeight: 120),
                   child: Scrollbar(
+                    // Show scrollbar always if > 3 selected
+                    // as this is when widget will be scrollable
+                    thumbVisibility:
+                        (widget.resourceNames!.length > 3) ? true : false,
                     child: SingleChildScrollView(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -320,9 +324,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                           for (final name in widget.resourceNames!)
                             Align(
                               alignment: Alignment.centerLeft,
+                              // Add 2 pixel vertical padding and
+                              // 1 pixel padding on RHS to avoid scrollbar
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 2),
+                                padding: const EdgeInsets.fromLTRB(0, 2, 1, 2),
                                 child: Text(
                                   _displayName(name),
                                   style: Theme.of(context)
