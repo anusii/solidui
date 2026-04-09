@@ -228,11 +228,13 @@ class LoginButtonStyle {
 
 class RegisterButtonStyle {
   const RegisterButtonStyle({
+    this.visible = true,
     this.text = defaultRegisterButtonText,
     this.background = registerButtonBackground,
     this.foreground = registerButtonForeground,
     this.tooltip = defaultRegisterTooltip,
   });
+  final bool visible;
   final String text;
   final Color background;
   final Color foreground;
@@ -241,11 +243,13 @@ class RegisterButtonStyle {
 
 class InfoButtonStyle {
   const InfoButtonStyle({
+    this.visible = true,
     this.text = defaultInfoButtonText,
     this.background = defaultButtonBackground,
     this.foreground = defaultButtonForeground,
     this.tooltip = defaultInfoTooltip,
   });
+  final bool visible;
   final String text;
   final Color background;
   final Color foreground;

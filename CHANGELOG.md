@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Support invisible REGISTER/INFO buttons for SolidLogin [0.3.13 20260409 gjw]
 + Retain app theme across restart [0.3.12 20260409 gjw]
 + Add get key if required to login [0.3.11 20260406 tonypioneer]
 + Fine tune UX for SolidScaffold elements [0.3.10 20260406 gjw]

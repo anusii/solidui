@@ -46,6 +46,7 @@ class SolidLoginBuildHelper {
     required TextEditingController webIdController,
     required FocusNode focusNode,
   }) {
+    if (!style.visible) return const SizedBox.shrink();
     return FocusTraversalOrder(
       order: const NumericFocusOrder(3),
       child: SolidLoginButtons.buildRegisterButton(
@@ -105,6 +106,7 @@ class SolidLoginBuildHelper {
     required String link,
     required FocusNode focusNode,
   }) {
+    if (!style.visible) return const SizedBox.shrink();
     return FocusTraversalOrder(
       order: const NumericFocusOrder(4),
       child: SolidLoginButtons.buildInfoButton(
