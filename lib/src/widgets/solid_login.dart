@@ -615,10 +615,17 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       title: widget.title,
       appVersion: appVersion,
       webIdController: webIdController,
-      loginButton: loginButton,
-      registerButton: registerButton,
-      continueButton: continueButton,
-      infoButton: infoButton,
+      buttons: [
+        if (widget.loginButtonStyle.visible) loginButton,
+        // When required=false, Continue is always shown — it is the primary
+        // path for non-mandatory login. When required=true, Register appears
+        // here and respects its own visible flag.
+        if (widget.required ? widget.registerButtonStyle.visible : true)
+          widget.required ? registerButton : continueButton,
+        if (!widget.required && widget.registerButtonStyle.visible)
+          registerButton,
+        if (widget.infoButtonStyle.visible) infoButton,
+      ],
       isRequired: widget.required,
       currentTheme: currentTheme,
       serverInputFocusNode: _serverInputFocusNode,

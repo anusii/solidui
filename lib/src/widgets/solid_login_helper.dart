@@ -191,11 +191,13 @@ class PodButton extends StatelessWidget {
 
 class ContinueButtonStyle {
   const ContinueButtonStyle({
+    this.visible = true,
     this.text = defaultContinueButtonText,
     this.background = defaultButtonBackground,
     this.foreground = defaultButtonForeground,
     this.tooltip = defaultContinueTooltip,
   });
+  final bool visible;
   final String text;
   final Color background;
   final Color foreground;
@@ -215,11 +217,13 @@ class ChangeKeyButtonStyle {
 
 class LoginButtonStyle {
   const LoginButtonStyle({
+    this.visible = true,
     this.text = defaultLoginButtonText,
     this.background = loginButtonBackground,
     this.foreground = loginButtonForeground,
     this.tooltip = defaultLoginTooltip,
   });
+  final bool visible;
   final String text;
   final Color background;
   final Color foreground;

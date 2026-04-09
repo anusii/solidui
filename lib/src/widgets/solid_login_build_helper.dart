@@ -70,6 +70,7 @@ class SolidLoginBuildHelper {
     required Future<void> Function() performLogin,
     required FocusNode focusNode,
   }) {
+    if (!style.visible) return const SizedBox.shrink();
     return FocusTraversalOrder(
       order: const NumericFocusOrder(1),
       child: SolidLoginButtons.buildLoginButton(
@@ -89,6 +90,7 @@ class SolidLoginBuildHelper {
     required Future<void> Function() performContinue,
     required FocusNode focusNode,
   }) {
+    if (!style.visible) return const SizedBox.shrink();
     return FocusTraversalOrder(
       order: const NumericFocusOrder(2),
       child: SolidLoginButtons.buildContinueButton(
