@@ -265,7 +265,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     final isInOverflow = actionConfig?.showInOverflow ?? false;
-    final order = actionConfig?.order ?? 900;
+    final order = actionConfig?.order ?? 999999;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
       orderedActions.add(

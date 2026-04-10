@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Place ABOUT button to right most by default [0.3.17 20260410 gjw]
 + Add mising wordWrap function [0.3.16 20260410 gjw]
 + Add showLogin to support no login button [0.3.15 20260410 gjw]
 + Support invisible LOGIN/CONTINUE buttons [0.3.14 20260409 gjw]

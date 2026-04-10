@@ -158,10 +158,15 @@ class SolidAppBarActionsManager {
     );
 
     // Sort by initial index and assign order values.
+    // About is always last — force its order to be higher than all others.
 
     actionEntries.sort((a, b) => a.initialIndex.compareTo(b.initialIndex));
     for (int i = 0; i < actionEntries.length; i++) {
-      actions.add(actionEntries[i].item.copyWith(order: i));
+      final entry = actionEntries[i];
+      final order = entry.item.id == SolidAppBarActionIds.about
+          ? 999999 // About always rightmost regardless of user preferences.
+          : i;
+      actions.add(entry.item.copyWith(order: order));
     }
 
     // If merging, combine existing actions with new ones.
