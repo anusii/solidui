@@ -42,6 +42,44 @@ import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
 
+/// Collapses single newlines (source-code soft wraps) into spaces so the
+/// Markdown renderer can reflow text to fit the dialog width.
+///
+/// Double newlines (paragraph breaks) and Markdown syntax lines (headings,
+/// links, bold, etc.) are preserved verbatim.
+
+String wordWrap(String text) {
+  // Normalise Windows line endings.
+  final s = text.replaceAll('\r\n', '\n');
+  final lines = s.split('\n');
+  final out = StringBuffer();
+
+  for (int i = 0; i < lines.length; i++) {
+    final line = lines[i];
+    final next = i + 1 < lines.length ? lines[i + 1] : null;
+
+    // Empty line = paragraph break — preserve as-is.
+    if (line.trim().isEmpty) {
+      out.writeln();
+      continue;
+    }
+
+    // Markdown structural lines (headings, list items, links, bold starts)
+    // must stay on their own line.
+    final isMdLine =
+        RegExp(r'^(#{1,6} |\*\*|\* |- |\[|\!)').hasMatch(line.trim());
+
+    if (isMdLine || next == null || next.trim().isEmpty) {
+      out.writeln(line);
+    } else {
+      // Soft wrap: join to next line with a space instead of a newline.
+      out.write('$line ');
+    }
+  }
+
+  return out.toString().trimRight();
+}
+
 /// A button that shows an About dialogue when pressed.
 
 class SolidAboutButton extends StatefulWidget {
