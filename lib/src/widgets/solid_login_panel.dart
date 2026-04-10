@@ -113,12 +113,13 @@ class SolidLoginPanel {
 
           if (staySignedInCheckbox != null) ...[
             if (tryAnotherAccountButton != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8.0,
+                runSpacing: 4.0,
                 children: [
                   staySignedInCheckbox,
-                  const SizedBox(width: 16.0),
                   tryAnotherAccountButton,
                 ],
               )
