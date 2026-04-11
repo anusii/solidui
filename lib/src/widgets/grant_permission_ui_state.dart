@@ -53,6 +53,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   List<LogRecord> permHistoryList = [];
   List<LogRecord> unFilteredPermHistoryList = [];
   bool showCurrentPermOnly = true;
+  String _searchCurrPermKeyword = '';
   bool isFile = true;
 
   /// True when [sharedResourcesHistory] returned an empty list, meaning
@@ -182,7 +183,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     }
   }
 
-  void _searchLogs(String enteredKeyword) {
+  void _searchHistPermissions(String enteredKeyword) {
     bool found(it) => it.toLowerCase().contains(enteredKeyword.toLowerCase());
 
     List<LogRecord> results = [];
@@ -201,6 +202,12 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
     setState(() {
       permHistoryList = results;
+    });
+  }
+
+  void _searchCurrPermissions(String enteredKeyword) {
+    setState(() {
+      _searchCurrPermKeyword = enteredKeyword;
     });
   }
 
@@ -416,12 +423,15 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   onShowCurrentPermOnlyChanged: (value) {
                     setState(() => showCurrentPermOnly = value);
                     if (!showCurrentPermOnly) {
-                      setState(
-                        () => permHistoryList = unFilteredPermHistoryList,
-                      );
+                      setState(() {
+                        permHistoryList = unFilteredPermHistoryList;
+                        _searchCurrPermKeyword = '';
+                      });
                     }
                   },
-                  onSearchLogs: _searchLogs,
+                  onSearchHistPermissions: _searchHistPermissions,
+                  onSearchCurrPermissions: _searchCurrPermissions,
+                  searchCurrPermKeyword: _searchCurrPermKeyword,
                 ),
               ),
             ],

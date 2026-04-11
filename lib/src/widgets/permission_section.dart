@@ -66,7 +66,10 @@ import 'package:solidui/src/widgets/permission_table.dart';
 /// is toggled.
 /// - [noPermissionHistory] - When true, shows an info message that the file
 /// has not been shared yet, in place of the search/switch and table.
-/// - [onSearchLogs] - Called when the search field changes.
+/// - [onSearchHistPermissions] - Called when the history search field changes.
+/// - [onSearchCurrPermissions] - Called when the current permissions search field
+/// changes.
+/// - [searchCurrPermKeyword] - Search keyword for filtering the current permissions table map.
 
 class PermissionSection extends StatelessWidget {
   const PermissionSection({
@@ -87,7 +90,9 @@ class PermissionSection extends StatelessWidget {
     required this.updatePermissionsFunction,
     required this.onSelectedResource,
     required this.onShowCurrentPermOnlyChanged,
-    required this.onSearchLogs,
+    required this.onSearchHistPermissions,
+    required this.onSearchCurrPermissions,
+    required this.searchCurrPermKeyword,
   });
 
   final List<String>? resourceNames;
@@ -106,13 +111,35 @@ class PermissionSection extends StatelessWidget {
   final Function updatePermissionsFunction;
   final Future<void> Function(String name) onSelectedResource;
   final void Function(bool value) onShowCurrentPermOnlyChanged;
-  final void Function(String keyword) onSearchLogs;
+  final void Function(String keyword) onSearchHistPermissions;
+  final void Function(String keyword) onSearchCurrPermissions;
+  final String searchCurrPermKeyword;
 
   /// Whether to show the heading, search/switch controls, and table.
   bool get _hasResource => resourceNames != null || permDataFile.isNotEmpty;
 
   /// The resolved single resource name (from widget params, not user input).
   String? get _resolvedResourceName => resourceNames?.firstOrNull;
+
+  /// Search bar widget for searching the permissions table or history
+  Widget searchBar({
+    required String label,
+    required void Function(String) onChanged,
+  }) {
+    return TextField(
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 12),
+        hintText: 'Enter search text',
+        hintStyle: const TextStyle(fontSize: 12),
+        prefixIcon: const Icon(Icons.search),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(25.0)),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,21 +188,15 @@ class PermissionSection extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: showCurrentPermOnly
-                    ? const Text('')
-                    : TextField(
-                        onChanged: onSearchLogs,
-                        decoration: const InputDecoration(
-                          labelText:
-                              'Search access level, permission type, recipient or granter name',
-                          labelStyle: TextStyle(fontSize: 12),
-                          hintText: 'Enter search text',
-                          hintStyle: TextStyle(fontSize: 12),
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(25.0)),
-                          ),
-                        ),
+                    ? searchBar(
+                        onChanged: onSearchCurrPermissions,
+                        label:
+                            'Search access level, recipient type, recipient name or WebId',
+                      )
+                    : searchBar(
+                        onChanged: onSearchHistPermissions,
+                        label:
+                            'Search access level, permission type, recipient or granter name',
                       ),
               ),
               SizedBox(
@@ -227,6 +248,7 @@ class PermissionSection extends StatelessWidget {
                   isFile: isFile,
                   isExternalRes: isExternalRes,
                   constraints: constraints,
+                  searchKeyword: searchCurrPermKeyword,
                 )
               : PermissionHistory(
                   key: ValueKey(permHistoryList),
