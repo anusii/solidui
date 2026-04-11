@@ -15,7 +15,15 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
-+ Add get key if required to login [0.3.10 20260406 tonypioneer]
++ Add a Wrap() to avoid overflow on SolidLogin [0.3.18 20260410 gjw]
++ Place ABOUT button to right most by default [0.3.17 20260410 gjw]
++ Add mising wordWrap function [0.3.16 20260410 gjw]
++ Add showLogin to support no login button [0.3.15 20260410 gjw]
++ Support invisible LOGIN/CONTINUE buttons [0.3.14 20260409 gjw]
++ Support invisible REGISTER/INFO buttons for SolidLogin [0.3.13 20260409 gjw]
++ Retain app theme across restart [0.3.12 20260409 gjw]
++ Add get key if required to login [0.3.11 20260406 tonypioneer]
++ Fine tune UX for SolidScaffold elements [0.3.10 20260406 gjw]
 + List files/folder count in FileBrowser, not just file count [0.3.9 20260402 gjw]
 + Add keep login and other webid to SolidLogin() [0.3.8 20260326 tonypioneer]
 + Adds additional layout width checks [0.3.7 20260326 tonypioneer]

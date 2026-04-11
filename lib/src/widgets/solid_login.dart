@@ -202,6 +202,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     solidThemeNotifier.addListener(_onThemeChanged);
 
+    // Load the persisted theme preference before the first build.
+    _initTheme();
+
     // Initialise focus nodes for keyboard navigation.
 
     _loginFocusNode = FocusNode(debugLabel: 'loginButton');
@@ -296,6 +299,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   void _onThemeChanged() => mounted ? setState(() {}) : null;
   bool get isDarkMode => SolidLoginThemeHelper.isDarkMode(context);
+
+  Future<void> _initTheme() async {
+    await solidThemeNotifier.initialize();
+    if (mounted) setState(() {});
+  }
 
   Future<void> _initPackageInfo() async {
     if (!mounted) return;
@@ -452,7 +460,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         showAnimationDialog(
           context,
           7,
-          'Verifying POD structure...',
+          '',
+          // 20260410 gjw Replaced the original 'Verifying POD structure...'
+          // message with nothing. It suddenly started appearing when I enter
+          // the app via CONTINUE and we are already logged in. I'm not sure
+          // that as a user I want to know this.
           false,
           updateState,
         );
@@ -607,10 +619,17 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       title: widget.title,
       appVersion: appVersion,
       webIdController: webIdController,
-      loginButton: loginButton,
-      registerButton: registerButton,
-      continueButton: continueButton,
-      infoButton: infoButton,
+      buttons: [
+        if (widget.loginButtonStyle.visible) loginButton,
+        // When required=false, Continue is always shown — it is the primary
+        // path for non-mandatory login. When required=true, Register appears
+        // here and respects its own visible flag.
+        if (widget.required ? widget.registerButtonStyle.visible : true)
+          widget.required ? registerButton : continueButton,
+        if (!widget.required && widget.registerButtonStyle.visible)
+          registerButton,
+        if (widget.infoButtonStyle.visible) infoButton,
+      ],
       isRequired: widget.required,
       currentTheme: currentTheme,
       serverInputFocusNode: _serverInputFocusNode,

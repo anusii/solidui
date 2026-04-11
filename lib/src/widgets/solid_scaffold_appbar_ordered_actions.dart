@@ -59,6 +59,7 @@ class SolidAppBarOrderedActionsBuilder {
     required SolidAboutConfig aboutConfig,
     required BuildContext context,
     bool showLogout = true,
+    bool showLogin = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
@@ -79,6 +80,7 @@ class SolidAppBarOrderedActionsBuilder {
     _addAuthButton(
       orderedActions,
       showLogout,
+      showLogin,
       onLogout,
       onLogin,
       isVeryNarrowScreen,
@@ -214,6 +216,7 @@ class SolidAppBarOrderedActionsBuilder {
   static void _addAuthButton(
     List<_OrderedAction> orderedActions,
     bool showLogout,
+    bool showLogin,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     bool isVeryNarrowScreen,
@@ -232,6 +235,7 @@ class SolidAppBarOrderedActionsBuilder {
           order: order,
           widget: SolidDynamicAuthButton(
             showLogout: showLogout,
+            showLogin: showLogin,
             onLogout: onLogout,
             onLogin: onLogin,
           ),
@@ -261,7 +265,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     final isInOverflow = actionConfig?.showInOverflow ?? false;
-    final order = actionConfig?.order ?? 900;
+    final order = actionConfig?.order ?? 999999;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
       orderedActions.add(

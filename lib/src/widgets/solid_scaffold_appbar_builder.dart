@@ -57,6 +57,7 @@ class SolidScaffoldAppBarBuilder {
     double narrowScreenThreshold, {
     bool hideNavRail = false,
     bool showLogout = true,
+    bool showLogin = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
@@ -65,6 +66,7 @@ class SolidScaffoldAppBarBuilder {
       config,
       themeToggle,
       hasLogout: showLogout,
+      hasLogin: showLogin,
     );
 
     final layoutWidth = constraints.maxWidth;
@@ -100,6 +102,7 @@ class SolidScaffoldAppBarBuilder {
       aboutConfig: aboutConfig,
       context: context,
       showLogout: showLogout,
+      showLogin: showLogin,
       onLogout: onLogout,
       onLogin: onLogin,
     );
@@ -115,6 +118,7 @@ class SolidScaffoldAppBarBuilder {
       aboutConfig,
       context,
       showLogout: showLogout,
+      showLogin: showLogin,
       onLogout: onLogout,
       onLogin: onLogin,
     );

@@ -159,6 +159,10 @@ class SolidScaffoldInternalConfig {
 
   final void Function(BuildContext)? onLogout;
 
+  /// Whether to show login button when logged out.
+
+  final bool showLogin;
+
   /// Optional alert dialogue callback.
 
   final void Function(BuildContext, String, String?)? onShowAlert;
@@ -269,6 +273,7 @@ class SolidScaffoldInternalConfig {
     this.statusBar,
     this.userInfo,
     this.onLogout,
+    this.showLogin = true,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,

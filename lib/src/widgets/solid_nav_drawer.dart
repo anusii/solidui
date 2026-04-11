@@ -79,6 +79,10 @@ class SolidNavDrawer extends StatefulWidget {
 
   final bool showLogout;
 
+  /// Whether to show the login button when not logged in.
+
+  final bool showLogin;
+
   /// Callback when the user name area is tapped (for login/logout).
 
   final void Function(BuildContext)? onUserNameTap;
@@ -105,6 +109,7 @@ class SolidNavDrawer extends StatefulWidget {
     this.logoutIcon,
     this.logoutText,
     this.showLogout = true,
+    this.showLogin = true,
     this.onUserNameTap,
     this.securityKeyStatus,
     this.additionalMenuItems,
