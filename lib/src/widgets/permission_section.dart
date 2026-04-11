@@ -45,7 +45,6 @@ import 'package:solidui/src/widgets/permission_table.dart';
 /// permission table or history.
 ///
 /// Parameters:
-/// - [resourceName] - Pre-set single resource name, if provided.
 /// - [resourceNames] - Pre-set list of resource names, if provided.
 /// - [permDataFile] - The resource name resolved from a user-entered filename.
 /// - [selectedResourceName] - Currently selected resource in the dropdown.
@@ -65,15 +64,17 @@ import 'package:solidui/src/widgets/permission_table.dart';
 /// dropdown.
 /// - [onShowCurrentPermOnlyChanged] - Called when the current/history switch
 /// is toggled.
+/// - [noPermissionHistory] - When true, shows an info message that the file
+/// has not been shared yet, in place of the search/switch and table.
 /// - [onSearchLogs] - Called when the search field changes.
 
 class PermissionSection extends StatelessWidget {
   const PermissionSection({
     super.key,
-    required this.resourceName,
     required this.resourceNames,
     required this.permDataFile,
     required this.selectedResourceName,
+    required this.noPermissionHistory,
     required this.isFile,
     required this.isExternalRes,
     required this.showFullPath,
@@ -89,10 +90,10 @@ class PermissionSection extends StatelessWidget {
     required this.onSearchLogs,
   });
 
-  final String? resourceName;
   final List<String>? resourceNames;
   final String permDataFile;
   final String? selectedResourceName;
+  final bool noPermissionHistory;
   final bool isFile;
   final bool isExternalRes;
   final bool showFullPath;
@@ -108,12 +109,10 @@ class PermissionSection extends StatelessWidget {
   final void Function(String keyword) onSearchLogs;
 
   /// Whether to show the heading, search/switch controls, and table.
-  bool get _hasResource =>
-      resourceNames != null || resourceName != null || permDataFile.isNotEmpty;
+  bool get _hasResource => resourceNames != null || permDataFile.isNotEmpty;
 
   /// The resolved single resource name (from widget params, not user input).
-  String? get _resolvedResourceName =>
-      resourceName ?? resourceNames?.firstOrNull;
+  String? get _resolvedResourceName => resourceNames?.firstOrNull;
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +129,8 @@ class PermissionSection extends StatelessWidget {
           smallGapV,
         ],
         // Dropdown to select which resource's permission table/history to show.
-        if (resourceNames != null)
+        // Only shown when there are multiple resources to choose from.
+        if (resourceNames != null && resourceNames!.length > 1)
           PermissionDropdownResourceList(
             resourceNames: resourceNames!,
             selectedResourceName: selectedResourceName,
@@ -138,6 +138,21 @@ class PermissionSection extends StatelessWidget {
             showFullPath: showFullPath,
             onSelected: onSelectedResource,
           ),
+        // Info message when resource has not been shared yet.
+        if (noPermissionHistory) ...[
+          smallGapV,
+          const Row(
+            children: [
+              Icon(Icons.info, color: Colors.grey, size: 18),
+              SizedBox(width: 8),
+              Text(
+                'You have not shared this file yet',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          smallGapV,
+        ],
         if (_hasResource)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

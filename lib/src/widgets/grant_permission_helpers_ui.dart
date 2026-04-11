@@ -124,21 +124,14 @@ const granterRecipientTypes = [RecipientType.individual, RecipientType.group];
 
 /// Get title of sharing page.
 String makeSharingTitleStr({
-  String? resourceName,
   List<String>? resourceNames,
   bool isFile = false,
 }) {
   if (resourceNames != null && resourceNames.length > 1) {
     return isFile ? 'Sharing multiple files' : 'Sharing multiple folders';
-  } else if (resourceNames != null || resourceName != null) {
+  } else if (resourceNames != null) {
     return isFile ? 'Sharing file' : 'Sharing folder';
   }
-
-  // [20260409 jesscmoore] As resource name now listed below title
-  // we can skip including it in title
-  // if (resourceName != null) {
-  //   return isFile ? 'Share $resourceName' : 'Share $resourceName folder';
-  // }
   return 'Share your data with other user\'s PODs';
 }
 

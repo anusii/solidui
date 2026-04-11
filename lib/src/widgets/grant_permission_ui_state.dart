@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Anushka Vidanage, Jess Moore, Ashley Tang, Dawei Chen
+/// Authors: Anushka Vidanage, Jess Moore, Ashley Tang, Dawei Chen, Tony Chen
 
 part of 'grant_permission_ui.dart';
 
@@ -54,6 +54,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   List<LogRecord> unFilteredPermHistoryList = [];
   bool showCurrentPermOnly = true;
   bool isFile = true;
+
+  /// True when [sharedResourcesHistory] returned an empty list, meaning
+  /// no sharing history exists for the current resource.
+  bool _noPermissionHistory = false;
 
   /// The resource currently selected for the permission table/history display.
   /// Defaults to the first (or only) resource; updated when the user picks a
@@ -121,14 +125,15 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   @override
   void initState() {
     super.initState();
-    // Resolve the display resource: explicit resourceName takes priority,
-    // otherwise use the first entry from resourceNames.
-    final displayResource =
-        widget.resourceName ?? widget.resourceNames?.firstOrNull;
-    // When resourceNames is provided, start with no selection so the
-    // permission table/history are hidden until the user picks a resource.
+    // Resolve the display resource from the first entry in resourceNames.
+    final displayResource = widget.resourceNames?.firstOrNull;
+    // For a single resource, pre-select it so the permission table loads
+    // immediately. For multiple resources, start with no selection so the
+    // user must pick one from the dropdown first.
     _selectedResourceName =
-        widget.resourceNames != null ? null : displayResource;
+        (widget.resourceNames != null && widget.resourceNames!.length > 1)
+            ? null
+            : displayResource;
     if (displayResource != null) {
       getACLPerm = loadACLData(
         displayResource,
@@ -167,11 +172,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     }
 
     if (updatedPermHistoryList.isEmpty) {
-      await _alert(
-        'We could not find permission log entries for resource by the name $fileName',
-      );
+      setState(() => _noPermissionHistory = true);
     } else {
       setState(() {
+        _noPermissionHistory = false;
         permHistoryList = updatedPermHistoryList;
         unFilteredPermHistoryList = updatedPermHistoryList;
       });
@@ -246,13 +250,17 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       permDataMap = initPermDetails.permissionMap;
       _ownerWebId = initPermDetails.ownerWebId;
       _granterWebId = initPermDetails.granterWebId;
-      permDataFile = widget.resourceName ?? widget.resourceNames!.first;
+      permDataFile = widget.resourceNames!.first;
       permTableInitialied = true;
     }
 
     if (initPermHistoryList != null && permHistoryInitialied == false) {
-      permHistoryList = initPermHistoryList;
-      unFilteredPermHistoryList = initPermHistoryList;
+      if (initPermHistoryList.isEmpty) {
+        _noPermissionHistory = true;
+      } else {
+        permHistoryList = initPermHistoryList;
+        unFilteredPermHistoryList = initPermHistoryList;
+      }
       permHistoryInitialied = true;
     }
 
@@ -268,9 +276,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       },
     );
 
-    // A resource is resolved if resourceName or resourceNames is provided.
-    final resolvedResourceName =
-        widget.resourceName ?? widget.resourceNames?.firstOrNull;
+    // A resource is resolved if resourceNames is provided.
+    final resolvedResourceName = widget.resourceNames?.firstOrNull;
     bool getIsFile() => resolvedResourceName != null ? widget.isFile : isFile;
 
     final PreferredSizeWidget? appBar;
@@ -299,7 +306,6 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 alignment: Alignment.centerLeft,
                 child: Text(
                   makeSharingTitleStr(
-                    resourceName: resolvedResourceName,
                     resourceNames: widget.resourceNames,
                     isFile: widget.isFile,
                   ),
@@ -345,8 +351,24 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 ),
                 smallGapV,
               ],
+              if (resolvedResourceName != null) ...[
+                // Show hint statement
+                Row(
+                  children: [
+                    // Show info icon on first line of hint message
+                    const Icon(Icons.info, color: Colors.grey, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      (widget.resourceNames!.length > 1)
+                          ? 'Click \'Share Resources\' button to share access to these files'
+                          : 'Click \'Share Resource\' button to share access to this file',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                smallGapV,
+              ],
               ShareResourceButton(
-                resourceName: resolvedResourceName,
                 resourceNames: widget.resourceNames,
                 fileNameController: fileNameController,
                 accessModeList: widget.accessModeList,
@@ -369,10 +391,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               // with resource selection if resourceNames not null
               Expanded(
                 child: PermissionSection(
-                  resourceName: widget.resourceName,
                   resourceNames: widget.resourceNames,
                   permDataFile: permDataFile,
                   selectedResourceName: _selectedResourceName,
+                  noPermissionHistory: _noPermissionHistory,
                   isFile: getIsFile(),
                   isExternalRes: widget.isExternalRes,
                   showFullPath: _showFullPath,
@@ -417,8 +439,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   }
 
   @override
-  Widget build(BuildContext context) => (widget.resourceName == null &&
-          widget.resourceNames == null)
+  Widget build(BuildContext context) => (widget.resourceNames == null)
       ? _buildPermPage(context)
       : FutureBuilder(
           future: Future.wait([

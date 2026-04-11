@@ -75,7 +75,12 @@ class PermissionDropdownResourceList extends StatelessWidget {
           // to zero to align with other elements in the layout
           expandedInsets: const EdgeInsets.symmetric(horizontal: 0),
           initialSelection: null,
-          label: Text(isFile ? 'Select File' : 'Select Folder'),
+          label: Text(
+            isFile ? 'Select File' : 'Select Folder',
+            style: const TextStyle(fontSize: 14),
+          ),
+          hintText:
+              isFile ? 'Pick file from the list' : 'Pick folder from the list',
           textStyle: Theme.of(context)
                   .dropdownMenuTheme
                   .textStyle

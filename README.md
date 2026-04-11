@@ -837,7 +837,10 @@ granting, editing, and revoking access permissions on resources stored
 in a Solid POD. Wrap it inside a navigation action to reach the
 permission management page.
 
-### Basic usage (browse all resources)
+### Basic usage to grant/revoke/change permissions for any resource
+
+This allows the user to select the resource, before inspecting their permissions
+and granting, revoking or editing permissions.
 
 ```dart
 ElevatedButton(
@@ -853,7 +856,7 @@ ElevatedButton(
 )
 ```
 
-### Permissions for a specific file
+### Grant/revoke/change permissions for a specific file
 
 ```dart
 ElevatedButton(
@@ -862,7 +865,7 @@ ElevatedButton(
     context,
     MaterialPageRoute(
       builder: (context) => const GrantPermissionUi(
-        resourceName: 'my-data-file.ttl',
+        resourceNames: ['my-data-file.ttl'],
         child: ReturnPage(),
       ),
     ),
@@ -870,7 +873,7 @@ ElevatedButton(
 )
 ```
 
-### Permissions for a specific directory
+### Grant/revoke/change permissions for a specific directory
 
 ```dart
 ElevatedButton(
@@ -879,7 +882,7 @@ ElevatedButton(
     context,
     MaterialPageRoute(
       builder: (context) => const GrantPermissionUi(
-        resourceName: 'parentDir/',
+        resourceNames: ['parentDir/'],
         child: ReturnPage(),
         isFile: false,
       ),
@@ -888,7 +891,7 @@ ElevatedButton(
 )
 ```
 
-### Permissions for an externally owned resource
+### Grant/revoke/change permissions for an externally owned resource
 
 When the user has *control* access to a resource owned by someone else:
 
@@ -899,8 +902,30 @@ ElevatedButton(
     context,
     MaterialPageRoute(
       builder: (context) => GrantPermissionUi(
-        resourceName: 'my-data-file.ttl',
+        resourceNames: const ['my-data-file.ttl'],
         isExternalRes: true,
+        ownerWebId: ownerWebId,
+        granterWebId: granterWebId,
+        child: ReturnPage(),
+      ),
+    ),
+  ),
+)
+```
+
+### Grant permissions for multiple user owned resources
+
+When the user wants to apply the same grant permission operation on
+a list of resources:
+
+```dart
+ElevatedButton(
+  child: const Text('Add/Delete Permissions for Multiple Files'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => GrantPermissionUi(
+        resourceNames: const ['my-data-file1.ttl', 'my-data-file2.ttl', 'my-data-file3.ttl'],
         ownerWebId: ownerWebId,
         granterWebId: granterWebId,
         child: ReturnPage(),

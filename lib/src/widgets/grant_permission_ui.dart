@@ -57,9 +57,11 @@ part 'grant_permission_ui_state.dart';
 /// - [recipientTypeList] - List of recipient type options to show.
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
 /// - [granterWebId] - WebId of the granter of the resource. Required if the resource is externall owned.
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
-/// - [resourceNames] - Alternatively provide a list of file urls of resources
-/// to perform the same permission granting operation all file urls in the list.
+/// - [resourceNames] - Optional list of file urls of resources to pre-set the
+/// resource. When a single resource is provided, it is shown as-is without a
+/// dropdown. When multiple resources are provided, a dropdown lets the user
+/// select which resource's permissions to view. The permission granting form
+/// applies to all resources in the list at once.
 /// - [isFile] - Boolean flag describing whether the resource is a file. If false, the resource is assumed to be a directory.
 /// - [customAppBar] - Specify a custom app bar widget.
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
@@ -76,7 +78,6 @@ class GrantPermissionUi extends StatefulWidget {
     this.recipientTypeList = const ['public', 'indi', 'auth', 'group'],
     this.ownerWebId,
     this.granterWebId,
-    this.resourceName,
     this.resourceNames,
     this.isFile = true,
     this.dataFilesMap = const {},
@@ -139,17 +140,11 @@ class GrantPermissionUi extends StatefulWidget {
 
   final List<String> recipientTypeList;
 
-  /// The name of the file or directory permission is being set to. This is a
-  /// non required parameter. If not set there will be a text field to define
-  /// the file name. If [isExternalRes] is set to true this must be set and the
-  /// value should be the url of the resource.
-
-  final String? resourceName;
-
-  /// Optional list of resource names when granting permission to multiple
-  /// resources at once. The first entry is used for display and ACL table
-  /// initialisation; [grantPermission] is called for each entry in the list.
-  /// When provided, [resourceName] may be omitted.
+  /// Optional list of resource names. When null, a text field is shown to
+  /// enter a resource manually. When one entry, it is pre-set and shown
+  /// without a dropdown. When multiple entries, a dropdown lets the user
+  /// select which resource's permissions to view; granting applies to all.
+  /// If [isExternalRes] is true, entries must be full resource URLs.
 
   final List<String>? resourceNames;
 

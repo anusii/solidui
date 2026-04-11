@@ -62,7 +62,9 @@ import 'package:solidui/src/widgets/show_selected_recipients.dart';
 /// provided [resourceName]
 ///
 /// Parameters:
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - List of resource names. The first entry is used for
+/// display in the dialog title and ACL table refresh. All entries receive
+/// the same permission grant.
 /// - [isExternalRes] - Boolean flag describing whether the resource
 /// is externally owned.
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
@@ -84,16 +86,11 @@ class GrantPermissionForm extends StatefulWidget {
 
   final String granterWebId;
 
-  /// The name of the file or directory that access is being granted for.
+  /// List of resource names to grant permission to. The first entry is used
+  /// for display in the dialog title and ACL table refresh after granting.
+  /// All entries receive the same permission grant sequentially.
 
-  final String resourceName;
-
-  /// Optional list of resource names when granting permission to multiple
-  /// resources at once. When provided, [grantPermission] is called
-  /// sequentially for each name using the same recipient and permission
-  /// selections. [resourceName] is used for display and ACL table refresh.
-
-  final List<String>? resourceNames;
+  final List<String> resourceNames;
 
   final bool isExternalRes;
 
@@ -134,8 +131,7 @@ class GrantPermissionForm extends StatefulWidget {
   const GrantPermissionForm({
     super.key,
     required this.updatePermissionsFunction,
-    required this.resourceName,
-    this.resourceNames,
+    required this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -297,7 +293,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: GrantPermFormLayout.contentPadding,
-      title: Text('Share ${widget.resourceName}'),
+      title: Text('Share ${widget.resourceNames.first}'),
       content: Scrollbar(
         thumbVisibility: true,
         child: SingleChildScrollView(
@@ -370,8 +366,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 // Grant permission for each resource sequentially.
                 // When resourceNames is provided all resources share the
                 // same recipient and permission selections.
-                final resourcesToGrant =
-                    widget.resourceNames ?? [widget.resourceName];
+                final resourcesToGrant = widget.resourceNames;
                 SolidFunctionCallStatus result =
                     SolidFunctionCallStatus.success;
                 try {
@@ -405,7 +400,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                   _showSnackBar(successMsg, ActionColors.success);
                   // Update permissions table
                   await widget.updatePermissionsFunction(
-                    widget.resourceName, //_resourceName,
+                    widget.resourceNames.first,
                     isFile: widget.isFile,
                     isExternalRes: widget.isExternalRes,
                   );
@@ -421,7 +416,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                   // Also log to console for debugging
                   debugPrintFailure(
-                    widget.resourceName, // _resourceName,
+                    widget.resourceNames.first,
                     finalWebIdList,
                     selectedPermList,
                   );

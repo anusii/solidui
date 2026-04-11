@@ -157,7 +157,7 @@ demo:exampleData$fileNumber
               foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
             ),
             body: GrantPermissionUi(
-              resourceName: _sampleFiles[_currentFileIndex],
+              resourceNames: [_sampleFiles[_currentFileIndex]],
               title: 'Demo: Grant Permission with Callback',
               accessModeList: const ['read'], // Simplified for demo.
               recipientTypeList: const ['indi'], // Individual permissions only.

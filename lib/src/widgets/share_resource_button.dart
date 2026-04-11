@@ -42,7 +42,9 @@ import 'package:solidui/src/widgets/grant_permission_form.dart';
 /// permission of an existing recipient.
 ///
 /// Parameters:
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - Optional list of resource names. When null, the
+/// [fileNameController] text is used. When one entry, that resource is
+/// pre-set. When multiple entries, granting applies to all.
 /// - [fileNameController] - The [TextEditingController] for the filename
 /// field.
 /// - [isExternalRes] - Boolean flag describing whether the resource
@@ -53,7 +55,6 @@ import 'package:solidui/src/widgets/grant_permission_form.dart';
 /// - [recipientTypeList] - List of recipient type options to show.
 /// - [isFile] - Boolean flag describing whether the resource is a file. If false, the resource is assumed to be a directory.
 /// - [updatePermissionsFunction] is the function to be called to refresh the permission table.
-///
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 
 class ShareResourceButton extends StatefulWidget {
@@ -67,13 +68,10 @@ class ShareResourceButton extends StatefulWidget {
 
   final String granterWebId;
 
-  /// The name of the file or directory that access is being granted for.
-
-  final String? resourceName;
-
-  /// Optional list of resource names when granting permission to multiple
-  /// resources at once. When provided, [resourceName] is used for display
-  /// only and the form grants permission to all names in the list.
+  /// Optional list of resource names when granting permission. When null, the
+  /// [fileNameController] text is used as the resource. When one entry, that
+  /// resource is pre-set. When multiple entries, the form grants permission to
+  /// all names in the list.
 
   final List<String>? resourceNames;
 
@@ -127,7 +125,6 @@ class ShareResourceButton extends StatefulWidget {
     super.key,
     required this.fileNameController,
     required this.updatePermissionsFunction,
-    this.resourceName,
     this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
@@ -187,7 +184,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   Future<void> _alert(String msg) async => alert(context, msg);
 
   // Resource is a file if resource selected in GrantPermissionUi()
-  bool _getIsFile() => widget.resourceName != null ? widget.isFile : isFile;
+  bool _getIsFile() => widget.resourceNames != null ? widget.isFile : isFile;
 
   @override
   Widget build(BuildContext context) {
@@ -197,8 +194,8 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
         mainAxisAlignment: MainAxisAlignment.end,
         spacing: 5,
         children: [
-          // Show full path switch if not a user selected value
-          if (widget.resourceNames != null || widget.resourceName != null) ...[
+          // Show full path switch when resource is pre-set
+          if (widget.resourceNames != null) ...[
             const Text(
               'Show\nFull Path',
               maxLines: 2,
@@ -230,8 +227,10 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
                     )
                 : Theme.of(context).elevatedButtonTheme.style,
             onPressed: () async {
-              // Assign dataFile if null (first Grant press)
-              _resourceName = widget.resourceName ?? _fileNameController.text;
+              // Resolve resource name: use first of resourceNames if set,
+              // otherwise fall back to user-entered filename.
+              _resourceName =
+                  widget.resourceNames?.firstOrNull ?? _fileNameController.text;
 
               if (_resourceName != '') {
                 // Display GrantPermissionForm dialog to enter
@@ -240,8 +239,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
                   context: context,
                   builder: (BuildContext dialogContext) {
                     return GrantPermissionForm(
-                      resourceName: _resourceName,
-                      resourceNames: widget.resourceNames,
+                      resourceNames: widget.resourceNames ?? [_resourceName],
                       accessModeList: widget.accessModeList,
                       recipientTypeList: widget.recipientTypeList,
                       updatePermissionsFunction:
