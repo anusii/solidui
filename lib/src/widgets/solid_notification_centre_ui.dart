@@ -186,7 +186,7 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
                     ),
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
                     onPressed: () => confirmAndDelete(n),
                     tooltip: 'Delete notification',
                   ),
@@ -210,7 +210,7 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
           clipBehavior: Clip.none,
           children: [
             Icon(
-              isRead ? Icons.mail_outline : Icons.mail,
+              isRead ? Icons.info_outline : Icons.info,
               size: 28,
             ),
             if (!isRead)
@@ -221,7 +221,7 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
                   width: 10,
                   height: 10,
                   decoration: const BoxDecoration(
-                    color: Colors.red,
+                    color: Colors.grey,
                     shape: BoxShape.circle,
                   ),
                 ),

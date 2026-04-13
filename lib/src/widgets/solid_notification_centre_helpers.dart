@@ -92,51 +92,163 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
 
     final dateTime =
         DateTime.fromMillisecondsSinceEpoch(notification.timestamp);
+    final senderName = extractName(notification.senderWebId);
+    final structured = _parseStructuredContent(notification.content);
+
+    final fileTitle = structured?['fileTitle'] ?? notification.title;
+    final permissions = structured?['permissions'];
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(notification.title)),
-            if (priorityIcon(notification.priority) != null)
-              priorityIcon(notification.priority)!,
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+
+        return AlertDialog(
+          title: Row(
             children: [
-              Text(
-                formatDateTime(dateTime),
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              detailRow('From', notification.senderWebId),
-              const SizedBox(height: 8),
-              detailRow('To', notification.recipientWebId),
-              if (notification.content != null) ...[
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 8),
-                SelectableText(notification.content!),
-              ],
+              const Expanded(child: Text('Notification')),
+              if (priorityIcon(notification.priority) != null)
+                priorityIcon(notification.priority)!,
             ],
           ),
-        ),
-        actions: [
-          TextButton.icon(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            label: const Text('Delete', style: TextStyle(color: Colors.red)),
-            onPressed: () {
-              Navigator.pop(ctx);
-              confirmAndDelete(notification);
-            },
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Scrollbar(
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      formatDateTime(dateTime),
+                      style:
+                          const TextStyle(color: Colors.grey, fontSize: 13),
+                    ),
+                    const SizedBox(height: 16),
+                    Text.rich(
+                      TextSpan(
+                        style: theme.textTheme.bodyLarge,
+                        children: [
+                          TextSpan(
+                            text: '$senderName shared the\n',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: '$fileTitle\n',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: 'file to you',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (permissions != null) ...[
+                      const SizedBox(height: 12),
+                      Text('with $permissions permission'),
+                    ],
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    _buildDetailsExpansionTile(
+                      notification,
+                      dateTime,
+                      structured,
+                      theme,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                confirmAndDelete(notification);
+              },
+              child: const Text('Delete'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Attempts to parse JSON-structured content from a notification.
+  /// Returns null for legacy plain-text content.
+
+  Map<String, dynamic>? _parseStructuredContent(String? content) {
+    if (content == null) return null;
+    try {
+      final decoded = jsonDecode(content);
+      if (decoded is Map<String, dynamic>) return decoded;
+    } on FormatException catch (_) {
+      // Legacy plain-text content; not JSON.
+    }
+    return null;
+  }
+
+  Widget _buildDetailsExpansionTile(
+    PodNotification notification,
+    DateTime dateTime,
+    Map<String, dynamic>? structured,
+    ThemeData theme,
+  ) {
+    final smallStyle = theme.textTheme.bodySmall;
+
+    final fileUrl = structured?['fileUrl'] ?? notification.title;
+    final fileTitle =
+        structured?['fileTitle'] ?? notification.title;
+    final sharedBy =
+        structured?['sharedBy'] ?? notification.senderWebId;
+    final owner =
+        structured?['owner'] ?? notification.senderWebId;
+    final permissions = structured?['permissions'] ?? '';
+
+    return ExpansionTile(
+      title: const Text('Details'),
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 8),
+      children: [
+        _detailLine('Date', formatDateTime(dateTime), smallStyle),
+        _detailLine('File', fileUrl, smallStyle),
+        _detailLine('Title', fileTitle, smallStyle),
+        _detailLine('Shared by', sharedBy, smallStyle),
+        _detailLine('Owner', owner, smallStyle),
+        _detailLine('Permissions', permissions, smallStyle),
+      ],
+    );
+  }
+
+  Widget _detailLine(String label, String value, TextStyle? style) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: style?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            child: SelectableText(value, style: style),
           ),
         ],
       ),

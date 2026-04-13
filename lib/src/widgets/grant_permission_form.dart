@@ -30,6 +30,8 @@
 
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
@@ -400,15 +402,20 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                     final displayName =
                         widget.resourceDisplayName ?? widget.resourceName;
 
+                    final permissions = selectedPermList.join(', ');
+
                     for (final recipientWebId in finalWebIdList) {
                       try {
                         await sendNotification(
                           recipientWebId: recipientWebId as String,
-                          title:
-                              'A resource has been shared with you: $displayName',
-                          content: 'You have been granted '
-                              '${selectedPermList.join(", ")} '
-                              'access to "$displayName".',
+                          title: 'Shared to you: $displayName',
+                          content: jsonEncode({
+                            'fileUrl': widget.resourceName,
+                            'fileTitle': displayName,
+                            'sharedBy': widget.granterWebId,
+                            'owner': widget.ownerWebId,
+                            'permissions': permissions,
+                          }),
                           priority: 1,
                         );
                       } on Object catch (e) {

@@ -151,6 +151,7 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton>
     return IconButton(
       icon: Badge(
         isLabelVisible: _unreadCount > 0,
+        backgroundColor: Colors.grey,
         label: Text('$_unreadCount'),
         child: const Icon(Icons.notifications_outlined),
       ),
