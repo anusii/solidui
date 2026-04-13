@@ -72,6 +72,7 @@ class SolidAppBarOrderedActionsBuilder {
       orderedActions,
       showNotifications,
       isVeryNarrowScreen,
+      config,
     );
     _addThemeToggle(
       orderedActions,
@@ -92,6 +93,7 @@ class SolidAppBarOrderedActionsBuilder {
       onLogin,
       isVeryNarrowScreen,
       context,
+      config,
     );
     _addAboutButton(
       orderedActions,
@@ -120,7 +122,10 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.themeToggle,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.themeToggle,
+        );
     final order = actionConfig?.order ?? 0;
 
     final shouldShow = isVisible &&
@@ -149,6 +154,7 @@ class SolidAppBarOrderedActionsBuilder {
     List<_OrderedAction> orderedActions,
     bool showNotifications,
     bool isVeryNarrowScreen,
+    SolidAppBarConfig config,
   ) {
     if (!showNotifications) return;
 
@@ -156,7 +162,10 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.notifications,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.notifications,
+        );
     final order = actionConfig?.order ?? 800;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
@@ -182,7 +191,8 @@ class SolidAppBarOrderedActionsBuilder {
       final actionId = action.id ?? 'action_$i';
       final actionConfig = SolidAppBarActionsManager.getActionConfig(actionId);
       final isVisible = actionConfig?.isVisible ?? true;
-      final isInOverflow = actionConfig?.showInOverflow ?? false;
+      final isInOverflow = actionConfig?.showInOverflow ??
+          config.defaultOverflowActionIds.contains(actionId);
       final order = actionConfig?.order ?? (100 + i);
 
       final shouldShow = isVisible &&
@@ -254,12 +264,16 @@ class SolidAppBarOrderedActionsBuilder {
     void Function(BuildContext)? onLogin,
     bool isVeryNarrowScreen,
     BuildContext context,
+    SolidAppBarConfig config,
   ) {
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
       SolidAppBarActionIds.logout,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.logout,
+        );
     final order = actionConfig?.order ?? 400;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
@@ -297,7 +311,10 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.about,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.about,
+        );
     final order = actionConfig?.order ?? 999999;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {

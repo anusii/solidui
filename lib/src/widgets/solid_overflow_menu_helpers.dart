@@ -60,6 +60,11 @@ class SolidOverflowMenuHelpers {
       solidPreferencesNotifier.appBarActions,
     )..sort((a, b) => a.order.compareTo(b.order));
 
+    final customActionIds = <String>{
+      for (int i = 0; i < config.actions.length; i++)
+        config.actions[i].id ?? 'action_$i',
+    };
+
     for (final actionItem in allActions) {
       if (!actionItem.isVisible || !actionItem.showInOverflow) continue;
 
@@ -76,7 +81,7 @@ class SolidOverflowMenuHelpers {
         _addAbout(items, hasAboutInOverflow, aboutConfig);
       } else if (actionItem.id == SolidAppBarActionIds.notifications) {
         _addNotifications(items, actionItem);
-      } else if (actionItem.id.startsWith('action_')) {
+      } else if (customActionIds.contains(actionItem.id)) {
         _addCustomAction(items, actionItem, config);
       } else {
         _addCustomOverflow(items, actionItem, config);
@@ -187,16 +192,19 @@ class SolidOverflowMenuHelpers {
     SolidAppBarActionItem actionItem,
     SolidAppBarConfig config,
   ) {
-    final actionIndex = int.tryParse(actionItem.id.replaceFirst('action_', ''));
     SolidAppBarAction? action;
-    if (actionIndex != null && actionIndex < config.actions.length) {
-      action = config.actions[actionIndex];
-    } else {
-      action = config.actions.cast<SolidAppBarAction?>().firstWhere(
-            (a) => a?.id == actionItem.id,
-            orElse: () => null,
-          );
+
+    // Match by explicit id first, then fall back to auto-generated index.
+
+    for (int i = 0; i < config.actions.length; i++) {
+      final a = config.actions[i];
+      final effectiveId = a.id ?? 'action_$i';
+      if (effectiveId == actionItem.id) {
+        action = a;
+        break;
+      }
     }
+
     if (action != null) {
       items.add(
         PopupMenuItem<String>(

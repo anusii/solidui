@@ -67,7 +67,15 @@ class SolidAppBarActionsManager {
           hasNotifications,
         );
 
-    if (!needsInit && !needsMerge) return;
+    // Apply app-level overflow defaults to existing preferences, ensuring
+    // actions listed in defaultOverflowActionIds are moved to the overflow
+    // menu even when preferences have already been persisted from a
+    // previous session.
+
+    if (!needsInit && !needsMerge) {
+      _applyDefaultOverflows(existingActions, config.defaultOverflowActionIds);
+      return;
+    }
 
     final actions = <SolidAppBarActionItem>[];
 
@@ -76,16 +84,17 @@ class SolidAppBarActionsManager {
     final actionEntries = <_ActionEntry>[];
 
     // Add theme toggle if enabled.
-    // Default: show in AppBar.
 
     if (themeToggle != null && themeToggle.enabled) {
       actionEntries.add(
         _ActionEntry(
-          item: const SolidAppBarActionItem(
+          item: SolidAppBarActionItem(
             id: SolidAppBarActionIds.themeToggle,
             label: 'Theme Toggle',
             icon: Icons.brightness_6,
-            showInOverflow: false, // Show in AppBar by default.
+            showInOverflow: config.defaultOverflowActionIds.contains(
+              SolidAppBarActionIds.themeToggle,
+            ),
           ),
           initialIndex: 0, // Theme toggle defaults to first position.
         ),
@@ -93,16 +102,17 @@ class SolidAppBarActionsManager {
     }
 
     // Add notification button if enabled.
-    // Default: show in AppBar, second-to-last (just before About).
 
     if (hasNotifications) {
       actionEntries.add(
         _ActionEntry(
-          item: const SolidAppBarActionItem(
+          item: SolidAppBarActionItem(
             id: SolidAppBarActionIds.notifications,
             label: 'Notifications',
             icon: Icons.notifications_outlined,
-            showInOverflow: false,
+            showInOverflow: config.defaultOverflowActionIds.contains(
+              SolidAppBarActionIds.notifications,
+            ),
           ),
           initialIndex: 800, // After logout (300), just before About (900).
         ),
@@ -110,7 +120,6 @@ class SolidAppBarActionsManager {
     }
 
     // Add custom actions from config.
-    // Default: show in AppBar.
 
     for (int i = 0; i < config.actions.length; i++) {
       final action = config.actions[i];
@@ -125,7 +134,8 @@ class SolidAppBarActionsManager {
             id: actionId,
             label: action.tooltip ?? 'Action',
             icon: action.icon,
-            showInOverflow: false, // Show in AppBar by default.
+            showInOverflow:
+                config.defaultOverflowActionIds.contains(actionId),
           ),
           initialIndex: initialIndex,
         ),
@@ -133,7 +143,6 @@ class SolidAppBarActionsManager {
     }
 
     // Add overflow items from config.
-    // Default: show in AppBar (user can move to overflow via preferences).
 
     for (int i = 0; i < config.overflowItems.length; i++) {
       final item = config.overflowItems[i];
@@ -143,7 +152,8 @@ class SolidAppBarActionsManager {
             id: item.id,
             label: item.label,
             icon: item.icon,
-            showInOverflow: false, // Show in AppBar by default.
+            showInOverflow:
+                config.defaultOverflowActionIds.contains(item.id),
           ),
           initialIndex: 200 + i, // Overflow items come after regular actions.
         ),
@@ -151,32 +161,34 @@ class SolidAppBarActionsManager {
     }
 
     // Add Logout button if the application has provided a logout callback.
-    // Default: show in AppBar.
 
     if (hasLogout) {
       actionEntries.add(
         _ActionEntry(
-          item: const SolidAppBarActionItem(
+          item: SolidAppBarActionItem(
             id: SolidAppBarActionIds.logout,
             label: 'Logout',
             icon: Icons.logout,
-            showInOverflow: false, // Show in AppBar by default.
+            showInOverflow: config.defaultOverflowActionIds.contains(
+              SolidAppBarActionIds.logout,
+            ),
           ),
           initialIndex: 300, // Logout button after custom/overflow actions.
         ),
       );
     }
 
-    // Add About button.
-    // Default: show in AppBar, rightmost position.
+    // Add About button (rightmost position).
 
     actionEntries.add(
       _ActionEntry(
-        item: const SolidAppBarActionItem(
+        item: SolidAppBarActionItem(
           id: SolidAppBarActionIds.about,
           label: 'About',
           icon: Icons.info_outline,
-          showInOverflow: false, // Show in AppBar by default.
+          showInOverflow: config.defaultOverflowActionIds.contains(
+            SolidAppBarActionIds.about,
+          ),
         ),
         initialIndex: 900, // About button at the rightmost position.
       ),
@@ -291,6 +303,34 @@ class SolidAppBarActionsManager {
     }
 
     return merged;
+  }
+
+  /// Ensures that actions listed in [defaultOverflowActionIds] have
+  /// showInOverflow set to true in the existing preferences. This handles
+  /// the case where preferences were persisted in a previous session before
+  /// the app declared these defaults.
+
+  static void _applyDefaultOverflows(
+    List<SolidAppBarActionItem> existingActions,
+    Set<String> defaultOverflowActionIds,
+  ) {
+    if (defaultOverflowActionIds.isEmpty) return;
+
+    bool needsUpdate = false;
+    final updated = existingActions.map((action) {
+      if (defaultOverflowActionIds.contains(action.id) &&
+          !action.showInOverflow) {
+        needsUpdate = true;
+        return action.copyWith(showInOverflow: true);
+      }
+      return action;
+    }).toList();
+
+    if (needsUpdate) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        solidPreferencesNotifier.setAppBarActions(updated);
+      });
+    }
   }
 
   /// Gets the action item configuration from preferences by ID.

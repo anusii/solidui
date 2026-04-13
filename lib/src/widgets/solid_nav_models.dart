@@ -370,6 +370,11 @@ class SolidAppBarConfig {
 
   final double veryNarrowScreenThreshold;
 
+  /// Action IDs that should default to the overflow menu on very narrow
+  /// screens.
+
+  final Set<String> defaultOverflowActionIds;
+
   const SolidAppBarConfig({
     required this.title,
     this.backgroundColor,
@@ -380,6 +385,7 @@ class SolidAppBarConfig {
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.veryNarrowScreenThreshold =
         NavigationConstants.veryNarrowScreenThreshold,
+    this.defaultOverflowActionIds = const {},
   });
 }
 
