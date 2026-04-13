@@ -122,8 +122,7 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
                   children: [
                     Text(
                       formatDateTime(dateTime),
-                      style:
-                          const TextStyle(color: Colors.grey, fontSize: 13),
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
                     ),
                     const SizedBox(height: 16),
                     Text.rich(
@@ -211,12 +210,9 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
     final smallStyle = theme.textTheme.bodySmall;
 
     final fileUrl = structured?['fileUrl'] ?? notification.title;
-    final fileTitle =
-        structured?['fileTitle'] ?? notification.title;
-    final sharedBy =
-        structured?['sharedBy'] ?? notification.senderWebId;
-    final owner =
-        structured?['owner'] ?? notification.senderWebId;
+    final fileTitle = structured?['fileTitle'] ?? notification.title;
+    final sharedBy = structured?['sharedBy'] ?? notification.senderWebId;
+    final owner = structured?['owner'] ?? notification.senderWebId;
     final permissions = structured?['permissions'] ?? '';
 
     return ExpansionTile(
@@ -284,16 +280,6 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
       default:
         return null;
     }
-  }
-
-  Widget detailRow(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-        Expanded(child: SelectableText(value)),
-      ],
-    );
   }
 
   String extractName(String webId) {
