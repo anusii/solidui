@@ -51,7 +51,7 @@ class NavigationConstants {
 
   /// Minimum width for the navigation rail.
 
-  static const double navRailMinWidth = 80.0;
+  static const double navRailMinWidth = 84.0;
 
   /// Vertical alignment for navigation rail items.
 
@@ -59,19 +59,19 @@ class NavigationConstants {
 
   /// Icon size for navigation items.
 
-  static const double navIconSize = 26.0;
+  static const double navIconSize = 24.0;
 
   /// Font size for navigation labels.
 
-  static const double navLabelFontSize = 10.5;
+  static const double navLabelFontSize = 11.0;
 
   /// Letter spacing for navigation labels.
 
-  static const double navLabelLetterSpacing = 0.2;
+  static const double navLabelLetterSpacing = 0.3;
 
   /// Vertical padding for navigation rail destinations.
 
-  static const double navDestinationVerticalPadding = 6.0;
+  static const double navDestinationVerticalPadding = 8.0;
 
   /// Maximum lines for navigation labels.
 

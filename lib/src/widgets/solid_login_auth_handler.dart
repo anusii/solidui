@@ -46,6 +46,8 @@ import 'package:solidpod/solidpod.dart'
         solidAuthenticate;
 
 import 'package:solidui/src/screens/initial_setup_screen.dart';
+import 'package:solidui/src/utils/solid_pod_helpers.dart'
+    show getKeyFromUserIfRequired;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
@@ -149,6 +151,8 @@ class SolidLoginAuthHandler {
       }
 
       if (!context.mounted) return false;
+      await getKeyFromUserIfRequired(context, childWidget);
+      if (!context.mounted) return true;
       await pushReplacement(context, childWidget);
     }
 
@@ -351,6 +355,8 @@ class SolidLoginAuthHandler {
         }
 
         if (!context.mounted) return false;
+        await getKeyFromUserIfRequired(context, childWidget);
+        if (!context.mounted) return true;
         await pushReplacement(context, childWidget);
       }
 

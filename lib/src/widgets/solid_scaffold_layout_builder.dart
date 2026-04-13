@@ -74,7 +74,6 @@ class SolidScaffoldLayoutBuilder {
                   onTabSelected: onTabSelected,
                   onShowAlert: onShowAlert,
                 ),
-                VerticalDivider(width: 1, color: theme.dividerColor),
                 Expanded(child: effectiveChild),
               ],
             ),

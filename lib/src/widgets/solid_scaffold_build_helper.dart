@@ -166,6 +166,7 @@ class SolidScaffoldBuildHelper {
           getVersionToDisplay,
           hideNavRail: config.hideNavRail,
           showLogout: config.onLogout != null,
+          showLogin: config.showLogin,
           onLogout: config.onLogout,
           constraints: constraints,
         ),
@@ -195,6 +196,7 @@ class SolidScaffoldBuildHelper {
           onTabSelected: onMenuSelected,
           onLogout: config.onLogout,
           showLogout: config.onLogout != null,
+          showLogin: config.showLogin,
           onUserNameTap: (drawerContext) =>
               SolidAuthHandler.instance.handleAuthAction(drawerContext),
           securityKeyStatus: drawerSecurityKeyStatus,

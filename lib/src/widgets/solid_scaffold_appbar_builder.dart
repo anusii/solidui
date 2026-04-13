@@ -57,6 +57,7 @@ class SolidScaffoldAppBarBuilder {
     double narrowScreenThreshold, {
     bool hideNavRail = false,
     bool showLogout = true,
+    bool showLogin = true,
     bool showNotifications = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
@@ -66,6 +67,7 @@ class SolidScaffoldAppBarBuilder {
       config,
       themeToggle,
       hasLogout: showLogout,
+      hasLogin: showLogin,
       hasNotifications: showNotifications,
     );
 
@@ -102,6 +104,7 @@ class SolidScaffoldAppBarBuilder {
       aboutConfig: aboutConfig,
       context: context,
       showLogout: showLogout,
+      showLogin: showLogin,
       showNotifications: showNotifications,
       onLogout: onLogout,
       onLogin: onLogin,
@@ -118,13 +121,35 @@ class SolidScaffoldAppBarBuilder {
       aboutConfig,
       context,
       showLogout: showLogout,
+      showLogin: showLogin,
       onLogout: onLogout,
       onLogin: onLogin,
     );
 
     return AppBar(
-      title: Text(config.title),
+      title: Text(
+        config.title,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.3,
+          fontSize: 18,
+          color: config.backgroundColor != null
+              ? ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
+                      Brightness.dark
+                  ? Colors.white
+                  : Colors.black87
+              : null,
+        ),
+      ),
       backgroundColor: config.backgroundColor,
+      foregroundColor: config.backgroundColor != null
+          ? ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
+                  Brightness.dark
+              ? Colors.white
+              : Colors.black87
+          : null,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
       automaticallyImplyLeading: isNarrowScreen,
       actions: actions.isEmpty ? null : actions,
     );

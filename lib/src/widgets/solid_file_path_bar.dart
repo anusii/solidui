@@ -328,24 +328,22 @@ class PathBar extends StatelessWidget {
                     ),
                   )
                 else
-                  Row(
-                    children: [
-                      Text(
-                        'Directories: $currentDirDirectoryCount',
+                  Builder(
+                    builder: (context) {
+                      final total =
+                          currentDirDirectoryCount + currentDirFileCount;
+                      final dirs = currentDirDirectoryCount;
+                      final files = currentDirFileCount;
+                      return Text(
+                        '$total item${total == 1 ? '' : 's'}'
+                        ' ($dirs director${dirs == 1 ? 'y' : 'ies'}'
+                        ' and $files file${files == 1 ? '' : 's'})',
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: 12,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Files: $currentDirFileCount',
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
 
                 const SizedBox(width: 12),

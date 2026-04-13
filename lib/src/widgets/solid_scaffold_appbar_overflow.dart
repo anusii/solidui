@@ -57,6 +57,7 @@ class SolidAppBarOverflowHandler {
     SolidAboutConfig aboutConfig,
     BuildContext context, {
     bool showLogout = true,
+    bool showLogin = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {

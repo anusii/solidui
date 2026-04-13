@@ -92,11 +92,23 @@ class SolidNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final effectiveIconSize = iconSize ?? NavigationConstants.navIconSize;
+    final effectiveLabelSize =
+        labelFontSize ?? NavigationConstants.navLabelFontSize;
 
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
       child: Container(
-        color: theme.colorScheme.surface,
+        decoration: BoxDecoration(
+          color: cs.surface,
+          border: Border(
+            right: BorderSide(
+              color: cs.outlineVariant.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+        ),
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -104,7 +116,7 @@ class SolidNavBar extends StatelessWidget {
             ),
             child: IntrinsicHeight(
               child: NavigationRail(
-                backgroundColor: theme.colorScheme.surface,
+                backgroundColor: Colors.transparent,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) =>
                     _handleTabSelection(index, context),
@@ -112,13 +124,30 @@ class SolidNavBar extends StatelessWidget {
                 minWidth: minWidth ?? NavigationConstants.navRailMinWidth,
                 groupAlignment:
                     groupAlignment ?? NavigationConstants.navRailGroupAlignment,
+                useIndicator: true,
+                indicatorColor: cs.primaryContainer.withValues(alpha: 0.6),
+                indicatorShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                selectedIconTheme: IconThemeData(
+                  size: effectiveIconSize,
+                  color: cs.primary,
+                ),
+                unselectedIconTheme: IconThemeData(
+                  size: effectiveIconSize,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
                 destinations: tabs.map((tab) {
                   final tooltipMessage = tab.tooltip ?? tab.message;
+                  final isSelected = tabs.indexOf(tab) == selectedIndex;
 
                   Widget iconWidget = Icon(
                     tab.icon,
-                    size: iconSize ?? NavigationConstants.navIconSize,
-                    color: tab.color ?? theme.colorScheme.primary,
+                    size: effectiveIconSize,
+                    color: isSelected
+                        ? cs.primary
+                        : (tab.color ??
+                            cs.onSurfaceVariant.withValues(alpha: 0.7)),
                   );
 
                   // Wrap with tooltip if available.
@@ -135,8 +164,7 @@ class SolidNavBar extends StatelessWidget {
                     label: Text(
                       tab.title,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: labelFontSize ??
-                            NavigationConstants.navLabelFontSize,
+                        fontSize: effectiveLabelSize,
                         fontWeight: FontWeight.w500,
                         letterSpacing:
                             NavigationConstants.navLabelLetterSpacing,
@@ -152,18 +180,16 @@ class SolidNavBar extends StatelessWidget {
                   );
                 }).toList(),
                 selectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
-                  fontSize:
-                      labelFontSize ?? NavigationConstants.navLabelFontSize,
-                  fontWeight: FontWeight.w600,
+                  fontSize: effectiveLabelSize,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: NavigationConstants.navLabelLetterSpacing,
-                  color: theme.colorScheme.primary,
+                  color: cs.primary,
                 ),
                 unselectedLabelTextStyle: theme.textTheme.bodySmall?.copyWith(
-                  fontSize:
-                      labelFontSize ?? NavigationConstants.navLabelFontSize,
+                  fontSize: effectiveLabelSize,
                   fontWeight: FontWeight.w400,
                   letterSpacing: NavigationConstants.navLabelLetterSpacing,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.6),
                 ),
               ),
             ),

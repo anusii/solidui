@@ -60,6 +60,7 @@ class SolidAppBarOrderedActionsBuilder {
     required SolidAboutConfig aboutConfig,
     required BuildContext context,
     bool showLogout = true,
+    bool showLogin = true,
     bool showNotifications = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
@@ -86,6 +87,7 @@ class SolidAppBarOrderedActionsBuilder {
     _addAuthButton(
       orderedActions,
       showLogout,
+      showLogin,
       onLogout,
       onLogin,
       isVeryNarrowScreen,
@@ -193,9 +195,12 @@ class SolidAppBarOrderedActionsBuilder {
 
       if (shouldShow) {
         Widget iconButton = IconButton(
-          icon: Icon(action.icon),
+          icon: Icon(action.icon, size: 22),
           onPressed: action.onPressed,
           color: action.color,
+          splashRadius: 20,
+          padding: const EdgeInsets.all(8),
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
         );
 
         if (action.tooltip != null) {
@@ -224,8 +229,11 @@ class SolidAppBarOrderedActionsBuilder {
 
       if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
         Widget iconButton = IconButton(
-          icon: Icon(item.icon),
+          icon: Icon(item.icon, size: 22),
           onPressed: item.onSelected,
+          splashRadius: 20,
+          padding: const EdgeInsets.all(8),
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
         );
 
         iconButton = MarkdownTooltip(message: item.label, child: iconButton);
@@ -241,6 +249,7 @@ class SolidAppBarOrderedActionsBuilder {
   static void _addAuthButton(
     List<_OrderedAction> orderedActions,
     bool showLogout,
+    bool showLogin,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     bool isVeryNarrowScreen,
@@ -259,6 +268,7 @@ class SolidAppBarOrderedActionsBuilder {
           order: order,
           widget: SolidDynamicAuthButton(
             showLogout: showLogout,
+            showLogin: showLogin,
             onLogout: onLogout,
             onLogin: onLogin,
           ),
@@ -288,7 +298,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     final isInOverflow = actionConfig?.showInOverflow ?? false;
-    final order = actionConfig?.order ?? 900;
+    final order = actionConfig?.order ?? 999999;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
       orderedActions.add(

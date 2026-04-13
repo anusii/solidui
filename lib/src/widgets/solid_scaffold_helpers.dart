@@ -78,6 +78,15 @@ class SolidScaffoldHelpers {
     String versionToDisplay,
     ThemeData theme,
   ) {
+    // Determine if the app bar has a dark background.
+
+    final isDarkBg = config.backgroundColor != null &&
+        ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
+            Brightness.dark;
+
+    final textOpacity = isDarkBg ? 0.8 : 0.6;
+    final errorOpacity = isDarkBg ? 0.7 : 0.5;
+
     return MarkdownTooltip(
       message: config.versionConfig!.tooltip ??
           'Version: $versionToDisplay\n\n'
@@ -85,15 +94,22 @@ class SolidScaffoldHelpers {
       child: Theme(
         data: theme.copyWith(
           textTheme: theme.textTheme.copyWith(
-            bodyMedium: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            bodyMedium: theme.textTheme.bodySmall?.copyWith(
+              color: isDarkBg
+                  ? Colors.white.withValues(alpha: textOpacity)
+                  : theme.colorScheme.onSurface.withValues(alpha: textOpacity),
+              fontSize: 13,
             ),
             bodySmall: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              color: isDarkBg
+                  ? Colors.white.withValues(alpha: textOpacity - 0.1)
+                  : theme.colorScheme.onSurface
+                      .withValues(alpha: textOpacity - 0.1),
+              fontSize: 12,
             ),
           ),
           colorScheme: theme.colorScheme.copyWith(
-            error: theme.colorScheme.error.withValues(alpha: 0.6),
+            error: theme.colorScheme.error.withValues(alpha: errorOpacity),
           ),
         ),
         child: VersionWidget(
@@ -289,6 +305,7 @@ class SolidScaffoldHelpers {
     String Function() getVersionToDisplay, {
     bool hideNavRail = false,
     bool showLogout = true,
+    bool showLogin = true,
     bool showNotifications = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
@@ -308,6 +325,7 @@ class SolidScaffoldHelpers {
       narrowScreenThreshold,
       hideNavRail: hideNavRail,
       showLogout: showLogout,
+      showLogin: showLogin,
       showNotifications: showNotifications,
       onLogout: onLogout,
       onLogin: onLogin,
