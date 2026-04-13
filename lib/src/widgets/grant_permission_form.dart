@@ -404,6 +404,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                     final permissions = selectedPermList.join(', ');
 
+                    final notificationFailures = <String>[];
+
                     for (final recipientWebId in finalWebIdList) {
                       try {
                         await sendNotification(
@@ -418,12 +420,31 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                           }),
                           priority: 1,
                         );
+                      } on RecipientNotReadyException catch (e) {
+                        debugPrint(
+                          '[GrantPermissionForm] '
+                          'Recipient not ready for $recipientWebId: $e',
+                        );
+                        notificationFailures.add(
+                          recipientWebId as String,
+                        );
                       } on Object catch (e) {
                         debugPrint(
                           '[GrantPermissionForm] '
                           'Failed to send notification to $recipientWebId: $e',
                         );
                       }
+                    }
+
+                    if (notificationFailures.isNotEmpty) {
+                      final names = notificationFailures.join(', ');
+                      _showSnackBar(
+                        'Permission granted, but could not notify: $names. '
+                        'The recipient(s) may need to log in and update '
+                        'their app setup in their Pod first.',
+                        ActionColors.warning,
+                        duration: const Duration(seconds: 8),
+                      );
                     }
                   }
 

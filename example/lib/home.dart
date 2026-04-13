@@ -391,6 +391,29 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           ),
                         );
                       }
+                    } on RecipientNotReadyException catch (e) {
+                      debugPrint('Recipient not ready: $e');
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Recipient Not Ready'),
+                            content: Text(
+                              'Could not send notification to $recipient.\n\n'
+                              'The recipient may need to log in and update '
+                              'their app setup in their Pod before you can '
+                              'send notifications to them.\n\n'
+                              'Details: $e',
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     } on Exception catch (e) {
                       debugPrint('Failed to send notification: $e');
                       if (context.mounted) {
