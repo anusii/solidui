@@ -134,8 +134,7 @@ class SolidAppBarActionsManager {
             id: actionId,
             label: action.tooltip ?? 'Action',
             icon: action.icon,
-            showInOverflow:
-                config.defaultOverflowActionIds.contains(actionId),
+            showInOverflow: config.defaultOverflowActionIds.contains(actionId),
           ),
           initialIndex: initialIndex,
         ),
@@ -152,8 +151,7 @@ class SolidAppBarActionsManager {
             id: item.id,
             label: item.label,
             icon: item.icon,
-            showInOverflow:
-                config.defaultOverflowActionIds.contains(item.id),
+            showInOverflow: config.defaultOverflowActionIds.contains(item.id),
           ),
           initialIndex: 200 + i, // Overflow items come after regular actions.
         ),
