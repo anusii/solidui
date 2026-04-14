@@ -835,7 +835,8 @@ ElevatedButton(
 The `GrantPermissionUi` widget provides a full-featured page for
 granting, editing, and revoking access permissions on resources stored
 in a Solid POD. Wrap it inside a navigation action to reach the
-permission management page.
+permission management page.  The titleData parameter, if provides,
+adds support for switch between file url, filename and file title.
 
 ### Basic usage to grant/revoke/change permissions for any resource
 
