@@ -164,6 +164,7 @@ class SolidScaffoldWidgetBuilder {
           getVersionToDisplay,
           hideNavRail: widget.hideNavRail,
           showLogout: widget.showLogout,
+          showLogin: widget.showLogin,
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
           constraints: constraints,
@@ -182,6 +183,7 @@ class SolidScaffoldWidgetBuilder {
           onTabSelected: onMenuSelected,
           onLogout: effectiveLogout,
           showLogout: effectiveLogout != null,
+          showLogin: widget.showLogin,
           onUserNameTap: (drawerContext) =>
               SolidAuthHandler.instance.handleAuthAction(drawerContext),
           securityKeyStatus: _buildDrawerSecurityKeyStatus(widget, isKeySaved),

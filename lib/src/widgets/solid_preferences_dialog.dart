@@ -49,7 +49,7 @@ class SolidPreferencesDialog extends StatefulWidget {
   const SolidPreferencesDialog({
     super.key,
     this.onSave,
-    this.title = 'AppBar Layout Preferences',
+    this.title = 'AppBar Preferences',
   });
 
   /// Shows the preferences dialogue.

@@ -46,10 +46,7 @@ class SolidLoginPanel {
     required String title,
     required String appVersion,
     required TextEditingController webIdController,
-    required Widget loginButton,
-    required Widget registerButton,
-    required Widget continueButton,
-    required Widget infoButton,
+    required List<Widget> buttons,
     required bool isRequired,
     required SolidLoginThemeMode currentTheme,
     FocusNode? serverInputFocusNode,
@@ -92,46 +89,37 @@ class SolidLoginPanel {
           ),
           const SizedBox(height: 20.0),
 
-          // Column of buttons.
+          // Column of buttons — dynamic rows of up to 2, skipping hidden ones.
 
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: loginButton),
-                  const SizedBox(width: 15.0),
-                  Expanded(child: isRequired ? registerButton : continueButton),
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              Row(
-                children: [
-                  if (!isRequired) Expanded(child: registerButton),
-                  if (isRequired)
-                    Expanded(
-                      child: SizedBox(
-                        width: MediaQuery.sizeOf(context).width * 0.5,
-                        child: infoButton,
-                      ),
-                    ),
-                  const SizedBox(width: 15.0),
-                  isRequired ? const Spacer() : Expanded(child: infoButton),
-                ],
-              ),
-              const SizedBox(height: 15.0),
+              for (int i = 0; i < buttons.length; i += 2) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: buttons[i]),
+                    if (i + 1 < buttons.length) ...[
+                      const SizedBox(width: 15.0),
+                      Expanded(child: buttons[i + 1]),
+                    ] else
+                      const Expanded(child: SizedBox.shrink()),
+                  ],
+                ),
+                const SizedBox(height: 15.0),
+              ],
             ],
           ),
 
           if (staySignedInCheckbox != null) ...[
             if (tryAnotherAccountButton != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8.0,
+                runSpacing: 4.0,
                 children: [
                   staySignedInCheckbox,
-                  const SizedBox(width: 16.0),
                   tryAnotherAccountButton,
                 ],
               )
