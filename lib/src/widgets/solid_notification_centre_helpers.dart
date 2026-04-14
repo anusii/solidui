@@ -108,7 +108,7 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
             children: [
               Expanded(
                 child: Text(
-                  DateFormat('h:mma EEEE d MMMM yyyy').format(dateTime),
+                  DateFormat('h:mm a EEEE d MMMM yyyy').format(dateTime),
                 ),
               ),
               if (priorityIcon(notification.priority) != null)
