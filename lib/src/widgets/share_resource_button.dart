@@ -230,23 +230,37 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
   Widget _buildDisplayModeRadioGroup() {
     const modes = ['File Url', 'Filename', 'File Title'];
-    return RadioGroup<String>(
-      groupValue: _displayMode,
-      onChanged: (v) {
-        if (v != null) _onDisplayModeSelected(v);
-      },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final mode in modes) ...[
-            Radio<String>(
-              value: mode,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-            Text(mode, style: const TextStyle(fontSize: 12)),
+    final activeColor = Theme.of(context).switchTheme.thumbColor?.resolve(
+          {WidgetState.selected},
+        ) ??
+        ActionColors.success;
+    return Theme(
+      data: Theme.of(context).copyWith(
+        radioTheme: RadioThemeData(
+          fillColor: WidgetStateProperty.resolveWith(
+            (states) =>
+                states.contains(WidgetState.selected) ? activeColor : null,
+          ),
+        ),
+      ),
+      child: RadioGroup<String>(
+        groupValue: _displayMode,
+        onChanged: (v) {
+          if (v != null) _onDisplayModeSelected(v);
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final mode in modes) ...[
+              Radio<String>(
+                value: mode,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+              ),
+              Text(mode, style: const TextStyle(fontSize: 12)),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
