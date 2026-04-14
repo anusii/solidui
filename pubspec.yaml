@@ -33,6 +33,7 @@ dependencies:
   solidpod: ^0.12.2
   url_launcher: ^6.3.2
   version_widget: ^1.0.6
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_lints: ^6.0.0
