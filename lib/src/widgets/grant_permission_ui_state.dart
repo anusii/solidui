@@ -378,11 +378,13 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                     // Show info icon on first line of hint message
                     const Icon(Icons.info, color: Colors.grey, size: 18),
                     const SizedBox(width: 8),
-                    Text(
-                      (widget.resourceNames!.length > 1)
-                          ? 'Click \'Share Resources\' button to share access to these files'
-                          : 'Click \'Share Resource\' button to share access to this file',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: Text(
+                        (widget.resourceNames!.length > 1)
+                            ? 'Click \'Share Resources\' button to share access to these files'
+                            : 'Click \'Share Resource\' button to share access to this file',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
