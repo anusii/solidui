@@ -106,7 +106,11 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
         return AlertDialog(
           title: Row(
             children: [
-              const Expanded(child: Text('Notification')),
+              Expanded(
+                child: Text(
+                  DateFormat('h:mm a EEEE d MMMM yyyy').format(dateTime),
+                ),
+              ),
               if (priorityIcon(notification.priority) != null)
                 priorityIcon(notification.priority)!,
             ],
@@ -120,39 +124,27 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      formatDateTime(dateTime),
-                      style: const TextStyle(color: Colors.grey, fontSize: 13),
-                    ),
-                    const SizedBox(height: 16),
                     Text.rich(
                       TextSpan(
                         style: theme.textTheme.bodyLarge,
                         children: [
                           TextSpan(
-                            text: '$senderName shared the\n',
+                            text: (permissions != null)
+                                ? '$senderName shared this file with you. You have ${permissions?.toLowerCase()} permission. \n\n'
+                                : '$senderName shared this file with you. \n\n',
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.normal,
                             ),
                           ),
                           TextSpan(
-                            text: '$fileTitle\n',
+                            text: '$fileTitle\n\n',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
-                          const TextSpan(
-                            text: 'file to you',
-                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                     ),
-                    if (permissions != null) ...[
-                      const SizedBox(height: 12),
-                      Text('with $permissions permission'),
-                    ],
-                    const SizedBox(height: 16),
                     const Divider(),
                     _buildDetailsExpansionTile(
                       notification,
