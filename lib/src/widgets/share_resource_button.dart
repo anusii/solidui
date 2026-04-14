@@ -32,7 +32,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/solidui.dart' show SharingPageLayout;
+import 'package:solidui/solidui.dart'
+    show SharingPageLayout, SolidScaffoldHelpers;
 import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
@@ -267,92 +268,119 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
   @override
   Widget build(BuildContext context) {
+    final displayModeControl = widget.resourceNames != null
+        ? widget.titleData != null
+            ? _buildDisplayModeRadioGroup()
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 5,
+                children: [
+                  const Text(
+                    'Show\nFull Path',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                  ),
+                  Switch(
+                    value: widget.showFullPath,
+                    activeThumbColor:
+                        Theme.of(context).switchTheme.thumbColor?.resolve(
+                              {WidgetState.selected},
+                            ) ??
+                            ActionColors.success,
+                    onChanged: widget.onShowFullPathChanged,
+                  ),
+                ],
+              )
+        : null;
+
+    final shareButton = ElevatedButton.icon(
+      icon: const Icon(Icons.share),
+      // Set share button background color to
+      // parameter shareButtonColor or
+      // theme elevated button color
+      // or elevated button default (grey)
+      style: widget.shareButtonColor != null
+          ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  widget.shareButtonColor!,
+                ),
+              )
+          : Theme.of(context).elevatedButtonTheme.style,
+      onPressed: () async {
+        // Resolve resource name: use first of resourceNames if set,
+        // otherwise fall back to user-entered filename.
+        _resourceName =
+            widget.resourceNames?.firstOrNull ?? _fileNameController.text;
+
+        if (_resourceName != '') {
+          // Display GrantPermissionForm dialog to enter
+          // recipient and access modes
+          await showDialog(
+            context: context,
+            builder: (BuildContext dialogContext) {
+              return GrantPermissionForm(
+                resourceNames: widget.resourceNames ?? [_resourceName],
+                accessModeList: widget.accessModeList,
+                recipientTypeList: widget.recipientTypeList,
+                updatePermissionsFunction: widget.updatePermissionsFunction,
+                ownerWebId: widget.ownerWebId,
+                granterWebId: widget.granterWebId,
+                isExternalRes: widget.isExternalRes,
+                isFile: _getIsFile(),
+                dataFilesMap: widget.dataFilesMap,
+                updatePermissionGrantedFunction: _updatePermissionGrantedStatus,
+                onPermissionGranted: widget.onPermissionGranted,
+              );
+            },
+          );
+        } else {
+          await _alert('Please select one or more recipients');
+        }
+      },
+      label: Text(
+        (widget.resourceNames != null && widget.resourceNames!.length > 1)
+            ? 'Share Resources'
+            : 'Share Resource',
+      ),
+    );
+
     return Padding(
       padding: SharingPageLayout.inputPadding,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        spacing: 10,
-        children: [
-          // Display mode control when resource is pre-set
-          if (widget.resourceNames != null) ...[
-            // Show radio group to switch between
-            // title/filename/fileUrl
-            if (widget.titleData != null)
-              _buildDisplayModeRadioGroup()
-            else ...[
-              // Show slider to switch between
-              // filename/fileUrl
-              const Text(
-                'Show\nFull Path',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.end,
-              ),
-              Switch(
-                value: widget.showFullPath,
-                activeThumbColor:
-                    Theme.of(context).switchTheme.thumbColor?.resolve(
-                          {WidgetState.selected},
-                        ) ??
-                        ActionColors.success,
-                onChanged: widget.onShowFullPathChanged,
-              ),
-            ],
-          ],
-          // Share Resource/s button
-          ElevatedButton.icon(
-            icon: const Icon(Icons.share),
-            // Set share button background color to
-            // parameter shareButtonColor or
-            // theme elevated button color
-            // or elevated button default (grey)
-            style: widget.shareButtonColor != null
-                ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                        widget.shareButtonColor!,
-                      ),
-                    )
-                : Theme.of(context).elevatedButtonTheme.style,
-            onPressed: () async {
-              // Resolve resource name: use first of resourceNames if set,
-              // otherwise fall back to user-entered filename.
-              _resourceName =
-                  widget.resourceNames?.firstOrNull ?? _fileNameController.text;
-
-              if (_resourceName != '') {
-                // Display GrantPermissionForm dialog to enter
-                // recipient and access modes
-                await showDialog(
-                  context: context,
-                  builder: (BuildContext dialogContext) {
-                    return GrantPermissionForm(
-                      resourceNames: widget.resourceNames ?? [_resourceName],
-                      accessModeList: widget.accessModeList,
-                      recipientTypeList: widget.recipientTypeList,
-                      updatePermissionsFunction:
-                          widget.updatePermissionsFunction,
-                      ownerWebId: widget.ownerWebId,
-                      granterWebId: widget.granterWebId,
-                      isExternalRes: widget.isExternalRes,
-                      isFile: _getIsFile(),
-                      dataFilesMap: widget.dataFilesMap,
-                      updatePermissionGrantedFunction:
-                          _updatePermissionGrantedStatus,
-                      onPermissionGranted: widget.onPermissionGranted,
-                    );
-                  },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isVeryNarrow =
+              SolidScaffoldHelpers.isVeryNarrowScreen(constraints);
+          return isVeryNarrow && displayModeControl != null
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 5,
+                      children: [
+                        // Share resources button
+                        shareButton,
+                        // Switch display options
+                        // filename, file url, title
+                        displayModeControl,
+                      ],
+                    ),
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  spacing: 10,
+                  children: [
+                    // Switch display options
+                    // filename, file url, title
+                    if (displayModeControl != null) displayModeControl,
+                    // Share resources button
+                    shareButton,
+                  ],
                 );
-              } else {
-                await _alert('Please select one or more recipients');
-              }
-            },
-            label: Text(
-              (widget.resourceNames != null && widget.resourceNames!.length > 1)
-                  ? 'Share Resources'
-                  : 'Share Resource',
-            ),
-          ),
-        ],
+        },
       ),
     );
   }
