@@ -56,6 +56,8 @@ import 'package:solidui/src/widgets/grant_permission_form.dart';
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 
 class ShareResourceButton extends StatefulWidget {
+  /// Text editing controller for filename
+
   final TextEditingController fileNameController;
 
   /// String to assign the webId of the resource owner.
