@@ -31,8 +31,8 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/ui_colors.dart';
-import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/constants/ui_common.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 
 /// A dropdown menu for selecting which resource's permissions to display,
 /// followed by the currently selected resource name.
