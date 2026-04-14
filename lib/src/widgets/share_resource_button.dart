@@ -235,25 +235,17 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
       onChanged: (v) {
         if (v != null) _onDisplayModeSelected(v);
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final mode in modes)
-            SizedBox(
-              height: 28,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Radio<String>(
-                    value: mode,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  Text(mode, style: const TextStyle(fontSize: 12)),
-                ],
-              ),
+          for (final mode in modes) ...[
+            Radio<String>(
+              value: mode,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
             ),
+            Text(mode, style: const TextStyle(fontSize: 12)),
+          ],
         ],
       ),
     );
@@ -265,7 +257,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
       padding: SharingPageLayout.inputPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        spacing: 5,
+        spacing: 10,
         children: [
           // Display mode control when resource is pre-set
           if (widget.resourceNames != null) ...[
