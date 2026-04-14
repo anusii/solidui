@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/utils/path_utils.dart';
+
 /// A height-capped scrollable list of resource names, left-aligned.
 ///
 /// Shows a scrollbar when the list is long enough to scroll (> 3 items).
@@ -37,19 +39,34 @@ import 'package:flutter/material.dart';
 /// Parameters:
 /// - [resourceNames] - The list of resource names to display.
 /// - [showFullPath] - Whether to show the full path or just the last segment.
+/// - [showTitle] - When true, uses [titleData] to display a human-readable
+///   title for each resource instead of the path. Defaults to false.
+/// - [titleData] - Optional map from resource key to display title, used
+///   when [showTitle] is true.
 
 class GrantPermissionResourceList extends StatelessWidget {
   const GrantPermissionResourceList({
     super.key,
     required this.resourceNames,
     required this.showFullPath,
-  });
+    this.showTitle = false,
+    this.titleData,
+  }) : assert(
+          !showTitle || titleData != null,
+          'titleData must not be null when showTitle is true',
+        );
 
   final List<String> resourceNames;
   final bool showFullPath;
+  final bool showTitle;
+  final Map<String, String>? titleData;
 
-  String _displayName(String name) =>
-      showFullPath ? name : name.split('/').last;
+  String _displayName(String name) => PathUtils.resourceDisplayName(
+        name,
+        showFullPath: showFullPath,
+        showTitle: showTitle,
+        titleData: titleData,
+      );
 
   @override
   Widget build(BuildContext context) {

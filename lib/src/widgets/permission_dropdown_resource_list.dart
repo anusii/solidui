@@ -31,6 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/ui_colors.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/constants/ui_common.dart';
 
 /// A dropdown menu for selecting which resource's permissions to display,
@@ -42,6 +43,10 @@ import 'package:solidui/src/constants/ui_common.dart';
 /// - [isFile] - Whether the resources are files (true) or folders (false),
 /// used for the dropdown label.
 /// - [showFullPath] - Whether to show full paths or just the last path segment.
+/// - [showTitle] - When true, uses [titleData] to display a human-readable
+///   title for each resource. Defaults to false.
+/// - [titleData] - Optional map from resource key to display title, used
+///   when [showTitle] is true.
 /// - [onSelected] - Callback invoked with the newly selected resource name.
 
 class PermissionDropdownResourceList extends StatelessWidget {
@@ -52,16 +57,27 @@ class PermissionDropdownResourceList extends StatelessWidget {
     required this.isFile,
     required this.showFullPath,
     required this.onSelected,
-  });
+    this.showTitle = false,
+    this.titleData,
+  }) : assert(
+          !showTitle || titleData != null,
+          'titleData must not be null when showTitle is true',
+        );
 
   final List<String> resourceNames;
   final String? selectedResourceName;
   final bool isFile;
   final bool showFullPath;
+  final bool showTitle;
+  final Map<String, String>? titleData;
   final Future<void> Function(String name) onSelected;
 
-  String _displayName(String name) =>
-      showFullPath ? name : name.split('/').last;
+  String _displayName(String name) => PathUtils.resourceDisplayName(
+        name,
+        showFullPath: showFullPath,
+        showTitle: showTitle,
+        titleData: titleData,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +85,8 @@ class PermissionDropdownResourceList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         DropdownMenu<String>(
-          // Force rebuild if showFullPath changes
-          key: ValueKey(showFullPath),
+          // Force rebuild if display mode changes
+          key: ValueKey((showFullPath, showTitle)),
           // Set inset padding on sides of dropdown
           // to zero to align with other elements in the layout
           expandedInsets: const EdgeInsets.symmetric(horizontal: 0),

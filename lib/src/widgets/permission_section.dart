@@ -51,6 +51,10 @@ import 'package:solidui/src/widgets/permission_table.dart';
 /// - [isFile] - Whether the resource is a file (true) or directory (false).
 /// - [isExternalRes] - Whether the resource is externally owned.
 /// - [showFullPath] - Whether to show full paths or just the last path segment.
+/// - [showTitle] - When true, uses [titleData] to display a human-readable
+/// title for each resource. Defaults to false.
+/// - [titleData] - Optional map from resource key to display title, used
+/// when [showTitle] is true.
 /// - [showCurrentPermOnly] - Whether to show current permissions (true) or
 /// full permission history (false).
 /// - [permDataMap] - The permission data map for the permission table.
@@ -81,6 +85,8 @@ class PermissionSection extends StatelessWidget {
     required this.isFile,
     required this.isExternalRes,
     required this.showFullPath,
+    this.showTitle = false,
+    this.titleData,
     required this.showCurrentPermOnly,
     required this.permDataMap,
     required this.ownerWebId,
@@ -102,6 +108,8 @@ class PermissionSection extends StatelessWidget {
   final bool isFile;
   final bool isExternalRes;
   final bool showFullPath;
+  final bool showTitle;
+  final Map<String, String>? titleData;
   final bool showCurrentPermOnly;
   final Map<dynamic, dynamic> permDataMap;
   final String ownerWebId;
@@ -163,6 +171,8 @@ class PermissionSection extends StatelessWidget {
             selectedResourceName: selectedResourceName,
             isFile: isFile,
             showFullPath: showFullPath,
+            showTitle: showTitle,
+            titleData: titleData,
             onSelected: onSelectedResource,
           ),
         // Info message when resource has not been shared yet.

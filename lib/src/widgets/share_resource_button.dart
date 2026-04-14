@@ -116,6 +116,21 @@ class ShareResourceButton extends StatefulWidget {
 
   final ValueChanged<bool>? onShowFullPathChanged;
 
+  /// Whether to display file titles instead of filenames or paths.
+  /// Only used when [titleData] is provided. Defaults to false.
+
+  final bool showTitle;
+
+  /// Called when the user toggles the Show Title option.
+
+  final ValueChanged<bool>? onShowTitleChanged;
+
+  /// Optional map from resource key to human-readable file title.
+  /// When provided, replaces the Show Full Path switch with a three-option
+  /// radio group: 'File Url', 'Filename', and 'File Title'.
+
+  final Map<String, String>? titleData;
+
   /// Optional background color for the Share Resource button.
   /// When provided, overrides the theme's elevated button background.
 
@@ -137,7 +152,13 @@ class ShareResourceButton extends StatefulWidget {
     this.dataFilesMap = const {},
     this.onPermissionGranted,
     this.shareButtonColor,
-  });
+    this.showTitle = false,
+    this.onShowTitleChanged,
+    this.titleData,
+  }) : assert(
+          !showTitle || titleData != null,
+          'titleData must not be null when showTitle is true',
+        );
 
   @override
   State<ShareResourceButton> createState() => _ShareResourceButtonState();
@@ -186,6 +207,58 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   // Resource is a file if resource selected in GrantPermissionUi()
   bool _getIsFile() => widget.resourceNames != null ? widget.isFile : isFile;
 
+  /// Returns the currently selected display mode label derived from
+  /// [widget.showFullPath] and [widget.showTitle].
+  String get _displayMode {
+    if (widget.showTitle) return 'File Title';
+    if (widget.showFullPath) return 'File Url';
+    return 'Filename';
+  }
+
+  void _onDisplayModeSelected(String mode) {
+    switch (mode) {
+      case 'File Url':
+        widget.onShowFullPathChanged?.call(true);
+        widget.onShowTitleChanged?.call(false);
+      case 'Filename':
+        widget.onShowFullPathChanged?.call(false);
+        widget.onShowTitleChanged?.call(false);
+      case 'File Title':
+        widget.onShowTitleChanged?.call(true);
+    }
+  }
+
+  Widget _buildDisplayModeRadioGroup() {
+    const modes = ['File Url', 'Filename', 'File Title'];
+    return RadioGroup<String>(
+      groupValue: _displayMode,
+      onChanged: (v) {
+        if (v != null) _onDisplayModeSelected(v);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final mode in modes)
+            SizedBox(
+              height: 28,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Radio<String>(
+                    value: mode,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  Text(mode, style: const TextStyle(fontSize: 12)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -194,23 +267,27 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
         mainAxisAlignment: MainAxisAlignment.end,
         spacing: 5,
         children: [
-          // Show full path switch when resource is pre-set
+          // Display mode control when resource is pre-set
           if (widget.resourceNames != null) ...[
-            const Text(
-              'Show\nFull Path',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.end,
-            ),
-            Switch(
-              value: widget.showFullPath,
-              activeThumbColor:
-                  Theme.of(context).switchTheme.thumbColor?.resolve(
-                        {WidgetState.selected},
-                      ) ??
-                      ActionColors.success,
-              onChanged: widget.onShowFullPathChanged,
-            ),
+            if (widget.titleData != null)
+              _buildDisplayModeRadioGroup()
+            else ...[
+              const Text(
+                'Show\nFull Path',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+              ),
+              Switch(
+                value: widget.showFullPath,
+                activeThumbColor:
+                    Theme.of(context).switchTheme.thumbColor?.resolve(
+                          {WidgetState.selected},
+                        ) ??
+                        ActionColors.success,
+                onChanged: widget.onShowFullPathChanged,
+              ),
+            ],
           ],
           // Share Resource/s button
           ElevatedButton.icon(

@@ -163,6 +163,26 @@ class PathUtils {
     return normalised.substring(0, lastSlash);
   }
 
+  /// Returns the display label for a resource name, respecting the current
+  /// display mode.
+  ///
+  /// - When [showTitle] is true and [titleData] contains [name], the mapped
+  ///   title is returned; otherwise falls back to [name].
+  /// - When [showFullPath] is true the full [name] is returned.
+  /// - Otherwise the last path segment (basename) is returned.
+
+  static String resourceDisplayName(
+    String name, {
+    required bool showFullPath,
+    bool showTitle = false,
+    Map<String, String>? titleData,
+  }) {
+    if (showTitle && titleData != null) {
+      return titleData[name] ?? basename(name);
+    }
+    return showFullPath ? name : basename(name);
+  }
+
   /// Gets the last segment (file or directory name) of a path.
   ///
   /// Examples:

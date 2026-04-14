@@ -70,10 +70,19 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
   bool _showFullPath = true;
 
-  /// Returns the display label for a resource name, respecting [_showFullPath].
+  /// Whether to show file titles from [widget.titleData] instead of paths.
 
-  String _displayName(String name) =>
-      _showFullPath ? name : name.split('/').last;
+  bool _showTitle = false;
+
+  /// Returns the display label for a resource name, respecting [_showTitle]
+  /// and [_showFullPath].
+
+  String _displayName(String name) => PathUtils.resourceDisplayName(
+        name,
+        showFullPath: _showFullPath,
+        showTitle: _showTitle,
+        titleData: widget.titleData,
+      );
 
   /// Loads permission details data from the ACL on the POD server.
 
@@ -327,6 +336,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 GrantPermissionResourceList(
                   resourceNames: widget.resourceNames!,
                   showFullPath: _showFullPath,
+                  showTitle: _showTitle,
+                  titleData: widget.titleData,
                 ),
                 smallGapV,
               ] else if (resolvedResourceName != null) ...[
@@ -389,6 +400,9 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 onPermissionGranted: widget.onPermissionGranted,
                 showFullPath: _showFullPath,
                 onShowFullPathChanged: (v) => setState(() => _showFullPath = v),
+                showTitle: _showTitle,
+                onShowTitleChanged: (v) => setState(() => _showTitle = v),
+                titleData: widget.titleData,
                 shareButtonColor: widget.shareButtonColor,
               ),
               // Separator between Sharing and Permissions sections
@@ -405,6 +419,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   isFile: getIsFile(),
                   isExternalRes: widget.isExternalRes,
                   showFullPath: _showFullPath,
+                  showTitle: _showTitle,
+                  titleData: widget.titleData,
                   showCurrentPermOnly: showCurrentPermOnly,
                   permDataMap: permDataMap,
                   ownerWebId: _ownerWebId,

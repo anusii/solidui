@@ -35,6 +35,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart';
+import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/grant_permission_resource_list.dart';
 import 'package:solidui/src/widgets/permission_section.dart';
 
@@ -85,6 +86,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
+    this.titleData,
     super.key,
   })  : assert(
           // Requires ownerWebId if resource
@@ -181,6 +183,12 @@ class GrantPermissionUi extends StatefulWidget {
   /// Callback function called when navigating back from the screen.
 
   final VoidCallback? onNavigateBack;
+
+  /// Optional map from resource URL key to human-readable file title.
+  /// When provided, a radio group replaces the Show Full Path switch,
+  /// offering 'File Url', 'Filename', and 'File Title' display options.
+
+  final Map<String, String>? titleData;
 
   @override
   GrantPermissionUiState createState() => GrantPermissionUiState();
