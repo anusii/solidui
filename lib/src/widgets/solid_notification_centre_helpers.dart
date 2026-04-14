@@ -295,20 +295,17 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
     }
   }
 
+  static final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
+  static final DateFormat _dateTimeFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
+
   String formatRelativeTime(DateTime dt) {
     final diff = DateTime.now().difference(dt);
     if (diff.inMinutes < 1) return 'Just now';
     if (diff.inHours < 1) return '${diff.inMinutes}m ago';
     if (diff.inDays < 1) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${dt.day}/${dt.month}/${dt.year}';
+    return _dateFormat.format(dt);
   }
 
-  String formatDateTime(DateTime dt) {
-    final date = '${dt.day}/${dt.month}/${dt.year}';
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final second = dt.second.toString().padLeft(2, '0');
-    return '$date $hour:$minute:$second';
-  }
+  String formatDateTime(DateTime dt) => _dateTimeFormat.format(dt);
 }
