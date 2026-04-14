@@ -269,9 +269,13 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
         children: [
           // Display mode control when resource is pre-set
           if (widget.resourceNames != null) ...[
+            // Show radio group to switch between
+            // title/filename/fileUrl
             if (widget.titleData != null)
               _buildDisplayModeRadioGroup()
             else ...[
+              // Show slider to switch between
+              // filename/fileUrl
               const Text(
                 'Show\nFull Path',
                 maxLines: 2,

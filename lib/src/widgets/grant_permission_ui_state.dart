@@ -135,6 +135,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   @override
   void initState() {
     super.initState();
+    // Default to show title if titleData provided
+    _showTitle = widget.titleData?.isNotEmpty ?? false;
     // Resolve the display resource from the first entry in resourceNames.
     final displayResource = widget.resourceNames?.firstOrNull;
     // For a single resource, pre-select it so the permission table loads
