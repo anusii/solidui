@@ -99,72 +99,72 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
               SizedBox(
                 width: cropAreaSize,
                 height: cropAreaSize,
-              child: Stack(
-                children: [
-                  // Capturable layer — only the image, no overlay.
-                  RepaintBoundary(
-                    key: _repaintKey,
-                    child: ClipRect(
-                      child: SizedBox(
-                        width: cropAreaSize,
-                        height: cropAreaSize,
-                        child: InteractiveViewer(
-                          transformationController: _transformController,
-                          minScale: 0.5,
-                          maxScale: 4.0,
-                          child: Image.memory(
-                            widget.imageBytes,
-                            fit: BoxFit.cover,
-                            width: cropAreaSize,
-                            height: cropAreaSize,
+                child: Stack(
+                  children: [
+                    // Capturable layer — only the image, no overlay.
+                    RepaintBoundary(
+                      key: _repaintKey,
+                      child: ClipRect(
+                        child: SizedBox(
+                          width: cropAreaSize,
+                          height: cropAreaSize,
+                          child: InteractiveViewer(
+                            transformationController: _transformController,
+                            minScale: 0.5,
+                            maxScale: 4.0,
+                            child: Image.memory(
+                              widget.imageBytes,
+                              fit: BoxFit.cover,
+                              width: cropAreaSize,
+                              height: cropAreaSize,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  // Non-capturable circular overlay guide.
-                  IgnorePointer(
-                    child: CustomPaint(
-                      size: const Size(cropAreaSize, cropAreaSize),
-                      painter: _CircleOverlayPainter(
-                        overlayColour:
-                            theme.colorScheme.scrim.withValues(alpha: 0.55),
+                    // Non-capturable circular overlay guide.
+                    IgnorePointer(
+                      child: CustomPaint(
+                        size: const Size(cropAreaSize, cropAreaSize),
+                        painter: _CircleOverlayPainter(
+                          overlayColour:
+                              theme.colorScheme.scrim.withValues(alpha: 0.55),
+                        ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Pinch or scroll to zoom, drag to reposition',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed:
+                        _isCropping ? null : () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: _isCropping ? null : _cropAndReturn,
+                    child: _isCropping
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Confirm'),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Pinch or scroll to zoom, drag to reposition',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed:
-                      _isCropping ? null : () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: _isCropping ? null : _cropAndReturn,
-                  child: _isCropping
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Confirm'),
-                ),
-              ],
-            ),
-          ],
+            ],
           ),
         ),
       ),
