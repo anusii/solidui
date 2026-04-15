@@ -62,8 +62,7 @@ class SolidProfileCropDialog extends StatefulWidget {
   }
 
   @override
-  State<SolidProfileCropDialog> createState() =>
-      _SolidProfileCropDialogState();
+  State<SolidProfileCropDialog> createState() => _SolidProfileCropDialogState();
 }
 
 class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
@@ -201,8 +200,7 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
     final canvas = Canvas(recorder);
     final size = _cropOutputSize.toDouble();
 
-    final circlePath = Path()
-      ..addOval(Rect.fromLTWH(0, 0, size, size));
+    final circlePath = Path()..addOval(Rect.fromLTWH(0, 0, size, size));
     canvas.clipPath(circlePath);
     canvas.drawImageRect(
       rawImage,

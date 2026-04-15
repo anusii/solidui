@@ -171,8 +171,7 @@ class SolidScaffoldWidgetBuilder {
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
           constraints: constraints,
-          enableProfileOverride:
-              widget.enableProfile ? true : null,
+          enableProfileOverride: widget.enableProfile ? true : null,
         ),
       ),
       buildDrawer: () {
