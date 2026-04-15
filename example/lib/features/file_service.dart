@@ -129,7 +129,7 @@ class _FileServiceState extends State<FileService> {
   Widget build(BuildContext context) {
     final browseButton = ElevatedButton(
       onPressed: () async {
-        final result = await FilePicker.platform.pickFiles();
+        final result = await FilePicker.pickFiles();
         if (result != null) {
           setState(() {
             uploadFile = result.files.single.path!;
@@ -199,7 +199,7 @@ class _FileServiceState extends State<FileService> {
               deleteInProgress)
           ? null
           : () async {
-              String? outputFile = await FilePicker.platform.saveFile(
+              String? outputFile = await FilePicker.saveFile(
                 dialogTitle: 'Please set the output file:',
                 // fileName: 'download.bin',
               );
@@ -255,7 +255,7 @@ class _FileServiceState extends State<FileService> {
               deleteInProgress)
           ? null
           : () async {
-              String? outputFile = await FilePicker.platform.saveFile(
+              String? outputFile = await FilePicker.saveFile(
                 dialogTitle: 'Please set the output file:',
               );
               if (outputFile == null) {
