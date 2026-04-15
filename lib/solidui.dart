@@ -77,6 +77,12 @@ export 'src/widgets/solid_security_key_central_manager.dart';
 export 'src/services/solid_security_key_service.dart';
 export 'src/services/solid_security_key_notifier.dart';
 
+export 'src/services/solid_profile_notifier.dart';
+export 'src/services/solid_profile_service.dart';
+export 'src/widgets/solid_profile_avatar.dart';
+export 'src/widgets/solid_profile_crop_dialog.dart';
+export 'src/widgets/solid_profile_editor.dart';
+
 export 'src/widgets/secret_text_field.dart';
 export 'src/widgets/security_key_ui.dart';
 export 'src/widgets/change_key_dialog.dart';

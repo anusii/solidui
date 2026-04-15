@@ -32,8 +32,11 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 
+import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_profile_avatar.dart';
+import 'package:solidui/src/widgets/solid_profile_editor.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_ordered_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_overflow.dart';
@@ -61,6 +64,7 @@ class SolidScaffoldAppBarBuilder {
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
+    bool? enableProfileOverride,
   }) {
     SolidAppBarActionsManager.initializeIfNeeded(
       config,
@@ -123,6 +127,17 @@ class SolidScaffoldAppBarBuilder {
       onLogin: onLogin,
     );
 
+    // Append the profile avatar when enabled — rightmost position.
+
+    if (enableProfileOverride ?? config.enableProfile) {
+      actions.add(
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: _buildProfileChip(context),
+        ),
+      );
+    }
+
     return AppBar(
       title: Text(
         config.title,
@@ -149,6 +164,41 @@ class SolidScaffoldAppBarBuilder {
       scrolledUnderElevation: 0.5,
       automaticallyImplyLeading: isNarrowScreen,
       actions: actions.isEmpty ? null : actions,
+    );
+  }
+
+  /// Builds a compact chip showing the profile avatar and display name
+  /// in the app bar. Tapping it opens the profile editor.
+
+  static Widget _buildProfileChip(BuildContext context) {
+    return ListenableBuilder(
+      listenable: solidProfileNotifier,
+      builder: (context, _) {
+        final displayName = solidProfileNotifier.displayName;
+        return InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => SolidProfileEditor.show(context),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (displayName != null && displayName.trim().isNotEmpty) ...[
+                  Text(
+                    displayName,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                const SolidProfileAvatar(size: 32),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -76,7 +76,9 @@ class SolidScaffoldWidgetBuilder {
       versionConfig = (widget.appBar as SolidAppBarConfig).versionConfig;
     }
 
-    if (currentWebId == null && versionConfig == null) {
+    final profileEnabled = widget.enableProfile;
+
+    if (currentWebId == null && versionConfig == null && !profileEnabled) {
       return null;
     }
 
@@ -85,6 +87,7 @@ class SolidScaffoldWidgetBuilder {
       showWebId: currentWebId != null && currentWebId.isNotEmpty,
       avatarIcon: Icons.account_circle,
       versionConfig: versionConfig,
+      enableProfile: profileEnabled,
     );
   }
 
@@ -168,6 +171,8 @@ class SolidScaffoldWidgetBuilder {
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
           constraints: constraints,
+          enableProfileOverride:
+              widget.enableProfile ? true : null,
         ),
       ),
       buildDrawer: () {
