@@ -82,21 +82,23 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
     const cropAreaSize = 300.0;
 
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Crop Profile Picture',
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: cropAreaSize,
-              height: cropAreaSize,
+      child: IntrinsicWidth(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Crop Profile Picture',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: cropAreaSize,
+                height: cropAreaSize,
               child: Stack(
                 children: [
                   // Capturable layer — only the image, no overlay.
@@ -163,6 +165,7 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
               ],
             ),
           ],
+          ),
         ),
       ),
     );
