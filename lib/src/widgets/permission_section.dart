@@ -158,7 +158,7 @@ class PermissionSection extends StatelessWidget {
           makeSubHeading(
             showCurrentPermOnly
                 ? 'People with current access'
-                : 'Permission history',
+                : 'Access permission history',
             addPadding: false,
           ),
           smallGapV,
