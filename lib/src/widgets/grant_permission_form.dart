@@ -50,6 +50,7 @@ import 'package:solidui/solidui.dart'
         updatePermissionMsg;
 import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input_screen.dart';
 import 'package:solidui/src/widgets/select_recipients.dart';
@@ -293,7 +294,13 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: GrantPermFormLayout.contentPadding,
-      title: Text('Share ${widget.resourceNames.first}'),
+      title: Text(
+        makeSharingTitleStr(
+          resourceNames: widget.resourceNames,
+          isFile: widget.isFile,
+        ),
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
       content: Scrollbar(
         thumbVisibility: true,
         child: SingleChildScrollView(
