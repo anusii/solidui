@@ -198,7 +198,8 @@ class GrantPermissionUi extends StatefulWidget {
   /// or the first entry in [resourceNames].
 
   String? get effectiveResourceName =>
-      resourceName ?? (resourceNames != null && resourceNames!.isNotEmpty
+      resourceName ??
+      (resourceNames != null && resourceNames!.isNotEmpty
           ? resourceNames!.first
           : null);
 

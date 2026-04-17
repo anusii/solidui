@@ -161,10 +161,8 @@ class SolidDefaultLogin extends StatelessWidget {
         logo: appLogo ?? SolidConfig.defaultLogo,
         link: appLink ?? '',
         loginButtonStyle: loginButtonStyle ?? const LoginButtonStyle(),
-        continueButtonStyle:
-            continueButtonStyle ?? const ContinueButtonStyle(),
-        registerButtonStyle:
-            registerButtonStyle ?? const RegisterButtonStyle(),
+        continueButtonStyle: continueButtonStyle ?? const ContinueButtonStyle(),
+        registerButtonStyle: registerButtonStyle ?? const RegisterButtonStyle(),
         infoButtonStyle: infoButtonStyle ?? const InfoButtonStyle(),
         changeKeyButtonStyle:
             changeKeyButtonStyle ?? const ChangeKeyButtonStyle(),

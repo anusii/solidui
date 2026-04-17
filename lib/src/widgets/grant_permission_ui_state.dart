@@ -113,8 +113,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
         isFile: widget.isFile,
         isExternalRes: widget.isExternalRes,
       );
-      getPermHistoryList =
-          sharedResourcesHistory(resourceName: effectiveName);
+      getPermHistoryList = sharedResourcesHistory(resourceName: effectiveName);
     }
   }
 
@@ -246,9 +245,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       },
     );
 
-    bool getIsFile() => widget.effectiveResourceName != null
-        ? widget.isFile
-        : isFile;
+    bool getIsFile() =>
+        widget.effectiveResourceName != null ? widget.isFile : isFile;
 
     final PreferredSizeWidget? appBar;
     if (widget.showAppBar) {

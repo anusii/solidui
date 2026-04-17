@@ -40,12 +40,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidpod/solidpod.dart' show getWebId;
 
 import 'package:solidui/solidui.dart' show SolidLogin, logoutPopup;
-import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/constants/initial_setup.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/enc_key_input_form.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/initial_setup_welcome.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/res_create_form_submission.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/resources_dialog.dart';
+import 'package:solidui/src/services/solid_security_key_notifier.dart';
 
 /// A [StatefulWidget] that represents the initial setup screen.
 
@@ -321,10 +321,10 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
             message: logoutButtonTooltip(_appName),
             child: TextButton(
               onPressed: () async => await logoutPopup(
-                    context,
-                    widget.child,
-                    onLogoutSuccess: securityKeyNotifier.reset,
-                  ),
+                context,
+                widget.child,
+                onLogoutSuccess: securityKeyNotifier.reset,
+              ),
               child: const Text(
                 'LOGOUT',
                 style: TextStyle(

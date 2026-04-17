@@ -365,8 +365,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
             if (selectedRecipientType.type.isNotEmpty) {
               if (selectedPermList.isNotEmpty) {
-                final resources = widget.resourceNames ??
-                    [widget.resourceName];
+                final resources = widget.resourceNames ?? [widget.resourceName];
                 SolidFunctionCallStatus result =
                     SolidFunctionCallStatus.success;
                 try {
