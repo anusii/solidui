@@ -69,9 +69,10 @@ class _LogoutDialogState extends State<LogoutDialog> {
               widget.onLogoutSuccess?.call();
 
               if (context.mounted) {
-                await Navigator.pushReplacement(
+                await Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => widget.child),
+                  (Route<dynamic> route) => false,
                 );
               }
             } else {

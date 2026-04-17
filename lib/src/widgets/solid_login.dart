@@ -230,7 +230,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _initPackageInfo();
 
     // Auto-configure SolidAuthHandler with this login's settings.
-    // This ensures re-login from within the app uses the same configuration.
+    // This ensures re-login from within the app uses the same configuration,
+    // including button styles and theme so the login page appearance is
+    // preserved across logout/re-login cycles.
 
     SolidAuthHandler.instance.autoConfigureFromLogin(
       title: widget.title,
@@ -240,6 +242,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       logo: widget.logo,
       link: widget.link,
       child: widget.child,
+      loginButtonStyle: widget.loginButtonStyle,
+      continueButtonStyle: widget.continueButtonStyle,
+      registerButtonStyle: widget.registerButtonStyle,
+      infoButtonStyle: widget.infoButtonStyle,
+      changeKeyButtonStyle: widget.changeKeyButtonStyle,
+      themeConfig: widget.themeConfig,
+      snackbarConfig: widget.snackbarConfig,
+      required: widget.required,
     );
   }
 

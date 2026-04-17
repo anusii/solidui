@@ -88,6 +88,11 @@ class GrantPermissionForm extends StatefulWidget {
 
   final String resourceName;
 
+  /// Optional list of resource URLs for batch permission granting.
+  /// When provided, permissions are granted to every entry sequentially.
+
+  final List<String>? resourceNames;
+
   final bool isExternalRes;
 
   /// A flag to determine whether the given resource is a file or not.
@@ -128,6 +133,7 @@ class GrantPermissionForm extends StatefulWidget {
     super.key,
     required this.updatePermissionsFunction,
     required this.resourceName,
+    this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -359,20 +365,26 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
             if (selectedRecipientType.type.isNotEmpty) {
               if (selectedPermList.isNotEmpty) {
-                SolidFunctionCallStatus result;
+                final resources = widget.resourceNames ??
+                    [widget.resourceName];
+                SolidFunctionCallStatus result =
+                    SolidFunctionCallStatus.success;
                 try {
                   // Update ACL and permission logs to grant permission
-                  result = await grantPermission(
-                    fileName: widget.resourceName,
-                    isFile: widget.isFile,
-                    permissionList: selectedPermList,
-                    recipientType: selectedRecipientType,
-                    recipientWebIdList: finalWebIdList,
-                    ownerWebId: widget.ownerWebId,
-                    granterWebId: widget.granterWebId,
-                    isExternalRes: widget.isExternalRes,
-                    groupName: selectedGroupName,
-                  );
+                  for (final resource in resources) {
+                    result = await grantPermission(
+                      fileName: resource,
+                      isFile: widget.isFile,
+                      permissionList: selectedPermList,
+                      recipientType: selectedRecipientType,
+                      recipientWebIdList: finalWebIdList,
+                      ownerWebId: widget.ownerWebId,
+                      granterWebId: widget.granterWebId,
+                      isExternalRes: widget.isExternalRes,
+                      groupName: selectedGroupName,
+                    );
+                    if (result != SolidFunctionCallStatus.success) break;
+                  }
 
                   // Close grant permission dialog
                   if (!context.mounted) return;
@@ -384,7 +396,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                 if (result == SolidFunctionCallStatus.success) {
                   _showSnackBar(successMsg, ActionColors.success);
-                  // Update permissions table
+                  // Update permissions table for the primary resource.
                   await widget.updatePermissionsFunction(
                     widget.resourceName, //_resourceName,
                     isFile: widget.isFile,

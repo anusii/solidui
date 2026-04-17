@@ -33,7 +33,10 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart' show getWebId;
 
 import 'package:solidui/src/constants/solid_config.dart';
+import 'package:solidui/src/models/snackbar_config.dart';
+import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/widgets/solid_default_login.dart';
+import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_logout_dialog.dart' show logoutPopup;
 
 /// Configuration for Solid authentication handling.
@@ -110,6 +113,17 @@ class SolidAuthHandler {
   Widget? _cachedChild;
   bool _isAutoConfigured = false;
 
+  // Cached button styles and theme from the app's original SolidLogin widget.
+
+  LoginButtonStyle? _cachedLoginButtonStyle;
+  ContinueButtonStyle? _cachedContinueButtonStyle;
+  RegisterButtonStyle? _cachedRegisterButtonStyle;
+  InfoButtonStyle? _cachedInfoButtonStyle;
+  ChangeKeyButtonStyle? _cachedChangeKeyButtonStyle;
+  SolidLoginTheme? _cachedThemeConfig;
+  SnackbarConfig? _cachedSnackbarConfig;
+  bool _cachedRequired = false;
+
   SolidAuthHandler._internal();
 
   /// Singleton instance of the authentication handler.
@@ -136,6 +150,14 @@ class SolidAuthHandler {
     required AssetImage logo,
     required String link,
     required Widget child,
+    LoginButtonStyle? loginButtonStyle,
+    ContinueButtonStyle? continueButtonStyle,
+    RegisterButtonStyle? registerButtonStyle,
+    InfoButtonStyle? infoButtonStyle,
+    ChangeKeyButtonStyle? changeKeyButtonStyle,
+    SolidLoginTheme? themeConfig,
+    SnackbarConfig? snackbarConfig,
+    bool required = false,
   }) {
     _cachedTitle = title;
     _cachedAppDirectory = appDirectory;
@@ -144,6 +166,14 @@ class SolidAuthHandler {
     _cachedLogo = logo;
     _cachedLink = link;
     _cachedChild = child;
+    _cachedLoginButtonStyle = loginButtonStyle;
+    _cachedContinueButtonStyle = continueButtonStyle;
+    _cachedRegisterButtonStyle = registerButtonStyle;
+    _cachedInfoButtonStyle = infoButtonStyle;
+    _cachedChangeKeyButtonStyle = changeKeyButtonStyle;
+    _cachedThemeConfig = themeConfig;
+    _cachedSnackbarConfig = snackbarConfig;
+    _cachedRequired = required;
     _isAutoConfigured = true;
   }
 
@@ -158,17 +188,27 @@ class SolidAuthHandler {
 
     final returnWidget = _buildLoginPage(context);
 
-    // Pass the onSecurityKeyReset callback to logoutPopup so it is invoked
-    // only AFTER logoutPod succeeds.
+    // Pass a combined callback that resets solidui global state AND invokes
+    // the app's onSecurityKeyReset callback after logoutPod succeeds.
 
     await logoutPopup(
       context,
       returnWidget,
-      onLogoutSuccess: _config?.onSecurityKeyReset,
+      onLogoutSuccess: () {
+        _resetOnLogout();
+        _config?.onSecurityKeyReset?.call();
+      },
     );
 
     // After logout popup, the user should already be on the login page.
     // No additional navigation needed.
+  }
+
+  /// Resets solidui global notifiers and in-memory state that must not
+  /// survive across different user sessions.
+
+  void _resetOnLogout() {
+    securityKeyNotifier.reset();
   }
 
   /// Handle login functionality by navigating to login page.
@@ -189,7 +229,8 @@ class SolidAuthHandler {
     }
 
     // Use auto-configured values from the app's original SolidLogin if
-    // available.
+    // available. Styles are preserved so the re-login page matches the
+    // app's original appearance.
 
     if (_isAutoConfigured && _cachedChild != null) {
       return SolidDefaultLogin(
@@ -203,6 +244,14 @@ class SolidAuthHandler {
         appLogo: _cachedLogo ?? _config?.appLogo,
         appLink: _cachedLink ?? _config?.appLink,
         loginSuccessWidget: _config?.loginSuccessWidget ?? _cachedChild,
+        loginButtonStyle: _cachedLoginButtonStyle,
+        continueButtonStyle: _cachedContinueButtonStyle,
+        registerButtonStyle: _cachedRegisterButtonStyle,
+        infoButtonStyle: _cachedInfoButtonStyle,
+        changeKeyButtonStyle: _cachedChangeKeyButtonStyle,
+        themeConfig: _cachedThemeConfig,
+        snackbarConfig: _cachedSnackbarConfig,
+        required: _cachedRequired,
       );
     }
 

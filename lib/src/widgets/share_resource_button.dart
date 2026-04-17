@@ -70,6 +70,11 @@ class ShareResourceButton extends StatefulWidget {
 
   final String? resourceName;
 
+  /// Optional list of resource URLs for batch permission granting.
+  /// When provided, permissions are granted to every entry in the list.
+
+  final List<String>? resourceNames;
+
   final bool isExternalRes;
 
   /// A flag to determine whether the given resource is a file or not.
@@ -102,11 +107,16 @@ class ShareResourceButton extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional custom colour for the Share Resource button.
+
+  final Color? buttonColor;
+
   const ShareResourceButton({
     super.key,
     required this.fileNameController,
     required this.updatePermissionsFunction,
     this.resourceName,
+    this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -115,6 +125,7 @@ class ShareResourceButton extends StatefulWidget {
     required this.isFile,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.buttonColor,
   });
 
   @override
@@ -176,10 +187,15 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
   @override
   Widget build(BuildContext context) {
+    final buttonStyle = widget.buttonColor != null
+        ? ElevatedButton.styleFrom(backgroundColor: widget.buttonColor)
+        : null;
+
     return Padding(
       padding: SharingPageLayout.inputPadding,
       child: ElevatedButton.icon(
         icon: const Icon(Icons.share),
+        style: buttonStyle,
         onPressed: () async {
           // Assign dataFile if null (first Grant press)
           _resourceName = widget.resourceName ?? _fileNameController.text;
@@ -192,6 +208,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
               builder: (BuildContext dialogContext) {
                 return GrantPermissionForm(
                   resourceName: _resourceName,
+                  resourceNames: widget.resourceNames,
                   accessModeList: widget.accessModeList,
                   recipientTypeList: widget.recipientTypeList,
                   updatePermissionsFunction: widget.updatePermissionsFunction,

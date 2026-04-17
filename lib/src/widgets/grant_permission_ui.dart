@@ -57,10 +57,15 @@ part 'grant_permission_ui_state.dart';
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
 /// - [granterWebId] - WebId of the granter of the resource. Required if the resource is externall owned.
 /// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - List of resource URLs for batch permission granting.
+///   Mutually exclusive with [resourceName]. The first entry is used for
+///   display and ACL loading; permissions are granted to every entry.
 /// - [isFile] - Boolean flag describing whether the resource is a file. If false, the resource is assumed to be a directory.
 /// - [customAppBar] - Specify a custom app bar widget.
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 /// - [onNavigateBack] - Callback function called when navigating back from the screen.
+/// - [shareButtonColor] - Optional custom colour for the Share Resource button.
+/// - [titleData] - Optional map from resource URL to human-readable title.
 
 class GrantPermissionUi extends StatefulWidget {
   const GrantPermissionUi({
@@ -74,11 +79,14 @@ class GrantPermissionUi extends StatefulWidget {
     this.ownerWebId,
     this.granterWebId,
     this.resourceName,
+    this.resourceNames,
     this.isFile = true,
     this.dataFilesMap = const {},
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
+    this.shareButtonColor,
+    this.titleData,
     super.key,
   })  : assert(
           // Requires ownerWebId if resource
@@ -141,6 +149,22 @@ class GrantPermissionUi extends StatefulWidget {
 
   final String? resourceName;
 
+  /// List of resource URLs for batch permission granting.
+  /// When provided, the first entry is used for display and ACL loading, and
+  /// permissions are granted to every entry in the list. Mutually exclusive
+  /// with [resourceName].
+
+  final List<String>? resourceNames;
+
+  /// Optional custom colour for the Share Resource button.
+
+  final Color? shareButtonColor;
+
+  /// Optional map from resource URL to a human-readable title. When provided
+  /// the title is shown next to the resource in the sharing UI.
+
+  final Map<String, String>? titleData;
+
   /// A flag to determine whether the given resource is a file or not. This is
   /// a parameter with default value true. In the case where [resourceName] is
   /// not set there will be a toggle to define this parameter.
@@ -169,6 +193,14 @@ class GrantPermissionUi extends StatefulWidget {
   /// Callback function called when navigating back from the screen.
 
   final VoidCallback? onNavigateBack;
+
+  /// The effective single resource name derived from either [resourceName]
+  /// or the first entry in [resourceNames].
+
+  String? get effectiveResourceName =>
+      resourceName ?? (resourceNames != null && resourceNames!.isNotEmpty
+          ? resourceNames!.first
+          : null);
 
   @override
   GrantPermissionUiState createState() => GrantPermissionUiState();
