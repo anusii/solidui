@@ -51,8 +51,8 @@ import 'package:solidui/src/widgets/solid_login_helper.dart';
 
 /// Signature for the snackbar helper used by login actions.
 
-typedef LoginSnackbar =
-    void Function(String message, {Duration? duration, bool showAction});
+typedef LoginSnackbar = void Function(String message,
+    {Duration? duration, bool showAction});
 
 /// Static action helpers for the SolidLogin widget.
 ///

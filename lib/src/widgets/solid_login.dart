@@ -387,27 +387,27 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // widget stays focused on composition.
 
     Future<void> performLogin() => SolidLoginActions.performLogin(
-      context: context,
-      webIdController: webIdController,
-      defaultFolders: defaultFolders,
-      defaultFiles: defaultFiles,
-      originalLoginWidget: widget,
-      childWidget: widget.child,
-      isDialogCanceled: isDialogCanceled,
-      updateDialogCanceledState: updateState,
-      showSnackbar: _showSnackbar,
-      staySignedIn: _staySignedIn,
-    );
+          context: context,
+          webIdController: webIdController,
+          defaultFolders: defaultFolders,
+          defaultFiles: defaultFiles,
+          originalLoginWidget: widget,
+          childWidget: widget.child,
+          isDialogCanceled: isDialogCanceled,
+          updateDialogCanceledState: updateState,
+          showSnackbar: _showSnackbar,
+          staySignedIn: _staySignedIn,
+        );
 
     Future<void> performContinue() => SolidLoginActions.performContinue(
-      context: context,
-      childWidget: widget.child,
-      defaultFolders: defaultFolders,
-      defaultFiles: defaultFiles,
-      updateDialogCanceledState: updateState,
-      showSnackbar: _showSnackbar,
-      staySignedIn: _staySignedIn,
-    );
+          context: context,
+          childWidget: widget.child,
+          defaultFolders: defaultFolders,
+          defaultFiles: defaultFiles,
+          updateDialogCanceledState: updateState,
+          showSnackbar: _showSnackbar,
+          staySignedIn: _staySignedIn,
+        );
 
     Future<void> performTryAnotherAccount() =>
         SolidLoginActions.performTryAnotherAccount(
