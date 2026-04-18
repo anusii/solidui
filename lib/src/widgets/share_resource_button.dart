@@ -32,11 +32,9 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/solidui.dart'
-    show SharingPageLayout, SolidScaffoldHelpers;
+import 'package:solidui/solidui.dart' show SharingPageLayout;
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
-import 'package:solidui/src/widgets/resource_display_mode_control.dart';
 
 /// A [StatefulWidget] for sharing a resource, by either creating
 /// an access permission for a new recipient or updating the access
@@ -108,30 +106,6 @@ class ShareResourceButton extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
-  /// Whether to display full resource paths or just the last path segment.
-  /// Only relevant when [resourceNames] is provided.
-
-  final bool showFullPath;
-
-  /// Called when the user toggles the Show Full Path slider.
-
-  final ValueChanged<bool>? onShowFullPathChanged;
-
-  /// Whether to display file titles instead of filenames or paths.
-  /// Only used when [titleData] is provided. Defaults to false.
-
-  final bool showTitle;
-
-  /// Called when the user toggles the Show Title option.
-
-  final ValueChanged<bool>? onShowTitleChanged;
-
-  /// Optional map from resource key to human-readable file title.
-  /// When provided, replaces the Show Full Path switch with a three-option
-  /// radio group: 'File Url', 'Filename', and 'File Title'.
-
-  final Map<String, String>? titleData;
-
   /// Optional background color for the Share Resource button.
   /// When provided, overrides the theme's elevated button background.
 
@@ -148,18 +122,10 @@ class ShareResourceButton extends StatefulWidget {
     this.recipientTypeList = const ['public', 'indi', 'auth', 'group'],
     required this.isExternalRes,
     required this.isFile,
-    this.showFullPath = true,
-    this.onShowFullPathChanged,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
     this.buttonColor,
-    this.showTitle = false,
-    this.onShowTitleChanged,
-    this.titleData,
-  }) : assert(
-          !showTitle || titleData != null,
-          'titleData must not be null when showTitle is true',
-        );
+  });
 
   @override
   State<ShareResourceButton> createState() => _ShareResourceButtonState();
@@ -210,16 +176,6 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
   @override
   Widget build(BuildContext context) {
-    final displayModeControl = widget.resourceNames != null
-        ? ResourceDisplayModeControl(
-            showFullPath: widget.showFullPath,
-            showTitle: widget.showTitle,
-            titleData: widget.titleData,
-            onShowFullPathChanged: widget.onShowFullPathChanged,
-            onShowTitleChanged: widget.onShowTitleChanged,
-          )
-        : null;
-
     final shareButton = ElevatedButton.icon(
       icon: const Icon(Icons.share),
       // Set share button background color to
@@ -273,40 +229,9 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
     return Padding(
       padding: SharingPageLayout.inputPadding,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isVeryNarrow =
-              SolidScaffoldHelpers.isVeryNarrowScreen(constraints);
-          return isVeryNarrow && displayModeControl != null
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 5,
-                      children: [
-                        // Share resources button
-                        shareButton,
-                        // Switch display options
-                        // filename, file url, title
-                        displayModeControl,
-                      ],
-                    ),
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  spacing: 10,
-                  children: [
-                    // Switch display options
-                    // filename, file url, title
-                    if (displayModeControl != null) displayModeControl,
-                    // Share resources button
-                    shareButton,
-                  ],
-                );
-        },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [shareButton],
       ),
     );
   }

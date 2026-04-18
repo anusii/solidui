@@ -174,12 +174,15 @@ class ViewPermission extends StatelessWidget {
         // Display mode control — shown above the dropdown when multiple
         // resources are available so the user can switch view on this page.
         if (resourceNames != null && resourceNames!.length > 1) ...[
-          ResourceDisplayModeControl(
-            showFullPath: showFullPath,
-            showTitle: showTitle,
-            titleData: titleData,
-            onShowFullPathChanged: onShowFullPathChanged,
-            onShowTitleChanged: onShowTitleChanged,
+          Align(
+            alignment: Alignment.centerRight,
+            child: ResourceDisplayModeControl(
+              showFullPath: showFullPath,
+              showTitle: showTitle,
+              titleData: titleData,
+              onShowFullPathChanged: onShowFullPathChanged,
+              onShowTitleChanged: onShowTitleChanged,
+            ),
           ),
           smallGapV,
         ],

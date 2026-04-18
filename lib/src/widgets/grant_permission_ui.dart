@@ -38,6 +38,7 @@ import 'package:solidui/solidui.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/grant_permission_resource_list.dart';
 import 'package:solidui/src/widgets/permission_page.dart';
+import 'package:solidui/src/widgets/resource_display_mode_control.dart';
 import 'package:solidui/src/widgets/view_permission_button.dart';
 
 part 'grant_permission_ui_state.dart';

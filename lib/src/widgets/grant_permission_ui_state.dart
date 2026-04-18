@@ -372,6 +372,18 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               // Resource list: left-aligned text items in a height-capped
               // scrollable section so a long list doesn't overflow.
               if (widget.resourceNames != null) ...[
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ResourceDisplayModeControl(
+                    showFullPath: _showFullPath,
+                    showTitle: _showTitle,
+                    titleData: widget.titleData,
+                    onShowFullPathChanged: (v) =>
+                        setState(() => _showFullPath = v),
+                    onShowTitleChanged: (v) => setState(() => _showTitle = v),
+                  ),
+                ),
+                smallGapV,
                 GrantPermissionResourceList(
                   resourceNames: widget.resourceNames!,
                   showFullPath: _showFullPath,
@@ -439,11 +451,6 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 isFile: widget.isFile,
                 dataFilesMap: widget.dataFilesMap,
                 onPermissionGranted: widget.onPermissionGranted,
-                showFullPath: _showFullPath,
-                onShowFullPathChanged: (v) => setState(() => _showFullPath = v),
-                showTitle: _showTitle,
-                onShowTitleChanged: (v) => setState(() => _showTitle = v),
-                titleData: widget.titleData,
                 buttonColor: widget.buttonColor,
               ),
               ViewPermissionButton(
