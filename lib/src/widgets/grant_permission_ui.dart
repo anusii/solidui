@@ -37,7 +37,8 @@ import 'package:solidpod/solidpod.dart';
 import 'package:solidui/solidui.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/widgets/grant_permission_resource_list.dart';
-import 'package:solidui/src/widgets/permission_section.dart';
+import 'package:solidui/src/widgets/permission_page.dart';
+import 'package:solidui/src/widgets/view_permission_button.dart';
 
 part 'grant_permission_ui_state.dart';
 

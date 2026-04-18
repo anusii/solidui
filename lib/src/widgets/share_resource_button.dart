@@ -191,7 +191,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
   @override
   void dispose() {
-    _fileNameController.dispose(); // Dispose filename editing controller
+    // _fileNameController is owned by the parent widget — do not dispose it here.
     super.dispose();
   }
 

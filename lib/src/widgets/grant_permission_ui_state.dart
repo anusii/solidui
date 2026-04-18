@@ -34,6 +34,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     with SingleTickerProviderStateMixin {
   bool permTableInitialied = false;
   bool permHistoryInitialied = false;
+  bool _viewingPermissions = false;
 
   List<AccessMode> accessModeList = [];
   List<RecipientType> recipientTypeList = [];
@@ -52,8 +53,6 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
   List<LogRecord> permHistoryList = [];
   List<LogRecord> unFilteredPermHistoryList = [];
-  bool showCurrentPermOnly = true;
-  String _searchCurrPermKeyword = '';
   bool isFile = true;
 
   /// True when [sharedResourcesHistory] returned an empty list, meaning
@@ -157,7 +156,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     }
   }
 
-  Future<void> _updatePermissions(
+  /// Loads permission data for [fileName] and returns it as a
+  /// [PermissionLoadResult]. Returns null if the resource could not be found.
+
+  Future<PermissionLoadResult?> _loadPermissionData(
     String fileName, {
     bool isFile = true,
     bool isExternalRes = false,
@@ -167,59 +169,53 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       isFile: isFile,
       isExternalRes: isExternalRes,
     );
-    final updatedPermHistoryList =
-        await sharedResourcesHistory(resourceName: fileName);
+    final history = await sharedResourcesHistory(resourceName: fileName);
 
     assert(pdata != null);
 
     if (pdata!.permissionMap.isEmpty) {
       await _alert('We could not find a resource by the name $fileName');
-    } else {
-      setState(() {
-        permDataMap = pdata.permissionMap;
-        permDataFile = fileName;
-        _ownerWebId = pdata.ownerWebId;
-        _granterWebId = pdata.granterWebId;
-      });
+      return null;
     }
 
-    if (updatedPermHistoryList.isEmpty) {
+    return (
+      permDataMap: pdata.permissionMap,
+      permDataFile: fileName,
+      ownerWebId: pdata.ownerWebId,
+      granterWebId: pdata.granterWebId,
+      permHistoryList: history,
+      noPermissionHistory: history.isEmpty,
+    );
+  }
+
+  Future<void> _updatePermissions(
+    String fileName, {
+    bool isFile = true,
+    bool isExternalRes = false,
+  }) async {
+    final result = await _loadPermissionData(
+      fileName,
+      isFile: isFile,
+      isExternalRes: isExternalRes,
+    );
+    if (result == null) return;
+
+    setState(() {
+      permDataMap = result.permDataMap;
+      permDataFile = result.permDataFile;
+      _ownerWebId = result.ownerWebId;
+      _granterWebId = result.granterWebId;
+    });
+
+    if (result.noPermissionHistory) {
       setState(() => _noPermissionHistory = true);
     } else {
       setState(() {
         _noPermissionHistory = false;
-        permHistoryList = updatedPermHistoryList;
-        unFilteredPermHistoryList = updatedPermHistoryList;
+        permHistoryList = result.permHistoryList;
+        unFilteredPermHistoryList = result.permHistoryList;
       });
     }
-  }
-
-  void _searchHistPermissions(String enteredKeyword) {
-    bool found(it) => it.toLowerCase().contains(enteredKeyword.toLowerCase());
-
-    List<LogRecord> results = [];
-    if (enteredKeyword.isEmpty) {
-      results = unFilteredPermHistoryList;
-    } else {
-      results = unFilteredPermHistoryList.where((item) {
-        return [
-          item.recipientName,
-          item.granterName,
-          item.permissionType,
-          item.permissionList,
-        ].map(found).any((result) => result);
-      }).toList();
-    }
-
-    setState(() {
-      permHistoryList = results;
-    });
-  }
-
-  void _searchCurrPermissions(String enteredKeyword) {
-    setState(() {
-      _searchCurrPermKeyword = enteredKeyword;
-    });
   }
 
   void getLatestLogRecords() {
@@ -255,6 +251,12 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     setState(() {
       permHistoryList = currentLogRecords;
     });
+  }
+
+  @override
+  void dispose() {
+    fileNameController.dispose();
+    super.dispose();
   }
 
   Future<void> _alert(String msg) async => alert(context, msg);
@@ -297,6 +299,34 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     // A resource is resolved if resourceNames is provided.
     final resolvedResourceName = widget.resourceNames?.firstOrNull;
     bool getIsFile() => resolvedResourceName != null ? widget.isFile : isFile;
+
+    // When embedded (no app bar), show PermissionPage inline on demand.
+    if (!widget.showAppBar && _viewingPermissions) {
+      return PermissionPage(
+        resourceNames: widget.resourceNames,
+        initialSelectedResourceName: _selectedResourceName,
+        initialData: (
+          permDataMap: permDataMap,
+          permDataFile: permDataFile,
+          ownerWebId: _ownerWebId,
+          granterWebId: _granterWebId,
+          permHistoryList: permHistoryList,
+          noPermissionHistory: _noPermissionHistory,
+        ),
+        isFile: getIsFile(),
+        isExternalRes: widget.isExternalRes,
+        showFullPath: _showFullPath,
+        showTitle: _showTitle,
+        titleData: widget.titleData,
+        backgroundColor: widget.backgroundColor,
+        loadPermissions: (name, {isFile = true, isExternalRes = false}) =>
+            _loadPermissionData(name,
+                isFile: isFile, isExternalRes: isExternalRes),
+        updatePermissionsFunction: _updatePermissions,
+        embedded: true,
+        onBack: () => setState(() => _viewingPermissions = false),
+      );
+    }
 
     final PreferredSizeWidget? appBar;
     if (widget.showAppBar) {
@@ -409,50 +439,44 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 titleData: widget.titleData,
                 shareButtonColor: widget.shareButtonColor,
               ),
-              // Separator between Sharing and Permissions sections
-              const Divider(),
-              // Permission section of page comprising
-              // permission table/history for resource
-              // with resource selection if resourceNames not null
-              Expanded(
-                child: PermissionSection(
-                  resourceNames: widget.resourceNames,
-                  permDataFile: permDataFile,
-                  selectedResourceName: _selectedResourceName,
-                  noPermissionHistory: _noPermissionHistory,
-                  isFile: getIsFile(),
-                  isExternalRes: widget.isExternalRes,
-                  showFullPath: _showFullPath,
-                  showTitle: _showTitle,
-                  titleData: widget.titleData,
-                  showCurrentPermOnly: showCurrentPermOnly,
-                  permDataMap: permDataMap,
-                  ownerWebId: _ownerWebId,
-                  granterWebId: _granterWebId,
-                  permHistoryList: permHistoryList,
-                  constraints: constraints,
-                  updatePermissionsFunction: _updatePermissions,
-                  onSelectedResource: (name) async {
-                    setState(() => _selectedResourceName = name);
-                    await _updatePermissions(
-                      name,
-                      isFile: widget.isFile,
-                      isExternalRes: widget.isExternalRes,
-                    );
-                  },
-                  onShowCurrentPermOnlyChanged: (value) {
-                    setState(() => showCurrentPermOnly = value);
-                    if (!showCurrentPermOnly) {
-                      setState(() {
-                        permHistoryList = unFilteredPermHistoryList;
-                        _searchCurrPermKeyword = '';
-                      });
-                    }
-                  },
-                  onSearchHistPermissions: _searchHistPermissions,
-                  onSearchCurrPermissions: _searchCurrPermissions,
-                  searchCurrPermKeyword: _searchCurrPermKeyword,
-                ),
+              ViewPermissionButton(
+                onPressed: () {
+                  if (!widget.showAppBar) {
+                    setState(() => _viewingPermissions = true);
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (ctx) => PermissionPage(
+                        resourceNames: widget.resourceNames,
+                        initialSelectedResourceName: _selectedResourceName,
+                        initialData: (
+                          permDataMap: permDataMap,
+                          permDataFile: permDataFile,
+                          ownerWebId: _ownerWebId,
+                          granterWebId: _granterWebId,
+                          permHistoryList: permHistoryList,
+                          noPermissionHistory: _noPermissionHistory,
+                        ),
+                        isFile: getIsFile(),
+                        isExternalRes: widget.isExternalRes,
+                        showFullPath: _showFullPath,
+                        showTitle: _showTitle,
+                        titleData: widget.titleData,
+                        backgroundColor: widget.backgroundColor,
+                        loadPermissions: (name,
+                                {isFile = true, isExternalRes = false}) =>
+                            _loadPermissionData(
+                          name,
+                          isFile: isFile,
+                          isExternalRes: isExternalRes,
+                        ),
+                        updatePermissionsFunction: _updatePermissions,
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

@@ -39,8 +39,7 @@ import 'package:solidui/src/widgets/permission_dropdown_resource_list.dart';
 import 'package:solidui/src/widgets/permission_history.dart';
 import 'package:solidui/src/widgets/permission_table.dart';
 
-/// The permissions section of the grant permission UI, displayed below the
-/// Divider. Shows the permission table heading, optional resource dropdown
+/// The permissions page showing the permission table heading, optional resource dropdown
 /// (when [resourceNames] is provided), search/switch controls, and the
 /// permission table or history.
 ///
@@ -75,8 +74,8 @@ import 'package:solidui/src/widgets/permission_table.dart';
 /// changes.
 /// - [searchCurrPermKeyword] - Search keyword for filtering the current permissions table map.
 
-class PermissionSection extends StatelessWidget {
-  const PermissionSection({
+class ViewPermission extends StatelessWidget {
+  const ViewPermission({
     super.key,
     required this.resourceNames,
     required this.permDataFile,
