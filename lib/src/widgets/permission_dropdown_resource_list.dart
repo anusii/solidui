@@ -141,7 +141,14 @@ class PermissionDropdownResourceList extends StatelessWidget {
                               isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                   ),
-                  foregroundColor: WidgetStatePropertyAll(textColor),
+                  // Only set foregroundColor when textColor is non-null.
+                  // Passing WidgetStatePropertyAll(null) creates a non-null
+                  // WidgetStateProperty that resolves to null, which causes
+                  // Flutter's _buildButtons to throw when it resolves the
+                  // focused colour and applies a non-nullable `!` assertion.
+                  foregroundColor: textColor != null
+                      ? WidgetStatePropertyAll(textColor)
+                      : null,
                   backgroundColor: WidgetStatePropertyAll(
                     isSelected
                         ? Theme.of(context)
