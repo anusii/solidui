@@ -276,8 +276,11 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
           isFile = true,
           isExternalRes = false,
         }) =>
-            _loadPermissionData(name,
-                isFile: isFile, isExternalRes: isExternalRes),
+            _loadPermissionData(
+          name,
+          isFile: isFile,
+          isExternalRes: isExternalRes,
+        ),
         updatePermissionsFunction: _updatePermissions,
         embedded: embedded,
         onBack: onBack,
