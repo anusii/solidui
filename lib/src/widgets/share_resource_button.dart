@@ -32,7 +32,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/solidui.dart' show SharingPageLayout;
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
 
@@ -227,12 +226,6 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
       ),
     );
 
-    return Padding(
-      padding: SharingPageLayout.inputPadding,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [shareButton],
-      ),
-    );
+    return shareButton;
   }
 }

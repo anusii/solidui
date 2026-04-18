@@ -439,62 +439,72 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 ),
                 smallGapV,
               ],
-              ShareResourceButton(
-                resourceNames: widget.resourceNames,
-                fileNameController: fileNameController,
-                accessModeList: widget.accessModeList,
-                recipientTypeList: widget.recipientTypeList,
-                updatePermissionsFunction: _updatePermissions,
-                ownerWebId: _ownerWebId,
-                granterWebId: _granterWebId,
-                isExternalRes: widget.isExternalRes,
-                isFile: widget.isFile,
-                dataFilesMap: widget.dataFilesMap,
-                onPermissionGranted: widget.onPermissionGranted,
-                buttonColor: widget.buttonColor,
-              ),
-              ViewPermissionButton(
-                buttonColor: widget.buttonColor,
-                onPressed: () {
-                  if (!widget.showAppBar) {
-                    setState(() => _viewingPermissions = true);
-                    return;
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) => PermissionPage(
-                        resourceNames: widget.resourceNames,
-                        initialSelectedResourceName: _selectedResourceName,
-                        initialData: (
-                          permDataMap: permDataMap,
-                          permDataFile: permDataFile,
-                          ownerWebId: _ownerWebId,
-                          granterWebId: _granterWebId,
-                          permHistoryList: permHistoryList,
-                          noPermissionHistory: _noPermissionHistory,
-                        ),
-                        isFile: getIsFile(),
-                        isExternalRes: widget.isExternalRes,
-                        showFullPath: _showFullPath,
-                        showTitle: _showTitle,
-                        titleData: widget.titleData,
-                        backgroundColor: widget.backgroundColor,
-                        loadPermissions: (
-                          name, {
-                          isFile = true,
-                          isExternalRes = false,
-                        }) =>
-                            _loadPermissionData(
-                          name,
-                          isFile: isFile,
-                          isExternalRes: isExternalRes,
-                        ),
-                        updatePermissionsFunction: _updatePermissions,
-                      ),
+              Padding(
+                padding: SharingPageLayout.inputPadding,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  spacing: 10,
+                  children: [
+                    ViewPermissionButton(
+                      buttonColor: widget.buttonColor,
+                      onPressed: () {
+                        if (!widget.showAppBar) {
+                          setState(() => _viewingPermissions = true);
+                          return;
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => PermissionPage(
+                              resourceNames: widget.resourceNames,
+                              initialSelectedResourceName:
+                                  _selectedResourceName,
+                              initialData: (
+                                permDataMap: permDataMap,
+                                permDataFile: permDataFile,
+                                ownerWebId: _ownerWebId,
+                                granterWebId: _granterWebId,
+                                permHistoryList: permHistoryList,
+                                noPermissionHistory: _noPermissionHistory,
+                              ),
+                              isFile: getIsFile(),
+                              isExternalRes: widget.isExternalRes,
+                              showFullPath: _showFullPath,
+                              showTitle: _showTitle,
+                              titleData: widget.titleData,
+                              backgroundColor: widget.backgroundColor,
+                              loadPermissions: (
+                                name, {
+                                isFile = true,
+                                isExternalRes = false,
+                              }) =>
+                                  _loadPermissionData(
+                                name,
+                                isFile: isFile,
+                                isExternalRes: isExternalRes,
+                              ),
+                              updatePermissionsFunction: _updatePermissions,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                    ShareResourceButton(
+                      resourceNames: widget.resourceNames,
+                      fileNameController: fileNameController,
+                      accessModeList: widget.accessModeList,
+                      recipientTypeList: widget.recipientTypeList,
+                      updatePermissionsFunction: _updatePermissions,
+                      ownerWebId: _ownerWebId,
+                      granterWebId: _granterWebId,
+                      isExternalRes: widget.isExternalRes,
+                      isFile: widget.isFile,
+                      dataFilesMap: widget.dataFilesMap,
+                      onPermissionGranted: widget.onPermissionGranted,
+                      buttonColor: widget.buttonColor,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

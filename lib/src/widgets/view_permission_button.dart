@@ -30,8 +30,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/solidui.dart' show SharingPageLayout;
-
 /// A button that navigates to the permissions page.
 ///
 /// Parameters:
@@ -51,24 +49,15 @@ class ViewPermissionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: SharingPageLayout.inputPadding,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton.icon(
-            icon: const Icon(Icons.visibility),
-            style: buttonColor != null
-                ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                      backgroundColor:
-                          WidgetStateProperty.all<Color>(buttonColor!),
-                    )
-                : Theme.of(context).elevatedButtonTheme.style,
-            onPressed: onPressed,
-            label: const Text('View Permissions'),
-          ),
-        ],
-      ),
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.visibility),
+      style: buttonColor != null
+          ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                backgroundColor: WidgetStateProperty.all<Color>(buttonColor!),
+              )
+          : Theme.of(context).elevatedButtonTheme.style,
+      onPressed: onPressed,
+      label: const Text('View Permissions'),
     );
   }
 }

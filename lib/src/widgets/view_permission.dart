@@ -163,11 +163,14 @@ class ViewPermission extends StatelessWidget {
       children: [
         if (_hasResource) ...[
           smallGapV,
-          makeSubHeading(
-            showCurrentPermOnly
-                ? 'People with current access'
-                : 'Access permission history',
-            addPadding: false,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              showCurrentPermOnly
+                  ? 'People with current access'
+                  : 'Access permission history',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ),
           smallGapV,
         ],
