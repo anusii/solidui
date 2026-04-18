@@ -411,14 +411,6 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   onResourceTypeChange: (bool v) => setState(() => isFile = v),
                 ),
                 smallGapV,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  spacing: 5,
-                  children: [
-                    retrievePermissionButton,
-                  ],
-                ),
-                smallGapV,
               ],
               if (resolvedResourceName != null) ...[
                 // Show hint statement
@@ -439,12 +431,13 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 ),
                 smallGapV,
               ],
-              Padding(
-                padding: SharingPageLayout.inputPadding,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  spacing: 10,
-                  children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                spacing: 10,
+                children: [
+                  if (resolvedResourceName == null) retrievePermissionButton,
+                  if (resolvedResourceName != null ||
+                      permDataFile.isNotEmpty) ...[
                     ViewPermissionButton(
                       buttonColor: widget.buttonColor,
                       onPressed: () {
@@ -503,8 +496,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       onPermissionGranted: widget.onPermissionGranted,
                       buttonColor: widget.buttonColor,
                     ),
-                  ],
-                ),
+                  ], // end of resolvedResourceName != null || permDataFile.isNotEmpty
+                ],
               ),
             ],
           ),
