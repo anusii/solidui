@@ -44,7 +44,7 @@ import 'package:solidui/src/utils/path_utils.dart';
 /// - [titleData] - Optional map from resource key to display title, used
 ///   when [showTitle] is true.
 
-class GrantPermissionResourceList extends StatelessWidget {
+class GrantPermissionResourceList extends StatefulWidget {
   const GrantPermissionResourceList({
     super.key,
     required this.resourceNames,
@@ -61,11 +61,26 @@ class GrantPermissionResourceList extends StatelessWidget {
   final bool showTitle;
   final Map<String, String>? titleData;
 
+  @override
+  State<GrantPermissionResourceList> createState() =>
+      _GrantPermissionResourceListState();
+}
+
+class _GrantPermissionResourceListState
+    extends State<GrantPermissionResourceList> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   String _displayName(String name) => PathUtils.resourceDisplayName(
         name,
-        showFullPath: showFullPath,
-        showTitle: showTitle,
-        titleData: titleData,
+        showFullPath: widget.showFullPath,
+        showTitle: widget.showTitle,
+        titleData: widget.titleData,
       );
 
   @override
@@ -73,14 +88,16 @@ class GrantPermissionResourceList extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 120),
       child: Scrollbar(
+        controller: _scrollController,
         // Show scrollbar always if > 3 selected
         // as this is when widget will be scrollable
-        thumbVisibility: resourceNames.length > 3,
+        thumbVisibility: widget.resourceNames.length > 3,
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (final name in resourceNames)
+              for (final name in widget.resourceNames)
                 Align(
                   alignment: Alignment.centerLeft,
                   // Add 2 pixel vertical padding and
