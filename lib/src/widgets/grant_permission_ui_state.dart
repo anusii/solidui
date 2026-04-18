@@ -218,41 +218,6 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     }
   }
 
-  void getLatestLogRecords() {
-    List<LogRecord> currentLogRecords = [];
-    List<String> currentRecipients = [];
-
-    for (final record in permHistoryList) {
-      if ((record.permissionType).contains('grant')) {
-        final recipientWebId = record.recipientWebId;
-
-        currentRecipients =
-            currentLogRecords.map((item) => item.recipientWebId).toList();
-
-        if (currentRecipients.contains(recipientWebId)) {
-          final int prevMatchIndex = currentLogRecords
-              .indexWhere((item) => item.recipientWebId == recipientWebId);
-          final String prevDateTime =
-              currentLogRecords[prevMatchIndex].dateTimeStr;
-          if ([0, 1].contains(
-            DateTime.parse(record.dateTimeStr)
-                .compareTo(DateTime.parse(prevDateTime)),
-          )) {
-            currentLogRecords[prevMatchIndex] = record;
-          }
-        } else {
-          currentLogRecords.add(record);
-        }
-      } else {
-        continue;
-      }
-    }
-
-    setState(() {
-      permHistoryList = currentLogRecords;
-    });
-  }
-
   @override
   void dispose() {
     fileNameController.dispose();
@@ -261,20 +226,18 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
   Future<void> _alert(String msg) async => alert(context, msg);
 
-  Widget _buildPermPage(
-    BuildContext context, [
+  void _initFromSnapshot(
     PermissionDetails? initPermDetails,
     List<LogRecord>? initPermHistoryList,
-  ]) {
-    if (initPermDetails != null && permTableInitialied == false) {
+  ) {
+    if (initPermDetails != null && !permTableInitialied) {
       permDataMap = initPermDetails.permissionMap;
       _ownerWebId = initPermDetails.ownerWebId;
       _granterWebId = initPermDetails.granterWebId;
       permDataFile = widget.resourceNames!.first;
       permTableInitialied = true;
     }
-
-    if (initPermHistoryList != null && permHistoryInitialied == false) {
+    if (initPermHistoryList != null && !permHistoryInitialied) {
       if (initPermHistoryList.isEmpty) {
         _noPermissionHistory = true;
       } else {
@@ -283,26 +246,15 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       }
       permHistoryInitialied = true;
     }
+  }
 
-    final retrievePermissionButton = ElevatedButton(
-      child: const Text('Retrieve permissions'),
-      onPressed: () async {
-        final fileName = fileNameController.text;
-        if (fileName.isEmpty) {
-          await _alert('Please enter a file name');
-        } else {
-          await _updatePermissions(fileName, isFile: isFile);
-        }
-      },
-    );
-
-    // A resource is resolved if resourceNames is provided.
-    final resolvedResourceName = widget.resourceNames?.firstOrNull;
-    bool getIsFile() => resolvedResourceName != null ? widget.isFile : isFile;
-
-    // When embedded (no app bar), show PermissionPage inline on demand.
-    if (!widget.showAppBar && _viewingPermissions) {
-      return PermissionPage(
+  /// Builds a [PermissionPage] populated with the current state.
+  PermissionPage _buildPermissionPage({
+    bool embedded = false,
+    VoidCallback? onBack,
+    required bool Function() getIsFile,
+  }) =>
+      PermissionPage(
         resourceNames: widget.resourceNames,
         initialSelectedResourceName: _selectedResourceName,
         initialData: (
@@ -324,14 +276,30 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
           isFile = true,
           isExternalRes = false,
         }) =>
-            _loadPermissionData(
-          name,
-          isFile: isFile,
-          isExternalRes: isExternalRes,
-        ),
+            _loadPermissionData(name,
+                isFile: isFile, isExternalRes: isExternalRes),
         updatePermissionsFunction: _updatePermissions,
+        embedded: embedded,
+        onBack: onBack,
+      );
+
+  Widget _buildPermPage(
+    BuildContext context, [
+    PermissionDetails? initPermDetails,
+    List<LogRecord>? initPermHistoryList,
+  ]) {
+    _initFromSnapshot(initPermDetails, initPermHistoryList);
+
+    // A resource is resolved if resourceNames is provided.
+    final resolvedResourceName = widget.resourceNames?.firstOrNull;
+    bool getIsFile() => resolvedResourceName != null ? widget.isFile : isFile;
+
+    // When embedded (no app bar), show PermissionPage inline on demand.
+    if (!widget.showAppBar && _viewingPermissions) {
+      return _buildPermissionPage(
         embedded: true,
         onBack: () => setState(() => _viewingPermissions = false),
+        getIsFile: getIsFile,
       );
     }
 
@@ -369,8 +337,6 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
               ),
               smallGapV,
               // Show list of resources
-              // Resource list: left-aligned text items in a height-capped
-              // scrollable section so a long list doesn't overflow.
               if (widget.resourceNames != null) ...[
                 Align(
                   alignment: Alignment.centerRight,
@@ -435,7 +401,18 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 mainAxisAlignment: MainAxisAlignment.end,
                 spacing: 10,
                 children: [
-                  if (resolvedResourceName == null) retrievePermissionButton,
+                  if (resolvedResourceName == null)
+                    ElevatedButton(
+                      onPressed: () async {
+                        final fileName = fileNameController.text;
+                        if (fileName.isEmpty) {
+                          await _alert('Please enter a file name');
+                        } else {
+                          await _updatePermissions(fileName, isFile: isFile);
+                        }
+                      },
+                      child: const Text('Retrieve permissions'),
+                    ),
                   if (resolvedResourceName != null ||
                       permDataFile.isNotEmpty) ...[
                     ViewPermissionButton(
@@ -448,35 +425,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (ctx) => PermissionPage(
-                              resourceNames: widget.resourceNames,
-                              initialSelectedResourceName:
-                                  _selectedResourceName,
-                              initialData: (
-                                permDataMap: permDataMap,
-                                permDataFile: permDataFile,
-                                ownerWebId: _ownerWebId,
-                                granterWebId: _granterWebId,
-                                permHistoryList: permHistoryList,
-                                noPermissionHistory: _noPermissionHistory,
-                              ),
-                              isFile: getIsFile(),
-                              isExternalRes: widget.isExternalRes,
-                              showFullPath: _showFullPath,
-                              showTitle: _showTitle,
-                              titleData: widget.titleData,
-                              backgroundColor: widget.backgroundColor,
-                              loadPermissions: (
-                                name, {
-                                isFile = true,
-                                isExternalRes = false,
-                              }) =>
-                                  _loadPermissionData(
-                                name,
-                                isFile: isFile,
-                                isExternalRes: isExternalRes,
-                              ),
-                              updatePermissionsFunction: _updatePermissions,
+                            builder: (ctx) => _buildPermissionPage(
+                              getIsFile: getIsFile,
                             ),
                           ),
                         );
