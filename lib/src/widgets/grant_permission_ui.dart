@@ -83,7 +83,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.resourceNames,
     this.isFile = true,
     this.dataFilesMap = const {},
-    this.shareButtonColor,
+    this.buttonColor,
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
@@ -171,7 +171,7 @@ class GrantPermissionUi extends StatefulWidget {
   /// Optional background color for the Share Resource button.
   /// When provided, it overrides the theme's elevated button background.
 
-  final Color? shareButtonColor;
+  final Color? buttonColor;
 
   /// App specific app bar
 

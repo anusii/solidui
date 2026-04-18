@@ -34,9 +34,9 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/solidui.dart'
     show SharingPageLayout, SolidScaffoldHelpers;
-import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
+import 'package:solidui/src/widgets/resource_display_mode_control.dart';
 
 /// A [StatefulWidget] for sharing a resource, by either creating
 /// an access permission for a new recipient or updating the access
@@ -135,7 +135,7 @@ class ShareResourceButton extends StatefulWidget {
   /// Optional background color for the Share Resource button.
   /// When provided, overrides the theme's elevated button background.
 
-  final Color? shareButtonColor;
+  final Color? buttonColor;
 
   const ShareResourceButton({
     super.key,
@@ -152,7 +152,7 @@ class ShareResourceButton extends StatefulWidget {
     this.onShowFullPathChanged,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
-    this.shareButtonColor,
+    this.buttonColor,
     this.showTitle = false,
     this.onShowTitleChanged,
     this.titleData,
@@ -208,102 +208,28 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   // Resource is a file if resource selected in GrantPermissionUi()
   bool _getIsFile() => widget.resourceNames != null ? widget.isFile : isFile;
 
-  /// Returns the currently selected display mode label derived from
-  /// [widget.showFullPath] and [widget.showTitle].
-  String get _displayMode {
-    if (widget.showTitle) return 'File Title';
-    if (widget.showFullPath) return 'File Url';
-    return 'Filename';
-  }
-
-  void _onDisplayModeSelected(String mode) {
-    switch (mode) {
-      case 'File Url':
-        widget.onShowFullPathChanged?.call(true);
-        widget.onShowTitleChanged?.call(false);
-      case 'Filename':
-        widget.onShowFullPathChanged?.call(false);
-        widget.onShowTitleChanged?.call(false);
-      case 'File Title':
-        widget.onShowTitleChanged?.call(true);
-    }
-  }
-
-  Widget _buildDisplayModeRadioGroup() {
-    const modes = ['File Url', 'Filename', 'File Title'];
-    final activeColor = Theme.of(context).switchTheme.thumbColor?.resolve(
-          {WidgetState.selected},
-        ) ??
-        ActionColors.success;
-    return Theme(
-      data: Theme.of(context).copyWith(
-        radioTheme: RadioThemeData(
-          fillColor: WidgetStateProperty.resolveWith(
-            (states) =>
-                states.contains(WidgetState.selected) ? activeColor : null,
-          ),
-        ),
-      ),
-      child: RadioGroup<String>(
-        groupValue: _displayMode,
-        onChanged: (v) {
-          if (v != null) _onDisplayModeSelected(v);
-        },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final mode in modes) ...[
-              Radio<String>(
-                value: mode,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-              ),
-              Text(mode, style: const TextStyle(fontSize: 12)),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final displayModeControl = widget.resourceNames != null
-        ? widget.titleData != null
-            ? _buildDisplayModeRadioGroup()
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 5,
-                children: [
-                  const Text(
-                    'Show\nFull Path',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
-                  ),
-                  Switch(
-                    value: widget.showFullPath,
-                    activeThumbColor:
-                        Theme.of(context).switchTheme.thumbColor?.resolve(
-                              {WidgetState.selected},
-                            ) ??
-                            ActionColors.success,
-                    onChanged: widget.onShowFullPathChanged,
-                  ),
-                ],
-              )
+        ? ResourceDisplayModeControl(
+            showFullPath: widget.showFullPath,
+            showTitle: widget.showTitle,
+            titleData: widget.titleData,
+            onShowFullPathChanged: widget.onShowFullPathChanged,
+            onShowTitleChanged: widget.onShowTitleChanged,
+          )
         : null;
 
     final shareButton = ElevatedButton.icon(
       icon: const Icon(Icons.share),
       // Set share button background color to
-      // parameter shareButtonColor or
+      // parameter buttonColor or
       // theme elevated button color
       // or elevated button default (grey)
-      style: widget.shareButtonColor != null
+      style: widget.buttonColor != null
           ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
                 backgroundColor: WidgetStateProperty.all<Color>(
-                  widget.shareButtonColor!,
+                  widget.buttonColor!,
                 ),
               )
           : Theme.of(context).elevatedButtonTheme.style,

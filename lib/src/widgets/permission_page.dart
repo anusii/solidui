@@ -124,12 +124,16 @@ class _PermissionPageState extends State<PermissionPage> {
 
   bool _showCurrentPermOnly = true;
   String _searchCurrPermKeyword = '';
+  late bool _showFullPath;
+  late bool _showTitle;
 
   @override
   void initState() {
     super.initState();
     _selectedResourceName = widget.initialSelectedResourceName;
     _applyLoadResult(widget.initialData);
+    _showFullPath = widget.showFullPath;
+    _showTitle = widget.showTitle;
   }
 
   void _applyLoadResult(PermissionLoadResult result) {
@@ -181,8 +185,8 @@ class _PermissionPageState extends State<PermissionPage> {
             noPermissionHistory: _noPermissionHistory,
             isFile: widget.isFile,
             isExternalRes: widget.isExternalRes,
-            showFullPath: widget.showFullPath,
-            showTitle: widget.showTitle,
+            showFullPath: _showFullPath,
+            showTitle: _showTitle,
             titleData: widget.titleData,
             showCurrentPermOnly: _showCurrentPermOnly,
             permDataMap: _permDataMap,
@@ -210,6 +214,8 @@ class _PermissionPageState extends State<PermissionPage> {
             onSearchCurrPermissions: (keyword) =>
                 setState(() => _searchCurrPermKeyword = keyword),
             searchCurrPermKeyword: _searchCurrPermKeyword,
+            onShowFullPathChanged: (v) => setState(() => _showFullPath = v),
+            onShowTitleChanged: (v) => setState(() => _showTitle = v),
           ),
         ),
       );

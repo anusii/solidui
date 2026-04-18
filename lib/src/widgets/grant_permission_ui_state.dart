@@ -319,9 +319,16 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
         showTitle: _showTitle,
         titleData: widget.titleData,
         backgroundColor: widget.backgroundColor,
-        loadPermissions: (name, {isFile = true, isExternalRes = false}) =>
-            _loadPermissionData(name,
-                isFile: isFile, isExternalRes: isExternalRes),
+        loadPermissions: (
+          name, {
+          isFile = true,
+          isExternalRes = false,
+        }) =>
+            _loadPermissionData(
+          name,
+          isFile: isFile,
+          isExternalRes: isExternalRes,
+        ),
         updatePermissionsFunction: _updatePermissions,
         embedded: true,
         onBack: () => setState(() => _viewingPermissions = false),
@@ -437,9 +444,10 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                 showTitle: _showTitle,
                 onShowTitleChanged: (v) => setState(() => _showTitle = v),
                 titleData: widget.titleData,
-                shareButtonColor: widget.shareButtonColor,
+                buttonColor: widget.buttonColor,
               ),
               ViewPermissionButton(
+                buttonColor: widget.buttonColor,
                 onPressed: () {
                   if (!widget.showAppBar) {
                     setState(() => _viewingPermissions = true);
@@ -465,8 +473,11 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                         showTitle: _showTitle,
                         titleData: widget.titleData,
                         backgroundColor: widget.backgroundColor,
-                        loadPermissions: (name,
-                                {isFile = true, isExternalRes = false}) =>
+                        loadPermissions: (
+                          name, {
+                          isFile = true,
+                          isExternalRes = false,
+                        }) =>
                             _loadPermissionData(
                           name,
                           isFile: isFile,

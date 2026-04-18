@@ -36,14 +36,18 @@ import 'package:solidui/solidui.dart' show SharingPageLayout;
 ///
 /// Parameters:
 /// - [onPressed] - Called when the button is pressed.
+/// - [buttonColor] - Optional background colour override, matching the style
+///   of [ShareResourceButton.buttonColor].
 
 class ViewPermissionButton extends StatelessWidget {
   const ViewPermissionButton({
     super.key,
     required this.onPressed,
+    this.buttonColor,
   });
 
   final VoidCallback onPressed;
+  final Color? buttonColor;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +58,12 @@ class ViewPermissionButton extends StatelessWidget {
         children: [
           ElevatedButton.icon(
             icon: const Icon(Icons.visibility),
-            style: Theme.of(context).elevatedButtonTheme.style,
+            style: buttonColor != null
+                ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                      backgroundColor:
+                          WidgetStateProperty.all<Color>(buttonColor!),
+                    )
+                : Theme.of(context).elevatedButtonTheme.style,
             onPressed: onPressed,
             label: const Text('View Permissions'),
           ),

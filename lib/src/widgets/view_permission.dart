@@ -38,6 +38,7 @@ import 'package:solidui/src/constants/ui_common.dart';
 import 'package:solidui/src/widgets/permission_dropdown_resource_list.dart';
 import 'package:solidui/src/widgets/permission_history.dart';
 import 'package:solidui/src/widgets/permission_table.dart';
+import 'package:solidui/src/widgets/resource_display_mode_control.dart';
 
 /// The permissions page showing the permission table heading, optional resource dropdown
 /// (when [resourceNames] is provided), search/switch controls, and the
@@ -98,6 +99,8 @@ class ViewPermission extends StatelessWidget {
     required this.onSearchHistPermissions,
     required this.onSearchCurrPermissions,
     required this.searchCurrPermKeyword,
+    this.onShowFullPathChanged,
+    this.onShowTitleChanged,
   });
 
   final List<String>? resourceNames;
@@ -121,6 +124,12 @@ class ViewPermission extends StatelessWidget {
   final void Function(String keyword) onSearchHistPermissions;
   final void Function(String keyword) onSearchCurrPermissions;
   final String searchCurrPermKeyword;
+
+  /// Called when the user changes the full-path display setting.
+  final ValueChanged<bool>? onShowFullPathChanged;
+
+  /// Called when the user changes the show-title display setting.
+  final ValueChanged<bool>? onShowTitleChanged;
 
   /// Whether to show the heading, search/switch controls, and table.
   bool get _hasResource => resourceNames != null || permDataFile.isNotEmpty;
@@ -159,6 +168,18 @@ class ViewPermission extends StatelessWidget {
                 ? 'People with current access'
                 : 'Access permission history',
             addPadding: false,
+          ),
+          smallGapV,
+        ],
+        // Display mode control — shown above the dropdown when multiple
+        // resources are available so the user can switch view on this page.
+        if (resourceNames != null && resourceNames!.length > 1) ...[
+          ResourceDisplayModeControl(
+            showFullPath: showFullPath,
+            showTitle: showTitle,
+            titleData: titleData,
+            onShowFullPathChanged: onShowFullPathChanged,
+            onShowTitleChanged: onShowTitleChanged,
           ),
           smallGapV,
         ],
