@@ -64,6 +64,7 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
   Uint8List? _pendingAvatar;
   bool _avatarRemoved = false;
   bool _isSaving = false;
+  late SolidProfilePrivacy _pendingPrivacy;
 
   @override
   void initState() {
@@ -72,6 +73,7 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
       text: solidProfileNotifier.displayName ?? '',
     );
     _pendingAvatar = solidProfileNotifier.avatarBytes;
+    _pendingPrivacy = solidProfileNotifier.privacy;
   }
 
   @override
@@ -85,7 +87,8 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
         _nameController.text.trim() != (solidProfileNotifier.displayName ?? '');
     final avatarChanged = _avatarRemoved ||
         !identical(_pendingAvatar, solidProfileNotifier.avatarBytes);
-    return nameChanged || avatarChanged;
+    final privacyChanged = _pendingPrivacy != solidProfileNotifier.privacy;
+    return nameChanged || avatarChanged || privacyChanged;
   }
 
   // Image picking.
@@ -138,6 +141,13 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     try {
       final service = SolidProfileService.instance;
 
+      // Apply privacy first so subsequent writes use the correct mode and
+      // ACL. setPrivacy is a no-op when the mode hasn't changed.
+
+      if (_pendingPrivacy != solidProfileNotifier.privacy) {
+        await service.setPrivacy(_pendingPrivacy);
+      }
+
       // Avatar changes.
       if (_avatarRemoved) {
         await service.deleteAvatar();
@@ -163,6 +173,69 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+
+  // Privacy selector.
+
+  Widget _buildPrivacySelector(ThemeData theme) {
+    final isPrivate = _pendingPrivacy == SolidProfilePrivacy.private;
+    final summary = isPrivate
+        ? 'Encrypted on your POD; only you can read it.'
+        : 'Stored as plaintext linked data; readable by anyone with the URL.';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.dividerColor),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isPrivate ? Icons.lock_outline : Icons.public,
+                size: 18,
+                color: theme.colorScheme.onSurface,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Profile visibility',
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<SolidProfilePrivacy>(
+            segments: const [
+              ButtonSegment(
+                value: SolidProfilePrivacy.private,
+                label: Text('Private'),
+                icon: Icon(Icons.lock_outline, size: 16),
+              ),
+              ButtonSegment(
+                value: SolidProfilePrivacy.public,
+                label: Text('Public'),
+                icon: Icon(Icons.public, size: 16),
+              ),
+            ],
+            selected: {_pendingPrivacy},
+            onSelectionChanged: _isSaving
+                ? null
+                : (values) => setState(() => _pendingPrivacy = values.first),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            summary,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // Build.
@@ -253,6 +326,15 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
                 textCapitalization: TextCapitalization.words,
                 onChanged: (_) => setState(() {}),
               ),
+
+              const SizedBox(height: 16),
+
+              // Privacy toggle. Defaults to private (encrypted, owner-only)
+              // so apps that already encrypt user data keep the profile
+              // private as well. Users may opt in to a public profile if
+              // they want their display name and avatar to be discoverable.
+
+              _buildPrivacySelector(theme),
 
               const SizedBox(height: 24),
 

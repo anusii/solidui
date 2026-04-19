@@ -28,11 +28,13 @@
 
 library;
 
-import 'dart:convert' show utf8;
+import 'dart:convert' show base64Decode, base64Encode;
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show debugPrint;
 
+import 'package:rdflib/rdflib.dart' show Literal, Namespace, URIRef;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/services/solid_profile_notifier.dart';
@@ -45,11 +47,11 @@ const int maxProfilePictureBytes = 2 * 1024 * 1024;
 
 const Set<String> allowedProfileExtensions = {'.png', '.jpg', '.jpeg'};
 
+// SharedPreferences key prefix for the per-WebID privacy preference.
+
+const String _privacyPrefKey = 'solidui_profile_privacy_';
+
 /// Manages reading, writing, and deleting profile data on the user's POD.
-///
-/// Profile data lives under `<appDir>/profile/` and comprises an optional
-/// avatar image (`avatar.png`) and an optional display name
-/// (`display-name.txt`).
 
 class SolidProfileService {
   SolidProfileService._();
@@ -79,24 +81,48 @@ class SolidProfileService {
     return getFileUrl([appDir, profileDir, displayNameFile].join('/'));
   }
 
+  // Path arguments for writePod / readPod (relative to the app directory).
+
+  String get _avatarRelPath => [profileDir, profilePictureFile].join('/');
+
+  String get _displayNameRelPath => [profileDir, displayNameFile].join('/');
+
   // Initialisation.
 
-  /// Ensures the profile directory exists on the POD, creating it with an
-  /// owner-only ACL if absent. Safe to call multiple times.
+  /// Ensures the profile directory (and its `.acl`) exist on the POD and
+  /// loads the user's privacy preference from local storage. Safe to call
+  /// multiple times — it only marks itself as initialised once both the
+  /// directory and its ACL have been confirmed to exist.
 
   Future<void> ensureProfileFolder() async {
     if (_initialised) return;
     if (!await isUserLoggedIn()) return;
 
-    final dirUrl = await _profileDirUrl();
-    final status = await checkResourceStatus(dirUrl, isFile: false);
+    await _loadPrivacyPreference();
 
-    if (status == ResourceStatus.notExist) {
+    final dirUrl = await _profileDirUrl();
+
+    // Create the folder if it is missing. We deliberately do not swallow
+    // exceptions here so that the caller can surface a meaningful error
+    // and a future call will retry.
+
+    final dirStatus = await checkResourceStatus(dirUrl, isFile: false);
+    if (dirStatus == ResourceStatus.notExist) {
       await createResource(
         dirUrl,
         isFile: false,
         contentType: ResourceContentType.directory,
       );
+    }
+
+    // Always make sure the folder's ACL is in place. This recovers PODs
+    // whose profile directory was created without an ACL (e.g. by an older
+    // version of the app, or via the server admin UI).
+
+    final aclUrl = '$dirUrl.acl';
+    final aclStatus = await checkResourceStatus(aclUrl);
+    if (aclStatus != ResourceStatus.exist) {
+      await _writeFolderAcl(solidProfileNotifier.privacy);
     }
 
     _initialised = true;
@@ -123,17 +149,27 @@ class SolidProfileService {
 
   Future<void> _loadAvatar() async {
     final url = await _avatarUrl();
-    if (await checkResourceStatus(url) == ResourceStatus.exist) {
-      final bytes = await getResource(url);
+    if (await checkResourceStatus(url) != ResourceStatus.exist) return;
+
+    try {
+      final ttl = await readPod(url, pathType: PathType.absoluteUrl);
+      final bytes = _extractAvatarBytes(ttl);
       solidProfileNotifier.setAvatar(bytes);
+    } catch (e) {
+      debugPrint('SolidProfileService._loadAvatar: $e');
     }
   }
 
   Future<void> _loadDisplayName() async {
     final url = await _displayNameUrl();
-    if (await checkResourceStatus(url) == ResourceStatus.exist) {
-      final bytes = await getResource(url);
-      solidProfileNotifier.setDisplayName(utf8.decode(bytes));
+    if (await checkResourceStatus(url) != ResourceStatus.exist) return;
+
+    try {
+      final ttl = await readPod(url, pathType: PathType.absoluteUrl);
+      final name = _extractDisplayName(ttl);
+      if (name != null) solidProfileNotifier.setDisplayName(name);
+    } catch (e) {
+      debugPrint('SolidProfileService._loadDisplayName: $e');
     }
   }
 
@@ -145,12 +181,16 @@ class SolidProfileService {
   Future<void> saveAvatar(Uint8List pngBytes) async {
     await ensureProfileFolder();
     final url = await _avatarUrl();
+    final ttl = await _buildAvatarTtl(pngBytes);
 
-    await createResource(
-      url,
-      content: pngBytes,
-      replaceIfExist: true,
-      contentType: ResourceContentType.auto,
+    final exists = await checkResourceStatus(url) == ResourceStatus.exist;
+    await writePod(
+      _avatarRelPath,
+      ttl,
+      pathType: PathType.relativeToApp,
+      encrypted: solidProfileNotifier.privacy == SolidProfilePrivacy.private,
+      createAcl: false,
+      overwrite: exists,
     );
 
     solidProfileNotifier.setAvatar(pngBytes);
@@ -163,9 +203,8 @@ class SolidProfileService {
   Future<void> deleteAvatar() async {
     final url = await _avatarUrl();
     if (await checkResourceStatus(url) == ResourceStatus.exist) {
-      await deleteResource(url, ResourceContentType.binary);
+      await deleteResource(url, ResourceContentType.turtleText);
 
-      // Also remove the companion ACL if present.
       final aclUrl = '$url.acl';
       if (await checkResourceStatus(aclUrl) == ResourceStatus.exist) {
         await deleteResource(aclUrl, ResourceContentType.turtleText);
@@ -176,20 +215,57 @@ class SolidProfileService {
 
   // Save display name.
 
-  /// Persists [name] as the user's display name on the POD.
+  /// Persists [name] as the user's display name on the POD as linked data.
 
   Future<void> saveDisplayName(String name) async {
     await ensureProfileFolder();
     final url = await _displayNameUrl();
+    final ttl = await _buildDisplayNameTtl(name);
 
-    await createResource(
-      url,
-      content: name,
-      replaceIfExist: true,
-      contentType: ResourceContentType.plainText,
+    final exists = await checkResourceStatus(url) == ResourceStatus.exist;
+    await writePod(
+      _displayNameRelPath,
+      ttl,
+      pathType: PathType.relativeToApp,
+      encrypted: solidProfileNotifier.privacy == SolidProfilePrivacy.private,
+      createAcl: false,
+      overwrite: exists,
     );
 
     solidProfileNotifier.setDisplayName(name);
+  }
+
+  // Privacy preference.
+
+  /// Switches the profile between [SolidProfilePrivacy.private] (encrypted
+  /// at rest, owner-only ACL) and [SolidProfilePrivacy.public] (plaintext
+  /// linked data, public read ACL). Existing data is rewritten under the
+  /// new mode and the folder's ACL is updated accordingly.
+
+  Future<void> setPrivacy(SolidProfilePrivacy mode) async {
+    if (!await isUserLoggedIn()) return;
+    if (solidProfileNotifier.privacy == mode) return;
+
+    await ensureProfileFolder();
+
+    // Capture the current data (loaded into the notifier) and rewrite it
+    // under the new mode after switching the notifier so writePod sees
+    // the right encryption flag.
+
+    final currentAvatar = solidProfileNotifier.avatarBytes;
+    final currentName = solidProfileNotifier.displayName;
+
+    solidProfileNotifier.setPrivacy(mode);
+    await _persistPrivacyPreference(mode);
+
+    if (currentAvatar != null) {
+      await saveAvatar(currentAvatar);
+    }
+    if (currentName != null && currentName.trim().isNotEmpty) {
+      await saveDisplayName(currentName);
+    }
+
+    await _writeFolderAcl(mode);
   }
 
   // Clear local state.
@@ -199,5 +275,165 @@ class SolidProfileService {
   void clearCache() {
     _initialised = false;
     solidProfileNotifier.clear();
+  }
+
+  // Helpers.
+
+  Future<void> _writeFolderAcl(SolidProfilePrivacy mode) async {
+    final dirUrl = await _profileDirUrl();
+    final aclUrl = '$dirUrl.acl';
+
+    final aclTurtle = await genAclTurtle(
+      dirUrl,
+      isFile: false,
+      publicAccess: mode == SolidProfilePrivacy.public
+          ? const {AccessMode.read}
+          : const {},
+    );
+
+    await createResource(aclUrl, content: aclTurtle, replaceIfExist: true);
+  }
+
+  Future<void> _loadPrivacyPreference() async {
+    try {
+      final webId = await getWebId();
+      if (webId == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString('$_privacyPrefKey$webId');
+      if (stored == SolidProfilePrivacy.public.name) {
+        solidProfileNotifier.setPrivacy(SolidProfilePrivacy.public);
+      } else {
+        solidProfileNotifier.setPrivacy(SolidProfilePrivacy.private);
+      }
+    } catch (e) {
+      debugPrint('SolidProfileService._loadPrivacyPreference: $e');
+    }
+  }
+
+  Future<void> _persistPrivacyPreference(SolidProfilePrivacy mode) async {
+    try {
+      final webId = await getWebId();
+      if (webId == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('$_privacyPrefKey$webId', mode.name);
+    } catch (e) {
+      debugPrint('SolidProfileService._persistPrivacyPreference: $e');
+    }
+  }
+
+  // Build the linked-data turtle for the display name. The user's WebID is
+  // used as the subject so the triple is meaningful when read independently
+  // by other agents and queries. We emit both `foaf:name` (the most widely
+  // understood "name" predicate) and `vcard:fn` (the VCard "formatted name")
+  // so different consumers can pick whichever they recognise.
+
+  Future<String> _buildDisplayNameTtl(String name) async {
+    final webId = await getWebId() ?? '';
+    final subject = URIRef(webId.isEmpty ? '#me' : webId);
+    final triples = <URIRef, Map<URIRef, dynamic>>{
+      subject: {
+        FoafPredicate.name.uriRef: Literal(name),
+        VcardPredicate.fn.uriRef: Literal(name),
+      },
+    };
+
+    // rdflib auto-binds the FOAF prefix (it lives in its standardPrefixes
+    // table) so passing it again throws "foaf: already exists in prefixed
+    // namespaces". We only need to register prefixes outside that set.
+
+    return tripleMapToTurtle(
+      triples,
+      bindNamespaces: {
+        'vcard': Namespace(ns: SolidConstants.namespaces.vcard),
+      },
+    );
+  }
+
+  // Build the linked-data turtle for the avatar. The image is embedded as a
+  // standard `data:` URI on `vcard:hasPhoto`, anchored on the user's WebID,
+  // so it is interpretable by any vcard-aware reader. The whole file is
+  // wrapped through writePod() which handles encryption transparently.
+
+  Future<String> _buildAvatarTtl(Uint8List pngBytes) async {
+    final webId = await getWebId() ?? '';
+    final subject = URIRef(webId.isEmpty ? '#me' : webId);
+    final dataUri = 'data:image/png;base64,${base64Encode(pngBytes)}';
+    final triples = <URIRef, Map<URIRef, dynamic>>{
+      subject: {
+        VcardPredicate.hasPhoto.uriRef: URIRef(dataUri),
+      },
+    };
+    return tripleMapToTurtle(
+      triples,
+      bindNamespaces: {
+        'vcard': Namespace(ns: SolidConstants.namespaces.vcard),
+      },
+    );
+  }
+
+  // Find the first display-name literal in the (decrypted) turtle. Tries
+  // foaf:name then vcard:fn.
+
+  String? _extractDisplayName(String ttl) {
+    Map<String, Map<String, dynamic>> map;
+    try {
+      map = turtleToTripleMap(ttl);
+    } catch (_) {
+      return null;
+    }
+    for (final pred in [
+      FoafPredicate.name.value,
+      VcardPredicate.fn.value,
+    ]) {
+      for (final entry in map.values) {
+        final value = entry[pred];
+        if (value == null) continue;
+        if (value is String && value.trim().isNotEmpty) return value;
+        if (value is Iterable && value.isNotEmpty) {
+          final first = value.first;
+          if (first is String && first.trim().isNotEmpty) return first;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Locate the vcard:hasPhoto data URI in the (decrypted) turtle and decode
+  // its base64 payload back to PNG bytes.
+
+  Uint8List? _extractAvatarBytes(String ttl) {
+    Map<String, Map<String, dynamic>> map;
+    try {
+      map = turtleToTripleMap(ttl);
+    } catch (_) {
+      return null;
+    }
+
+    String? findPhotoUri() {
+      for (final entry in map.values) {
+        final v = entry[VcardPredicate.hasPhoto.value];
+        if (v is String && v.isNotEmpty) return v;
+        if (v is Iterable && v.isNotEmpty && v.first is String) {
+          return v.first as String;
+        }
+      }
+      return null;
+    }
+
+    final photo = findPhotoUri();
+    if (photo == null) return null;
+
+    // Expecting a `data:image/<type>;base64,<payload>` URI.
+
+    const marker = ';base64,';
+    final idx = photo.indexOf(marker);
+    if (!photo.startsWith('data:') || idx < 0) return null;
+
+    try {
+      return base64Decode(photo.substring(idx + marker.length));
+    } catch (e) {
+      debugPrint('SolidProfileService._extractAvatarBytes: $e');
+      return null;
+    }
   }
 }

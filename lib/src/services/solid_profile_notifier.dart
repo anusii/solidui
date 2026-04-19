@@ -1,4 +1,4 @@
-/// Notifier for profile state changes (avatar and display name).
+/// Notifier for profile state changes (avatar, display name and privacy).
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -30,12 +30,31 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+/// Visibility mode for a user's profile data on their POD.
+///
+/// In [private] mode (the default for an app using encryption) the avatar
+/// and display name are encrypted at rest and the profile folder grants
+/// owner-only access via its ACL. In [public] mode the data is stored as
+/// plaintext linked data and the profile folder grants public read access,
+/// matching the openness of the WebID profile document.
+
+enum SolidProfilePrivacy {
+  /// Encrypted at rest, owner-only ACL.
+
+  private,
+
+  /// Plaintext, publicly readable.
+
+  public,
+}
+
 /// Holds the current profile state and notifies listeners on changes.
 
 class SolidProfileNotifier extends ChangeNotifier {
   Uint8List? _avatarBytes;
   String? _displayName;
   bool _isLoading = false;
+  SolidProfilePrivacy _privacy = SolidProfilePrivacy.private;
 
   /// The current profile picture bytes (PNG), or null if none set.
 
@@ -48,6 +67,10 @@ class SolidProfileNotifier extends ChangeNotifier {
   /// Whether a profile operation is in progress.
 
   bool get isLoading => _isLoading;
+
+  /// The current privacy mode for the profile data.
+
+  SolidProfilePrivacy get privacy => _privacy;
 
   /// Whether the user has a profile picture.
 
@@ -79,12 +102,22 @@ class SolidProfileNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clears all profile data (e.g. on logout).
+  /// Updates the privacy mode and notifies listeners.
+
+  void setPrivacy(SolidProfilePrivacy privacy) {
+    if (_privacy == privacy) return;
+    _privacy = privacy;
+    notifyListeners();
+  }
+
+  /// Clears all profile data (e.g. on logout). Resets the privacy mode to
+  /// the safer default of [SolidProfilePrivacy.private].
 
   void clear() {
     _avatarBytes = null;
     _displayName = null;
     _isLoading = false;
+    _privacy = SolidProfilePrivacy.private;
     notifyListeners();
   }
 }
