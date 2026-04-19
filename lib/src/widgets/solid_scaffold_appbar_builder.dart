@@ -31,6 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
@@ -167,36 +168,36 @@ class SolidScaffoldAppBarBuilder {
     );
   }
 
-  /// Builds a compact chip showing the profile avatar and display name
-  /// in the app bar. Tapping it opens the profile editor.
+  /// Builds the profile avatar chip in the app bar. The display name is
+  /// surfaced as a hover tooltip (rendered via [MarkdownTooltip]) and the
+  /// existing profile editor dialog opens on tap.
 
   static Widget _buildProfileChip(BuildContext context) {
     return ListenableBuilder(
       listenable: solidProfileNotifier,
       builder: (context, _) {
-        final displayName = solidProfileNotifier.displayName;
-        return InkWell(
+        final displayName = solidProfileNotifier.displayName?.trim();
+        final hasName = displayName != null && displayName.isNotEmpty;
+
+        // Fall back to a generic prompt when the user has not yet set a
+        // display name so the tooltip still tells them what tapping does.
+
+        final tooltipMessage = hasName
+            ? '**$displayName**\n\nTap to edit your profile.'
+            : 'Tap to set your display name and profile picture.';
+
+        final avatar = InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () => SolidProfileEditor.show(context),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (displayName != null && displayName.trim().isNotEmpty) ...[
-                  Text(
-                    displayName,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                ],
-                const SolidProfileAvatar(size: 32),
-              ],
-            ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: SolidProfileAvatar(size: 32),
           ),
+        );
+
+        return MarkdownTooltip(
+          message: tooltipMessage,
+          child: avatar,
         );
       },
     );
