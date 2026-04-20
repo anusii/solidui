@@ -106,7 +106,9 @@ class SolidFilePreviewCard extends StatelessWidget {
               icon: const MarkdownTooltip(
                 message: '''
 
-**Close Preview:** Tap here to close the file preview panel.
+**Close Preview**
+
+Tap here to close the file preview panel.
 
 ''',
                 child: Icon(Icons.close, size: 20),

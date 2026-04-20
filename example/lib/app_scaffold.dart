@@ -44,7 +44,9 @@ class AppScaffold extends StatelessWidget {
           title: 'Home',
           tooltip: '''
 
-            **Home:** Tap here to return to the main demonstrator page.
+            **Home**
+
+            Tap here to return to the main demonstrator page.
 
             ''',
           child: Home(),
@@ -54,7 +56,9 @@ class AppScaffold extends StatelessWidget {
           title: 'Files',
           tooltip: '''
 
-            **Files:** Tap here to browse the files on your POD.
+            **Files**
+
+            Tap here to browse the files on your POD.
 
             ''',
           child: SolidFile(),
