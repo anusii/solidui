@@ -15,6 +15,8 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Review and cleanup [0.3.20 20260420 gjw]
++ Updated tooltip style to be consistent [0.3.19 20260420 gjw]
 + Fix overflow in appbar preferences [0.3.18 20260415 tonypioneer]
 + Add a Wrap() to avoid overflow on SolidLogin [0.3.18 20260410 gjw]
 + Place ABOUT button to right most by default [0.3.17 20260410 gjw]
