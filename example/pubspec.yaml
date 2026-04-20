@@ -20,7 +20,14 @@ dependencies:
   universal_io: ^2.3.1
   window_manager: ^0.5.1
 
-dev_dependencies:
+dependency_overrides:
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: tony/261_user_profile
+  solidui:
+    path: ..
+
   flutter_lints: ^6.0.0
 
 flutter:

@@ -309,6 +309,7 @@ class SolidScaffoldHelpers {
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
+    bool? enableProfileOverride,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -328,6 +329,7 @@ class SolidScaffoldHelpers {
       onLogout: onLogout,
       onLogin: onLogin,
       constraints: constraints,
+      enableProfileOverride: enableProfileOverride,
     );
   }
 
