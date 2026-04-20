@@ -1,7 +1,7 @@
 name: demopod
-description: 'A SolidPod Demonstrator.'
+description: 'SolidGUI Demonstrator.'
 publish_to: 'none'
-version: 0.0.1+1
+version: 1.0.0+0
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
@@ -14,19 +14,11 @@ dependencies:
   intl: any
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  solidpod: ^0.11.0
+  solidpod: ^0.12.3
   solidui:
     path: ..
   universal_io: ^2.3.1
   window_manager: ^0.5.1
-
-dependency_overrides:
-  solidpod:
-    git:
-      url: https://github.com/anusii/solidpod.git
-      ref: dev
-  solidui:
-    path: ..
 
 dev_dependencies:
   flutter_lints: ^6.0.0
