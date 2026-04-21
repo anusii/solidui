@@ -75,18 +75,25 @@ class CreateAclInheritedFileState extends State<CreateAclInheritedFile> {
       try {
         if (_isEncrypted) {
           if (!context.mounted) return;
-          await writePod(resourcePath, demoTtlContent,
-              encrypted: _isEncrypted,
-              createAcl: false,
-              overwrite: true,
-              inheritKeyFrom: parentDirectory);
+          await writePod(
+            resourcePath,
+            demoTtlContent,
+            encrypted: _isEncrypted,
+            createAcl: false,
+            overwrite: true,
+            inheritKeyFrom: parentDirectory,
+          );
         } else {
           // First check and create the corresponding directory
           await setInheritKeyDir(parentDirectory);
           if (!context.mounted) return;
           // ignore: use_build_context_synchronously
-          await writePod(resourcePath, demoTtlContent,
-              encrypted: _isEncrypted, createAcl: false);
+          await writePod(
+            resourcePath,
+            demoTtlContent,
+            encrypted: _isEncrypted,
+            createAcl: false,
+          );
         }
 
         messenger.showSnackBar(
@@ -98,8 +105,9 @@ class CreateAclInheritedFileState extends State<CreateAclInheritedFile> {
 
         messenger.showSnackBar(
           const SnackBar(
-              content: Text('There was a problem creating resource! '
-                  'Please try again later.')),
+            content: Text('There was a problem creating resource! '
+                'Please try again later.'),
+          ),
         );
       }
     }

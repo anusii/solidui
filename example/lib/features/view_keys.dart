@@ -68,7 +68,8 @@ class _ViewKeysState extends State<ViewKeys> {
   /// using KeyManager.getPrivateKey(). If decryption fails or
   /// the master key is not available, the original encrypted values are returned.
   Future<Map<dynamic, dynamic>> _decryptKeyValues(
-      Map<dynamic, dynamic> encFileData) async {
+    Map<dynamic, dynamic> encFileData,
+  ) async {
     final result = Map<dynamic, dynamic>.from(encFileData);
 
     try {
@@ -129,11 +130,12 @@ class _ViewKeysState extends State<ViewKeys> {
   @override
   Widget build(BuildContext context) {
     return SolidScaffold(
-        scaffoldAppBar: AppBar(
-          title: Text(widget.title),
-          backgroundColor: titleBackgroundColor,
-        ),
-        body: _buildBody());
+      scaffoldAppBar: AppBar(
+        title: Text(widget.title),
+        backgroundColor: titleBackgroundColor,
+      ),
+      body: _buildBody(),
+    );
   }
 
   Widget _buildBody() {
@@ -150,23 +152,30 @@ class _ViewKeysState extends State<ViewKeys> {
 
   Widget _loadedScreen(Map<dynamic, dynamic> data) {
     final dataRows = data.entries.map((entry) {
-      return DataRow(cells: [
-        DataCell(Text(
-          entry.key as String,
-          style: const TextStyle(
-            fontSize: 12,
-          ),
-        )),
-        DataCell(SizedBox(
-            width: 600,
-            child: Text(
-              entry.value[1] as String,
-              overflow: TextOverflow.ellipsis,
+      return DataRow(
+        cells: [
+          DataCell(
+            Text(
+              entry.key as String,
               style: const TextStyle(
                 fontSize: 12,
               ),
-            ))),
-      ]);
+            ),
+          ),
+          DataCell(
+            SizedBox(
+              width: 600,
+              child: Text(
+                entry.value[1] as String,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
     }).toList();
 
     return Padding(
@@ -176,28 +185,29 @@ class _ViewKeysState extends State<ViewKeys> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             DataTable(
-                columnSpacing: 30.0,
-                columns: const [
-                  DataColumn(
-                    label: Text(
-                      'Parameter',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+              columnSpacing: 30.0,
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    'Parameter',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  DataColumn(
-                    label: Text(
-                      'Value',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Value',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-                rows: dataRows),
+                ),
+              ],
+              rows: dataRows,
+            ),
           ],
         ),
       ),

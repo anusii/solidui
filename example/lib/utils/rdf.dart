@@ -36,10 +36,12 @@ const String appTerms = 'https://solidcommunity.au/predicates/terms#';
 /// Object: Value
 
 Future<String> genTTLStr(
-    List<({String key, dynamic value})> keyValuePairs) async {
+  List<({String key, dynamic value})> keyValuePairs,
+) async {
   assert(keyValuePairs.isNotEmpty);
-  assert({for (final p in keyValuePairs) p.key}.length ==
-      keyValuePairs.length); // No duplicate keys
+  assert(
+    {for (final p in keyValuePairs) p.key}.length == keyValuePairs.length,
+  ); // No duplicate keys
   final webId = await getWebId();
   assert(webId != null);
   final g = Graph();
