@@ -82,6 +82,10 @@ class SolidAuthConfig {
 
   final VoidCallback? onSecurityKeyReset;
 
+  /// Generic callback invoked after a successful logout.
+
+  final VoidCallback? onLogout;
+
   const SolidAuthConfig({
     this.returnTo,
     this.loginPageBuilder,
@@ -93,6 +97,7 @@ class SolidAuthConfig {
     this.appLink,
     this.loginSuccessWidget,
     this.onSecurityKeyReset,
+    this.onLogout,
   });
 }
 
@@ -197,6 +202,7 @@ class SolidAuthHandler {
       onLogoutSuccess: () {
         _resetOnLogout();
         _config?.onSecurityKeyReset?.call();
+        _config?.onLogout?.call();
       },
     );
 
