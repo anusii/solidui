@@ -168,6 +168,7 @@ ElevatedButton resCreateFormSubmission(
 
         final securityKey = formData[securityKeyStr].toString();
 
+        Object? initError;
         try {
           await initPod(
             securityKey,
@@ -176,14 +177,33 @@ ElevatedButton resCreateFormSubmission(
           );
         } on Exception catch (e) {
           debugPrint('Error initialising POD: $e');
+          initError = e;
         }
 
-        await Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(builder: (context) => child),
-        );
+        // Dismiss the busy animation before we either surface an error or
+        // navigate to the post-setup screen. Without this the spinner is
+        // left orphaned on top of the next page if init fails.
+
         if (context.mounted) Navigator.pop(context);
+
+        if (initError != null) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Setup failed: $initError'),
+                duration: const Duration(seconds: 6),
+              ),
+            );
+          }
+          return;
+        }
+
+        if (context.mounted) {
+          await Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => child),
+          );
+        }
       }
     },
     style: ButtonStyle(

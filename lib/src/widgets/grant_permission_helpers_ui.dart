@@ -42,27 +42,29 @@ import 'package:solidui/src/widgets/permission_checkbox.dart';
 
 const recipientToolTips = <RecipientType, String>{
   RecipientType.public: '''
- **Public:** This file will be publicly
- accessible so that even users without a
+ **Public**
+
+ This file will be publicly accessible so that even users without a
  Data Vault can access the file.
  ''',
   RecipientType.authUser: '''
-**Users:** The file will be available to
-any user who has registered a Data
-Vault. When they have logged into their
-Data Vault they will be able to access
-the file.
+**Users**
+
+The file will be available to any user who has registered a Data
+Vault. When they have logged into their Data Vault they will be able
+to access the file.
 ''',
   RecipientType.individual: '''
-**Individual:** The file will be available
-only to the identified individual user. A
-WebID is required to identify the
-individual who is gratned access to the
-file.
+**Individual**
+
+The file will be available only to the identified individual user. A
+WebID is required to identify the individual who is granted access to
+the file.
 ''',
   RecipientType.group: '''
-**Group:** A collection of WebIDs can be
-provided so that as a group they can
+**Group**
+
+A collection of WebIDs can be provided so that as a group they can
 access the file.
 ''',
 };

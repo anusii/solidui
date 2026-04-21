@@ -308,8 +308,11 @@ demo:exampleData$fileNumber
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.lightbulb_outline,
-                            color: Colors.blue[700], size: 28),
+                        Icon(
+                          Icons.lightbulb_outline,
+                          color: Colors.blue[700],
+                          size: 28,
+                        ),
                         const SizedBox(width: 12),
                         const Text(
                           'Why Use onPermissionGranted Callback?',
@@ -541,9 +544,11 @@ demo:exampleData$fileNumber
                           ? _startPermissionWorkflow
                           : null,
                       icon: const Icon(Icons.auto_awesome),
-                      label: Text(_workflowCompleted
-                          ? 'Run Demo Again'
-                          : 'Start Auto-Demo'),
+                      label: Text(
+                        _workflowCompleted
+                            ? 'Run Demo Again'
+                            : 'Start Auto-Demo',
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue[600],
                         foregroundColor: Colors.white,

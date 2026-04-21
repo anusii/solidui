@@ -35,6 +35,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
+import 'package:solidui/src/services/solid_profile_service.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
@@ -241,6 +242,13 @@ class SolidScaffold extends StatefulWidget {
 
   final bool hideNavRail;
 
+  /// Whether to enable the POD-backed profile feature (avatar + display name).
+  /// When true, the profile avatar and display name are shown in both the
+  /// AppBar (right side) and the navigation drawer header.
+  /// Profile data is automatically loaded from the POD on first build.
+
+  final bool enableProfile;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -286,6 +294,7 @@ class SolidScaffold extends StatefulWidget {
     this.themeToggle,
     this.aboutConfig,
     this.hideNavRail = false,
+    this.enableProfile = false,
   });
 
   @override

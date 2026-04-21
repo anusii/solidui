@@ -111,12 +111,18 @@ class _FileServiceState extends State<FileService> {
   @override
   void initState() {
     super.initState();
-    remoteFolderController.addListener(() => remoteFolderController.value =
-        remoteFolderController.value.copyWith(
-            text: _sanitiseFolderPath(remoteFolderController.text.trim())));
-    keyRefFolderController.addListener(() => keyRefFolderController.value =
-        keyRefFolderController.value.copyWith(
-            text: _sanitiseFolderPath(keyRefFolderController.text.trim())));
+    remoteFolderController.addListener(
+      () =>
+          remoteFolderController.value = remoteFolderController.value.copyWith(
+        text: _sanitiseFolderPath(remoteFolderController.text.trim()),
+      ),
+    );
+    keyRefFolderController.addListener(
+      () =>
+          keyRefFolderController.value = keyRefFolderController.value.copyWith(
+        text: _sanitiseFolderPath(keyRefFolderController.text.trim()),
+      ),
+    );
   }
 
   @override
@@ -163,16 +169,17 @@ class _FileServiceState extends State<FileService> {
                 if (!context.mounted) return;
 
                 await writeLargeFile(
-                    localFilePath: uploadFile!,
-                    remoteFilePath: getRemoteFileName(),
-                    inheritKeyFrom: keyPath,
-                    createAcl: false,
-                    onProgress: (sent, total) {
-                      setState(() {
-                        uploadDone = sent == total;
-                        uploadPercent = sent / total;
-                      });
+                  localFilePath: uploadFile!,
+                  remoteFilePath: getRemoteFileName(),
+                  inheritKeyFrom: keyPath,
+                  createAcl: false,
+                  onProgress: (sent, total) {
+                    setState(() {
+                      uploadDone = sent == total;
+                      uploadPercent = sent / total;
                     });
+                  },
+                );
                 if (uploadDone) {
                   setState(() {
                     uploadInProgress = false;
@@ -218,14 +225,15 @@ class _FileServiceState extends State<FileService> {
                   });
 
                   await readLargeFile(
-                      remoteFilePath: getRemoteFileName(),
-                      localFilePath: outputFile,
-                      onProgress: (received, total) {
-                        setState(() {
-                          downloadDone = received == total;
-                          downloadPercent = received / total;
-                        });
+                    remoteFilePath: getRemoteFileName(),
+                    localFilePath: outputFile,
+                    onProgress: (received, total) {
+                      setState(() {
+                        downloadDone = received == total;
+                        downloadPercent = received / total;
                       });
+                    },
+                  );
 
                   if (downloadDone) {
                     setState(() {
@@ -239,7 +247,10 @@ class _FileServiceState extends State<FileService> {
                   });
                   if (context.mounted) {
                     await alert(
-                        context, 'Failed to download file. $e', 'Error');
+                      context,
+                      'Failed to download file. $e',
+                      'Error',
+                    );
                   }
                   debugPrint('$e');
                 }
@@ -293,15 +304,16 @@ class _FileServiceState extends State<FileService> {
 
                   if (context.mounted) {
                     await readLargeFile(
-                        remoteFilePath: fileName,
-                        localFilePath: outputFile,
-                        ownerWebId: ownerWebId,
-                        onProgress: (received, total) {
-                          setState(() {
-                            downloadSharedDone = received == total;
-                            downloadSharedPercent = received / total;
-                          });
+                      remoteFilePath: fileName,
+                      localFilePath: outputFile,
+                      ownerWebId: ownerWebId,
+                      onProgress: (received, total) {
+                        setState(() {
+                          downloadSharedDone = received == total;
+                          downloadSharedPercent = received / total;
                         });
+                      },
+                    );
                     if (downloadDone) {
                       setState(() {
                         downloadSharedInProgress = false;
@@ -315,7 +327,10 @@ class _FileServiceState extends State<FileService> {
                   });
                   if (context.mounted) {
                     await alert(
-                        context, 'Failed to download shared file. $e', 'Error');
+                      context,
+                      'Failed to download shared file. $e',
+                      'Error',
+                    );
                   }
                   debugPrint('$e');
                 }
@@ -337,13 +352,14 @@ class _FileServiceState extends State<FileService> {
                   deleteInProgress = true;
                 });
                 await deleteLargeFile(
-                    remoteFilePath: getRemoteFileName(),
-                    onProgress: (deleted, total) {
-                      setState(() {
-                        deleteDone = deleted == total;
-                        deletePercent = deleted / total;
-                      });
+                  remoteFilePath: getRemoteFileName(),
+                  onProgress: (deleted, total) {
+                    setState(() {
+                      deleteDone = deleted == total;
+                      deletePercent = deleted / total;
                     });
+                  },
+                );
                 if (deleteDone) {
                   setState(() {
                     deleteInProgress = false;
@@ -426,21 +442,23 @@ class _FileServiceState extends State<FileService> {
               ),
             ],
           ),
-          TableRow(children: [
-            TextFormField(
-              controller: keyRefFolderController,
-              enabled: !(uploadInProgress || uploadDone),
-              decoration: const InputDecoration(
-                hintText:
-                    '(Optional) Inherit encryption key of folder in POD, e.g. dir1/',
-                hintStyle: TextStyle(
-                  color: Colors.brown,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 15,
+          TableRow(
+            children: [
+              TextFormField(
+                controller: keyRefFolderController,
+                enabled: !(uploadInProgress || uploadDone),
+                decoration: const InputDecoration(
+                  hintText:
+                      '(Optional) Inherit encryption key of folder in POD, e.g. dir1/',
+                  hintStyle: TextStyle(
+                    color: Colors.brown,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 15,
+                  ),
                 ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ],
       ),
       smallGapV,
@@ -487,9 +505,9 @@ class _FileServiceState extends State<FileService> {
     // Widgets of the file download section
 
     final downloadSharedSection = [
-      Text(
+      const Text(
         'Download a shared large file from an external POD',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
@@ -630,7 +648,10 @@ class _FileServiceState extends State<FileService> {
                 left: 0,
                 right: 0,
                 child: getProgressBar(
-                    'Downloading:', downloadDone, downloadPercent),
+                  'Downloading:',
+                  downloadDone,
+                  downloadPercent,
+                ),
               ),
 
             // Downloading shared file progress bar
@@ -641,7 +662,10 @@ class _FileServiceState extends State<FileService> {
                 left: 0,
                 right: 0,
                 child: getProgressBar(
-                    'Downloading:', downloadSharedDone, downloadSharedPercent),
+                  'Downloading:',
+                  downloadSharedDone,
+                  downloadSharedPercent,
+                ),
               ),
 
             // Deleting progress bar

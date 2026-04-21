@@ -113,6 +113,12 @@ class SolidNavUserInfo {
 
   final SolidVersionConfig? versionConfig;
 
+  /// Whether to enable the POD-backed profile feature (avatar + display name).
+  /// When true, the nav drawer header and app bar will show the profile
+  /// avatar from the POD and allow editing via the profile editor.
+
+  final bool enableProfile;
+
   const SolidNavUserInfo({
     this.userName,
     this.webId,
@@ -121,6 +127,7 @@ class SolidNavUserInfo {
     this.avatarIcon,
     this.avatarSize,
     this.versionConfig,
+    this.enableProfile = false,
   });
 
   /// Extracts username from WebID URL.
@@ -141,12 +148,14 @@ class SolidNavUserInfo {
         }
       }
 
-      // Fallback: try to extract from the last slash in the full URL
+      // Fallback: try to extract from the last slash in the full URL.
+
       final lastSlashIndex = webId.lastIndexOf('/');
       if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
         String candidate = webId.substring(lastSlashIndex + 1);
 
-        // Remove common suffixes
+        // Remove common suffixes.
+
         const suffixes = ['profile', 'card#me', '#me'];
         for (final suffix in suffixes) {
           if (candidate.endsWith(suffix)) {
@@ -370,6 +379,10 @@ class SolidAppBarConfig {
 
   final double veryNarrowScreenThreshold;
 
+  /// Whether to show the POD-backed profile avatar in the app bar.
+
+  final bool enableProfile;
+
   const SolidAppBarConfig({
     required this.title,
     this.backgroundColor,
@@ -380,6 +393,7 @@ class SolidAppBarConfig {
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.veryNarrowScreenThreshold =
         NavigationConstants.veryNarrowScreenThreshold,
+    this.enableProfile = false,
   });
 }
 

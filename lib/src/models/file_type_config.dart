@@ -146,7 +146,9 @@ class FileTypeConfig {
       displayName: displayName,
       uploadTooltip: '''
 
-**Upload**: Tap here to upload a file to your Solid Pod.
+**Upload**
+
+Tap here to upload a file to your Solid Pod.
 
 ''',
     );

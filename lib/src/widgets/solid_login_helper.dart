@@ -76,7 +76,9 @@ const String defaultChangeKeyButtonText = 'Change Key';
 
 const String defaultServerTooltip = '''
 
-**Solid Server:** This text field contains the Solid server you will connect to
+**Solid Server**
+
+This text field contains the Solid server you will connect to
 where your data is hosted. It is also used as the base of the URI (Uniform
 Resource Identifier) that will be used for your WebID. A WebID is a
 decentralised identity that allows you to have a globally unique identifier for
@@ -86,7 +88,9 @@ your data store.
 
 const String defaultLoginTooltip = '''
 
-**Login:** Tap here to log in to a Solid server of your choice to access your
+**Login**
+
+Tap here to log in to a Solid server of your choice to access your
 private data. If a cached session exists for the specified server it will be
 reused automatically. If the cached session belongs to a different server it
 will be cleared and a fresh browser login will be initiated against the newly
@@ -98,7 +102,9 @@ the server to establish your secure connection.
 ''';
 const String defaultRegisterTooltip = '''
 
-**Register:** Tap here to connect to your Solid server of choice to register for
+**Register**
+
+Tap here to connect to your Solid server of choice to register for
 an account. Once you have an account on any Solid server of choice you will be
 able to save data onto your Data Vault on that server. Many Solid servers are
 available, or you can host your own free community supported server. There are
@@ -110,14 +116,18 @@ servers.
 
 const String defaultInfoTooltip = '''
 
-**Support:** Tap here to be taken to the app help and support documentation. The
+**Support**
+
+Tap here to be taken to the app help and support documentation. The
 actual help page navigated to on your browser depends on the particular app.
 
 ''';
 
 const String defaultContinueTooltip = '''
 
-**Continue:** Tap here to continue on to the app. If a cached login session
+**Continue**
+
+Tap here to continue on to the app. If a cached login session
 exists it will be used automatically. If no cached session is available you
 will proceed as a guest and may browse publicly available information. The app
 may later prompt you to log in to a Solid server when access to your Data
