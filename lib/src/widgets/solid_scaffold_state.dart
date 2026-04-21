@@ -56,6 +56,9 @@ class SolidScaffoldState extends State<SolidScaffold> {
       }
     });
     _loadCurrentWebId();
+    if (widget.enableProfile) {
+      SolidProfileService.instance.loadProfile();
+    }
   }
 
   void _initSecurityKey() {

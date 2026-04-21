@@ -150,15 +150,17 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     }
 
     await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => KeyValueEdit(
-                  title: 'Basic Key Value Editor',
-                  fileName: fileName,
-                  keyValuePairs: pairs,
-                  encrypted: _writeEncrypted,
-                  child: widget,
-                )));
+      context,
+      MaterialPageRoute(
+        builder: (context) => KeyValueEdit(
+          title: 'Basic Key Value Editor',
+          fileName: fileName,
+          keyValuePairs: pairs,
+          encrypted: _writeEncrypted,
+          child: widget,
+        ),
+      ),
+    );
 
     setState(() {
       _isLoading = false;
@@ -202,8 +204,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
       // Inform user about what will happen next.
 
-      await alert(context,
-          'The security key has been forgotten locally. The next step will show the security key prompt which you would normally see when accessing secured data after logging in.');
+      await alert(
+        context,
+        'The security key has been forgotten locally. The next step will show the security key prompt which you would normally see when accessing secured data after logging in.',
+      );
 
       // Directly show the security key prompt with WebID.
 
@@ -214,8 +218,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
         // Only show this if the user enters the correct key.
 
-        await alert(context,
-            'Your security key was entered correctly and has been saved for this session.');
+        await alert(
+          context,
+          'Your security key was entered correctly and has been saved for this session.',
+        );
       } catch (e) {
         debugPrint('Error: $e');
         await alert(context, 'Error or cancelled: $e');
@@ -426,7 +432,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CreateAclInheritedFile(),
+                              builder: (context) =>
+                                  const CreateAclInheritedFile(),
                             ),
                           );
                         }
@@ -447,7 +454,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ReadAclInheritedFile(),
+                              builder: (context) =>
+                                  const ReadAclInheritedFile(),
                             ),
                           );
                         }
@@ -472,7 +480,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ),
                   ElevatedButton(
                     child: const Text(
-                        'Show Security Key Prompt (For Demonstration)'),
+                      'Show Security Key Prompt (For Demonstration)',
+                    ),
                     onPressed: () async {
                       await _showSecurityKeyPrompt();
                     },
@@ -671,7 +680,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ),
                   ElevatedButton(
                     child: const Text(
-                        'View ALL Resources your WebID has access to'),
+                      'View ALL Resources your WebID has access to',
+                    ),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -714,15 +724,19 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         return;
                       }
 
-                      final sampleDirUrl = await getDirUrl([
-                        await getDataDirPath(),
-                        'setup_wizard_demo',
-                      ].join('/'));
+                      final sampleDirUrl = await getDirUrl(
+                        [
+                          await getDataDirPath(),
+                          'setup_wizard_demo',
+                        ].join('/'),
+                      );
                       final sampleFileName = 'setup_wizard_demo.ttl';
-                      final sampleFileUrl = await getFileUrl([
-                        await getDataDirPath(),
-                        'sampleFileName',
-                      ].join('/'));
+                      final sampleFileUrl = await getFileUrl(
+                        [
+                          await getDataDirPath(),
+                          'sampleFileName',
+                        ].join('/'),
+                      );
 
                       Navigator.push(
                         context,
@@ -743,7 +757,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       );
                     },
                     child: const Text(
-                        'Show Solid Pod Setup Wizard (Using Real Component)'),
+                      'Show Solid Pod Setup Wizard (Using Real Component)',
+                    ),
                   ),
                 ]),
 

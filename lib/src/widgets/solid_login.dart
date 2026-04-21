@@ -453,7 +453,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       children: [
         MarkdownTooltip(
           message:
-              '**Stay signed in:** When ticked, your login session will be '
+              '**Stay signed in**\n\nWhen ticked, your login session will be '
               'cached so you can skip the browser login next time. '
               'Untick to require a fresh login on every launch.',
           child: SizedBox(

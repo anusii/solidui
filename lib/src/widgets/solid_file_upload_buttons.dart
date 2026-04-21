@@ -85,7 +85,9 @@ class SolidFileUploadButtons {
     return MarkdownTooltip(
       message: '''
 
-**Import CSV:** Tap here to import data from a CSV file:
+**Import CSV**
+
+Tap here to import data from a CSV file:
 
 - Select a CSV file from your device;
 
@@ -119,10 +121,9 @@ class SolidFileUploadButtons {
     return MarkdownTooltip(
       message: '''
 
-**Export CSV:** Tap here to export your health data to a CSV
-file:
+**Export CSV**
 
-This button allows you to export your health data to a CSV file:
+Tap here to export your health data to a CSV file:
 - Export your vaccination, blood pressure, or diary records
 
 - The data will be saved in a standard CSV format

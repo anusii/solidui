@@ -26,19 +26,24 @@ library;
 import 'package:flutter/material.dart';
 
 // Show an alert dialog
-Future<void> alert(BuildContext context, String msg,
-    [String title = 'Notice']) async {
+Future<void> alert(
+  BuildContext context,
+  String msg, [
+  String title = 'Notice',
+]) async {
   await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-            title: Text(title),
-            content: Text(msg),
-            actions: [
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('OK'))
-            ],
-          ));
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: Text(msg),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
 }

@@ -212,6 +212,8 @@ class SolidServerInfo {
     if (isClickable) {
       return '''
 
+      **Pod**
+
       $serverUri - this is your selected Solid Server. You can tap here to open
       the server in your browser.  The Solid Server hosts your Data Vault and
       manages your personal online datastore (Pod) where your app data is stored
@@ -220,6 +222,8 @@ class SolidServerInfo {
       ''';
     } else {
       return '''
+
+      **Pod**
 
       $serverUri - this is your selected Solid Server. The Solid Server hosts
       your Data Vault and manages your personal online datastore (Pod) where
@@ -293,7 +297,9 @@ class SolidLoginStatus {
 
     return '''
 
-    **Login Status:** You are currently logged in to your Pod on your Solid
+    **Login Status**
+
+    You are currently logged in to your Pod on your Solid
     Server and so your data is privately accessible from your Pod.  Tap here to
     log out from the Solid Server $webId.
 
@@ -307,9 +313,11 @@ class SolidLoginStatus {
 
     return '''
 
-    **Login Status:** You are currently **not** lgged in.  To read and write
+    **Login Status**
+
+    You are currently **not** logged in.  To read and write
     your private data from your Pod on your Solid Server you need to be logged
-    in. Tap here to log in
+    in. Tap here to log in.
 
     ''';
   }

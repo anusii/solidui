@@ -31,9 +31,13 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 
+import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_profile_avatar.dart';
+import 'package:solidui/src/widgets/solid_profile_editor.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_ordered_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_overflow.dart';
@@ -61,6 +65,7 @@ class SolidScaffoldAppBarBuilder {
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
+    bool? enableProfileOverride,
   }) {
     SolidAppBarActionsManager.initializeIfNeeded(
       config,
@@ -123,6 +128,17 @@ class SolidScaffoldAppBarBuilder {
       onLogin: onLogin,
     );
 
+    // Append the profile avatar when enabled — rightmost position.
+
+    if (enableProfileOverride ?? config.enableProfile) {
+      actions.add(
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: _buildProfileChip(context),
+        ),
+      );
+    }
+
     return AppBar(
       title: Text(
         config.title,
@@ -149,6 +165,41 @@ class SolidScaffoldAppBarBuilder {
       scrolledUnderElevation: 0.5,
       automaticallyImplyLeading: isNarrowScreen,
       actions: actions.isEmpty ? null : actions,
+    );
+  }
+
+  /// Builds the profile avatar chip in the app bar. The display name is
+  /// surfaced as a hover tooltip (rendered via [MarkdownTooltip]) and the
+  /// existing profile editor dialog opens on tap.
+
+  static Widget _buildProfileChip(BuildContext context) {
+    return ListenableBuilder(
+      listenable: solidProfileNotifier,
+      builder: (context, _) {
+        final displayName = solidProfileNotifier.displayName?.trim();
+        final hasName = displayName != null && displayName.isNotEmpty;
+
+        // Fall back to a generic prompt when the user has not yet set a
+        // display name so the tooltip still tells them what tapping does.
+
+        final tooltipMessage = hasName
+            ? '**$displayName**\n\nTap to edit your profile.'
+            : 'Tap to set your display name and profile picture.';
+
+        final avatar = InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => SolidProfileEditor.show(context),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: SolidProfileAvatar(size: 32),
+          ),
+        );
+
+        return MarkdownTooltip(
+          message: tooltipMessage,
+          child: avatar,
+        );
+      },
     );
   }
 }

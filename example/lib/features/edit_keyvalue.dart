@@ -38,13 +38,14 @@ import 'package:demopod/utils/rdf.dart';
 
 class KeyValueEdit extends StatefulWidget {
   /// Constructor
-  const KeyValueEdit(
-      {required this.title,
-      required this.fileName,
-      required this.child,
-      this.encrypted = true,
-      this.keyValuePairs,
-      super.key});
+  const KeyValueEdit({
+    required this.title,
+    required this.fileName,
+    required this.child,
+    this.encrypted = true,
+    this.keyValuePairs,
+    super.key,
+  });
 
   final String title;
   final String fileName; // file to be saved in PODs
@@ -213,69 +214,84 @@ class _KeyValueEditState extends State<KeyValueEdit> {
   @override
   Widget build(BuildContext context) {
     return SolidScaffold(
-        scaffoldAppBar: AppBar(
-          title: Text(widget.title),
-          backgroundColor: titleBackgroundColor,
-          leadingWidth: 100,
-          actions: [
-            Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  TextButton.icon(
-                    onPressed: _addNewRow,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+      scaffoldAppBar: AppBar(
+        title: Text(widget.title),
+        backgroundColor: titleBackgroundColor,
+        leadingWidth: 100,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton.icon(
+                  onPressed: _addNewRow,
+                  icon: const Icon(Icons.add),
+                  label: const Text(
+                    'Add',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                      onPressed: () async {
-                        final saved = await _saveToPod(context);
-                        if (saved) {
-                          if (!context.mounted) return;
-                          await Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => widget.child));
-                        }
-                      },
-                      child: const Text('Submit',
-                          style: TextStyle(fontWeight: FontWeight.bold))),
-                ])),
-          ],
-        ),
-        body: Center(
-          child: _isLoading
-              ? const CircularProgressIndicator() // Show loading indicator
-              : Editable(
-                  key: _editableKey,
-                  columns: cols,
-                  rows: rows,
-                  // zebraStripe: false,
-                  // stripeColor1: Colors.blue[50]!,
-                  // stripeColor2: Colors.grey[200]!,
-                  onRowSaved: print,
-                  onSubmitted: print,
-                  borderColor: Colors.blueGrey,
-                  tdStyle: const TextStyle(fontWeight: FontWeight.bold),
-                  trHeight: 20,
-                  thStyle: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold),
-                  thAlignment: TextAlign.center,
-                  thVertAlignment: CrossAxisAlignment.end,
-                  thPaddingBottom: 3,
-                  // showSaveIcon:
-                  //     false, // do not show the save icon at the right of a row
-                  // saveIconColor: Colors.black,
-                  // showCreateButton: false, // do not show the + button at top-left
-                  tdAlignment: TextAlign.left,
-                  tdEditableMaxLines: 100, // don't limit and allow data to wrap
-                  tdPaddingTop: 5,
-                  tdPaddingBottom: 5,
-                  focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue),
-                      borderRadius: BorderRadius.zero),
                 ),
-        ));
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    final saved = await _saveToPod(context);
+                    if (saved) {
+                      if (!context.mounted) return;
+                      await Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => widget.child,
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      body: Center(
+        child: _isLoading
+            ? const CircularProgressIndicator() // Show loading indicator
+            : Editable(
+                key: _editableKey,
+                columns: cols,
+                rows: rows,
+                // zebraStripe: false,
+                // stripeColor1: Colors.blue[50]!,
+                // stripeColor2: Colors.grey[200]!,
+                onRowSaved: print,
+                onSubmitted: print,
+                borderColor: Colors.blueGrey,
+                tdStyle: const TextStyle(fontWeight: FontWeight.bold),
+                trHeight: 20,
+                thStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+                thAlignment: TextAlign.center,
+                thVertAlignment: CrossAxisAlignment.end,
+                thPaddingBottom: 3,
+                // showSaveIcon:
+                //     false, // do not show the save icon at the right of a row
+                // saveIconColor: Colors.black,
+                // showCreateButton: false, // do not show the + button at top-left
+                tdAlignment: TextAlign.left,
+                tdEditableMaxLines: 100, // don't limit and allow data to wrap
+                tdPaddingTop: 5,
+                tdPaddingBottom: 5,
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue),
+                  borderRadius: BorderRadius.zero,
+                ),
+              ),
+      ),
+    );
   }
 }
