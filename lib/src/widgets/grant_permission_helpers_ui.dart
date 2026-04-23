@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show AccessMode, RecipientType;
 
+import 'package:solidui/src/constants/ui_colors.dart' show ActionColors;
 import 'package:solidui/src/constants/ui_layout.dart' show SharingPageLayout;
 import 'package:solidui/src/widgets/permission_checkbox.dart';
 
@@ -125,12 +126,17 @@ const ownerRecipientTypes = [
 const granterRecipientTypes = [RecipientType.individual, RecipientType.group];
 
 /// Get title of sharing page.
-String makeSharingTitleStr({String? fileName, bool isFile = false}) =>
-    fileName != null
-        ? isFile
-            ? 'Share $fileName'
-            : 'Share $fileName folder'
-        : 'Share your data with other user\'s PODs';
+String makeSharingTitleStr({
+  List<String>? resourceNames,
+  bool isFile = false,
+}) {
+  if (resourceNames != null && resourceNames.length > 1) {
+    return isFile ? 'Sharing multiple files' : 'Sharing multiple folders';
+  } else if (resourceNames != null) {
+    return isFile ? 'Sharing file' : 'Sharing folder';
+  }
+  return 'Share your data with other user\'s PODs';
+}
 
 // Widget builders
 
@@ -168,18 +174,31 @@ Widget getResourceForm({
                 (value == null || value.isEmpty) ? 'Empty field' : null,
           ),
           const SizedBox(height: 10),
-          SwitchListTile(
-            title: const Text(
-              'Is a File?',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(isFile ? 'Yes' : 'No'),
-            value: isFile,
-            onChanged: onResourceTypeChange,
-            thumbColor: WidgetStateProperty.resolveWith<Color?>(
-              (Set<WidgetState> states) =>
-                  states.contains(WidgetState.selected) ? Colors.green : null,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    'Is a File?',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(isFile ? 'Yes' : 'No'),
+                ],
+              ),
+              Builder(
+                builder: (context) => Switch(
+                  value: isFile,
+                  activeThumbColor:
+                      Theme.of(context).switchTheme.thumbColor?.resolve(
+                            {WidgetState.selected},
+                          ) ??
+                          ActionColors.success,
+                  onChanged: onResourceTypeChange,
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -74,7 +74,6 @@ class _PermissionCallbackDemoState extends State<PermissionCallbackDemo> {
     try {
       for (int i = 0; i < _sampleFiles.length; i++) {
         final fileName = _sampleFiles[i];
-        final filePath = [await getDataDirPath(), fileName].join('/');
 
         // Create rich demo content with different data for each file
         final fileNumber = i + 1;
@@ -100,7 +99,7 @@ demo:exampleData$fileNumber
 
         if (!mounted) return;
 
-        await writePod(filePath, demoContent);
+        await writePod(fileName, demoContent);
       }
     } catch (e) {
       debugPrint('❌ [CallbackDemo] Error creating demo files: $e');
@@ -157,7 +156,7 @@ demo:exampleData$fileNumber
               foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
             ),
             body: GrantPermissionUi(
-              resourceName: _sampleFiles[_currentFileIndex],
+              resourceNames: [_sampleFiles[_currentFileIndex]],
               title: 'Demo: Grant Permission with Callback',
               accessModeList: const ['read'], // Simplified for demo.
               recipientTypeList: const ['indi'], // Individual permissions only.

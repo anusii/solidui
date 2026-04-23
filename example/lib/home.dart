@@ -602,7 +602,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             builder: (context) => const SolidScaffold(
                               body: GrantPermissionUi(
                                 backgroundColor: titleBackgroundColor,
-                                resourceName: 'keyvalue/key-value.ttl',
+                                resourceNames: ['keyvalue/key-value.ttl'],
                                 child: Home(),
                               ),
                             ),

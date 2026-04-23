@@ -32,7 +32,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/solidui.dart' show SharingPageLayout;
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
 
@@ -41,7 +40,9 @@ import 'package:solidui/src/widgets/grant_permission_form.dart';
 /// permission of an existing recipient.
 ///
 /// Parameters:
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - Optional list of resource names. When null, the
+/// [fileNameController] text is used. When one entry, that resource is
+/// pre-set. When multiple entries, granting applies to all.
 /// - [fileNameController] - The [TextEditingController] for the filename
 /// field.
 /// - [isExternalRes] - Boolean flag describing whether the resource
@@ -52,7 +53,6 @@ import 'package:solidui/src/widgets/grant_permission_form.dart';
 /// - [recipientTypeList] - List of recipient type options to show.
 /// - [isFile] - Boolean flag describing whether the resource is a file. If false, the resource is assumed to be a directory.
 /// - [updatePermissionsFunction] is the function to be called to refresh the permission table.
-///
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 
 class ShareResourceButton extends StatefulWidget {
@@ -66,9 +66,12 @@ class ShareResourceButton extends StatefulWidget {
 
   final String granterWebId;
 
-  /// The name of the file or directory that access is being granted for.
+  /// Optional list of resource names when granting permission. When null, the
+  /// [fileNameController] text is used as the resource. When one entry, that
+  /// resource is pre-set. When multiple entries, the form grants permission to
+  /// all names in the list.
 
-  final String? resourceName;
+  final List<String>? resourceNames;
 
   final bool isExternalRes;
 
@@ -102,11 +105,16 @@ class ShareResourceButton extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional background color for the Share Resource button.
+  /// When provided, overrides the theme's elevated button background.
+
+  final Color? buttonColor;
+
   const ShareResourceButton({
     super.key,
     required this.fileNameController,
     required this.updatePermissionsFunction,
-    this.resourceName,
+    this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -115,6 +123,7 @@ class ShareResourceButton extends StatefulWidget {
     required this.isFile,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.buttonColor,
   });
 
   @override
@@ -125,14 +134,6 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   /// Filename text controller
 
   late final TextEditingController _fileNameController;
-
-  /// Owner WebId
-
-  late final String _ownerWebId;
-
-  /// Granter WebId
-
-  late final String _granterWebId;
 
   /// Selected resource - assigned on Share Resource button press
 
@@ -151,13 +152,11 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
     super.initState();
 
     _fileNameController = widget.fileNameController;
-    _ownerWebId = widget.ownerWebId;
-    _granterWebId = widget.granterWebId;
   }
 
   @override
   void dispose() {
-    _fileNameController.dispose(); // Dispose filename editing controller
+    // _fileNameController is owned by the parent widget — do not dispose it here.
     super.dispose();
   }
 
@@ -172,46 +171,61 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   Future<void> _alert(String msg) async => alert(context, msg);
 
   // Resource is a file if resource selected in GrantPermissionUi()
-  bool _getIsFile() => widget.resourceName != null ? widget.isFile : isFile;
+  bool _getIsFile() => widget.resourceNames != null ? widget.isFile : isFile;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: SharingPageLayout.inputPadding,
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.share),
-        onPressed: () async {
-          // Assign dataFile if null (first Grant press)
-          _resourceName = widget.resourceName ?? _fileNameController.text;
+    final shareButton = ElevatedButton.icon(
+      icon: const Icon(Icons.share),
+      // Set share button background color to
+      // parameter buttonColor or
+      // theme elevated button color
+      // or elevated button default (grey)
+      style: widget.buttonColor != null
+          ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  widget.buttonColor!,
+                ),
+              )
+          : Theme.of(context).elevatedButtonTheme.style,
+      onPressed: () async {
+        // Resolve resource name: use first of resourceNames if set,
+        // otherwise fall back to user-entered filename.
+        _resourceName =
+            widget.resourceNames?.firstOrNull ?? _fileNameController.text;
 
-          if (_resourceName != '') {
-            // Display GrantPermissionForm dialog to enter
-            // recipient and access modes
-            await showDialog(
-              context: context,
-              builder: (BuildContext dialogContext) {
-                return GrantPermissionForm(
-                  resourceName: _resourceName,
-                  accessModeList: widget.accessModeList,
-                  recipientTypeList: widget.recipientTypeList,
-                  updatePermissionsFunction: widget.updatePermissionsFunction,
-                  ownerWebId: _ownerWebId,
-                  granterWebId: _granterWebId,
-                  isExternalRes: widget.isExternalRes,
-                  isFile: _getIsFile(),
-                  dataFilesMap: widget.dataFilesMap,
-                  updatePermissionGrantedFunction:
-                      _updatePermissionGrantedStatus,
-                  onPermissionGranted: widget.onPermissionGranted,
-                );
-              },
-            );
-          } else {
-            await _alert('Please select one or more recipients');
-          }
-        },
-        label: const Text('Share Resource'),
+        if (_resourceName != '') {
+          // Display GrantPermissionForm dialog to enter
+          // recipient and access modes
+          await showDialog(
+            context: context,
+            builder: (BuildContext dialogContext) {
+              return GrantPermissionForm(
+                resourceNames: widget.resourceNames ?? [_resourceName],
+                accessModeList: widget.accessModeList,
+                recipientTypeList: widget.recipientTypeList,
+                updatePermissionsFunction: widget.updatePermissionsFunction,
+                ownerWebId: widget.ownerWebId,
+                granterWebId: widget.granterWebId,
+                isExternalRes: widget.isExternalRes,
+                isFile: _getIsFile(),
+                dataFilesMap: widget.dataFilesMap,
+                updatePermissionGrantedFunction: _updatePermissionGrantedStatus,
+                onPermissionGranted: widget.onPermissionGranted,
+              );
+            },
+          );
+        } else {
+          await _alert('Please select one or more recipients');
+        }
+      },
+      label: Text(
+        (widget.resourceNames != null && widget.resourceNames!.length > 1)
+            ? 'Share Resources'
+            : 'Share Resource',
       ),
     );
+
+    return shareButton;
   }
 }
