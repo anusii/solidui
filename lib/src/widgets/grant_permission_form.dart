@@ -93,11 +93,6 @@ class GrantPermissionForm extends StatefulWidget {
 
   final List<String> resourceNames;
 
-  /// Optional list of resource URLs for batch permission granting.
-  /// When provided, permissions are granted to every entry sequentially.
-
-  final List<String>? resourceNames;
-
   final bool isExternalRes;
 
   /// A flag to determine whether the given resource is a file or not.

@@ -199,15 +199,6 @@ class GrantPermissionUi extends StatefulWidget {
 
   final Map<String, String>? titleData;
 
-  /// The effective single resource name derived from either [resourceName]
-  /// or the first entry in [resourceNames].
-
-  String? get effectiveResourceName =>
-      resourceName ??
-      (resourceNames != null && resourceNames!.isNotEmpty
-          ? resourceNames!.first
-          : null);
-
   @override
   GrantPermissionUiState createState() => GrantPermissionUiState();
 }
