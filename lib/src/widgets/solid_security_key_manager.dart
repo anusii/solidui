@@ -155,7 +155,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   /// Handles the change security key action (when cached).
 
   Future<void> _handleChangeKey(BuildContext context) async {
-    await SolidSecurityKeyManagerDialogs.showKeyInputDialog(
+    final changed = await SolidSecurityKeyManagerDialogs.showKeyInputDialog(
       context,
       widget.config.appWidget,
       () async {
@@ -164,6 +164,14 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
         debugPrint('Security key changed, status remains: Cached Locally');
       },
     );
+
+    // Dismiss the outer security key management dialogue once the key has
+    // been successfully changed, so the user is not left staring at a stale
+    // popup after completing the operation.
+
+    if (changed && mounted && context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   /// Handles the cache security key action (when not cached).
