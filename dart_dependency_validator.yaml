@@ -11,4 +11,3 @@ exclude:
 # directly by this package (e.g. kept for downstream apps / desktop setup).
 ignore:
   - window_manager
-
