@@ -130,56 +130,6 @@ class SolidNavUserInfo {
     this.enableProfile = false,
   });
 
-  /// Extracts username from WebID URL.
-
-  static String _extractUsernameFromWebId(String webId) {
-    try {
-      final uri = Uri.parse(webId);
-      final pathSegments = uri.pathSegments;
-
-      // Find the username segment (typically the first non-empty path segment).
-
-      for (final segment in pathSegments) {
-        if (segment.isNotEmpty &&
-            segment != 'profile' &&
-            segment != 'card' &&
-            !segment.startsWith('#')) {
-          return segment;
-        }
-      }
-
-      // Fallback: try to extract from the last slash in the full URL.
-
-      final lastSlashIndex = webId.lastIndexOf('/');
-      if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
-        String candidate = webId.substring(lastSlashIndex + 1);
-
-        // Remove common suffixes.
-
-        const suffixes = ['profile', 'card#me', '#me'];
-        for (final suffix in suffixes) {
-          if (candidate.endsWith(suffix)) {
-            candidate = candidate.substring(
-              0,
-              candidate.length - suffix.length,
-            );
-            if (candidate.endsWith('/')) {
-              candidate = candidate.substring(0, candidate.length - 1);
-            }
-          }
-        }
-
-        if (candidate.isNotEmpty) {
-          return candidate;
-        }
-      }
-
-      return '';
-    } catch (e) {
-      return '';
-    }
-  }
-
   /// Gets the effective display name, extracting from WebID if necessary.
 
   String get effectiveUserName {
@@ -187,11 +137,9 @@ class SolidNavUserInfo {
       return userName!;
     }
 
-    if (webId != null && webId!.isNotEmpty) {
-      final extracted = _extractUsernameFromWebId(webId!);
-      if (extracted.isNotEmpty) {
-        return extracted;
-      }
+    final extracted = WebIdParts.tryParse(webId)?.username ?? '';
+    if (extracted.isNotEmpty) {
+      return extracted;
     }
 
     return 'Not logged in';
