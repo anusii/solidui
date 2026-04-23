@@ -121,7 +121,8 @@ class _LogoutDialogState extends State<LogoutDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<({({String name, String version}) app, String? webId})>(
+    return FutureBuilder<
+        ({({String name, String version}) app, String? webId})>(
       future: () async {
         final app = await getAppNameVersion();
         final webId = await getWebId();

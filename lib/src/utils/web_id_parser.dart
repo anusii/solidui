@@ -82,8 +82,7 @@ class WebIdParts {
   /// `pods.solidcommunity.au/watson01`. Falls back to the host alone when no
   /// username is available.
 
-  String get hostWithUsername =>
-      username.isEmpty ? host : '$host/$username';
+  String get hostWithUsername => username.isEmpty ? host : '$host/$username';
 
   /// Canonical profile card URL reconstructed from the parsed components,
   /// for example `https://pods.solidcommunity.au/watson01/profile/card#`.
