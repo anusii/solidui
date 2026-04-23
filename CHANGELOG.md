@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Support multi sharing [0.3.22 20260423 jesscmoore]
 + Support user profiles [0.3.21 20260421 tonypioneer]
 + Review and cleanup [0.3.20 20260420 gjw]
 + Updated tooltip style to be consistent [0.3.19 20260420 gjw]

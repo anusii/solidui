@@ -50,6 +50,7 @@ import 'package:solidui/solidui.dart'
         updatePermissionMsg;
 import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input_screen.dart';
 import 'package:solidui/src/widgets/select_recipients.dart';
@@ -62,7 +63,9 @@ import 'package:solidui/src/widgets/show_selected_recipients.dart';
 /// provided [resourceName]
 ///
 /// Parameters:
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - List of resource names. The first entry is used for
+/// display in the dialog title and ACL table refresh. All entries receive
+/// the same permission grant.
 /// - [isExternalRes] - Boolean flag describing whether the resource
 /// is externally owned.
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
@@ -84,9 +87,11 @@ class GrantPermissionForm extends StatefulWidget {
 
   final String granterWebId;
 
-  /// The name of the file or directory that access is being granted for.
+  /// List of resource names to grant permission to. The first entry is used
+  /// for display in the dialog title and ACL table refresh after granting.
+  /// All entries receive the same permission grant sequentially.
 
-  final String resourceName;
+  final List<String> resourceNames;
 
   /// Optional list of resource URLs for batch permission granting.
   /// When provided, permissions are granted to every entry sequentially.
@@ -132,8 +137,7 @@ class GrantPermissionForm extends StatefulWidget {
   const GrantPermissionForm({
     super.key,
     required this.updatePermissionsFunction,
-    required this.resourceName,
-    this.resourceNames,
+    required this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -295,7 +299,13 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: GrantPermFormLayout.contentPadding,
-      title: Text('Share ${widget.resourceName}'),
+      title: Text(
+        makeSharingTitleStr(
+          resourceNames: widget.resourceNames,
+          isFile: widget.isFile,
+        ),
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
       content: Scrollbar(
         thumbVisibility: true,
         child: SingleChildScrollView(
@@ -365,14 +375,16 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
             if (selectedRecipientType.type.isNotEmpty) {
               if (selectedPermList.isNotEmpty) {
-                final resources = widget.resourceNames ?? [widget.resourceName];
+                // Grant permission for each resource sequentially.
+                // When resourceNames is provided all resources share the
+                // same recipient and permission selections.
+                final resourcesToGrant = widget.resourceNames;
                 SolidFunctionCallStatus result =
                     SolidFunctionCallStatus.success;
                 try {
-                  // Update ACL and permission logs to grant permission
-                  for (final resource in resources) {
-                    result = await grantPermission(
-                      fileName: resource,
+                  for (final name in resourcesToGrant) {
+                    final r = await grantPermission(
+                      fileName: name,
                       isFile: widget.isFile,
                       permissionList: selectedPermList,
                       recipientType: selectedRecipientType,
@@ -382,7 +394,10 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                       isExternalRes: widget.isExternalRes,
                       groupName: selectedGroupName,
                     );
-                    if (result != SolidFunctionCallStatus.success) break;
+                    if (r != SolidFunctionCallStatus.success) {
+                      result = r;
+                      break;
+                    }
                   }
 
                   // Close grant permission dialog
@@ -397,7 +412,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                   _showSnackBar(successMsg, ActionColors.success);
                   // Update permissions table for the primary resource.
                   await widget.updatePermissionsFunction(
-                    widget.resourceName, //_resourceName,
+                    widget.resourceNames.first,
                     isFile: widget.isFile,
                     isExternalRes: widget.isExternalRes,
                   );
@@ -413,7 +428,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                   // Also log to console for debugging
                   debugPrintFailure(
-                    widget.resourceName, // _resourceName,
+                    widget.resourceNames.first,
                     finalWebIdList,
                     selectedPermList,
                   );
