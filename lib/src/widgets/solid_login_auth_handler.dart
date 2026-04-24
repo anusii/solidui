@@ -35,6 +35,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart'
     show
@@ -45,6 +46,8 @@ import 'package:solidpod/solidpod.dart'
         markPodStructureInitialised,
         solidAuthenticate;
 
+import 'package:solidui/src/constants/initial_setup.dart'
+    show initialStructureSnackbarMsg;
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
     show getKeyFromUserIfRequired;
@@ -89,6 +92,21 @@ class SolidLoginAuthHandler {
     await prefs.setBool(staySignedInKey, value);
   }
 
+  /// Returns the capitalised current app name from the platform package
+  /// info, or the generic fallback when unavailable. Used to produce
+  /// user-facing messages such as the setup snackbar.
+
+  static Future<String> _currentAppName() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final name = packageInfo.appName;
+      if (name.isEmpty) return 'the App';
+      return name[0].toUpperCase() + name.substring(1);
+    } on Object {
+      return 'the App';
+    }
+  }
+
   /// Notifies the user that their POD is not initialised, verifies the remote
   /// directory structure, and navigates to the appropriate screen (setup wizard
   /// or child widget).
@@ -104,7 +122,7 @@ class SolidLoginAuthHandler {
     bool staySignedIn = true,
   }) async {
     showSnackbar(
-      'The POD is not initialised. Setting up your POD...',
+      initialStructureSnackbarMsg(await _currentAppName()),
       duration: const Duration(seconds: 5),
     );
 

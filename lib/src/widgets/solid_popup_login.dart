@@ -30,6 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidpod/solidpod.dart'
     show
         isUserLoggedIn,
@@ -38,6 +39,8 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFolders,
         generateDefaultFiles;
 
+import 'package:solidui/src/constants/initial_setup.dart'
+    show initialStructureSnackbarMsg;
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/screens/initial_setup_screen.dart';
@@ -63,6 +66,21 @@ class SolidPopupLogin extends StatefulWidget {
 
 class _SolidPopupLoginState extends State<SolidPopupLogin> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // Returns the capitalised current app name from the platform package
+  // info, or the generic fallback when unavailable. Used to produce the
+  // POD setup snackbar message.
+
+  Future<String> _currentAppName() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final name = packageInfo.appName;
+      if (name.isEmpty) return 'the App';
+      return name[0].toUpperCase() + name.substring(1);
+    } on Object {
+      return 'the App';
+    }
+  }
 
   // Verify the remote POD directory structure and navigate to the setup
   // screen when resources are missing.
@@ -114,12 +132,12 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
       if (!context.mounted) return false;
 
       if (isNowLoggedIn) {
+        final appName = await _currentAppName();
+        if (!context.mounted) return false;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'The POD is not initialised. Setting up your POD...',
-            ),
-            duration: Duration(seconds: 5),
+          SnackBar(
+            content: Text(initialStructureSnackbarMsg(appName)),
+            duration: const Duration(seconds: 5),
           ),
         );
 

@@ -48,24 +48,77 @@ const darkBlue = Color.fromARGB(255, 7, 87, 153);
 
 // const double kDefaultPadding = 20.0;
 
-/// Text string variables used for the welcome message.
+/// First line of the welcome title, shown on its own for clarity.
 
-const initialStructureWelcome = 'Welcome to the Solid Pod Setup Wizard';
+const initialStructureTitleLine1 = 'Welcome to the Solid';
+
+/// Second line of the welcome title for a first-time setup.
+
+const initialStructureTitleLine2Setup =
+    'Personal Online Datastore Setup Wizard';
+
+/// Second line of the welcome title when the user already has an app
+/// directory but is missing resources (e.g. a newly required folder).
+
+const initialStructureTitleLine2Update =
+    'Personal Online Datastore Update Wizard';
+
+/// Third line of the welcome title; includes the app name so the user
+/// knows which app's POD is being configured.
+
+String initialStructureTitleLine3(String appName) => 'for $appName';
 
 /// Text string variables as the title of the message box.
 
 const initialStructureTitle = 'Solid Pod';
 
-/// Text string variables used for informing the user about the first-time
-/// connection and security key requirement.
+/// Message shown when the user is connecting the app to their POD for the
+/// first time and the POD needs to be initialised.
 ///
-/// The [appName] parameter allows the message to display the actual app name
-/// instead of a generic "this App" reference.
+/// The [appName] parameter is the current app name. The [serverName] is the
+/// human-readable Solid server host (e.g. `pods.solidcommunity.au`); when
+/// empty the server reference is omitted so the sentence still reads
+/// naturally.
 
-String initialStructureMsg(String appName) =>
-    'You have connected to your Solid Pod using $appName for the first time. '
-    'A security key is required to encrypt and protect the data stored in your '
-    'Pod. You must remember this security key to access the data for $appName.';
+String initialStructureMsg(String appName, String serverName) {
+  // Build the first sentence, including the optional server reference so
+  // empty [serverName] values do not leave a dangling "server ." in the
+  // output.
+
+  final serverClause =
+      serverName.trim().isEmpty ? '' : ' on Solid server $serverName';
+  return 'You have connected for the first time the $appName app to your '
+      'Personal Online Datastore (POD)$serverClause. '
+      'A security key is required to encrypt and protect your data stored '
+      'in your POD using this app. You must remember this security key to '
+      'access your data created with the $appName app.';
+}
+
+/// Message shown when the user's POD already has an app directory but is
+/// missing one or more resources (e.g. a newly required folder for a new
+/// app feature). Only prompts for the existing security key once.
+///
+/// The [appName] parameter is the current app name.
+
+String initialUpdateMsg(String appName) =>
+    'Your POD already has a $appName app folder, but its structure needs '
+    'to be updated to support new features of this version of the app. '
+    'Please provide your existing security key to authorise the '
+    'update to your POD. None of your existing files will be lost — the '
+    'update only adds the new folders and files required by this version '
+    'of the app.';
+
+/// Snackbar text displayed when the app detects the POD is not yet set
+/// up for this app and starts the setup wizard.
+
+String initialStructureSnackbarMsg(String appName) =>
+    'The POD is not initialised for $appName app. Setting up your POD...';
+
+/// Snackbar text displayed when the POD already has the app folder but is
+/// missing some resources and the update wizard is about to run.
+
+String initialUpdateSnackbarMsg(String appName) =>
+    'The POD needs updating for $appName app. Opening the update wizard...';
 
 /// The string key of input form for the input of security key
 

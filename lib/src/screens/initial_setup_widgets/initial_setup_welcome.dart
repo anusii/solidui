@@ -46,19 +46,40 @@ import 'package:solidui/src/widgets/build_message_container.dart';
 /// A widget displaying an alert for the user noting that they have probably a
 /// newly created Solid Pod or their App's Pod is missing resources.
 ///
-/// The widget will inform the user about creating/ re-creating these resources.
+/// The widget will inform the user about creating/re-creating these resources.
 ///
 /// The [appName] parameter is used to display the actual app name in the
 /// message instead of a generic reference.
 ///
 /// The [webId] parameter, when provided, is displayed beneath the welcome
 /// title so that the user can identify which POD is being set up.
+///
+/// The [serverName] parameter is the human-readable host of the Solid
+/// server (e.g. `pods.solidcommunity.au`) that is shown in the setup
+/// message so the user can see which server is being initialised.
+///
+/// The [isUpdate] flag distinguishes between a first-time POD setup (the
+/// app has never been initialised for this user) and an update to an
+/// existing app folder (e.g. a new version of the app requires a new
+/// folder). The wording of the title and body is adjusted accordingly.
 
 SizedBox initialSetupWelcome(
   BuildContext context,
   String appName,
-  String? webId,
-) {
+  String? webId, {
+  required String serverName,
+  bool isUpdate = false,
+}) {
+  final titleColour = Theme.of(context).textTheme.titleLarge?.color;
+  final titleStyle = TextStyle(
+    fontSize: 25,
+    color: titleColour,
+    fontWeight: FontWeight.w500,
+  );
+
+  final line2 =
+      isUpdate ? initialStructureTitleLine2Update : initialStructureTitleLine2Setup;
+
   return SizedBox(
     child: Padding(
       padding: const EdgeInsets.all(30.0),
@@ -72,20 +93,32 @@ SizedBox initialSetupWelcome(
               color: lightGreen,
             ),
             alignment: Alignment.center,
-            child: const Icon(
-              Icons.playlist_add,
+            child: Icon(
+              isUpdate ? Icons.system_update_alt : Icons.playlist_add,
               color: Colors.white,
               size: 50,
             ),
           ),
           const SizedBox(height: 10),
+
+          // Render the welcome title across three lines so the purpose of
+          // the wizard (setup vs update, and for which app) is immediately
+          // obvious to a first-time user.
+
           Text(
-            initialStructureWelcome,
-            style: TextStyle(
-              fontSize: 25,
-              color: Theme.of(context).textTheme.titleLarge?.color,
-              fontWeight: FontWeight.w500,
-            ),
+            initialStructureTitleLine1,
+            textAlign: TextAlign.center,
+            style: titleStyle,
+          ),
+          Text(
+            line2,
+            textAlign: TextAlign.center,
+            style: titleStyle,
+          ),
+          Text(
+            initialStructureTitleLine3(appName),
+            textAlign: TextAlign.center,
+            style: titleStyle,
           ),
           if (webId != null && webId.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -118,7 +151,9 @@ SizedBox initialSetupWelcome(
               context,
               'warning',
               '', // No title for the message box.
-              initialStructureMsg(appName),
+              isUpdate
+                  ? initialUpdateMsg(appName)
+                  : initialStructureMsg(appName, serverName),
             ),
           ),
         ],

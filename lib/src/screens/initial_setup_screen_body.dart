@@ -37,7 +37,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:solidpod/solidpod.dart' show getWebId;
+import 'package:solidpod/solidpod.dart'
+    show
+        ResourceStatus,
+        checkResourceStatus,
+        getEncKeyPath,
+        getFileUrl,
+        getWebId;
 
 import 'package:solidui/solidui.dart' show SolidLogin, logoutPopup;
 import 'package:solidui/src/constants/initial_setup.dart';
@@ -89,14 +95,41 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
 
   final _formKey = GlobalKey<FormBuilderState>();
 
+  // Shared by the ListView and its Scrollbar so the always-visible
+  // scrollbar thumb tracks the same scroll position as the list.
+
+  final _scrollController = ScrollController();
+
   String _appName = 'the App';
   String? _webId;
+  String _serverName = '';
+
+  // True when the POD already holds the encryption key for this app, so the
+  // wizard is only topping up missing folders/files for a newer version of
+  // the app rather than doing a first-time setup. When true the user is
+  // only asked for their existing security key once (no retype) and the
+  // title/body switch to "Update Wizard" wording.
+
+  bool _isUpdate = false;
+
+  // Becomes true after the asynchronous update-mode detection has
+  // completed, so we do not flash the first-time-setup wording to users
+  // who are in fact running an update.
+
+  bool _modeResolved = false;
 
   @override
   void initState() {
     super.initState();
     _loadAppName();
     _loadWebId();
+    _resolveSetupMode();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAppName() async {
@@ -117,6 +150,45 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
     if (mounted) {
       setState(() {
         _webId = webId;
+        _serverName = _deriveServerName(webId);
+      });
+    }
+  }
+
+  /// Extracts the Solid server host from a WebID URL (e.g.
+  /// `https://pods.solidcommunity.au/alice/profile/card#me` →
+  /// `pods.solidcommunity.au`). Falls back to an empty string if the
+  /// WebID cannot be parsed, in which case the welcome widget simply
+  /// omits the server name from the message.
+
+  String _deriveServerName(String? webId) {
+    if (webId == null || webId.isEmpty) return '';
+    try {
+      final host = Uri.parse(webId).host;
+      return host.isEmpty ? '' : host;
+    } on FormatException {
+      return '';
+    }
+  }
+
+  /// Determines whether the wizard is running in "update" mode by checking
+  /// whether the encryption key file already exists on the server. If it
+  /// does, the user has previously initialised their POD for this app and
+  /// we must reuse the existing key rather than asking them to invent a
+  /// new one.
+
+  Future<void> _resolveSetupMode() async {
+    var isUpdate = false;
+    try {
+      final encKeyUrl = await getFileUrl(await getEncKeyPath());
+      isUpdate = await checkResourceStatus(encKeyUrl) == ResourceStatus.exist;
+    } on Object catch (e) {
+      debugPrint('InitialSetupScreenBody: failed to resolve setup mode: $e');
+    }
+    if (mounted) {
+      setState(() {
+        _isUpdate = isUpdate;
+        _modeResolved = true;
       });
     }
   }
@@ -166,6 +238,14 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         .map((item) => item.toString())
         .toList();
 
+    // While the setup mode is still being resolved, show a lightweight
+    // spinner instead of the first-time-setup wording so we do not
+    // briefly show it to users who are actually doing an update.
+
+    if (!_modeResolved) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     // Wrap in FocusTraversalGroup to enable ordered tab navigation.
 
     return FocusTraversalGroup(
@@ -181,50 +261,68 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 800),
-                child: ListView(
-                  primary: false,
-                  children: [
-                    initialSetupWelcome(context, _appName, _webId),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          EncKeyInputForm(
-                            formKey: _formKey,
-                            onSubmit: () async => _handleFormSubmit(
-                              resFileNames,
-                              resFoldersLink,
-                              resFilesLink,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          FractionallySizedBox(
-                            widthFactor: 0.9,
-                            alignment: Alignment.center,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildSubmitButton(
-                                  context,
-                                  resFileNames,
-                                  resFoldersLink,
-                                  resFilesLink,
-                                ),
-                                const SizedBox(height: 30),
-                                _buildActionButtons(
-                                  context,
-                                  baseUrl,
-                                  extractedParts,
-                                ),
-                                const SizedBox(height: 30),
-                              ],
-                            ),
-                          ),
-                        ],
+
+                // Show the scrollbar thumb even when the user is not
+                // hovering the list, so that additional unseen content
+                // is discoverable at a glance.
+
+                child: Scrollbar(
+                  controller: _scrollController,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: ListView(
+                    controller: _scrollController,
+                    primary: false,
+                    children: [
+                      initialSetupWelcome(
+                        context,
+                        _appName,
+                        _webId,
+                        serverName: _serverName,
+                        isUpdate: _isUpdate,
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            EncKeyInputForm(
+                              formKey: _formKey,
+                              requireRetype: !_isUpdate,
+                              onSubmit: () async => _handleFormSubmit(
+                                resFileNames,
+                                resFoldersLink,
+                                resFilesLink,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            FractionallySizedBox(
+                              widthFactor: 0.9,
+                              alignment: Alignment.center,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSubmitButton(
+                                    context,
+                                    resFileNames,
+                                    resFoldersLink,
+                                    resFilesLink,
+                                  ),
+                                  const SizedBox(height: 30),
+                                  _buildActionButtons(
+                                    context,
+                                    baseUrl,
+                                    extractedParts,
+                                  ),
+                                  const SizedBox(height: 30),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
