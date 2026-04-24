@@ -118,7 +118,7 @@ String initialStructureSnackbarMsg(String appName) =>
 /// missing some resources and the update wizard is about to run.
 
 String initialUpdateSnackbarMsg(String appName) =>
-    'The POD needs updating for $appName app. Opening the update wizard...';
+    'The POD needs updating for $appName app.';
 
 /// The string key of input form for the input of security key
 

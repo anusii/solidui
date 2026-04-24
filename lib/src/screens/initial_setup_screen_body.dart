@@ -60,6 +60,7 @@ class InitialSetupScreenBody extends StatefulWidget {
     required this.resNeedToCreate,
     required this.child,
     this.originalLogin,
+    this.isUpdate,
     super.key,
   });
 
@@ -83,6 +84,14 @@ class InitialSetupScreenBody extends StatefulWidget {
   /// The original SolidLogin widget to return to when back is pressed.
 
   final SolidLogin? originalLogin;
+
+  /// Optional pre-computed "update mode" flag. When supplied the widget
+  /// uses it directly and skips the remote detection (removing the loading
+  /// spinner). When `null` the widget detects the mode itself, which
+  /// preserves backwards compatibility for callers that instantiate
+  /// [InitialSetupScreenBody] without going through the login handler.
+
+  final bool? isUpdate;
 
   @override
   State<InitialSetupScreenBody> createState() => _InitialSetupScreenBodyState();
@@ -123,7 +132,18 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
     super.initState();
     _loadAppName();
     _loadWebId();
-    _resolveSetupMode();
+
+    // Prefer the caller-supplied flag so the wizard renders immediately;
+    // only fall back to a remote check when the caller did not pre-compute
+    // the mode for us.
+
+    final preComputed = widget.isUpdate;
+    if (preComputed != null) {
+      _isUpdate = preComputed;
+      _modeResolved = true;
+    } else {
+      _resolveSetupMode();
+    }
   }
 
   @override

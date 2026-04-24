@@ -47,10 +47,10 @@ import 'package:solidpod/solidpod.dart'
         solidAuthenticate;
 
 import 'package:solidui/src/constants/initial_setup.dart'
-    show initialStructureSnackbarMsg;
+    show initialStructureSnackbarMsg, initialUpdateSnackbarMsg;
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
-    show getKeyFromUserIfRequired;
+    show getKeyFromUserIfRequired, isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
@@ -107,6 +107,30 @@ class SolidLoginAuthHandler {
     }
   }
 
+  /// Displays the setup-wizard or update-wizard snackbar depending on the
+  /// state of the POD represented by [resCheckList]. Kept as a helper so
+  /// every code path that navigates to [InitialSetupScreen] shows a
+  /// snackbar with the correct wording.
+
+  static Future<bool> _announceSetupWizard({
+    required BuildContext context,
+    required List<dynamic> resCheckList,
+    required Function(String message, {Duration? duration, bool showAction})
+        showSnackbar,
+  }) async {
+    final isUpdate = await isPodUpdateMode(resCheckList);
+    final appName = await _currentAppName();
+    if (!context.mounted) return isUpdate;
+
+    showSnackbar(
+      isUpdate
+          ? initialUpdateSnackbarMsg(appName)
+          : initialStructureSnackbarMsg(appName),
+      duration: const Duration(seconds: 5),
+    );
+    return isUpdate;
+  }
+
   /// Notifies the user that their POD is not initialised, verifies the remote
   /// directory structure, and navigates to the appropriate screen (setup wizard
   /// or child widget).
@@ -121,11 +145,6 @@ class SolidLoginAuthHandler {
         showSnackbar,
     bool staySignedIn = true,
   }) async {
-    showSnackbar(
-      initialStructureSnackbarMsg(await _currentAppName()),
-      duration: const Duration(seconds: 5),
-    );
-
     final resCheckList = await initialStructureTest(
       defaultFolders,
       defaultFiles,
@@ -135,6 +154,17 @@ class SolidLoginAuthHandler {
     if (!context.mounted) return false;
 
     if (!allExists) {
+      // Announce setup vs update before navigating, so the user sees the
+      // correct wording in the bottom snackbar as the wizard opens.
+
+      final isUpdate = await _announceSetupWizard(
+        context: context,
+        resCheckList: resCheckList,
+        showSnackbar: showSnackbar,
+      );
+
+      if (!context.mounted) return false;
+
       await clearPodStructureInitialised();
 
       // Schedule session clearance for next startup when the user has
@@ -153,6 +183,7 @@ class SolidLoginAuthHandler {
         InitialSetupScreen(
           resCheckList: resCheckList,
           originalLogin: originalLoginWidget,
+          isUpdate: isUpdate,
           child: childWidget,
         ),
       );
@@ -339,6 +370,17 @@ class SolidLoginAuthHandler {
         // Remote structure is incomplete — clear the stale local flag and
         // launch the setup wizard so the user can re-initialise.
 
+        // Announce setup vs update before navigating so the user sees the
+        // correct wording in the bottom snackbar as the wizard opens.
+
+        final isUpdate = await _announceSetupWizard(
+          context: context,
+          resCheckList: resCheckList,
+          showSnackbar: showSnackbar,
+        );
+
+        if (!context.mounted) return false;
+
         await clearPodStructureInitialised();
 
         // Schedule session clearance for next startup when the user has
@@ -357,6 +399,7 @@ class SolidLoginAuthHandler {
           InitialSetupScreen(
             resCheckList: resCheckList,
             originalLogin: originalLoginWidget,
+            isUpdate: isUpdate,
             child: childWidget,
           ),
         );
