@@ -183,40 +183,23 @@ External users can use the template by first cloning the repository:
 
 3. Install Mason:
 
-<<<<<<< Updated upstream
-1. Install Mason:
-
-=======
->>>>>>> Stashed changes
    ```bash
    dart pub global activate mason_cli
    ```
 
-<<<<<<< Updated upstream
-2. Initialize Mason in your project (if not already):
-=======
 4. Initialize Mason:
->>>>>>> Stashed changes
 
    ```bash
    mason init
    ```
 
-<<<<<<< Updated upstream
-3. Add the SolidUI brick:
-=======
 5. Add the SolidUI brick:
->>>>>>> Stashed changes
 
    ```bash
    mason add solidui --path templates/solidui/brick
    ```
 
-<<<<<<< Updated upstream
-4. Create a new app from the template:
-=======
 6. Create a new app from the template:
->>>>>>> Stashed changes
 
    ```bash
    mason make solidui
@@ -232,12 +215,7 @@ python3 support/sync_template_to_example.py
 
 ### Template Structure
 
-<<<<<<< Updated upstream
-The template app consists of several files within the
-`lib/` directory:
-=======
 The template app consists of several files within the `lib/` directory:
->>>>>>> Stashed changes
 
 - `main.dart`: Initialises the application and launches the app.
 - `app.dart`: Implements the `App()` widget, instantiating `SolidLogin()`.
