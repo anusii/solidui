@@ -1,6 +1,6 @@
 /// Initial setup page constants.
 ///
-// Time-stamp: <Thursday 2026-01-22 11:26:01 +1100 Graham Williams>
+// Time-stamp: <Saturday 2026-04-25 06:10:18 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -87,11 +87,11 @@ String initialStructureMsg(String appName, String serverName) {
 
   final serverClause =
       serverName.trim().isEmpty ? '' : ' on Solid server $serverName';
-  return 'You have connected for the first time the $appName app to your '
+  return 'This is the first time using $appName to connect to your '
       'Personal Online Datastore (POD)$serverClause. '
       'A security key is required to encrypt and protect your data stored '
-      'in your POD using this app. You must remember this security key to '
-      'access your data created with the $appName app.';
+      'by this app in your POD. Please remember this security key as it is '
+      'required to access the data created through $appName.';
 }
 
 /// Message shown when the user's POD already has an app directory but is
@@ -101,12 +101,10 @@ String initialStructureMsg(String appName, String serverName) {
 /// The [appName] parameter is the current app name.
 
 String initialUpdateMsg(String appName) =>
-    'Your POD already has a $appName app folder, but its structure needs '
-    'to be updated to support new features of this version of the app. '
+    'The $appName app data stored in your POD needs to be updated to support new features.'
     'Please provide your existing security key to authorise the '
-    'update to your POD. None of your existing files will be lost — the '
-    'update only adds the new folders and files required by this version '
-    'of the app.';
+    'update. None of your existing files will be lost — the '
+    'update only adds newly required folders and files.';
 
 /// Snackbar text displayed when the app detects the POD is not yet set
 /// up for this app and starts the setup wizard.
