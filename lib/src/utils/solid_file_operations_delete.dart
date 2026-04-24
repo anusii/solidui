@@ -101,8 +101,6 @@ class SolidFileDeleteOperations {
 
         final fullFilePath = PathUtils.combine(filePath, fileName);
 
-        // Delete the file (this also handles the ACL file automatically).
-
         try {
           await deleteFile(fileUrl: await getFileUrl(fullFilePath));
         } catch (e) {

@@ -50,6 +50,7 @@ class InitialSetupScreen extends StatefulWidget {
   const InitialSetupScreen({
     required this.resCheckList,
     required this.child,
+    required this.webId,
     this.originalLogin,
     super.key,
   });
@@ -58,8 +59,9 @@ class InitialSetupScreen extends StatefulWidget {
   // Includes Access token, Refresh token, logout URL, RSA info, Client info, etc.
   // final Map<dynamic, dynamic> authData;
 
-  // The authenticated user specific URI.
-  // final String webId;
+  /// The authenticated user specific URI.
+
+  final String webId;
 
   // Name of the app that the user is authenticating into
   // final String appName;
@@ -100,6 +102,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
           Expanded(
             child: InitialSetupScreenBody(
               resNeedToCreate: resNeedToCreate,
+              webId: widget.webId,
               originalLogin: widget.originalLogin,
               child: widget.child,
             ),

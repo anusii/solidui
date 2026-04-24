@@ -1,0 +1,22 @@
+name: solidui
+description: A starting point for a SolidUI application.
+version: 0.0.1
+environment:
+  mason: ">=0.1.0-dev.50 <1.0.0"
+
+vars:
+  projectName:
+    type: string
+    description: The name of the project.
+    default: myapp
+    prompt: What is the project name?
+  description:
+    type: string
+    description: The description of the project.
+    default: A SolidUI Template Application
+    prompt: What is the project description?
+  author:
+    type: string
+    description: The author of the project.
+    default: Software Innovation Institute, ANU
+    prompt: Who is the author?

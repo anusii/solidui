@@ -268,18 +268,35 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   Future<void> _initPackageInfo() async {
     if (!mounted) return;
+
+    // Start fetching app info immediately — it is independent of appDirName.
+    final appInfoFuture = getAppNameVersion();
+
+    // Directory name setting must precede folder/file generation.
     await setAppDirName(widget.appDirectory);
-    final folders = await generateDefaultFolders();
-    final files = await generateDefaultFiles();
+
+    // Parallelize folders and files generation along with the app info future.
+    final foldersFuture = generateDefaultFolders();
+    final filesFuture = generateDefaultFiles();
+
+    // Await all futures in parallel. Using Future.wait<void> allows us to
+    // access the typed results directly from the futures afterwards,
+    // avoiding the need for brittle positional index casting.
+    await Future.wait<void>([foldersFuture, filesFuture, appInfoFuture]);
+
+    final folders = await foldersFuture;
+    final files = await filesFuture;
+    final appInfo = await appInfoFuture;
+
     final customFolders = generateCustomFolders(widget.customFolderPathList);
+
     if (!mounted) return;
+
+    // Single setState: consolidates all derived data updates and avoids
+    // multiple widget rebuilds.
     setState(() {
       defaultFolders = folders + customFolders;
       defaultFiles = files;
-    });
-    final appInfo = await getAppNameVersion();
-    if (!mounted) return;
-    setState(() {
       appName = appInfo.name;
       appVersion = appInfo.version;
     });

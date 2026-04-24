@@ -95,8 +95,8 @@ class AppScaffold extends StatelessWidget {
         // VERSION WIDGET.
 
         versionConfig: SolidVersionConfig(
-          changelogUrl:
-              'https://github.com/anusii/solidui/blob/dev/CHANGELOG.md',
+          changelogUrl: 'https://github.com/anusii/solidui/blob/dev/'
+              'CHANGELOG.md',
           showDate: true,
           userTextStyle: TextStyle(
             color: theme.colorScheme.onSurface,
@@ -117,6 +117,13 @@ class AppScaffold extends StatelessWidget {
               const SamplePage(),
             ),
             tooltip: 'Sample Page',
+          ),
+          SolidAppBarAction(
+            icon: Icons.settings,
+            onPressed: () => _scaffoldController.navigateToSubpage(
+              const _MySettings(),
+            ),
+            tooltip: 'Settings',
           ),
         ],
       ),
@@ -182,6 +189,18 @@ class AppScaffold extends StatelessWidget {
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
 
       child: const Home(title: appTitle),
+    );
+  }
+}
+
+class _MySettings extends StatelessWidget {
+  const _MySettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Custom Settings')),
+      body: const Center(child: Text('This is a custom settings page.')),
     );
   }
 }

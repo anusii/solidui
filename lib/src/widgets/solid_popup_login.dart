@@ -35,7 +35,8 @@ import 'package:solidpod/solidpod.dart'
         solidAuthenticate,
         initialStructureTest,
         generateDefaultFolders,
-        generateDefaultFiles;
+        generateDefaultFiles,
+        getWebId;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/constants/ui.dart';
@@ -85,12 +86,16 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
 
         if (!allExists) {
           // Navigate to initial setup screen if POD structure is incomplete.
+          final currentWebId = await getWebId() ?? 'Unknown User';
+
+          if (!context.mounted) return false;
 
           await Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => InitialSetupScreen(
                 resCheckList: resCheckList,
+                webId: currentWebId,
                 child: _successDialog(),
               ),
             ),

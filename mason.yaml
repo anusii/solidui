@@ -1,0 +1,11 @@
+# Register bricks which can be used via mason get.
+# bricks:
+#   sample: 0.1.0+1
+#   hello:
+#     git:
+#       url: https://github.com/felangel/mason
+#       path: bricks/hello
+
+bricks:
+  solidui:
+    path: templates/solidui/brick

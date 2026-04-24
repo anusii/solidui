@@ -34,7 +34,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show isUserLoggedIn, solidAuthenticate, initialStructureTest;
+    show isUserLoggedIn, solidAuthenticate, initialStructureTest, getWebId;
 
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -136,6 +136,24 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
+      // Show animation dialog to provide feedback during initialization check.
+
+      bool isInitDialogCanceled = false;
+      void updateInitDialogCanceledState() {
+        isInitDialogCanceled = true;
+        updateDialogCanceledState();
+      }
+
+      if (!context.mounted) return false;
+
+      showAnimationDialog(
+        context,
+        7,
+        'Checking your Pod\'s structure...',
+        false,
+        updateInitDialogCanceledState,
+      );
+
       // Navigate to the appropriate screen based on structure test.
 
       final resCheckList = await initialStructureTest(
@@ -143,14 +161,24 @@ class SolidLoginAuthHandler {
         defaultFiles,
       );
       final allExists = resCheckList.first as bool;
+      final webId = await getWebId() ?? 'Unknown User';
 
       if (!context.mounted) return false;
+
+      // Close the initialization animation dialog if not already canceled by user.
+
+      if (!isInitDialogCanceled) {
+        Navigator.of(context, rootNavigator: true).pop();
+      } else {
+        return false;
+      }
 
       if (!allExists) {
         await pushReplacement(
           context,
           InitialSetupScreen(
             resCheckList: resCheckList,
+            webId: webId,
             originalLogin: originalLoginWidget,
             child: childWidget,
           ),

@@ -11,7 +11,7 @@ The package is available from
 [pub.dev](https://pub.dev/packages/solidui).
 
 Coding documentation is available from [solid community
-au](https://solidcommunity.au/docs/solidui)
+au](https://solidcommunity.au/docs/solidui/)
 
 ## 0.3.0 Stabilise
 

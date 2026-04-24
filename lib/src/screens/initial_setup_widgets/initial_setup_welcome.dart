@@ -51,7 +51,11 @@ import 'package:solidui/src/widgets/build_message_container.dart';
 /// The [appName] parameter is used to display the actual app name in the
 /// message instead of a generic reference.
 
-SizedBox initialSetupWelcome(BuildContext context, String appName) {
+SizedBox initialSetupWelcome(
+  BuildContext context,
+  String appName,
+  String webId,
+) {
   return SizedBox(
     child: Padding(
       padding: const EdgeInsets.all(30.0),
@@ -74,10 +78,22 @@ SizedBox initialSetupWelcome(BuildContext context, String appName) {
           const SizedBox(height: 10),
           Text(
             initialStructureWelcome,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 25,
               color: Theme.of(context).textTheme.titleLarge?.color,
               fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'User: $webId',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color:
+                  Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(179),
+              fontWeight: FontWeight.w400,
             ),
           ),
           const SizedBox(height: 20),
