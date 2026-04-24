@@ -32,6 +32,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/utils/web_id_parser.dart';
+
 /// Configuration for a status bar item that displays interactive text.
 
 class SolidStatusBarItem {
@@ -103,7 +105,7 @@ class SolidServerInfo {
     bool isClickable = true,
   }) {
     final serverUri = _extractServerFromWebId(webId);
-    final displayText = _formatWebIdForDisplay(webId);
+    final displayText = WebIdParts.formatForDisplay(webId);
 
     return SolidServerInfo(
       serverUri: serverUri,
@@ -116,81 +118,19 @@ class SolidServerInfo {
   /// Extracts the server URL from a WebID.
 
   static String _extractServerFromWebId(String webId) {
-    try {
-      final uri = Uri.parse(webId);
-      return '${uri.scheme}://${uri.host}'
-          '${uri.port != 80 && uri.port != 443 ? ':${uri.port}' : ''}';
-    } catch (e) {
-      final parts = webId.split('/');
-      if (parts.length >= 3) {
-        return '${parts[0]}//${parts[2]}';
-      }
-      return webId;
+    final parts = WebIdParts.tryParse(webId);
+    if (parts != null) {
+      return parts.serverUri;
     }
-  }
 
-  /// Formats the WebID for display, including both server and username.
+    // Legacy fallback for malformed input: split on `/` and reconstruct the
+    // origin manually so the caller still receives something URL-like.
 
-  static String _formatWebIdForDisplay(String webId) {
-    try {
-      final uri = Uri.parse(webId);
-
-      // Get the host (server domain).
-
-      String host = uri.host;
-
-      // Extract username from the path.
-
-      String username = '';
-      final pathSegments = uri.pathSegments;
-
-      // Typical webID format: /username/profile/card#me
-      // So the username is usually the first path segment.
-
-      if (pathSegments.isNotEmpty) {
-        username = pathSegments.first;
-      }
-
-      // Return formatted display string.
-
-      if (username.isNotEmpty) {
-        final result = '$host/$username';
-        return result;
-      } else {
-        // Fallback to just the host if no username found.
-
-        return host;
-      }
-    } catch (e) {
-      // Fallback parsing for malformed URLs.
-
-      try {
-        // Remove common prefixes and suffixes.
-
-        String cleaned = webId;
-
-        // Remove protocol.
-
-        if (cleaned.startsWith('https://')) {
-          cleaned = cleaned.substring(8);
-        } else if (cleaned.startsWith('http://')) {
-          cleaned = cleaned.substring(7);
-        }
-
-        // Remove common webID suffix.
-
-        const suffix = '/profile/card#me';
-        if (cleaned.endsWith(suffix)) {
-          cleaned = cleaned.substring(0, cleaned.length - suffix.length);
-        }
-
-        return cleaned;
-      } catch (e2) {
-        // Final fallback: return original webID.
-
-        return webId;
-      }
+    final chunks = webId.split('/');
+    if (chunks.length >= 3) {
+      return '${chunks[0]}//${chunks[2]}';
     }
+    return webId;
   }
 
   /// Gets the effective display text, with automatic formatting if not
@@ -201,7 +141,7 @@ class SolidServerInfo {
 
     // Auto-format serverUri if it looks like a WebID.
 
-    return _formatWebIdForDisplay(serverUri);
+    return WebIdParts.formatForDisplay(serverUri);
   }
 
   /// Gets the tooltip for server info.

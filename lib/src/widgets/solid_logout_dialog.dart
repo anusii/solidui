@@ -28,7 +28,10 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show getAppNameVersion, logoutPod;
+import 'package:solidpod/solidpod.dart'
+    show getAppNameVersion, getWebId, logoutPod;
+
+import 'package:solidui/src/utils/web_id_parser.dart';
 
 /// A pop up widget for user to logout.
 
@@ -57,10 +60,18 @@ class LogoutDialog extends StatefulWidget {
 }
 
 class _LogoutDialogState extends State<LogoutDialog> {
-  Widget _build(BuildContext context, String title) {
+  Widget _build(
+    BuildContext context,
+    String title,
+    WebIdParts? webIdParts,
+  ) {
+    final contentText = webIdParts != null && webIdParts.username.isNotEmpty
+        ? 'Logout ${webIdParts.username} from ${webIdParts.host}?'
+        : 'Logout from the remote Solid Server for $title?';
+
     return AlertDialog(
       title: const Text('Notice'),
-      content: Text('Logout from the remote Solid Server for $title?'),
+      content: Text(contentText),
       actions: [
         ElevatedButton(
           child: const Text('OK'),
@@ -111,15 +122,21 @@ class _LogoutDialogState extends State<LogoutDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<({String name, String version})>(
-      future: getAppNameVersion(),
+    return FutureBuilder<
+        ({({String name, String version}) app, String? webId})>(
+      future: () async {
+        final app = await getAppNameVersion();
+        final webId = await getWebId();
+        return (app: app, webId: webId);
+      }(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final appName = snapshot.data?.name;
-          final title = appName!.isNotEmpty
+          final appName = snapshot.data?.app.name;
+          final title = appName != null && appName.isNotEmpty
               ? appName[0].toUpperCase() + appName.substring(1)
               : '';
-          return _build(context, title);
+          final webIdParts = WebIdParts.tryParse(snapshot.data?.webId);
+          return _build(context, title, webIdParts);
         } else {
           return const CircularProgressIndicator();
         }

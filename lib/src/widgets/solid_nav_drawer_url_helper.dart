@@ -32,65 +32,21 @@ import 'package:flutter/material.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:solidui/src/utils/web_id_parser.dart';
+
 /// Helper class for URL-related operations in navigation drawer.
 
 class SolidNavDrawerUrlHelper {
   /// Simplifies the WebID URL for display purposes.
   /// Returns the domain name and username for display.
 
-  static String getSimplifiedUrl(String webId) {
-    try {
-      final uri = Uri.parse(webId);
-      String host = uri.host;
-      String username = '';
-      final pathSegments = uri.pathSegments;
-
-      if (pathSegments.isNotEmpty) {
-        username = pathSegments.first;
-      }
-
-      if (username.isNotEmpty) {
-        return '$host/$username';
-      } else {
-        return host;
-      }
-    } catch (e) {
-      try {
-        String cleaned = webId;
-        if (cleaned.startsWith('https://')) {
-          cleaned = cleaned.substring(8);
-        } else if (cleaned.startsWith('http://')) {
-          cleaned = cleaned.substring(7);
-        }
-        const suffix = '/profile/card#me';
-        if (cleaned.endsWith(suffix)) {
-          cleaned = cleaned.substring(0, cleaned.length - suffix.length);
-        }
-        return cleaned;
-      } catch (e2) {
-        return webId;
-      }
-    }
-  }
+  static String getSimplifiedUrl(String webId) =>
+      WebIdParts.formatForDisplay(webId);
 
   /// Gets the complete profile card URL from a WebID.
 
   static String getProfileCardUrl(String webId) {
-    try {
-      final uri = Uri.parse(webId);
-      final scheme = uri.scheme;
-      final host = uri.host;
-      final pathSegments = uri.pathSegments;
-
-      if (pathSegments.isNotEmpty) {
-        final username = pathSegments.first;
-        return '$scheme://$host/$username/profile/card#';
-      } else {
-        return webId;
-      }
-    } catch (e) {
-      return webId;
-    }
+    return WebIdParts.tryParse(webId)?.profileCardUrl ?? webId;
   }
 
   /// Launches the profile card URL in a browser.
