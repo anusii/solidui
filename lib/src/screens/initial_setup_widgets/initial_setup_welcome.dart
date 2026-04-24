@@ -77,8 +77,9 @@ SizedBox initialSetupWelcome(
     fontWeight: FontWeight.w500,
   );
 
-  final line2 =
-      isUpdate ? initialStructureTitleLine2Update : initialStructureTitleLine2Setup;
+  final line2 = isUpdate
+      ? initialStructureTitleLine2Update
+      : initialStructureTitleLine2Setup;
 
   return SizedBox(
     child: Padding(

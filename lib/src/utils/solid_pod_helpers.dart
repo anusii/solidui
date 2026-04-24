@@ -32,12 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidpod/solidpod.dart'
-    show
-        getEncKeyPath,
-        getWebId,
-        isUserLoggedIn,
-        KeyManager,
-        verifySecurityKey;
+    show getEncKeyPath, getWebId, isUserLoggedIn, KeyManager, verifySecurityKey;
 
 import 'package:solidui/src/constants/ui.dart' show SecurityStrings;
 import 'package:solidui/src/services/solid_security_key_notifier.dart'

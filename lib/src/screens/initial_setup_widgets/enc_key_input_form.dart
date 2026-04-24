@@ -173,8 +173,7 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
                         ),
                         onPressed: () {
                           setState(() {
-                            _showRetypedSecurityKey =
-                                !_showRetypedSecurityKey;
+                            _showRetypedSecurityKey = !_showRetypedSecurityKey;
                           });
                         },
                       ),
