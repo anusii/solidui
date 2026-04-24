@@ -175,31 +175,31 @@ External users can use the template by first cloning the repository:
    git clone https://github.com/anusii/solidui.git
    ```
 
-2. Navigate to the project directory:
+1. Navigate to the project directory:
 
    ```bash
    cd solidui
    ```
 
-3. Install Mason:
+1. Install Mason:
 
    ```bash
    dart pub global activate mason_cli
    ```
 
-4. Initialize Mason:
+1. Initialize Mason:
 
    ```bash
    mason init
    ```
 
-5. Add the SolidUI brick:
+1. Add the SolidUI brick:
 
    ```bash
    mason add solidui --path templates/solidui/brick
    ```
 
-6. Create a new app from the template:
+1. Create a new app from the template:
 
    ```bash
    mason make solidui
