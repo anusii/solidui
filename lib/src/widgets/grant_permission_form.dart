@@ -405,7 +405,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                 if (result == SolidFunctionCallStatus.success) {
                   _showSnackBar(successMsg, ActionColors.success);
-                  // Update permissions table
+                  // Update permissions table for the primary resource.
                   await widget.updatePermissionsFunction(
                     widget.resourceNames.first,
                     isFile: widget.isFile,

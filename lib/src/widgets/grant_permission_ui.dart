@@ -69,6 +69,8 @@ part 'grant_permission_ui_state.dart';
 /// - [customAppBar] - Specify a custom app bar widget.
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 /// - [onNavigateBack] - Callback function called when navigating back from the screen.
+/// - [shareButtonColor] - Optional custom colour for the Share Resource button.
+/// - [titleData] - Optional map from resource URL to human-readable title.
 
 class GrantPermissionUi extends StatefulWidget {
   const GrantPermissionUi({
@@ -88,6 +90,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
+    this.shareButtonColor,
     this.titleData,
     super.key,
   })  : assert(
@@ -151,6 +154,10 @@ class GrantPermissionUi extends StatefulWidget {
   /// If [isExternalRes] is true, entries must be full resource URLs.
 
   final List<String>? resourceNames;
+
+  /// Optional custom colour for the Share Resource button.
+
+  final Color? shareButtonColor;
 
   /// A flag to determine whether the given resource is a file or not. This is
   /// a parameter with default value true. In the case where [resourceName] is

@@ -45,6 +45,7 @@ import 'package:solidui/src/screens/initial_setup_widgets/enc_key_input_form.dar
 import 'package:solidui/src/screens/initial_setup_widgets/initial_setup_welcome.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/res_create_form_submission.dart';
 import 'package:solidui/src/screens/initial_setup_widgets/resources_dialog.dart';
+import 'package:solidui/src/services/solid_security_key_notifier.dart';
 
 /// A [StatefulWidget] that represents the initial setup screen.
 
@@ -319,7 +320,11 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
           child: MarkdownTooltip(
             message: logoutButtonTooltip(_appName),
             child: TextButton(
-              onPressed: () async => await logoutPopup(context, widget.child),
+              onPressed: () async => await logoutPopup(
+                context,
+                widget.child,
+                onLogoutSuccess: securityKeyNotifier.reset,
+              ),
               child: const Text(
                 'LOGOUT',
                 style: TextStyle(
