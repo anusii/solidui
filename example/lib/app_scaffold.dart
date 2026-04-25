@@ -146,7 +146,7 @@ class _AppScaffoldState extends State<AppScaffold> {
         tooltip: 'Settings',
       ),
 
-      child: const Home(title: appTitle),
+      child: const Home(),
     );
   }
 }

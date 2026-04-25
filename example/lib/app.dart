@@ -44,14 +44,14 @@ class App extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const SolidLogin(
+      home: SolidLogin(
         title: 'SOLID POD DEMONSTRATOR',
         appDirectory: 'demopod',
-        image: AssetImage('assets/images/demopod_image.jpg'),
-        logo: AssetImage('assets/images/demopod_logo.png'),
+        image: const AssetImage('assets/images/demopod_image.jpg'),
+        logo: const AssetImage('assets/images/demopod_logo.png'),
         link: 'https://github.com/anusii/solidpod/blob/main/demopod/README.md',
         required: false,
-        infoButtonStyle: InfoButtonStyle(
+        infoButtonStyle: const InfoButtonStyle(
           tooltip: 'Visit the DemoPod documentation.',
         ),
         child: appScaffold,
