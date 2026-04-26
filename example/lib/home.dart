@@ -592,7 +592,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 smallGapV,
                 _buttonRow([
                   ElevatedButton(
-                    child: const Text('Add/Delete Permissions (key-value.ttl)'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -609,6 +608,9 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         );
                       }
                     },
+                    child: const Text(
+                      'Add/Delete Permissions (key-value.ttl)',
+                    ),
                   ),
                   ElevatedButton(
                     child: const Text('Permission Callback Demo'),
