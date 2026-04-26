@@ -609,7 +609,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       }
                     },
                     child: const Text(
-                      'Add/Delete Permissions (key-value.ttl)',
+                      'Add/Delete Permissions to a Specific Resource (key-value.ttl)',
                     ),
                   ),
                   ElevatedButton(
@@ -630,7 +630,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     },
                   ),
                   ElevatedButton(
-                    child: const Text('Add/Delete Permissions (any Resource)'),
+                    child: const Text('Add/Delete Permissions to any Resource'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
