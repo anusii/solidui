@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Do not word wrap ABOUT text [0.3.29 20260429 gjw]
 + Sort permission history recent first [0.3.28 20260429 jesscmoore]
 + Fix demo and sharing when resource not exist [0.3.27 20260426 jesscmoore]
 + Pod structure change => different security key prompt [0.3.26 20260429 tonypioneer]

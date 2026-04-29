@@ -151,6 +151,13 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
   }
 }
 
+/// Strips common leading whitespace from a triple-quoted string without
+/// hard-wrapping lines. Preserves blank lines as paragraph breaks for markdown.
+String _dedent(String text) {
+  final lines = text.split('\n').map((l) => l.trimLeft()).toList();
+  return lines.join('\n').trim();
+}
+
 /// A static helper for showing About dialogues programmatically.
 
 class SolidAbout {
@@ -271,6 +278,8 @@ class SolidAbout {
 
       // Create MarkdownStyleSheet to match legalese formatting.
 
+      final cs = Theme.of(context).colorScheme;
+
       final markdownStyleSheet = MarkdownStyleSheet(
         p: bodySmallStyle,
         h1: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
@@ -282,19 +291,26 @@ class SolidAbout {
         strong: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
         em: bodySmallStyle?.copyWith(fontStyle: FontStyle.italic),
         listBullet: bodySmallStyle,
-        blockSpacing: AboutConstants.markdownBlockSpacing, // Consistent spacing
+        a: bodySmallStyle?.copyWith(
+          color: cs.primary,
+          decoration: TextDecoration.underline,
+        ),
+        blockSpacing: AboutConstants.markdownBlockSpacing,
+        code: bodySmallStyle?.copyWith(
+          fontFamily: 'monospace',
+          backgroundColor: Colors.transparent,
+        ),
+        codeblockDecoration: const BoxDecoration(color: Colors.transparent),
       );
 
       children.add(
         MarkdownBody(
-          data: wordWrap(config.text!),
+          data: _dedent(config.text!),
           styleSheet: markdownStyleSheet,
-          selectable: true,
-          softLineBreak: true,
-          onTapLink: (text, href, about) {
+          softLineBreak: false,
+          onTapLink: (text, href, title) {
             if (href != null) {
-              final Uri url = Uri.parse(href);
-              launchUrl(url);
+              launchUrl(Uri.parse(href));
             }
           },
         ),
@@ -332,10 +348,8 @@ class SolidAbout {
       applicationName: applicationName,
       applicationVersion: applicationVersion,
       applicationIcon: config.applicationIcon,
-      applicationLegalese: wordWrap(
-        config.applicationLegalese ??
-            '© ${DateTime.now().year} $applicationName\n\n',
-      ),
+      applicationLegalese: config.applicationLegalese ??
+          '© ${DateTime.now().year} $applicationName\n\n',
       children: children,
     );
   }
