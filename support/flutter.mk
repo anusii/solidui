@@ -246,7 +246,7 @@ locmax:
 	loc=$$(bash $(LOC) -t $(shell find lib -name '*.dart')); \
 	numf=$$(find lib -name "*.dart" -type f | wc -l); \
 	totl=$$(cat $(shell find lib -name '*.dart') | wc -l); \
-	echo "\nTotal $$loc lines of code across $$numf files with total $$totl lines."; \
+	echo "Total $$loc lines of code across $$numf files with total $$totl lines."; \
 	if [ $$return_code -ne 0 ]; then \
 		echo "\n$(CROSS) Error: Found $$locm files with more than $(LINES) lines of code."; \
 	elif [ -s /tmp/loc_output.txt ]; then \
