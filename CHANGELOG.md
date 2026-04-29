@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Sort permission history recent first [0.3.28 20260429 jesscmoore]
 + Fix demo and sharing when resource not exist [0.3.27 20260426 jesscmoore]
 + Pod structure change => different security key prompt [0.3.26 20260429 tonypioneer]
 + Pop down SECURITY KEY after changng the key [0.3.25 20260429 tonypioneer]
