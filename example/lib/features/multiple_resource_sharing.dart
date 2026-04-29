@@ -250,9 +250,7 @@ demo:exampleData$fileNumber
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -319,9 +317,7 @@ demo:exampleData$fileNumber
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Row(
                 children: [
                   Expanded(
@@ -355,7 +351,6 @@ demo:exampleData$fileNumber
                   ),
                 ],
               ),
-
               const SizedBox(height: 40),
             ],
           ),
