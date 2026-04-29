@@ -114,8 +114,8 @@ class InviteOthersDialog {
     final composedMessage =
         prefixMessage == null ? message : '$prefixMessage\n\n$message';
 
-    final subject = config.subject ??
-        'Try the ${resolved.appName} app on your Solid POD';
+    final subject =
+        config.subject ?? 'Try the ${resolved.appName} app on your Solid POD';
 
     await showDialog<void>(
       context: context,
@@ -181,9 +181,8 @@ class _InviteOthersPopupState extends State<_InviteOthersPopup> {
 
   Future<void> _shareViaSystem() async {
     final RenderBox? box = context.findRenderObject() as RenderBox?;
-    final origin = box != null
-        ? (box.localToGlobal(Offset.zero) & box.size)
-        : Rect.zero;
+    final origin =
+        box != null ? (box.localToGlobal(Offset.zero) & box.size) : Rect.zero;
 
     try {
       await SharePlus.instance.share(
