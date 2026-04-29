@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Pod structure change => different security key prompt [0.3.26 20260429 tonypioneer]
 + Pop down SECURITY KEY after changng the key [0.3.25 20260429 tonypioneer]
 + Improve logout message [0.3.24 20260424 tonypioneer]
 + onLogout callback for memory clearance [0.3.23 20260424 tonypioneer]
