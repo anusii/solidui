@@ -861,7 +861,7 @@ ElevatedButton(
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from a Specific File'),
+  child: const Text('Add/Delete Permissions to a Specific File'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
@@ -878,7 +878,7 @@ ElevatedButton(
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from a Specific Directory'),
+  child: const Text('Add/Delete Permissions to a Specific Directory'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
@@ -898,7 +898,7 @@ When the user has *control* access to a resource owned by someone else:
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from an External File'),
+  child: const Text('Add/Delete Permissions to an External File'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
