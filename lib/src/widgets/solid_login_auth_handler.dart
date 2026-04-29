@@ -221,7 +221,7 @@ class SolidLoginAuthHandler {
     required Map<dynamic, dynamic> defaultFiles,
     required dynamic originalLoginWidget,
     required Widget childWidget,
-    required bool isDialogCanceled,
+    required ValueGetter<bool> isDialogCanceled,
     required VoidCallback updateDialogCanceledState,
     required Function(String message, {Duration? duration, bool showAction})
         showSnackbar,
@@ -237,7 +237,7 @@ class SolidLoginAuthHandler {
           updateDialogCanceledState,
         );
 
-    if (isDialogCanceled) return false;
+    if (isDialogCanceled()) return false;
 
     // Check if user is already logged in before attempting authentication.
 
@@ -283,9 +283,16 @@ class SolidLoginAuthHandler {
       browserMessageTimer?.cancel();
       debugPrint('solidAuthenticate() exception: $e');
 
+      // If the user already cancelled the login animation dialog while
+      // solidAuthenticate() was in flight, abort the login flow without
+      // touching the navigator.
+
+      if (isDialogCanceled()) return false;
+
       final isNowLoggedIn = await isUserLoggedIn();
 
       if (!context.mounted) return false;
+      if (isDialogCanceled()) return false;
 
       // Dismiss any active animation dialog or snackbar before showing the
       // error message.
@@ -320,6 +327,15 @@ class SolidLoginAuthHandler {
 
     browserMessageTimer?.cancel();
 
+    // If the user already cancelled the login animation dialog while
+    // solidAuthenticate() was in flight, abort the login flow without
+    // touching the navigator. Any auth data that was persisted server-side
+    // (e.g. because the user clicked "Yes" in the browser confirm-WebID
+    // page after pressing Cancel in the app) will be picked up on the
+    // next login attempt via the cached-session path.
+
+    if (isDialogCanceled()) return false;
+
     // If authentication succeeded and the user was already logged in,
     // it means they are using a cached session.
 
@@ -330,6 +346,7 @@ class SolidLoginAuthHandler {
 
     if (authResult != null && authResult.isNotEmpty) {
       if (!context.mounted) return false;
+      if (isDialogCanceled()) return false;
 
       // Close the animation dialog before proceeding.
 
@@ -437,6 +454,7 @@ class SolidLoginAuthHandler {
       final isNowLoggedIn = await isUserLoggedIn();
 
       if (!context.mounted) return false;
+      if (isDialogCanceled()) return false;
 
       if (!wasAlreadyLoggedIn) {
         Navigator.of(context, rootNavigator: true).pop();
