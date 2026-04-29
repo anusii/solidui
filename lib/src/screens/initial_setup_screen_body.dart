@@ -1,6 +1,6 @@
 /// Initial loaded screen set up page.
 ///
-// Time-stamp: <Saturday 2025-07-19 09:54:50 +1000 Graham Williams>
+// Time-stamp: <Wednesday 2026-04-29 11:18:26 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -159,7 +159,8 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         // Capitalise the first letter of the app name for display.
         final name = packageInfo.appName;
         _appName = name.isNotEmpty
-            ? name[0].toUpperCase() + name.substring(1)
+            ? name[0].toUpperCase() +
+                name.substring(1).replaceAll(RegExp(r'pod$'), 'Pod')
             : 'the App';
       });
     }

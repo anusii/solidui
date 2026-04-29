@@ -92,16 +92,18 @@ class SolidLoginAuthHandler {
     await prefs.setBool(staySignedInKey, value);
   }
 
-  /// Returns the capitalised current app name from the platform package
-  /// info, or the generic fallback when unavailable. Used to produce
-  /// user-facing messages such as the setup snackbar.
+  /// Returns the capitalised current app name from the platform package info,
+  /// or the generic fallback when unavailable. Used to produce user-facing
+  /// messages such as the setup snackbar. Also replaces a trailing pod with
+  /// Pod.
 
   static Future<String> _currentAppName() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       final name = packageInfo.appName;
       if (name.isEmpty) return 'the App';
-      return name[0].toUpperCase() + name.substring(1);
+      return name[0].toUpperCase() +
+          name.substring(1).replaceAll(RegExp(r'pod$'), 'Pod');
     } on Object {
       return 'the App';
     }

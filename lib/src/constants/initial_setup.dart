@@ -1,6 +1,6 @@
 /// Initial setup page constants.
 ///
-// Time-stamp: <Saturday 2026-04-25 06:10:18 +1000 Graham Williams>
+// Time-stamp: <Wednesday 2026-04-29 11:16:00 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -86,8 +86,8 @@ String initialStructureMsg(String appName, String serverName) {
   // output.
 
   final serverClause =
-      serverName.trim().isEmpty ? '' : ' on Solid server $serverName';
-  return 'This is the first time using $appName to connect to your '
+      serverName.trim().isEmpty ? '' : ' on the Solid server $serverName';
+  return 'This is the first time you are using $appName to connect to your '
       'Personal Online Datastore (POD)$serverClause. '
       'A security key is required to encrypt and protect your data stored '
       'by this app in your POD. Please remember this security key as it is '
@@ -110,13 +110,13 @@ String initialUpdateMsg(String appName) =>
 /// up for this app and starts the setup wizard.
 
 String initialStructureSnackbarMsg(String appName) =>
-    'The POD is not initialised for $appName app. Setting up your POD...';
+    'The POD is not initialised for the $appName app. Setting up your POD...';
 
 /// Snackbar text displayed when the POD already has the app folder but is
 /// missing some resources and the update wizard is about to run.
 
 String initialUpdateSnackbarMsg(String appName) =>
-    'The POD needs updating for $appName app.';
+    'The POD needs updating for the $appName app.';
 
 /// The string key of input form for the input of security key
 
