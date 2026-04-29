@@ -31,6 +31,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart'
     show getAppNameVersion, getWebId, logoutPod;
 
+import 'package:solidui/src/services/solid_profile_service.dart';
 import 'package:solidui/src/utils/web_id_parser.dart';
 
 /// A pop up widget for user to logout.
@@ -77,8 +78,8 @@ class _LogoutDialogState extends State<LogoutDialog> {
           child: const Text('OK'),
           onPressed: () async {
             if (await logoutPod()) {
+              SolidProfileService.instance.clearCache();
               widget.onLogoutSuccess?.call();
-
               if (context.mounted) {
                 await Navigator.pushAndRemoveUntil(
                   context,
