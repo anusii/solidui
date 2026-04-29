@@ -40,6 +40,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
 
 /// Collapses single newlines (source-code soft wraps) into spaces so the
@@ -341,6 +342,34 @@ class SolidAbout {
       // Fall back to children if text is not provided.
 
       children.addAll(config.children ?? []);
+    }
+
+    // Add Invite Others button when an invite configuration is supplied.
+
+    if (config.inviteConfig != null && config.inviteConfig!.enabled) {
+      children.add(const Gap(AboutConstants.contentVerticalSpacing));
+      children.add(const Divider());
+      children.add(
+        Builder(
+          builder: (dialogContext) => Align(
+            alignment: Alignment.centerLeft,
+            child: MarkdownTooltip(
+              message: config.inviteConfig!.effectiveTooltip,
+              child: TextButton.icon(
+                icon: Icon(config.inviteConfig!.effectiveIcon),
+                label: const Text('Invite Others'),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  InviteOthersDialog.show(
+                    context,
+                    config: config.inviteConfig!,
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
     }
 
     // Add Layout Preferences button if enabled.

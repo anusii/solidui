@@ -40,6 +40,7 @@ import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_controller.dart';
@@ -238,6 +239,13 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Optional Invite Others configuration. When provided, an invite
+  /// button is added to the AppBar action list (the user may move
+  /// it into the overflow menu via Layout Preferences) and an
+  /// "Invite Others" entry is added to the About dialog.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
   /// Option to force the navigation rail to be hidden.
 
   final bool hideNavRail;
@@ -293,6 +301,7 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.inviteConfig,
     this.hideNavRail = false,
     this.enableProfile = false,
   });

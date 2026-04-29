@@ -44,6 +44,21 @@ import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 /// Widget builder specifically for SolidScaffold.
 
 class SolidScaffoldWidgetBuilder {
+  /// Returns the effective About configuration, layering the
+  /// scaffold's [SolidScaffold.inviteConfig] onto the application's
+  /// [SolidAboutConfig] when the latter does not already supply one.
+  /// This ensures the App Info dialog can show an "Invite Others"
+  /// button without requiring the application to wire the config in
+  /// twice.
+
+  static SolidAboutConfig _resolveAboutConfig(SolidScaffold widget) {
+    final about = widget.aboutConfig ?? const SolidAboutConfig();
+    if (widget.inviteConfig == null || about.inviteConfig != null) {
+      return about;
+    }
+    return about.copyWith(inviteConfig: widget.inviteConfig);
+  }
+
   /// Returns the effective logout callback.
   /// If [showLogout] is true and [onLogout] is null, returns the built-in
   /// [SolidAuthHandler.instance.handleLogout]. Otherwise returns [onLogout].
@@ -161,7 +176,7 @@ class SolidScaffoldWidgetBuilder {
             solidThemeNotifier,
             widget.themeToggle,
           ),
-          widget.aboutConfig ?? const SolidAboutConfig(),
+          _resolveAboutConfig(widget),
           widget.narrowScreenThreshold,
           shouldShowVersion,
           getVersionToDisplay,
@@ -172,6 +187,7 @@ class SolidScaffoldWidgetBuilder {
           onLogin: effectiveLogin,
           constraints: constraints,
           enableProfileOverride: widget.enableProfile ? true : null,
+          inviteConfig: widget.inviteConfig,
         ),
       ),
       buildDrawer: () {

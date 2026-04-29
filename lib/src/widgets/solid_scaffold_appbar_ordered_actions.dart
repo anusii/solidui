@@ -35,6 +35,8 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidui/src/widgets/solid_about_button.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_dynamic_auth_button.dart';
+import 'package:solidui/src/widgets/solid_invite_others.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
@@ -62,6 +64,7 @@ class SolidAppBarOrderedActionsBuilder {
     bool showLogin = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
+    SolidInviteOthersConfig? inviteConfig,
   }) {
     final List<_OrderedAction> orderedActions = [];
     final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
@@ -77,6 +80,13 @@ class SolidAppBarOrderedActionsBuilder {
     );
     _addCustomActions(orderedActions, config, layoutWidth, isVeryNarrowScreen);
     _addOverflowItems(orderedActions, config, isVeryNarrowScreen);
+    _addInviteOthersButton(
+      orderedActions,
+      inviteConfig,
+      config,
+      layoutWidth,
+      isVeryNarrowScreen,
+    );
     _addAuthButton(
       orderedActions,
       showLogout,
@@ -239,6 +249,44 @@ class SolidAppBarOrderedActionsBuilder {
             onLogout: onLogout,
             onLogin: onLogin,
           ),
+        ),
+      );
+    }
+  }
+
+  /// Adds the Invite Others button when the application supplied a
+  /// [SolidInviteOthersConfig]. Visibility is controlled through the
+  /// preferences notifier so users can show/hide it via Layout
+  /// Preferences.
+
+  static void _addInviteOthersButton(
+    List<_OrderedAction> orderedActions,
+    SolidInviteOthersConfig? inviteConfig,
+    SolidAppBarConfig config,
+    double layoutWidth,
+    bool isVeryNarrowScreen,
+  ) {
+    if (inviteConfig == null || !inviteConfig.enabled) return;
+    if (!inviteConfig.shouldShow(
+      layoutWidth,
+      config.narrowScreenThreshold,
+      config.veryNarrowScreenThreshold,
+    )) {
+      return;
+    }
+
+    final actionConfig = SolidAppBarActionsManager.getActionConfig(
+      SolidAppBarActionIds.inviteOthers,
+    );
+    final isVisible = actionConfig?.isVisible ?? true;
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final order = actionConfig?.order ?? inviteConfig.priority;
+
+    if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
+      orderedActions.add(
+        _OrderedAction(
+          order: order,
+          widget: InviteOthers(config: inviteConfig),
         ),
       );
     }
