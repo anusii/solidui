@@ -16,6 +16,8 @@ au](https://solidcommunity.au/docs/solidui)
 ## 0.4.0 Refine and Tune
 
 + Fix demo and sharing when resource not exist [0.3.25 20260426 jesscmoore]
++ Pod structure change => different security key prompt [0.3.26 20260429 tonypioneer]
++ Pop down SECURITY KEY after changng the key [0.3.25 20260429 tonypioneer]
 + Improve logout message [0.3.24 20260424 tonypioneer]
 + onLogout callback for memory clearance [0.3.23 20260424 tonypioneer]
 + Support multi sharing [0.3.22 20260423 jesscmoore]
@@ -90,8 +92,8 @@ au](https://solidcommunity.au/docs/solidui)
 + Show username in status bar uri [0.0.8 20251030 tonypioneer]
 + Remove solidui/solidpod circular dependency [0.0.7 20251029 tonypioneer]
 + Refactor SolidLogin for max 300 loc lint [0.0.6 20251017 cdawei]
-+ Fix security key handling [0.0.5 20251027 tchen]
-+ Add webid to an info header in navdrawer [0.0.4 20251017 tchen]
++ Fix security key handling [0.0.5 20251027 tonypioneer]
++ Add webid to an info header in navdrawer [0.0.4 20251017 tonypioneer]
 + Update version widget dependency [0.0.3 20251008 gjw]
 + EXAMPLE: Add demo of getting version [0.0.2 20250820 gjw]
-+ CHANGELOG: Initial release [0.0.1 20250819 tchen]
++ CHANGELOG: Initial release [0.0.1 20250819 tonypioneer]
