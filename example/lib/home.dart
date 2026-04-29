@@ -54,6 +54,7 @@ import 'package:demopod/dialogs/alert.dart';
 import 'package:demopod/features/create_acl_inherited_file.dart';
 import 'package:demopod/features/edit_keyvalue.dart';
 import 'package:demopod/features/file_service.dart';
+import 'package:demopod/features/multiple_resource_sharing.dart';
 import 'package:demopod/features/permission_callback_demo.dart';
 import 'package:demopod/features/read_acl_inherited_file.dart';
 import 'package:demopod/features/view_keys.dart';
@@ -591,7 +592,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 smallGapV,
                 _buttonRow([
                   ElevatedButton(
-                    child: const Text('Add/Delete Permissions (key-value.ttl)'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -599,17 +599,18 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SolidScaffold(
-                              body: GrantPermissionUi(
-                                backgroundColor: titleBackgroundColor,
-                                resourceNames: ['keyvalue/key-value.ttl'],
-                                child: Home(),
-                              ),
+                            builder: (context) => const GrantPermissionUi(
+                              backgroundColor: titleBackgroundColor,
+                              resourceNames: ['keyvalue/key-value.ttl'],
+                              child: Home(),
                             ),
                           ),
                         );
                       }
                     },
+                    child: const Text(
+                      'Add/Delete Permissions to a Specific Resource (key-value.ttl)',
+                    ),
                   ),
                   ElevatedButton(
                     child: const Text('Permission Callback Demo'),
@@ -629,7 +630,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     },
                   ),
                   ElevatedButton(
-                    child: const Text('Add/Delete Permissions (any Resource)'),
+                    child: const Text('Add/Delete Permissions to any Resource'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -637,11 +638,26 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SolidScaffold(
-                              body: GrantPermissionUi(
-                                backgroundColor: titleBackgroundColor,
-                                child: Home(),
-                              ),
+                            builder: (context) => const GrantPermissionUi(
+                              backgroundColor: titleBackgroundColor,
+                              child: Home(),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('Share Multiple Specified Resources'),
+                    onPressed: () async {
+                      final loggedIn = await loginIfRequired(context);
+                      if (loggedIn) {
+                        await getKeyFromUserIfRequired(context, widget);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MultiResourceShareDemo(
+                              child: Home(),
                             ),
                           ),
                         );

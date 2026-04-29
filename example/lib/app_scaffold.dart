@@ -86,7 +86,7 @@ class AppScaffold extends StatelessWidget {
         ),
         applicationLegalese: '''
 
-        © 2024 Software Innovation Institute, the Australian National University
+        © 2024-2026 Software Innovation Institute, the Australian National University
 
         ''',
         text: '''

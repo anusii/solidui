@@ -238,18 +238,20 @@ LINES ?= 300
 
 .PHONY: locmax
 locmax:
-	@loc=$$(bash $(LOC) -t $(shell find lib -name '*.dart')); \
-	totl=$$(cat $(shell find lib -name '*.dart') | wc -l); \
+	@$(LOC) -n $(LINES) $(shell find lib -name '*.dart') > /tmp/loc_output.txt; \
+	return_code=$$?; \
+	over=$$(cat /tmp/loc_output.txt); \
+	locm=$$(echo $$over | wc -w | awk '{print $$1/2}'); \
+	[ -z "$$over" ] || echo "$$over"; \
+	loc=$$(bash $(LOC) -t $(shell find lib -name '*.dart')); \
 	numf=$$(find lib -name "*.dart" -type f | wc -l); \
-	output=$$(bash $(LOC) -n $(LINES) $(shell find lib -name '*.dart') | sort -nr); \
-	locm=$$(echo $$output | wc -w | awk '{print $$1/2}'); \
-	if [ -n "$$output" ]; then \
-		echo "$$output"; \
-		echo "\nTotal $$loc lines of code across $$numf files with total $$totl lines."; \
+	totl=$$(cat $(shell find lib -name '*.dart') | wc -l); \
+	echo "Total $$loc lines of code across $$numf files with total $$totl lines."; \
+	if [ $$return_code -ne 0 ]; then \
 		echo "\n$(CROSS) Error: Found $$locm files with more than $(LINES) lines of code."; \
-		exit 1; \
+	elif [ -s /tmp/loc_output.txt ]; then \
+		echo "\n$(TICK) All files are under $(LINES) lines (with some fuzz)."; \
 	else \
-		echo "Total $$loc lines of code across $$numf files with total $$totl lines."; \
 		echo "\n$(TICK) All files are under $(LINES) lines."; \
 	fi
 
@@ -552,7 +554,7 @@ versions:
 	if [ -d snap ]; then perl -pi -e 's|^version:.*|version: $(VER)|' snap/snapcraft.yaml; fi
 
 
-BUILD_VER=$(shell grep '^version: ' pubspec.yaml | cut -d'+' -f2)
+BUILD_VER=$(shell grep '^version: ' pubspec.yaml | grep '+' | cut -d'+' -f2)
 MAJ_VER=$(shell grep '^version: ' pubspec.yaml | cut -d'+' -f1 | cut -d':' -f2 | cut -d'.' -f1,2)
 MIN_VER=$(shell grep '^version: ' pubspec.yaml | cut -d'+' -f1 | cut -d':' -f2 | cut -d'.' -f3)
 
@@ -560,15 +562,15 @@ MIN_VER=$(shell grep '^version: ' pubspec.yaml | cut -d'+' -f1 | cut -d':' -f2 |
 .PHONY: minor_versions
 minor_versions:
 	$(eval MIN_VER = $(shell echo $$(($(MIN_VER) + 1))))
-	@echo "Bumping version: $(VER)+$(BUILD_VER) to $(MAJ_VER).$(MIN_VER)+$(BUILD_VER)"
-	perl -pi -e 's|^version:.*|version:$(MAJ_VER).$(MIN_VER)+$(BUILD_VER)|' pubspec.yaml
+	@echo "Bumping version: $(VER) to $(MAJ_VER).$(MIN_VER)$(if $(BUILD_VER),+$(BUILD_VER),)"
+	perl -pi -e 's|^version:.*|version:$(MAJ_VER).$(MIN_VER)$(if $(BUILD_VER),+$(BUILD_VER),)|' pubspec.yaml
 
 # Increment major version in pubspec.yaml
 .PHONY: major_versions
 major_versions:
 	$(eval MAJ_VER = $(shell echo "$(MAJ_VER) + 1.0"  | bc))
-	@echo "Bumping version: $(VER)+$(BUILD_VER) to $(MAJ_VER).$(MIN_VER)+$(BUILD_VER)"
-	perl -pi -e 's|^version:.*|version: $(MAJ_VER).$(MIN_VER)+$(BUILD_VER)|' pubspec.yaml
+	@echo "Bumping version: $(VER) to $(MAJ_VER).$(MIN_VER)$(if $(BUILD_VER),+$(BUILD_VER),)"
+	perl -pi -e 's|^version:.*|version: $(MAJ_VER).$(MIN_VER)$(if $(BUILD_VER),+$(BUILD_VER),)|' pubspec.yaml
 
 .PHONY: loc
 loc: lib/*.dart

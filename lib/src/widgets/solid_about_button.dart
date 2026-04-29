@@ -1,6 +1,6 @@
 /// Solid About Button.
 ///
-// Time-stamp: <Thursday 2026-04-09 11:51:44 +1000 Graham Williams>
+// Time-stamp: <Wednesday 2026-04-29 11:42:51 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -42,44 +42,6 @@ import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
-
-/// Collapses single newlines (source-code soft wraps) into spaces so the
-/// Markdown renderer can reflow text to fit the dialog width.
-///
-/// Double newlines (paragraph breaks) and Markdown syntax lines (headings,
-/// links, bold, etc.) are preserved verbatim.
-
-String wordWrap(String text) {
-  // Normalise Windows line endings.
-  final s = text.replaceAll('\r\n', '\n');
-  final lines = s.split('\n');
-  final out = StringBuffer();
-
-  for (int i = 0; i < lines.length; i++) {
-    final line = lines[i];
-    final next = i + 1 < lines.length ? lines[i + 1] : null;
-
-    // Empty line = paragraph break — preserve as-is.
-    if (line.trim().isEmpty) {
-      out.writeln();
-      continue;
-    }
-
-    // Markdown structural lines (headings, list items, links, bold starts)
-    // must stay on their own line.
-    final isMdLine =
-        RegExp(r'^(#{1,6} |\*\*|\* |- |\[|\!)').hasMatch(line.trim());
-
-    if (isMdLine || next == null || next.trim().isEmpty) {
-      out.writeln(line);
-    } else {
-      // Soft wrap: join to next line with a space instead of a newline.
-      out.write('$line ');
-    }
-  }
-
-  return out.toString().trimRight();
-}
 
 /// A button that shows an About dialogue when pressed.
 
@@ -188,6 +150,13 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
       child: iconButton,
     );
   }
+}
+
+/// Strips common leading whitespace from a triple-quoted string without
+/// hard-wrapping lines. Preserves blank lines as paragraph breaks for markdown.
+String _dedent(String text) {
+  final lines = text.split('\n').map((l) => l.trimLeft()).toList();
+  return lines.join('\n').trim();
 }
 
 /// A static helper for showing About dialogues programmatically.
@@ -310,6 +279,8 @@ class SolidAbout {
 
       // Create MarkdownStyleSheet to match legalese formatting.
 
+      final cs = Theme.of(context).colorScheme;
+
       final markdownStyleSheet = MarkdownStyleSheet(
         p: bodySmallStyle,
         h1: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
@@ -321,19 +292,26 @@ class SolidAbout {
         strong: bodySmallStyle?.copyWith(fontWeight: FontWeight.bold),
         em: bodySmallStyle?.copyWith(fontStyle: FontStyle.italic),
         listBullet: bodySmallStyle,
-        blockSpacing: AboutConstants.markdownBlockSpacing, // Consistent spacing
+        a: bodySmallStyle?.copyWith(
+          color: cs.primary,
+          decoration: TextDecoration.underline,
+        ),
+        blockSpacing: AboutConstants.markdownBlockSpacing,
+        code: bodySmallStyle?.copyWith(
+          fontFamily: 'monospace',
+          backgroundColor: Colors.transparent,
+        ),
+        codeblockDecoration: const BoxDecoration(color: Colors.transparent),
       );
 
       children.add(
         MarkdownBody(
-          data: wordWrap(config.text!),
+          data: _dedent(config.text!),
           styleSheet: markdownStyleSheet,
-          selectable: true,
-          softLineBreak: true,
-          onTapLink: (text, href, about) {
+          softLineBreak: false,
+          onTapLink: (text, href, title) {
             if (href != null) {
-              final Uri url = Uri.parse(href);
-              launchUrl(url);
+              launchUrl(Uri.parse(href));
             }
           },
         ),
@@ -399,10 +377,8 @@ class SolidAbout {
       applicationName: applicationName,
       applicationVersion: applicationVersion,
       applicationIcon: config.applicationIcon,
-      applicationLegalese: wordWrap(
-        config.applicationLegalese ??
-            '© ${DateTime.now().year} $applicationName\n\n',
-      ),
+      applicationLegalese: config.applicationLegalese ??
+          '© ${DateTime.now().year} $applicationName\n\n',
       children: children,
     );
   }

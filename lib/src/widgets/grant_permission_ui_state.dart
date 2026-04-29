@@ -124,6 +124,12 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       case SolidFunctionCallStatus.noAclFound:
         await _alert(noAclMsg);
 
+      case SolidFunctionCallStatus.fileNotExists:
+        await _alert(
+          'The resource "$resName" does not exist on your pod. '
+          'Please create it first.',
+        );
+
       default:
         await _alert('Unknown error');
     }
@@ -169,14 +175,12 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       isFile: isFile,
       isExternalRes: isExternalRes,
     );
-    final history = await sharedResourcesHistory(resourceName: fileName);
 
-    assert(pdata != null);
-
-    if (pdata!.permissionMap.isEmpty) {
-      await _alert('We could not find a resource by the name $fileName');
+    if (pdata == null || pdata.permissionMap.isEmpty) {
       return null;
     }
+
+    final history = await sharedResourcesHistory(resourceName: fileName);
 
     return (
       permDataMap: pdata.permissionMap,
@@ -479,11 +483,15 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
             if (!snapshot.hasData) {
               return Scaffold(body: loadingScreen(normalLoadingScreenHeight));
             }
-            final PermissionDetails initCurrentPerm =
-                snapshot.data![0] as PermissionDetails;
+            final PermissionDetails? initCurrentPerm =
+                snapshot.data![0] as PermissionDetails?;
+            // final PermissionDetails initCurrentPerm =
+            //     snapshot.data![0] as PermissionDetails;
             final List<LogRecord> initPermHistoryList =
                 snapshot.data![1] as List<LogRecord>;
-            return initCurrentPerm.permissionMap.isEmpty
+            return (initCurrentPerm == null ||
+                    initCurrentPerm.permissionMap.isEmpty)
+                // return initCurrentPerm.permissionMap.isEmpty
                 ? _buildPermPage(context)
                 : _buildPermPage(context, initCurrentPerm, initPermHistoryList);
           },

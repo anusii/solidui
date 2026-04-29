@@ -76,6 +76,9 @@ class _PermissionHistoryState extends State<PermissionHistory> {
   /// Searched/sorted logs
   List<LogRecord> _permHistory = [];
 
+  /// Initial sort by date descending
+  bool _sortDateAscending = false;
+
   /// Aspect ratio (width / height) for gridview
   /// cards to display log items
   late double cardAspectRatio = 2.0;
@@ -93,6 +96,9 @@ class _PermissionHistoryState extends State<PermissionHistory> {
     // By default _permissions is the full list of permissions
     _permHistory = widget.permHistory;
 
+    // Initial sort by date descending
+    _sortByDate(_sortDateAscending);
+
     // Create scroll controller
     _scrollController = ScrollController();
   }
@@ -101,6 +107,18 @@ class _PermissionHistoryState extends State<PermissionHistory> {
   void dispose() {
     _scrollController.dispose(); // Dispose the ScrollController
     super.dispose();
+  }
+
+  // Sort numerically on date field
+  void _sortByDate(bool ascending) {
+    setState(() {
+      _sortDateAscending = ascending;
+      _permHistory.sort((a, b) {
+        return _sortDateAscending
+            ? a.dateTime.toLowerCase().compareTo(b.dateTime.toLowerCase())
+            : b.dateTime.toLowerCase().compareTo(a.dateTime.toLowerCase());
+      });
+    });
   }
 
   @override
