@@ -43,6 +43,7 @@ import 'package:solidpod/solidpod.dart'
         silentLogout;
 
 import 'package:solidui/src/constants/solid_config.dart';
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
     show getKeyFromUserIfRequired;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -91,6 +92,7 @@ class SolidLoginActions {
 
     if (!staySignedIn) {
       await deleteLogIn();
+      solidLoginStatusNotifier.markLoggedOut();
     }
 
     final podServer = webIdController.text.trim().isNotEmpty
@@ -108,6 +110,7 @@ class SolidLoginActions {
 
           if (cachedOrigin != requestedOrigin) {
             await deleteLogIn();
+            solidLoginStatusNotifier.markLoggedOut();
           }
         } on FormatException {
           // If either URL cannot be parsed, fall through and let handleLogin
@@ -153,6 +156,7 @@ class SolidLoginActions {
 
     if (!staySignedIn) {
       await deleteLogIn();
+      solidLoginStatusNotifier.markLoggedOut();
     }
 
     final isLoggedIn = await isUserLoggedIn();
@@ -186,6 +190,7 @@ class SolidLoginActions {
         if (!allExists) {
           await clearPodStructureInitialised();
           await silentLogout();
+          solidLoginStatusNotifier.markLoggedOut();
 
           if (!context.mounted) return;
 
@@ -234,6 +239,7 @@ class SolidLoginActions {
     required Future<void> Function() performLoginCallback,
   }) async {
     await silentLogout();
+    solidLoginStatusNotifier.markLoggedOut();
     await clearPodStructureInitialised();
     if (!context.mounted) return;
 

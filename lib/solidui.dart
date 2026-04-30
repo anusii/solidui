@@ -75,6 +75,7 @@ export 'src/widgets/solid_security_key_manager.dart';
 export 'src/widgets/solid_security_key_view.dart';
 export 'src/widgets/solid_security_key_central_manager.dart';
 export 'src/services/solid_security_key_service.dart';
+export 'src/services/solid_login_status_notifier.dart';
 export 'src/services/solid_security_key_notifier.dart';
 
 export 'src/services/solid_profile_notifier.dart';
