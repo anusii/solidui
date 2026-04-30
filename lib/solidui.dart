@@ -105,6 +105,7 @@ export 'src/models/file_type_config.dart';
 export 'src/models/snackbar_config.dart';
 
 export 'src/utils/file_operations.dart';
+export 'src/utils/is_desktop.dart';
 export 'src/utils/is_text_file.dart';
 export 'src/utils/solid_file_operations.dart';
 export 'src/utils/solid_file_operations_print.dart';
