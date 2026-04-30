@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Add dropdown server list for SolidLogin [0.3.31 20260501 gjw]
 + Add is_desktop() util [0.3.30 20260430 gjw]
 + Do not word wrap ABOUT text [0.3.29 20260429 gjw]
 + Sort permission history recent first [0.3.28 20260429 jesscmoore]
