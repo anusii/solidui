@@ -108,6 +108,7 @@ export 'src/utils/solid_pod_helpers.dart'
 export 'src/widgets/solid_format_info_card.dart';
 
 export 'src/widgets/build_message_container.dart';
+export 'src/utils/path_utils.dart';
 
 export 'src/widgets/app_bar.dart';
 export 'src/widgets/file_explorer.dart';

@@ -87,7 +87,12 @@ class SolidNavBar extends StatelessWidget {
     this.groupAlignment,
     this.iconSize,
     this.labelFontSize,
+    this.settingsWidget,
   });
+
+  /// Optional settings widget to display at the bottom of the navigation rail.
+
+  final Widget? settingsWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +109,20 @@ class SolidNavBar extends StatelessWidget {
             ),
             child: IntrinsicHeight(
               child: NavigationRail(
+                useIndicator: true,
+                indicatorColor: theme.colorScheme.primaryContainer,
+                indicatorShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                trailing: settingsWidget != null
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: settingsWidget,
+                      )
+                    : null,
+                selectedIconTheme: IconThemeData(
+                  color: theme.colorScheme.primary,
+                ),
                 backgroundColor: theme.colorScheme.surface,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) =>

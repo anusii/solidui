@@ -206,6 +206,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
             ),
             _onMenuSelected,
             widget.onShowAlert,
+            widget.settingsWidget,
           );
 
     return NotificationListener<SecurityKeyStatusChangedNotification>(

@@ -143,6 +143,7 @@ class SolidScaffoldWidgetBuilder {
           hideNavRail: widget.hideNavRail,
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
+          settingsWidget: widget.settingsWidget,
         ),
       ),
       buildDrawer: () {
@@ -158,6 +159,7 @@ class SolidScaffoldWidgetBuilder {
           onTabSelected: onMenuSelected,
           onLogout: effectiveLogout,
           showLogout: effectiveLogout != null,
+          settingsWidget: widget.settingsWidget,
         );
       },
       endDrawer: widget.endDrawer,

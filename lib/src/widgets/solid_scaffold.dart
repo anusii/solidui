@@ -235,6 +235,11 @@ class SolidScaffold extends StatefulWidget {
 
   final bool hideNavRail;
 
+  /// Optional settings widget to be displayed in the AppBar, Navigation Rail,
+  /// and Navigation Drawer.
+
+  final Widget? settingsWidget;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -279,6 +284,7 @@ class SolidScaffold extends StatefulWidget {
     this.themeToggle,
     this.aboutConfig,
     this.hideNavRail = false,
+    this.settingsWidget,
   });
 
   @override

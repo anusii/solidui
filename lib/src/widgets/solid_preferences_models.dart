@@ -186,6 +186,7 @@ class SolidAppBarActionIds {
   static const String themeToggle = 'theme_toggle';
   static const String about = 'about';
   static const String logout = 'logout';
+  static const String settings = 'settings';
   static const String preferences = 'preferences';
 
   SolidAppBarActionIds._();

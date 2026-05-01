@@ -50,13 +50,20 @@ class SolidAppBarActionsManager {
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle, {
     bool hasLogout = false,
+    bool hasSettings = false,
   }) {
     // Check if we need to add missing buttons (standard or custom).
 
     final existingActions = solidPreferencesNotifier.appBarActions;
     final needsInit = existingActions.isEmpty;
     final needsMerge = !needsInit &&
-        _hasMissingButtons(existingActions, config, themeToggle, hasLogout);
+        _hasMissingButtons(
+          existingActions,
+          config,
+          themeToggle,
+          hasLogout,
+          hasSettings,
+        );
 
     if (!needsInit && !needsMerge) return;
 
@@ -141,6 +148,23 @@ class SolidAppBarActionsManager {
       );
     }
 
+    // Add Settings button if provided.
+    // Default: show in AppBar.
+
+    if (hasSettings) {
+      actionEntries.add(
+        _ActionEntry(
+          item: const SolidAppBarActionItem(
+            id: SolidAppBarActionIds.settings,
+            label: 'Settings',
+            icon: Icons.settings,
+            showInOverflow: false, // Show in AppBar by default.
+          ),
+          initialIndex: 800, // Settings button before About button.
+        ),
+      );
+    }
+
     // Add About button.
     // Default: show in AppBar, rightmost position.
 
@@ -182,6 +206,7 @@ class SolidAppBarActionsManager {
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle,
     bool hasLogout,
+    bool hasSettings,
   ) {
     final existingIds = actions.map((a) => a.id).toSet();
 
@@ -212,6 +237,12 @@ class SolidAppBarActionsManager {
 
     if (hasLogout) {
       expectedIds.add(SolidAppBarActionIds.logout);
+    }
+
+    // Settings button (if provided).
+
+    if (hasSettings) {
+      expectedIds.add(SolidAppBarActionIds.settings);
     }
 
     // About button should always exist.

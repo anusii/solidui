@@ -256,6 +256,7 @@ class SolidScaffoldHelpers {
     bool hideNavRail = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
+    Widget? settingsWidget,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -272,6 +273,7 @@ class SolidScaffoldHelpers {
       hideNavRail: hideNavRail,
       onLogout: onLogout,
       onLogin: onLogin,
+      settingsWidget: settingsWidget,
     );
   }
 

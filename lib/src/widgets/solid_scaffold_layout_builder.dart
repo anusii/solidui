@@ -52,6 +52,7 @@ class SolidScaffoldLayoutBuilder {
     Widget? effectiveChild,
     Function(int) onTabSelected,
     Function(BuildContext, String, String?)? onShowAlert,
+    Widget? settingsWidget,
   ) {
     final theme = Theme.of(context);
 
@@ -73,6 +74,7 @@ class SolidScaffoldLayoutBuilder {
                   selectedIndex: selectedIndex,
                   onTabSelected: onTabSelected,
                   onShowAlert: onShowAlert,
+                  settingsWidget: settingsWidget,
                 ),
                 VerticalDivider(width: 1, color: theme.dividerColor),
                 Expanded(child: effectiveChild),

@@ -180,6 +180,24 @@ class AppScaffold extends StatelessWidget {
       // LOGOUT.
 
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
+      settingsWidget: IconButton(
+        icon: const Icon(Icons.settings),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Settings'),
+              content: const Text('This is a custom settings widget demo.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
 
       child: const Home(title: appTitle),
     );
