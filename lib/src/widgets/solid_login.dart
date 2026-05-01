@@ -332,6 +332,15 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     if (mounted) setState(() => isDialogCanceled = true);
   }
 
+  // Reset the cancellation flag at the start of each new login or continue
+  // attempt.
+
+  void _resetDialogCanceledState() {
+    if (mounted && isDialogCanceled) {
+      setState(() => isDialogCanceled = false);
+    }
+  }
+
   // Helper method to create and show a snackbar with consistent theming.
 
   void _showSnackbar(
@@ -386,28 +395,34 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // login. The implementation lives in [SolidLoginActions] so that this
     // widget stays focused on composition.
 
-    Future<void> performLogin() => SolidLoginActions.performLogin(
-          context: context,
-          webIdController: webIdController,
-          defaultFolders: defaultFolders,
-          defaultFiles: defaultFiles,
-          originalLoginWidget: widget,
-          childWidget: widget.child,
-          isDialogCanceled: isDialogCanceled,
-          updateDialogCanceledState: updateState,
-          showSnackbar: _showSnackbar,
-          staySignedIn: _staySignedIn,
-        );
+    Future<void> performLogin() {
+      _resetDialogCanceledState();
+      return SolidLoginActions.performLogin(
+        context: context,
+        webIdController: webIdController,
+        defaultFolders: defaultFolders,
+        defaultFiles: defaultFiles,
+        originalLoginWidget: widget,
+        childWidget: widget.child,
+        isDialogCanceled: () => isDialogCanceled,
+        updateDialogCanceledState: updateState,
+        showSnackbar: _showSnackbar,
+        staySignedIn: _staySignedIn,
+      );
+    }
 
-    Future<void> performContinue() => SolidLoginActions.performContinue(
-          context: context,
-          childWidget: widget.child,
-          defaultFolders: defaultFolders,
-          defaultFiles: defaultFiles,
-          updateDialogCanceledState: updateState,
-          showSnackbar: _showSnackbar,
-          staySignedIn: _staySignedIn,
-        );
+    Future<void> performContinue() {
+      _resetDialogCanceledState();
+      return SolidLoginActions.performContinue(
+        context: context,
+        childWidget: widget.child,
+        defaultFolders: defaultFolders,
+        defaultFiles: defaultFiles,
+        updateDialogCanceledState: updateState,
+        showSnackbar: _showSnackbar,
+        staySignedIn: _staySignedIn,
+      );
+    }
 
     Future<void> performTryAnotherAccount() =>
         SolidLoginActions.performTryAnotherAccount(

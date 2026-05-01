@@ -52,6 +52,7 @@ export 'src/widgets/solid_default_login.dart';
 
 export 'src/widgets/solid_login.dart';
 export 'src/widgets/solid_login_helper.dart';
+export 'src/widgets/solid_server_field.dart';
 export 'src/widgets/solid_popup_login.dart';
 export 'src/widgets/solid_login_webid_input_dialog.dart';
 export 'src/widgets/solid_logout_dialog.dart';
@@ -78,6 +79,7 @@ export 'src/widgets/solid_security_key_manager.dart';
 export 'src/widgets/solid_security_key_view.dart';
 export 'src/widgets/solid_security_key_central_manager.dart';
 export 'src/services/solid_security_key_service.dart';
+export 'src/services/solid_login_status_notifier.dart';
 export 'src/services/solid_security_key_notifier.dart';
 
 export 'src/services/solid_profile_notifier.dart';
@@ -108,6 +110,7 @@ export 'src/models/file_type_config.dart';
 export 'src/models/snackbar_config.dart';
 
 export 'src/utils/file_operations.dart';
+export 'src/utils/is_desktop.dart';
 export 'src/utils/is_text_file.dart';
 export 'src/utils/solid_file_operations.dart';
 export 'src/utils/solid_file_operations_print.dart';

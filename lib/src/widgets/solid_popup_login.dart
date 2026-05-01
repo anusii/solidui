@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidpod/solidpod.dart'
     show
+        getWebId,
         isUserLoggedIn,
         solidAuthenticate,
         initialStructureTest,
@@ -44,8 +45,10 @@ import 'package:solidui/src/constants/initial_setup.dart'
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/screens/initial_setup_screen.dart';
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart' show isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_loading_screen.dart';
+import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 
 /// A widget to pop up the login prompt if the user is not logged in.
 
@@ -139,6 +142,22 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
   Future<bool> _loginAndInitPods(String webId, BuildContext context) async {
     try {
       await solidAuthenticate(webId, context);
+
+      // Persist the WebID/server URL so the re-login dialog can prefill it
+      // next time the user is logged out. Prefer the canonical WebID
+      // returned by the server when available.
+
+      final canonicalWebId = await getWebId();
+      await SolidLoginAuthHandler.setLastWebId(
+        (canonicalWebId != null && canonicalWebId.isNotEmpty)
+            ? canonicalWebId
+            : webId,
+      );
+
+      // Notify global listeners (e.g. the status bar) that the login state
+      // has just changed.
+
+      await solidLoginStatusNotifier.refreshStatus();
 
       if (!context.mounted) return false;
 

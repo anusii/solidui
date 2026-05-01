@@ -46,7 +46,8 @@ import 'package:solidui/solidui.dart'
         largeGapV,
         loginIfRequired,
         logoutPopup,
-        smallGapV;
+        smallGapV,
+        solidLoginStatusNotifier;
 
 import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
@@ -89,6 +90,21 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    solidLoginStatusNotifier.addListener(_onLoginStatusChanged);
+  }
+
+  @override
+  void dispose() {
+    solidLoginStatusNotifier.removeListener(_onLoginStatusChanged);
+    super.dispose();
+  }
+
+  void _onLoginStatusChanged() {
+    if (!mounted) return;
+    setState(() {
+      _webId = solidLoginStatusNotifier.webId;
+    });
   }
 
   void _resetWebId() {
@@ -541,6 +557,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       onPressed: () async {
                         final deleteRes = await deleteLogIn();
 
+                        if (deleteRes) {
+                          solidLoginStatusNotifier.markLoggedOut();
+                        }
+
                         var deleteMsg = '';
 
                         if (deleteRes) {
@@ -580,6 +600,48 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         await logoutPopup(context, const App());
                       },
                       child: const Text('Logout From Remote Solid Server'),
+                    ),
+                  ),
+                  MarkdownTooltip(
+                    message:
+                        'Simulates the kind of *accidental* logout caused by '
+                        'an expired or invalidated authentication token: the '
+                        'local session is silently cleared without going '
+                        'through the proper logout flow. Use this to verify '
+                        'that the next action requiring authentication '
+                        'reopens the login popup with your previous WebID '
+                        'prefilled.',
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Silently drop the cached session to mimic a token
+                        // that the server (or device storage) has invalidated
+                        // behind the user's back.
+
+                        final wasLoggedIn = await isUserLoggedIn();
+                        await deleteLogIn();
+
+                        solidLoginStatusNotifier.markLoggedOut();
+
+                        if (!context.mounted) return;
+                        _resetWebId();
+
+                        await alert(
+                          context,
+                          wasLoggedIn
+                              ? 'Authentication token invalidated. '
+                                  'The next action that requires login should '
+                                  'reopen the login popup with your previous '
+                                  'WebID prefilled.'
+                              : 'No active session was found, but any cached '
+                                  'auth data has been cleared. Trigger a '
+                                  'feature that requires login to see the '
+                                  'login popup.',
+                        );
+
+                        if (!context.mounted) return;
+                        await loginIfRequired(context);
+                      },
+                      child: const Text('Simulate Token Invalidation'),
                     ),
                   ),
                 ]),

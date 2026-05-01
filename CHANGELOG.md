@@ -15,6 +15,11 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Bug fix Clear profile cache on logout [0.3.34 20260501 tonypioneer]
++ Bug fix App blanks on login CANCEL [0.3.33 20260501 tonypioneer]
++ Prefill with webID on auth key timeout relogin [0.3.32 20260501 tonypioneer]
++ Add dropdown server list for SolidLogin [0.3.31 20260501 gjw]
++ Add is_desktop() util [0.3.30 20260430 gjw]
 + Do not word wrap ABOUT text [0.3.29 20260429 gjw]
 + Sort permission history recent first [0.3.28 20260429 jesscmoore]
 + Fix demo and sharing when resource not exist [0.3.27 20260426 jesscmoore]
