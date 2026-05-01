@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.3.0 Stabilise
 
++ Support settingsWidget in SolidScaffold core [0.3.1 20260501 amogh]
 + Migrate remaining UI from solidpod to solidui [0.2.0 20260213 tony]
 
 ## 0.2.0 Complete UI Migration
