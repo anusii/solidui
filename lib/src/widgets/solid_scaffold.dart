@@ -1,6 +1,6 @@
 /// Solid Scaffold - Simplified unified scaffold component.
 ///
-// Time-stamp: <Thursday 2025-08-21 13:20:34 +1000 Graham Williams>
+// Time-stamp: <Friday 2026-05-01 11:47:09 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -269,8 +269,8 @@ class SolidScaffold extends StatefulWidget {
     this.userInfo,
     this.onLogout,
     this.onLogin,
-    this.showLogout = true,
-    this.showLogin = true,
+    this.showLogout = false,
+    this.showLogin = false,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,
@@ -294,7 +294,7 @@ class SolidScaffold extends StatefulWidget {
     this.themeToggle,
     this.aboutConfig,
     this.hideNavRail = false,
-    this.enableProfile = false,
+    this.enableProfile = true,
   });
 
   @override
