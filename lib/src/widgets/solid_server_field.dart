@@ -201,6 +201,7 @@ class _SolidServerFieldState extends State<SolidServerField> {
           if (_dropdownOpen && filtered.isNotEmpty)
             Material(
               elevation: 4,
+              color: theme.cardColor,
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(8),
               ),
@@ -214,7 +215,10 @@ class _SolidServerFieldState extends State<SolidServerField> {
                     dense: true,
                     title: Text(
                       filtered[i],
-                      style: const TextStyle(fontSize: 13),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: theme.textColor,
+                      ),
                     ),
                     onTap: () => _selectServer(filtered[i]),
                   ),
