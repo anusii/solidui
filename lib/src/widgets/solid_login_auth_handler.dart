@@ -41,6 +41,7 @@ import 'package:solidpod/solidpod.dart'
     show
         clearPodStructureInitialised,
         deleteLogIn,
+        getWebId,
         initialStructureTest,
         isUserLoggedIn,
         markPodStructureInitialised,
@@ -49,6 +50,7 @@ import 'package:solidpod/solidpod.dart'
 import 'package:solidui/src/constants/initial_setup.dart'
     show initialStructureSnackbarMsg, initialUpdateSnackbarMsg;
 import 'package:solidui/src/screens/initial_setup_screen.dart';
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
     show getKeyFromUserIfRequired, isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -65,6 +67,33 @@ class SolidLoginAuthHandler {
 
   static const staySignedInKey = 'solidui_stay_signed_in';
 
+  /// SharedPreferences key for persisting the last successfully used WebID
+  /// (or server URL). This is used to prefill the re-login dialog after the
+  /// user has been logged out — accidentally or otherwise — so they do not
+  /// have to retype it.
+
+  static const lastWebIdKey = 'solidui_last_webid';
+
+  /// Returns the last WebID/server URL that the user successfully
+  /// authenticated with, or null when no value has been persisted yet.
+
+  static Future<String?> getLastWebId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(lastWebIdKey);
+    if (value == null || value.isEmpty) return null;
+    return value;
+  }
+
+  /// Persists [value] as the last WebID/server URL. Empty or whitespace-only
+  /// values are ignored so we never overwrite a good entry with a blank one.
+
+  static Future<void> setLastWebId(String value) async {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(lastWebIdKey, trimmed);
+  }
+
   /// Clears the cached login session if a previous session opted out of
   /// "Stay signed in". Call this early during login page initialisation.
 
@@ -73,6 +102,7 @@ class SolidLoginAuthHandler {
     final shouldClear = prefs.getBool(clearSessionKey) ?? false;
     if (shouldClear) {
       await deleteLogIn();
+      solidLoginStatusNotifier.markLoggedOut();
       await prefs.remove(clearSessionKey);
     }
   }
@@ -329,6 +359,22 @@ class SolidLoginAuthHandler {
     // Check that the authentication succeeded.
 
     if (authResult != null && authResult.isNotEmpty) {
+      // Persist the WebID/server URL so the re-login dialog can prefill it
+      // next time. Prefer the canonical WebID returned by the server when
+      // available; fall back to the user's input otherwise.
+
+      final canonicalWebId = await getWebId();
+      await setLastWebId(
+        (canonicalWebId != null && canonicalWebId.isNotEmpty)
+            ? canonicalWebId
+            : podServer,
+      );
+
+      // Tell any listeners (e.g. the dynamic status bar) that the login
+      // state has just changed so they can refresh themselves.
+
+      await solidLoginStatusNotifier.refreshStatus();
+
       if (!context.mounted) return false;
 
       // Close the animation dialog before proceeding.
