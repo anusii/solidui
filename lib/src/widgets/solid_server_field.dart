@@ -27,7 +27,6 @@ const List<String> kKnownSolidServers = [
   'https://teamid.live',
   'https://trinpod.eu',
   'https://trinpod.us',
-  'https://use.id',
   'https://igrant.io/datapod.html',
   'https://start.inrupt.com',
   'https://solid.redpencil.io',
