@@ -15,6 +15,7 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ Update SolidScaffold login/logout/profile defaults [0.3.35 20260501 gjw]
 + Bug fix Clear profile cache on logout [0.3.34 20260501 tonypioneer]
 + Bug fix App blanks on login CANCEL [0.3.33 20260501 tonypioneer]
 + Prefill with webID on auth key timeout relogin [0.3.32 20260501 tonypioneer]
