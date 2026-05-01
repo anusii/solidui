@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
 
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
@@ -92,6 +93,29 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
   void initState() {
     super.initState();
     _checkLoginStatus();
+
+    // Subscribe to the global login-status notifier so the indicator updates
+    // whenever any code path mutates auth state without us needing to call
+    // _checkLoginStatus() from each call site.
+
+    solidLoginStatusNotifier.addListener(_onLoginStatusChanged);
+  }
+
+  @override
+  void dispose() {
+    solidLoginStatusNotifier.removeListener(_onLoginStatusChanged);
+    super.dispose();
+  }
+
+  /// Reflects the latest cached value from the global notifier into local
+  /// state.
+
+  void _onLoginStatusChanged() {
+    if (!mounted) return;
+    setState(() {
+      _currentWebId = solidLoginStatusNotifier.webId;
+      _isLoading = false;
+    });
   }
 
   /// Checks the current login status by fetching the WebID and verifying
@@ -104,6 +128,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       final webId = await getWebId();
 
       if (webId == null || webId.isEmpty) {
+        if (!mounted) return;
         setState(() {
           _currentWebId = null;
           _isLoading = false;
@@ -115,12 +140,14 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
 
       final isLoggedIn = await isUserLoggedIn();
 
+      if (!mounted) return;
       setState(() {
         _currentWebId = isLoggedIn ? webId : null;
         _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error checking login status: $e');
+      if (!mounted) return;
       setState(() {
         _currentWebId = null;
         _isLoading = false;
@@ -148,9 +175,11 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
       }
     }
 
+    // Ask the global notifier to re-resolve the login state.
+
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
-        _checkLoginStatus();
+        solidLoginStatusNotifier.refreshStatus();
       }
     });
   }

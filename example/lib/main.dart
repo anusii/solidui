@@ -1,6 +1,6 @@
 /// A template app to begin a Solid Pod project.
 ///
-// Time-stamp: <Monday 2025-07-14 11:46:50 +1000 Graham Williams>
+// Time-stamp: <Thursday 2026-04-30 14:37:04 +1000 Graham Williams>
 ///
 /// Copyright (C) 2024, Software Innovation Institute, ANU.
 ///
@@ -27,16 +27,16 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/solidui.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
-import 'package:demopod/utils/is_desktop.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (isDesktop(PlatformWrapper())) {
+  if (isDesktop) {
     await windowManager.ensureInitialized();
 
     const windowOptions = WindowOptions(

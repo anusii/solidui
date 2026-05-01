@@ -35,6 +35,8 @@ import 'package:solidpod/solidpod.dart'
     show getEncKeyPath, getWebId, isUserLoggedIn, KeyManager, verifySecurityKey;
 
 import 'package:solidui/src/constants/ui.dart' show SecurityStrings;
+import 'package:solidui/src/services/solid_login_status_notifier.dart'
+    show solidLoginStatusNotifier;
 import 'package:solidui/src/services/solid_security_key_notifier.dart'
     show securityKeyNotifier;
 import 'package:solidui/src/widgets/security_key_ui.dart' show SecurityKeyUI;
@@ -97,6 +99,13 @@ Future<bool> loginIfRequired(BuildContext context) async {
     //     MaterialPageRoute(
     //       builder: (context) => const SolidPopupLogin(),
     //     ));
+
+    // After the popup-driven re-login flow, broadcast the new auth state so
+    // any listeners (e.g. the dynamic status bar, app-level WebID labels)
+    // can refresh themselves regardless of whether the user actually
+    // completed the login.
+
+    await solidLoginStatusNotifier.refreshStatus();
   }
   return isUserLoggedIn();
 }
