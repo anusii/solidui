@@ -81,7 +81,7 @@ class SolidLoginActions {
     required Map<dynamic, dynamic> defaultFiles,
     required dynamic originalLoginWidget,
     required Widget childWidget,
-    required bool isDialogCanceled,
+    required ValueGetter<bool> isDialogCanceled,
     required VoidCallback updateDialogCanceledState,
     required LoginSnackbar showSnackbar,
     required bool staySignedIn,
