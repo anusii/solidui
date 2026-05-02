@@ -32,6 +32,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/widgets/solid_feedback_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 
 /// Configuration for About dialog functionality in the Solid scaffold.
@@ -102,11 +103,19 @@ class SolidAboutConfig {
 
   final bool showLayoutPreferences;
 
-  /// Optional Invite Others configuration. When supplied, an
-  /// "Invite Others" button is added to the About dialogue so users
-  /// can invite people directly from the App Info page.
+  /// Optional Invite Others configuration. When supplied, a Share
+  /// button is added to the About dialogue so users can invite people
+  /// directly from the App Info page.
 
   final SolidInviteOthersConfig? inviteConfig;
+
+  /// Optional Feedback configuration. When supplied, a Feedback button
+  /// is added to the About dialogue alongside the AppBar and Share
+  /// buttons. If null, a greyed-out placeholder is shown so the
+  /// dialogue layout stays consistent and applications retain a clear
+  /// integration point for a future feedback flow.
+
+  final SolidFeedbackConfig? feedbackConfig;
 
   const SolidAboutConfig({
     this.enabled = true,
@@ -125,6 +134,7 @@ class SolidAboutConfig {
     this.onPressed,
     this.showLayoutPreferences = true,
     this.inviteConfig,
+    this.feedbackConfig,
   });
 
   /// Returns the icon to display for the About button.
@@ -183,6 +193,7 @@ class SolidAboutConfig {
     VoidCallback? onPressed,
     bool? showLayoutPreferences,
     SolidInviteOthersConfig? inviteConfig,
+    SolidFeedbackConfig? feedbackConfig,
   }) {
     return SolidAboutConfig(
       enabled: enabled ?? this.enabled,
@@ -203,6 +214,7 @@ class SolidAboutConfig {
       showLayoutPreferences:
           showLayoutPreferences ?? this.showLayoutPreferences,
       inviteConfig: inviteConfig ?? this.inviteConfig,
+      feedbackConfig: feedbackConfig ?? this.feedbackConfig,
     );
   }
 }
