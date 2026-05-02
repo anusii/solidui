@@ -62,9 +62,16 @@ class SolidAppBarOrderedActionsBuilder {
     bool showLogin = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
+    bool enableOverflowMenu = true,
   }) {
     final List<_OrderedAction> orderedActions = [];
-    final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
+
+    // When the overflow feature is disabled, treat the layout as if it were
+    // never very narrow so that all visible actions render directly in the
+    // AppBar regardless of the per-button "move to overflow" preference.
+
+    final isVeryNarrowScreen =
+        enableOverflowMenu && layoutWidth < config.veryNarrowScreenThreshold;
 
     _addThemeToggle(
       orderedActions,

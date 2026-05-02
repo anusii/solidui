@@ -310,6 +310,7 @@ class SolidScaffoldHelpers {
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
     bool? enableProfileOverride,
+    bool enableOverflowMenu = true,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -330,6 +331,7 @@ class SolidScaffoldHelpers {
       onLogin: onLogin,
       constraints: constraints,
       enableProfileOverride: enableProfileOverride,
+      enableOverflowMenu: enableOverflowMenu,
     );
   }
 
