@@ -78,48 +78,34 @@ class SolidScaffoldHelpers {
     String versionToDisplay,
     ThemeData theme,
   ) {
-    // Determine if the app bar has a dark background.
-
-    final isDarkBg = config.backgroundColor != null &&
-        ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
-            Brightness.dark;
-
-    final textOpacity = isDarkBg ? 0.8 : 0.6;
-    final errorOpacity = isDarkBg ? 0.7 : 0.5;
-
     return MarkdownTooltip(
       message: config.versionConfig!.tooltip ??
           'Version: $versionToDisplay\n\n'
               'Tap to view changelog if available.',
-      child: Theme(
-        data: theme.copyWith(
-          textTheme: theme.textTheme.copyWith(
-            bodyMedium: theme.textTheme.bodySmall?.copyWith(
-              color: isDarkBg
-                  ? Colors.white.withValues(alpha: textOpacity)
-                  : theme.colorScheme.onSurface.withValues(alpha: textOpacity),
-              fontSize: 13,
-            ),
-            bodySmall: theme.textTheme.bodySmall?.copyWith(
-              color: isDarkBg
-                  ? Colors.white.withValues(alpha: textOpacity - 0.1)
-                  : theme.colorScheme.onSurface
-                      .withValues(alpha: textOpacity - 0.1),
-              fontSize: 12,
-            ),
-          ),
-          colorScheme: theme.colorScheme.copyWith(
-            error: theme.colorScheme.error.withValues(alpha: errorOpacity),
-          ),
-        ),
-        child: VersionWidget(
-          version: versionToDisplay,
-          changelogUrl: config.versionConfig!.changelogUrl,
-          showDate: config.versionConfig!.showDate,
-          userTextStyle: config.versionConfig!.userTextStyle,
-        ),
+      child: VersionWidget(
+        version: versionToDisplay,
+        changelogUrl: config.versionConfig!.changelogUrl,
+        showDate: config.versionConfig!.showDate,
+        userTextStyle: config.versionConfig!.userTextStyle ??
+            _defaultVersionTextStyle(config, theme),
       ),
     );
+  }
+
+  /// Returns a sensible default [TextStyle] for the version label when the
+  /// host app has not supplied one via [SolidVersionConfig.userTextStyle].
+
+  static TextStyle _defaultVersionTextStyle(
+    SolidAppBarConfig config,
+    ThemeData theme,
+  ) {
+    final isDarkBg = config.backgroundColor != null &&
+        ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
+            Brightness.dark;
+    final colour = isDarkBg
+        ? Colors.white.withValues(alpha: 0.8)
+        : theme.colorScheme.onSurface.withValues(alpha: 0.6);
+    return TextStyle(color: colour, fontSize: 13);
   }
 
   /// Builds theme toggle button for AppBar actions.
