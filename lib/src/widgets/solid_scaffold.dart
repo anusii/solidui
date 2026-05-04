@@ -35,6 +35,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/services/solid_profile_service.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';

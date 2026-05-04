@@ -66,6 +66,11 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
   bool _isSaving = false;
   late SolidProfilePrivacy _pendingPrivacy;
 
+  /// True once the user explicitly toggles the privacy selector.
+  /// Prevents async [loadProfile] completions from overwriting a local edit.
+
+  bool _privacyUserEdited = false;
+
   @override
   void initState() {
     super.initState();
@@ -74,12 +79,28 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     );
     _pendingAvatar = solidProfileNotifier.avatarBytes;
     _pendingPrivacy = solidProfileNotifier.privacy;
+    solidProfileNotifier.addListener(_onProfileNotifierChanged);
   }
 
   @override
   void dispose() {
+    solidProfileNotifier.removeListener(_onProfileNotifierChanged);
     _nameController.dispose();
     super.dispose();
+  }
+
+  /// Keeps [_pendingPrivacy] in sync if [solidProfileNotifier] is updated
+  /// asynchronously (e.g. [loadProfile] completes after the editor opens).
+  /// Only updates the pending value when the user has not already explicitly
+  /// toggled the privacy selector.
+
+  void _onProfileNotifierChanged() {
+    if (!mounted || _privacyUserEdited) return;
+    if (_pendingPrivacy != solidProfileNotifier.privacy) {
+      setState(() {
+        _pendingPrivacy = solidProfileNotifier.privacy;
+      });
+    }
   }
 
   bool get _hasChanges {
@@ -224,7 +245,10 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
             selected: {_pendingPrivacy},
             onSelectionChanged: _isSaving
                 ? null
-                : (values) => setState(() => _pendingPrivacy = values.first),
+                : (values) => setState(() {
+                      _pendingPrivacy = values.first;
+                      _privacyUserEdited = true;
+                    }),
           ),
           const SizedBox(height: 6),
           Text(

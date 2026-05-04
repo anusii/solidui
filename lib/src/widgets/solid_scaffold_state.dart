@@ -56,6 +56,13 @@ class SolidScaffoldState extends State<SolidScaffold> {
       }
     });
     _loadCurrentWebId();
+    // Profile is loaded reactively via _onLoginStatusChangedForProfile when
+    // solidLoginStatusNotifier confirms the user is logged in. This avoids
+    // the race condition where isUserLoggedIn() returns false immediately
+    // after a page refresh before auth state has been restored from storage.
+    // As a best-effort fallback we also attempt an eager load here; if auth
+    // is not yet ready loadProfile() will be a no-op and the listener above
+    // will retry once the login status is resolved.
     if (widget.enableProfile) {
       SolidProfileService.instance.loadProfile();
     }
@@ -83,6 +90,9 @@ class SolidScaffoldState extends State<SolidScaffold> {
     }
     solidPreferencesNotifier.addListener(_onPreferencesChanged);
     widget.controller?.addListener(_onControllerChanged);
+    if (widget.enableProfile) {
+      solidLoginStatusNotifier.addListener(_onLoginStatusChangedForProfile);
+    }
   }
 
   Future<void> _initializeNotifiers() async {
@@ -114,6 +124,9 @@ class SolidScaffoldState extends State<SolidScaffold> {
     }
     solidPreferencesNotifier.removeListener(_onPreferencesChanged);
     widget.controller?.removeListener(_onControllerChanged);
+    if (widget.enableProfile) {
+      solidLoginStatusNotifier.removeListener(_onLoginStatusChangedForProfile);
+    }
     super.dispose();
   }
 
@@ -142,6 +155,12 @@ class SolidScaffoldState extends State<SolidScaffold> {
   void _onSecurityKeyChanged() => _securityKeyHelper?.updateStatusFromService(
         widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
       );
+
+  void _onLoginStatusChangedForProfile() {
+    if (solidLoginStatusNotifier.isLoggedIn) {
+      SolidProfileService.instance.loadProfile();
+    }
+  }
 
   Future<void> refreshSecurityKeyStatus() async =>
       await _securityKeyHelper?.refresh(
