@@ -56,7 +56,7 @@ Future<dynamic> loginWebIdInputDialog(BuildContext context) async {
         : SolidConfig.defaultServerUrl;
   return showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return AlertDialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 50),
         title: const Text('Input server URL/your WebId to login'),
@@ -82,25 +82,25 @@ Future<dynamic> loginWebIdInputDialog(BuildContext context) async {
 
               if (receiverWebId.isNotEmpty &&
                   Uri.parse(receiverWebId.replaceAll('#me', '')).isAbsolute) {
-                if (!context.mounted) return;
-                await Navigator.push(
-                  context,
+                final outerNavigator = Navigator.of(context);
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext, rootNavigator: true).pop();
+                }
+                await outerNavigator.push(
                   MaterialPageRoute(
-                    builder: (context) => SolidPopupLogin(webId: receiverWebId),
+                    builder: (_) => SolidPopupLogin(webId: receiverWebId),
                   ),
                 );
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
               } else {
-                if (!context.mounted) return;
-                await alert(context, 'Please enter a valid URL/WebID');
+                if (!dialogContext.mounted) return;
+                await alert(dialogContext, 'Please enter a valid URL/WebID');
               }
             },
             child: const Text('OK'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
             },
             child: const Text('Cancel'),
           ),

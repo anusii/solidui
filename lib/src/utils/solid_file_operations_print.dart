@@ -39,6 +39,7 @@ import 'package:printing/printing.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/constants/ui_colors.dart';
+import 'package:solidui/src/utils/loading_dialog_controller.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
@@ -394,27 +395,26 @@ class SolidFilePrintOperations {
     if (!context.mounted) return;
 
     final progress = ValueNotifier<String>('Loading file content…');
-    var loadingShowing = false;
 
-    showDialog(
+    // Use a [LoadingDialogController] so the dialog can always be torn
+    // down via its captured context, even if the originating context
+    // becomes unmounted while the asynchronous work is in flight.
+
+    final loading = LoadingDialogController.show(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Preparing to Print'),
-        content: ValueListenableBuilder<String>(
-          valueListenable: progress,
-          builder: (_, message, __) => Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(width: 16),
-              Expanded(child: Text(message)),
-            ],
-          ),
+      title: 'Preparing to Print',
+      child: ValueListenableBuilder<String>(
+        valueListenable: progress,
+        builder: (_, message, __) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
+            Expanded(child: Text(message)),
+          ],
         ),
       ),
     );
-    loadingShowing = true;
 
     try {
       if (!context.mounted) return;
@@ -504,8 +504,10 @@ class SolidFilePrintOperations {
 
       if (!context.mounted) return;
 
-      Navigator.of(context).pop();
-      loadingShowing = false;
+      // Tear down the loading dialogue before opening the system print
+      // preview, so the two modal layers do not stack.
+
+      loading.close();
 
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfBytes,
@@ -514,10 +516,6 @@ class SolidFilePrintOperations {
       );
     } catch (e) {
       if (context.mounted) {
-        if (loadingShowing) {
-          Navigator.of(context).pop();
-        }
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Print error: $e'),
@@ -527,6 +525,12 @@ class SolidFilePrintOperations {
         );
       }
     } finally {
+      // Always tear down the loading dialogue and release the progress
+      // notifier, even if we returned early because the originating
+      // context became unmounted. [LoadingDialogController.close] is
+      // idempotent, so calling it again here is safe.
+
+      loading.close();
       progress.dispose();
     }
   }
