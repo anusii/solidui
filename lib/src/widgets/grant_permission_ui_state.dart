@@ -452,6 +452,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       dataFilesMap: widget.dataFilesMap,
                       onPermissionGranted: widget.onPermissionGranted,
                       buttonColor: widget.buttonColor,
+                      inviteConfig: widget.inviteConfig,
                     ),
                   ], // end of resolvedResourceName != null || permDataFile.isNotEmpty
                 ],

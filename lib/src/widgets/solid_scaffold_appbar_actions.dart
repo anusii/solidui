@@ -30,6 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
@@ -51,13 +52,20 @@ class SolidAppBarActionsManager {
     SolidThemeToggleConfig? themeToggle, {
     bool hasLogout = false,
     bool hasLogin = true,
+    SolidInviteOthersConfig? inviteConfig,
   }) {
     // Check if we need to add missing buttons (standard or custom).
 
     final existingActions = solidPreferencesNotifier.appBarActions;
     final needsInit = existingActions.isEmpty;
     final needsMerge = !needsInit &&
-        _hasMissingButtons(existingActions, config, themeToggle, hasLogout);
+        _hasMissingButtons(
+          existingActions,
+          config,
+          themeToggle,
+          hasLogout,
+          inviteConfig,
+        );
 
     if (!needsInit && !needsMerge) return;
 
@@ -125,6 +133,25 @@ class SolidAppBarActionsManager {
       );
     }
 
+    // Add Invite Others button when the application has provided an
+    // invitation configuration. Default: show in AppBar but the user can
+    // move it into the overflow menu through Layout Preferences.
+
+    if (inviteConfig != null && inviteConfig.enabled) {
+      actionEntries.add(
+        _ActionEntry(
+          item: SolidAppBarActionItem(
+            id: SolidAppBarActionIds.inviteOthers,
+            label: 'Invite Others',
+            icon: inviteConfig.effectiveIcon,
+            showInOverflow: false,
+          ),
+          initialIndex:
+              inviteConfig.priority, // Defaults to 600 (between auth & about).
+        ),
+      );
+    }
+
     // Add Logout button if the application has provided a logout callback.
     // Default: show in AppBar.
 
@@ -188,6 +215,7 @@ class SolidAppBarActionsManager {
     SolidAppBarConfig config,
     SolidThemeToggleConfig? themeToggle,
     bool hasLogout,
+    SolidInviteOthersConfig? inviteConfig,
   ) {
     final existingIds = actions.map((a) => a.id).toSet();
 
@@ -212,6 +240,12 @@ class SolidAppBarActionsManager {
 
     for (final item in config.overflowItems) {
       expectedIds.add(item.id);
+    }
+
+    // Invite Others button (only when invite config is provided).
+
+    if (inviteConfig != null && inviteConfig.enabled) {
+      expectedIds.add(SolidAppBarActionIds.inviteOthers);
     }
 
     // Logout button (only if application has provided a logout callback).

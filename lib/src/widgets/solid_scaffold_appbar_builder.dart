@@ -35,6 +35,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_profile_avatar.dart';
 import 'package:solidui/src/widgets/solid_profile_editor.dart';
@@ -66,12 +67,14 @@ class SolidScaffoldAppBarBuilder {
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
     bool? enableProfileOverride,
+    SolidInviteOthersConfig? inviteConfig,
   }) {
     SolidAppBarActionsManager.initializeIfNeeded(
       config,
       themeToggle,
       hasLogout: showLogout,
       hasLogin: showLogin,
+      inviteConfig: inviteConfig,
     );
 
     final layoutWidth = constraints.maxWidth;
@@ -110,6 +113,7 @@ class SolidScaffoldAppBarBuilder {
       showLogin: showLogin,
       onLogout: onLogout,
       onLogin: onLogin,
+      inviteConfig: inviteConfig,
     );
     actions.addAll(orderedActions);
 
@@ -126,6 +130,7 @@ class SolidScaffoldAppBarBuilder {
       showLogin: showLogin,
       onLogout: onLogout,
       onLogin: onLogin,
+      inviteConfig: inviteConfig,
     );
 
     // Append the profile avatar when enabled — rightmost position.

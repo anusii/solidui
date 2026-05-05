@@ -92,6 +92,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.onNavigateBack,
     this.shareButtonColor,
     this.titleData,
+    this.inviteConfig,
     super.key,
   })  : assert(
           // Requires ownerWebId if resource
@@ -198,6 +199,12 @@ class GrantPermissionUi extends StatefulWidget {
   /// offering 'File Url', 'Filename', and 'File Title' display options.
 
   final Map<String, String>? titleData;
+
+  /// Optional Invite Others configuration. When provided, the share
+  /// permission flow offers an "Invite this user" follow-up if the
+  /// recipient has not yet initialised their POD.
+
+  final SolidInviteOthersConfig? inviteConfig;
 
   @override
   GrantPermissionUiState createState() => GrantPermissionUiState();

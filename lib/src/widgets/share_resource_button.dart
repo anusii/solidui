@@ -34,6 +34,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 
 /// A [StatefulWidget] for sharing a resource, by either creating
 /// an access permission for a new recipient or updating the access
@@ -110,6 +111,13 @@ class ShareResourceButton extends StatefulWidget {
 
   final Color? buttonColor;
 
+  /// Optional Invite Others configuration. When provided, the
+  /// "POD not initialised" error path inside the Grant Permission
+  /// form offers a follow-up option to invite the recipient to the
+  /// application.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
   const ShareResourceButton({
     super.key,
     required this.fileNameController,
@@ -124,6 +132,7 @@ class ShareResourceButton extends StatefulWidget {
     this.dataFilesMap = const {},
     this.onPermissionGranted,
     this.buttonColor,
+    this.inviteConfig,
   });
 
   @override
@@ -212,6 +221,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
                 dataFilesMap: widget.dataFilesMap,
                 updatePermissionGrantedFunction: _updatePermissionGrantedStatus,
                 onPermissionGranted: widget.onPermissionGranted,
+                inviteConfig: widget.inviteConfig,
               );
             },
           );

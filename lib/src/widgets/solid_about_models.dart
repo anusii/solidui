@@ -32,6 +32,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
+
 /// Configuration for About dialog functionality in the Solid scaffold.
 
 class SolidAboutConfig {
@@ -100,6 +102,12 @@ class SolidAboutConfig {
 
   final bool showLayoutPreferences;
 
+  /// Optional Invite Others configuration. When supplied, an
+  /// "Invite Others" button is added to the About dialogue so users
+  /// can invite people directly from the App Info page.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
   const SolidAboutConfig({
     this.enabled = true,
     this.icon,
@@ -116,6 +124,7 @@ class SolidAboutConfig {
     this.tooltip,
     this.onPressed,
     this.showLayoutPreferences = true,
+    this.inviteConfig,
   });
 
   /// Returns the icon to display for the About button.
@@ -151,5 +160,49 @@ class SolidAboutConfig {
       return false;
     }
     return enabled;
+  }
+
+  /// Returns a copy of this configuration with the supplied fields
+  /// overridden. Useful for layering an [inviteConfig] from the
+  /// scaffold onto an [SolidAboutConfig] supplied by the application.
+
+  SolidAboutConfig copyWith({
+    bool? enabled,
+    IconData? icon,
+    String? applicationName,
+    String? applicationVersion,
+    Widget? applicationIcon,
+    String? applicationLegalese,
+    String? text,
+    Widget? customContent,
+    List<Widget>? children,
+    bool? showOnNarrowScreen,
+    bool? showOnVeryNarrowScreen,
+    int? priority,
+    String? tooltip,
+    VoidCallback? onPressed,
+    bool? showLayoutPreferences,
+    SolidInviteOthersConfig? inviteConfig,
+  }) {
+    return SolidAboutConfig(
+      enabled: enabled ?? this.enabled,
+      icon: icon ?? this.icon,
+      applicationName: applicationName ?? this.applicationName,
+      applicationVersion: applicationVersion ?? this.applicationVersion,
+      applicationIcon: applicationIcon ?? this.applicationIcon,
+      applicationLegalese: applicationLegalese ?? this.applicationLegalese,
+      text: text ?? this.text,
+      customContent: customContent ?? this.customContent,
+      children: children ?? this.children,
+      showOnNarrowScreen: showOnNarrowScreen ?? this.showOnNarrowScreen,
+      showOnVeryNarrowScreen:
+          showOnVeryNarrowScreen ?? this.showOnVeryNarrowScreen,
+      priority: priority ?? this.priority,
+      tooltip: tooltip ?? this.tooltip,
+      onPressed: onPressed ?? this.onPressed,
+      showLayoutPreferences:
+          showLayoutPreferences ?? this.showLayoutPreferences,
+      inviteConfig: inviteConfig ?? this.inviteConfig,
+    );
   }
 }
