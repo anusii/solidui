@@ -65,6 +65,7 @@ class SolidAppBarOrderedActionsBuilder {
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     SolidInviteOthersConfig? inviteConfig,
+    bool profileEnabled = false,
   }) {
     final List<_OrderedAction> orderedActions = [];
     final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
@@ -80,22 +81,29 @@ class SolidAppBarOrderedActionsBuilder {
     );
     _addCustomActions(orderedActions, config, layoutWidth, isVeryNarrowScreen);
     _addOverflowItems(orderedActions, config, isVeryNarrowScreen);
-    _addInviteOthersButton(
-      orderedActions,
-      inviteConfig,
-      config,
-      layoutWidth,
-      isVeryNarrowScreen,
-    );
-    _addAuthButton(
-      orderedActions,
-      showLogout,
-      showLogin,
-      onLogout,
-      onLogin,
-      isVeryNarrowScreen,
-      context,
-    );
+
+    // When profiles are enabled, the avatar popup owns the auth
+    // entry and the About dialog owns the Share entry, so we skip
+    // the standalone AppBar buttons here.
+
+    if (!profileEnabled) {
+      _addInviteOthersButton(
+        orderedActions,
+        inviteConfig,
+        config,
+        layoutWidth,
+        isVeryNarrowScreen,
+      );
+      _addAuthButton(
+        orderedActions,
+        showLogout,
+        showLogin,
+        onLogout,
+        onLogin,
+        isVeryNarrowScreen,
+        context,
+      );
+    }
     _addAboutButton(
       orderedActions,
       aboutConfig,
@@ -237,7 +245,12 @@ class SolidAppBarOrderedActionsBuilder {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     final isInOverflow = actionConfig?.showInOverflow ?? false;
-    final order = actionConfig?.order ?? 400;
+
+    // Default order keeps the auth button as the second-to-last
+    // AppBar action — i.e. immediately to the left of About — when
+    // the user has not customised the layout via preferences.
+
+    final order = actionConfig?.order ?? 800;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
       orderedActions.add(

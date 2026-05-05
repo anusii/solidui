@@ -45,18 +45,22 @@ import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
 class SolidScaffoldWidgetBuilder {
   /// Returns the effective About configuration, layering the
-  /// scaffold's [SolidScaffold.inviteConfig] onto the application's
-  /// [SolidAboutConfig] when the latter does not already supply one.
-  /// This ensures the App Info dialog can show an "Invite Others"
-  /// button without requiring the application to wire the config in
+  /// scaffold's [SolidScaffold.inviteConfig] and
+  /// [SolidScaffold.feedbackConfig] onto the application's
+  /// [SolidAboutConfig] when the latter does not already supply them.
+  /// This keeps the App Info dialog as the single home for Share and
+  /// Feedback without forcing applications to wire the configs in
   /// twice.
 
   static SolidAboutConfig _resolveAboutConfig(SolidScaffold widget) {
-    final about = widget.aboutConfig ?? const SolidAboutConfig();
-    if (widget.inviteConfig == null || about.inviteConfig != null) {
-      return about;
+    var about = widget.aboutConfig ?? const SolidAboutConfig();
+    if (widget.inviteConfig != null && about.inviteConfig == null) {
+      about = about.copyWith(inviteConfig: widget.inviteConfig);
     }
-    return about.copyWith(inviteConfig: widget.inviteConfig);
+    if (widget.feedbackConfig != null && about.feedbackConfig == null) {
+      about = about.copyWith(feedbackConfig: widget.feedbackConfig);
+    }
+    return about;
   }
 
   /// Returns the effective logout callback.
@@ -186,7 +190,7 @@ class SolidScaffoldWidgetBuilder {
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
           constraints: constraints,
-          enableProfileOverride: widget.enableProfile ? true : null,
+          enableProfileOverride: widget.enableProfile,
           inviteConfig: widget.inviteConfig,
         ),
       ),

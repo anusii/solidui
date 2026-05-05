@@ -62,6 +62,7 @@ class SolidAppBarOverflowHandler {
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     SolidInviteOthersConfig? inviteConfig,
+    bool profileEnabled = false,
   }) {
     final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
 
@@ -69,6 +70,13 @@ class SolidAppBarOverflowHandler {
     // On wider screens, all buttons are displayed directly in AppBar.
 
     if (!isVeryNarrowScreen) return;
+
+    // When profiles are enabled, the avatar popup hosts Logout/Login
+    // and the About dialog hosts Share, so the overflow menu must
+    // not duplicate those entries.
+
+    final effectiveShowLogout = showLogout && !profileEnabled;
+    final effectiveInviteConfig = profileEnabled ? null : inviteConfig;
 
     actions.add(
       _buildOverflowMenu(
@@ -81,14 +89,14 @@ class SolidAppBarOverflowHandler {
         shouldShowAboutInOverflow(aboutConfig, forceOverflow: true),
         context,
         hasLogoutInOverflow: shouldShowLogoutInOverflow(
-          showLogout,
+          effectiveShowLogout,
           forceOverflow: true,
         ),
         hasInviteOthersInOverflow: shouldShowInviteOthersInOverflow(
-          inviteConfig,
+          effectiveInviteConfig,
           forceOverflow: true,
         ),
-        inviteConfig: inviteConfig,
+        inviteConfig: effectiveInviteConfig,
         onLogout: onLogout,
         onLogin: onLogin,
       ),
