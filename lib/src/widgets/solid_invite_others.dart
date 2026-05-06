@@ -119,6 +119,12 @@ class InviteOthersDialog {
 
     await showDialog<void>(
       context: context,
+      // useRootNavigator: false keeps the dialog within the nearest Navigator
+      // ancestor (the SolidScaffold). Using the default true on macOS pushes
+      // the route to the root Navigator, which causes the LayoutBuilder in
+      // SolidScaffold to receive different constraints and incorrectly hides
+      // the NavigationRail (LHS menu) while the dialog is open.
+      useRootNavigator: false,
       builder: (dialogContext) => _InviteOthersPopup(
         config: config,
         message: composedMessage,
