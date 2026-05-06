@@ -98,8 +98,6 @@ class SolidProfileService {
     if (_initialised) return;
     if (!await isUserLoggedIn()) return;
 
-    await _loadPrivacyPreference();
-
     final dirUrl = await _profileDirUrl();
 
     // Create the folder if it is missing. We deliberately do not swallow
@@ -139,7 +137,11 @@ class SolidProfileService {
 
     try {
       await ensureProfileFolder();
-      await Future.wait([_loadAvatar(), _loadDisplayName()]);
+      await Future.wait([
+        _loadAvatar(),
+        _loadDisplayName(),
+        _loadPrivacyPreference(),
+      ]);
     } catch (e) {
       debugPrint('SolidProfileService.loadProfile: $e');
     } finally {
