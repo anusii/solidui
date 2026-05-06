@@ -40,6 +40,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_feedback_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
 
 /// A button that shows an About dialogue when pressed.
@@ -321,23 +323,104 @@ class SolidAbout {
       children.addAll(config.children ?? []);
     }
 
-    // Add Layout Preferences button if enabled.
+    // Build the action row shown at the bottom of the About dialog.
+    //
+    // When [showLayoutPreferences] is enabled, the row contains the
+    // AppBar (AppBar Preferences), Share (Invite Others)
+    // and Feedback buttons. Share is rendered only when an invite
+    // configuration is supplied. Feedback is always rendered: if a
+    // feedback configuration is missing or disabled, the button is
+    // greyed out as a placeholder so the visual layout stays
+    // consistent and the integration point is preserved for future
+    // releases.
+
+    final actionButtons = <Widget>[];
 
     if (config.showLayoutPreferences) {
-      children.add(const Gap(AboutConstants.contentVerticalSpacing));
-      children.add(const Divider());
-      children.add(
+      actionButtons.add(
         Builder(
-          builder: (dialogContext) => Align(
-            alignment: Alignment.centerLeft,
+          builder: (dialogContext) => MarkdownTooltip(
+            message: '''
+
+            **AppBar**
+
+            Customise which buttons appear in the AppBar, hide the
+            ones you do not need, and reorder them to taste.
+
+            ''',
             child: TextButton.icon(
               icon: const Icon(Icons.tune),
-              label: const Text('AppBar Preferences'),
+              label: const Text('AppBar'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 SolidPreferencesDialog.show(context);
               },
             ),
+          ),
+        ),
+      );
+    }
+
+    if (config.inviteConfig != null && config.inviteConfig!.enabled) {
+      actionButtons.add(
+        Builder(
+          builder: (dialogContext) => MarkdownTooltip(
+            message: config.inviteConfig!.effectiveTooltip,
+            child: TextButton.icon(
+              icon: Icon(config.inviteConfig!.effectiveIcon),
+              label: const Text('Share'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                InviteOthersDialog.show(
+                  context,
+                  config: config.inviteConfig!,
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Always show Feedback: enabled when a configuration is supplied,
+    // greyed out otherwise.
+
+    final feedback = config.feedbackConfig;
+    final feedbackInteractive = feedback?.isInteractive ?? false;
+    actionButtons.add(
+      Builder(
+        builder: (dialogContext) => MarkdownTooltip(
+          message: feedback?.effectiveTooltip ??
+              const SolidFeedbackConfig(enabled: false).effectiveTooltip,
+          child: TextButton.icon(
+            icon: Icon(feedback?.effectiveIcon ?? Icons.feedback_outlined),
+            label: Text(feedback?.effectiveLabel ?? 'Feedback'),
+            onPressed: feedbackInteractive
+                ? () {
+                    Navigator.of(dialogContext).pop();
+                    if (feedback!.onPressed != null) {
+                      feedback.onPressed!();
+                    } else if (feedback.url != null &&
+                        feedback.url!.isNotEmpty) {
+                      launchUrl(Uri.parse(feedback.url!));
+                    }
+                  }
+                : null,
+          ),
+        ),
+      ),
+    );
+
+    if (actionButtons.isNotEmpty) {
+      children.add(const Gap(AboutConstants.contentVerticalSpacing));
+      children.add(const Divider());
+      children.add(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            children: actionButtons,
           ),
         ),
       );

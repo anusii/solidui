@@ -15,6 +15,9 @@ au](https://solidcommunity.au/docs/solidui)
 
 ## 0.4.0 Refine and Tune
 
++ PROFILE -> SETTINGS/LOGOUT. ABOUT -> SHARE/FEEDBACK [0.3.38 20260505 tonypioneer]
++ Add button to share the app [0.3.37 20260505 tonypioneer]
++ Bug fix CHANGELOG colour choices [0.3.36 20260505 gjw]
 + Update SolidScaffold login/logout/profile defaults [0.3.35 20260501 gjw]
 + Bug fix Clear profile cache on logout [0.3.34 20260501 tonypioneer]
 + Bug fix App blanks on login CANCEL [0.3.33 20260501 tonypioneer]

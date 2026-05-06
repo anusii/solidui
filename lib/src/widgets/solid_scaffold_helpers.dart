@@ -35,6 +35,7 @@ import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/ui_window.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_overflow_menu_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_builder.dart';
@@ -78,48 +79,34 @@ class SolidScaffoldHelpers {
     String versionToDisplay,
     ThemeData theme,
   ) {
-    // Determine if the app bar has a dark background.
-
-    final isDarkBg = config.backgroundColor != null &&
-        ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
-            Brightness.dark;
-
-    final textOpacity = isDarkBg ? 0.8 : 0.6;
-    final errorOpacity = isDarkBg ? 0.7 : 0.5;
-
     return MarkdownTooltip(
       message: config.versionConfig!.tooltip ??
           'Version: $versionToDisplay\n\n'
               'Tap to view changelog if available.',
-      child: Theme(
-        data: theme.copyWith(
-          textTheme: theme.textTheme.copyWith(
-            bodyMedium: theme.textTheme.bodySmall?.copyWith(
-              color: isDarkBg
-                  ? Colors.white.withValues(alpha: textOpacity)
-                  : theme.colorScheme.onSurface.withValues(alpha: textOpacity),
-              fontSize: 13,
-            ),
-            bodySmall: theme.textTheme.bodySmall?.copyWith(
-              color: isDarkBg
-                  ? Colors.white.withValues(alpha: textOpacity - 0.1)
-                  : theme.colorScheme.onSurface
-                      .withValues(alpha: textOpacity - 0.1),
-              fontSize: 12,
-            ),
-          ),
-          colorScheme: theme.colorScheme.copyWith(
-            error: theme.colorScheme.error.withValues(alpha: errorOpacity),
-          ),
-        ),
-        child: VersionWidget(
-          version: versionToDisplay,
-          changelogUrl: config.versionConfig!.changelogUrl,
-          showDate: config.versionConfig!.showDate,
-          userTextStyle: config.versionConfig!.userTextStyle,
-        ),
+      child: VersionWidget(
+        version: versionToDisplay,
+        changelogUrl: config.versionConfig!.changelogUrl,
+        showDate: config.versionConfig!.showDate,
+        userTextStyle: config.versionConfig!.userTextStyle ??
+            _defaultVersionTextStyle(config, theme),
       ),
     );
+  }
+
+  /// Returns a sensible default [TextStyle] for the version label when the
+  /// host app has not supplied one via [SolidVersionConfig.userTextStyle].
+
+  static TextStyle _defaultVersionTextStyle(
+    SolidAppBarConfig config,
+    ThemeData theme,
+  ) {
+    final isDarkBg = config.backgroundColor != null &&
+        ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
+            Brightness.dark;
+    final colour = isDarkBg
+        ? Colors.white.withValues(alpha: 0.8)
+        : theme.colorScheme.onSurface.withValues(alpha: 0.6);
+    return TextStyle(color: colour, fontSize: 13);
   }
 
   /// Builds theme toggle button for AppBar actions.
@@ -151,6 +138,8 @@ class SolidScaffoldHelpers {
     bool hasAboutInOverflow, {
     bool hasLogoutInOverflow = false,
     bool isLoggedIn = true,
+    bool hasInviteOthersInOverflow = false,
+    SolidInviteOthersConfig? inviteConfig,
   }) =>
       SolidOverflowMenuHelpers.buildOverflowMenuItems(
         config,
@@ -161,6 +150,8 @@ class SolidScaffoldHelpers {
         hasAboutInOverflow,
         hasLogoutInOverflow: hasLogoutInOverflow,
         isLoggedIn: isLoggedIn,
+        hasInviteOthersInOverflow: hasInviteOthersInOverflow,
+        inviteConfig: inviteConfig,
       );
 
   /// Builds overflow icon buttons for wider screens.
@@ -310,6 +301,7 @@ class SolidScaffoldHelpers {
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
     bool? enableProfileOverride,
+    SolidInviteOthersConfig? inviteConfig,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -330,6 +322,7 @@ class SolidScaffoldHelpers {
       onLogin: onLogin,
       constraints: constraints,
       enableProfileOverride: enableProfileOverride,
+      inviteConfig: inviteConfig,
     );
   }
 
