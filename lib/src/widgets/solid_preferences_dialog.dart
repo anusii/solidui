@@ -164,9 +164,9 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
       return 100 + index;
     }
 
-    // Logout: 300.
+    // Logout: 800 — second-to-last, just left of About.
 
-    if (actionId == SolidAppBarActionIds.logout) return 300;
+    if (actionId == SolidAppBarActionIds.logout) return 800;
 
     // About: 900.
 

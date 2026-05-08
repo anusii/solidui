@@ -32,9 +32,12 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
 
+import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_profile_avatar.dart';
 import 'package:solidui/src/widgets/solid_profile_editor.dart';
@@ -66,8 +69,11 @@ class SolidScaffoldAppBarBuilder {
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
     bool? enableProfileOverride,
+    SolidInviteOthersConfig? inviteConfig,
     bool enableOverflowMenu = true,
   }) {
+    final profileEnabled = enableProfileOverride ?? config.enableProfile;
+
     // Publish the overflow setting so that downstream UI such as the
     // preferences dialogue (opened from the About dialogue) can read the
     // current scaffold's choice without direct parameter plumbing.
@@ -79,6 +85,8 @@ class SolidScaffoldAppBarBuilder {
       themeToggle,
       hasLogout: showLogout,
       hasLogin: showLogin,
+      inviteConfig: inviteConfig,
+      profileEnabled: profileEnabled,
     );
 
     final layoutWidth = constraints.maxWidth;
@@ -117,6 +125,8 @@ class SolidScaffoldAppBarBuilder {
       showLogin: showLogin,
       onLogout: onLogout,
       onLogin: onLogin,
+      inviteConfig: inviteConfig,
+      profileEnabled: profileEnabled,
       enableOverflowMenu: enableOverflowMenu,
     );
     actions.addAll(orderedActions);
@@ -134,16 +144,23 @@ class SolidScaffoldAppBarBuilder {
       showLogin: showLogin,
       onLogout: onLogout,
       onLogin: onLogin,
+      inviteConfig: inviteConfig,
+      profileEnabled: profileEnabled,
       enableOverflowMenu: enableOverflowMenu,
     );
 
     // Append the profile avatar when enabled — rightmost position.
 
-    if (enableProfileOverride ?? config.enableProfile) {
+    if (profileEnabled) {
       actions.add(
         Padding(
           padding: const EdgeInsets.only(right: 8),
-          child: _buildProfileChip(context),
+          child: _ProfileMenuChip(
+            showLogout: showLogout,
+            showLogin: showLogin,
+            onLogout: onLogout,
+            onLogin: onLogin,
+          ),
         ),
       );
     }
@@ -176,37 +193,190 @@ class SolidScaffoldAppBarBuilder {
       actions: actions.isEmpty ? null : actions,
     );
   }
+}
 
-  /// Builds the profile avatar chip in the app bar. The display name is
-  /// surfaced as a hover tooltip (rendered via [MarkdownTooltip]) and the
-  /// existing profile editor dialog opens on tap.
+/// Avatar chip surfaced on the right of the AppBar when user profiles
+/// are enabled. Tapping the avatar opens a small popup menu that hosts
+/// the Settings entry (which opens the existing profile editor with
+/// display name, avatar, and privacy controls) and an auth entry
+/// (Logout when signed in, Login when signed out).
 
-  static Widget _buildProfileChip(BuildContext context) {
+class _ProfileMenuChip extends StatefulWidget {
+  final bool showLogout;
+  final bool showLogin;
+  final void Function(BuildContext)? onLogout;
+  final void Function(BuildContext)? onLogin;
+
+  const _ProfileMenuChip({
+    required this.showLogout,
+    required this.showLogin,
+    required this.onLogout,
+    required this.onLogin,
+  });
+
+  @override
+  State<_ProfileMenuChip> createState() => _ProfileMenuChipState();
+}
+
+class _ProfileMenuChipState extends State<_ProfileMenuChip> {
+  bool _isLoggedIn = false;
+  bool _statusLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshLoginStatus();
+  }
+
+  /// Refreshes the cached login status used to decide which auth
+  /// entry to render in the popup. Errors are swallowed and treated
+  /// as "logged out" so the avatar remains usable when the auth
+  /// stack is unavailable.
+
+  Future<void> _refreshLoginStatus() async {
+    try {
+      final webId = await getWebId();
+      if (webId == null || webId.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _isLoggedIn = false;
+            _statusLoaded = true;
+          });
+        }
+        return;
+      }
+      final loggedIn = await isUserLoggedIn();
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = loggedIn;
+          _statusLoaded = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('ProfileMenuChip: login status check failed: $e');
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = false;
+          _statusLoaded = true;
+        });
+      }
+    }
+  }
+
+  void _handleSelection(String value) {
+    switch (value) {
+      case 'settings':
+        SolidProfileEditor.show(context);
+        break;
+      case 'logout':
+        if (widget.onLogout != null) {
+          widget.onLogout!(context);
+        } else {
+          SolidAuthHandler.instance.handleLogout(context);
+        }
+        break;
+      case 'login':
+        if (widget.onLogin != null) {
+          widget.onLogin!(context);
+        } else {
+          SolidAuthHandler.instance.handleLogin(context);
+        }
+        break;
+    }
+
+    // Refresh after the action so the popup reflects the new state
+    // the next time the avatar is tapped.
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _refreshLoginStatus();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: solidProfileNotifier,
       builder: (context, _) {
         final displayName = solidProfileNotifier.displayName?.trim();
         final hasName = displayName != null && displayName.isNotEmpty;
-
-        // Fall back to a generic prompt when the user has not yet set a
-        // display name so the tooltip still tells them what tapping does.
-
         final tooltipMessage = hasName
-            ? '**$displayName**\n\nTap to edit your profile.'
-            : 'Tap to set your display name and profile picture.';
-
-        final avatar = InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: () => SolidProfileEditor.show(context),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            child: SolidProfileAvatar(size: 32),
-          ),
-        );
+            ? '**$displayName**\n\nTap to manage your profile.'
+            : 'Tap to manage your profile, settings, and session.';
 
         return MarkdownTooltip(
           message: tooltipMessage,
-          child: avatar,
+          child: PopupMenuButton<String>(
+            tooltip: '',
+            position: PopupMenuPosition.under,
+            offset: const Offset(0, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onOpened: _refreshLoginStatus,
+            onSelected: _handleSelection,
+            itemBuilder: (menuContext) {
+              final items = <PopupMenuEntry<String>>[];
+
+              // Settings — always available; opens the profile editor
+              // dialog hosting display name, avatar and privacy.
+
+              items.add(
+                const PopupMenuItem<String>(
+                  value: 'settings',
+                  child: Row(
+                    children: [
+                      Icon(Icons.settings_outlined, size: 20),
+                      SizedBox(width: 12),
+                      Text('Settings'),
+                    ],
+                  ),
+                ),
+              );
+
+              // Auth entry — Logout when signed in, Login otherwise.
+              // Both entries respect the scaffold's showLogout /
+              // showLogin flags so applications using a dedicated
+              // login screen can suppress the Login entry here.
+
+              if (!_statusLoaded || _isLoggedIn) {
+                if (widget.showLogout) {
+                  items.add(const PopupMenuDivider());
+                  items.add(
+                    const PopupMenuItem<String>(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          Icon(Icons.logout, size: 20),
+                          SizedBox(width: 12),
+                          Text('Logout'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              } else if (widget.showLogin) {
+                items.add(const PopupMenuDivider());
+                items.add(
+                  const PopupMenuItem<String>(
+                    value: 'login',
+                    child: Row(
+                      children: [
+                        Icon(Icons.login, size: 20),
+                        SizedBox(width: 12),
+                        Text('Login'),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              return items;
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: SolidProfileAvatar(size: 32),
+            ),
+          ),
         );
       },
     );

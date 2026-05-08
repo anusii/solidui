@@ -40,6 +40,8 @@ import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_feedback_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_controller.dart';
@@ -238,14 +240,34 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Optional Invite Others configuration. When provided, the
+  /// "Invite Others" (Share) entry is surfaced from the About dialog.
+  /// When [enableProfile] is `false`, the legacy behaviour is kept:
+  /// an invite button is also added to the AppBar action list and the
+  /// user can move it into the overflow menu via Layout Preferences.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
+  /// Optional Feedback configuration surfaced from the About dialog.
+  /// When `null`, the About dialog still shows a Feedback placeholder
+  /// (greyed out) so the layout is consistent and applications retain
+  /// a clear integration point for a future feedback flow.
+
+  final SolidFeedbackConfig? feedbackConfig;
+
   /// Option to force the navigation rail to be hidden.
 
   final bool hideNavRail;
 
   /// Whether to enable the POD-backed profile feature (avatar + display name).
   /// When true, the profile avatar and display name are shown in both the
-  /// AppBar (right side) and the navigation drawer header.
-  /// Profile data is automatically loaded from the POD on first build.
+  /// AppBar (right side) and the navigation drawer header. The avatar
+  /// hosts a popup menu with Settings (which opens the profile editor)
+  /// and Logout/Login, so the standalone AppBar Logout/Share buttons are
+  /// suppressed in this mode. When false, the Logout button is rendered
+  /// as the second-to-last AppBar action — immediately to the left of
+  /// the About button. Profile data is automatically loaded from the
+  /// POD on first build. Defaults to true.
 
   final bool enableProfile;
 
@@ -284,8 +306,8 @@ class SolidScaffold extends StatefulWidget {
     this.userInfo,
     this.onLogout,
     this.onLogin,
-    this.showLogout = false,
-    this.showLogin = false,
+    this.showLogout = true,
+    this.showLogin = true,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,
@@ -308,6 +330,8 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.inviteConfig,
+    this.feedbackConfig,
     this.hideNavRail = false,
     this.enableProfile = true,
     this.enableOverflowMenu = true,

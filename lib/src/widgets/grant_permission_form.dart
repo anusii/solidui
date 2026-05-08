@@ -32,12 +32,15 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart'
     show
         ActionColors,
         GrantPermFormLayout,
+        InviteOthersDialog,
+        SolidInviteOthersConfig,
         debugPrintException,
         debugPrintFailure,
         failureMsg,
@@ -129,6 +132,13 @@ class GrantPermissionForm extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional Invite Others configuration. When provided, the
+  /// "POD not initialised" error path offers the user a follow-up
+  /// option to invite the recipient(s) to set up their own POD and
+  /// try the application.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
   const GrantPermissionForm({
     super.key,
     required this.updatePermissionsFunction,
@@ -142,6 +152,7 @@ class GrantPermissionForm extends StatefulWidget {
     required this.updatePermissionGrantedFunction,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.inviteConfig,
   });
 
   @override
@@ -216,6 +227,75 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// context. This provides an alert dialog over the top of the
   /// grant permission form dialog.
   Future<void> _alert(String msg) async => alert(context, msg);
+
+  /// Handles the case where granting failed because one or more
+  /// recipients have not yet set up their POD. When an
+  /// [SolidInviteOthersConfig] is provided, the user is offered a
+  /// follow-up option to send the application's invitation
+  /// directly. Otherwise the original snackbar behaviour is kept so
+  /// existing call sites continue to work.
+
+  Future<void> _handleNotInitialisedRecipients() async {
+    final invite = widget.inviteConfig;
+    if (invite == null) {
+      _showSnackBar(podNotInitMsg, ActionColors.warning);
+      return;
+    }
+
+    if (!context.mounted) return;
+    if (!mounted) return;
+    final shouldInvite = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Recipient has not set up a POD'),
+          content: const Text(
+            'One or more of the WebIDs you entered have not yet '
+            'initialised their POD. Ask them to log in once to set up '
+            'their data vault — then you can grant access. Would you '
+            'like to send them an invitation now?',
+          ),
+          actions: [
+            MarkdownTooltip(
+              message: '''
+
+              **Not now**
+
+              Dismiss this dialog without sending an invitation. You
+              can grant access again once the recipient has logged
+              into the app and set up their POD.
+
+              ''',
+              child: TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Not now'),
+              ),
+            ),
+            MarkdownTooltip(
+              message: '''
+
+              **Invite this user**
+
+              Open the Invite Others dialog so you can send the
+              recipient a link to the app, prompting them to set up
+              their data vault.
+
+              ''',
+              child: TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Invite'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) return;
+    if (shouldInvite == true) {
+      await InviteOthersDialog.show(context, config: invite);
+    }
+  }
 
   /// Private function to show snackbar in share resource button context
   Future<void> _showSnackBar(
@@ -428,7 +508,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                     selectedPermList,
                   );
                 } else if (result == SolidFunctionCallStatus.notInitialised) {
-                  _showSnackBar(podNotInitMsg, ActionColors.warning);
+                  await _handleNotInitialisedRecipients();
                 } else {
                   await _alert(updatePermissionMsg);
                 }
