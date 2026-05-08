@@ -485,7 +485,7 @@ Preferences are stored per application and persist across restarts.
 toggle cycle and how switching behaves:
 
 | Option | Default | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `lightModeEnabled` | `true` | Include Light mode in the toggle cycle. When enabled, users can switch to a light theme optimised for bright viewing conditions. |
 | `darkModeEnabled` | `true` | Include Dark mode in the toggle cycle. When enabled, users can switch to a dark theme for low-light viewing. |
 | `systemModeEnabled` | `true` | Include System mode in the toggle cycle. When enabled, the app follows the device's light/dark setting. |
@@ -1156,7 +1156,7 @@ class NavigationConstants {
 #### Responsive Behaviour Summary
 
 | Screen Width (px) | Navigation | App Bar Actions | Status Bar | File Layout |
-|------|------------|-----------------|-----------|-------------|
+| ------ | ------------ | ----------------- | ----------- | ------------- |
 | ≥800 | SolidNavBar | All actions visible | Full status | Side-by-side |
 | 400-799 | SolidNavDrawer | Selected actions + overflow | Compact | Stacked |
 | <400 | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |

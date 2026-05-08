@@ -192,7 +192,6 @@ class SolidScaffoldWidgetBuilder {
           constraints: constraints,
           enableProfileOverride: widget.enableProfile,
           inviteConfig: widget.inviteConfig,
-          enableProfileOverride: widget.enableProfile ? true : null,
           enableOverflowMenu: widget.enableOverflowMenu,
         ),
       ),
