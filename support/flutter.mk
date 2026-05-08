@@ -547,7 +547,7 @@ lychee:
 
 .PHONY: docs
 docs::
-	rsync -avzh doc/api/ root@solidcommunity.au:/var/www/html/docs/$(APP)/
+	rsync -avzh doc/api/ root@solidcommunity.au:/var/www/html/web/docs/$(APP)/
 
 .PHONY: versions
 versions:
