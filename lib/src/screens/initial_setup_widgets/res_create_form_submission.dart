@@ -30,6 +30,8 @@
 
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -162,8 +164,15 @@ ElevatedButton resCreateFormSubmission(
   return ElevatedButton(
     onPressed: () async {
       if (formKey.currentState?.saveAndValidate() ?? false) {
-        // ignore: unawaited_futures
-        showAnimationDialog(context, 17, 'Creating resources...', false, null);
+        unawaited(
+          showAnimationDialog(
+            context,
+            17,
+            'Creating resources...',
+            false,
+            null,
+          ),
+        );
         final formData = formKey.currentState?.value as Map;
 
         final securityKey = formData[securityKeyStr].toString();

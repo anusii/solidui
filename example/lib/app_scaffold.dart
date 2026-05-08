@@ -120,6 +120,7 @@ class AppScaffold extends StatelessWidget {
         showInAppBarActions: true,
       ),
       enableProfile: true,
+      enableOverflowMenu: true,
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
       child: const Home(),
     );

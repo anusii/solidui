@@ -10,8 +10,9 @@ utilised by the flutter version_widget package.
 The package is available from
 [pub.dev](https://pub.dev/packages/solidui).
 
-Coding documentation is available from [solid community
-au](https://solidcommunity.au/docs/solidui)
+[//]: # (Coding documentation is available from [solid community)
+
+[//]: # (au]&#40;https://solidcommunity.au/docs/solidui&#41;)
 
 ## 0.4.0 Refine and Tune
 

@@ -232,10 +232,14 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   bool get canGoUp => currentPath != _homePath && currentPath.isNotEmpty;
 
   /// Public wrapper around [setState].
-  /// [setState] is `@protected` and cannot be called directly from extensions.
+  ///
+  /// Extensions on this state cannot call [setState] directly because the
+  /// framework declares it as `@protected`. This helper forwards to it so the
+  /// extension methods can request a rebuild without subclassing.
 
-  // ignore: use_setters_to_change_properties
-  void updateState(VoidCallback fn) => setState(fn);
+  void updateState(VoidCallback fn) {
+    setState(fn);
+  }
 
   @override
   void initState() {

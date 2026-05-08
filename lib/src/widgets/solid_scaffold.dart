@@ -271,6 +271,21 @@ class SolidScaffold extends StatefulWidget {
 
   final bool enableProfile;
 
+  /// Whether to enable the AppBar overflow menu (the three-dot menu).
+  ///
+  /// When true (the default), buttons can be moved into an overflow menu via
+  /// AppBar Preferences and, on very narrow screens, buttons marked as
+  /// "move to overflow" collapse into a three-dot popup menu. The overflow
+  /// button itself is only rendered if at least one visible button is set to
+  /// appear in the menu.
+  ///
+  /// When false, the overflow feature is fully disabled: the AppBar
+  /// Preferences dialogue hides the per-button "move to overflow" toggle,
+  /// the three-dot popup menu is never shown, and every visible button is
+  /// rendered directly in the AppBar regardless of window width.
+
+  final bool enableOverflowMenu;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -319,6 +334,7 @@ class SolidScaffold extends StatefulWidget {
     this.feedbackConfig,
     this.hideNavRail = false,
     this.enableProfile = true,
+    this.enableOverflowMenu = true,
   });
 
   @override
