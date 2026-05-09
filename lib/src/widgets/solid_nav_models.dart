@@ -240,6 +240,13 @@ class SolidVersionConfig {
 
   final String? changelogUrl;
 
+  /// Whether to show the version number text alongside any update affordance.
+  /// Defaults to true. Set to false to hide the version label while still
+  /// allowing the discover-and-download button to surface when a newer
+  /// release is detected.
+
+  final bool showVersion;
+
   /// Whether to show the date alongside the version.
 
   final bool showDate;
@@ -254,14 +261,36 @@ class SolidVersionConfig {
 
   final TextStyle? userTextStyle;
 
+  /// Whether to show the discover-and-download button when a newer
+  /// version is detected. Defaults to false (hidden). The button is
+  /// only rendered when this flag is enabled, a newer release is found
+  /// in the CHANGELOG and [downloadUrl] is provided.
+
+  final bool showUpdateButton;
+
+  /// URL launched when the discover-and-download button is tapped.
+  /// Typically points at an installer (.exe, .apk, .dmg) or release
+  /// page. Required for the update button to be rendered.
+
+  final String? downloadUrl;
+
+  /// Optional label shown next to the download icon on the update
+  /// button. Defaults to `Update` when null.
+
+  final String? updateButtonLabel;
+
   /// Creates version configuration.
 
   const SolidVersionConfig({
     this.version,
     this.changelogUrl,
+    this.showVersion = true,
     this.showDate = true,
     this.tooltip,
     this.userTextStyle,
+    this.showUpdateButton = false,
+    this.downloadUrl,
+    this.updateButtonLabel,
   });
 }
 

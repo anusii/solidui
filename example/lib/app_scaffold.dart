@@ -70,6 +70,8 @@ class AppScaffold extends StatelessWidget {
           changelogUrl: 'https://github.com/anusii/solidpod/blob/dev/'
               'CHANGELOG.md',
           showDate: true,
+          showUpdateButton: true,
+          downloadUrl: 'https://github.com/anusii/solidpod/releases/latest',
         ),
       ),
       statusBar: const SolidStatusBarConfig(
