@@ -18,7 +18,7 @@ The package is available from
 
 + Support an UPDATE button when version is updated [0.3.42 20260510 tonypioneer]
 + Bug fix popup animation blocking return to screen [0.3.41 20260510 tonypioneer]
-+ Permission flow - popup rather than disappearing snack on fail [0.3.40 20260510 gjw]
++ Permission flow - popup instead disappearing snack on fail [0.3.40 20260510 gjw]
 + Bug fix: missing menu after invite; overflow menu [0.3.39 20260509 tonypioneer]
 + Profile -> Settings/Logout. About -> Share/Feedback [0.3.38 20260505 tonypioneer]
 + Add button to share the app [0.3.37 20260505 tonypioneer]
