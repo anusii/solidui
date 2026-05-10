@@ -37,6 +37,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/constants/ui_colors.dart';
+import 'package:solidui/src/utils/loading_dialog_controller.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
@@ -150,22 +151,13 @@ class SolidFileDownloadOperations {
 
       if (!context.mounted) return;
 
-      // Show loading dialog.
+      // Show loading dialog via a controller, so it can always be torn
+      // down in the `finally` block — even if the originating context
+      // becomes unmounted while the download is in flight.
 
-      showDialog(
+      final loading = LoadingDialogController.show(
         context: context,
-        barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          title: Text('Downloading'),
-          content: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Please wait...'),
-            ],
-          ),
-        ),
+        title: 'Downloading',
       );
 
       try {
@@ -191,10 +183,6 @@ class SolidFileDownloadOperations {
 
         if (!context.mounted) return;
 
-        // Close loading dialog.
-
-        Navigator.of(context).pop();
-
         if (fileContent == SolidFunctionCallStatus.fail.toString() ||
             fileContent == SolidFunctionCallStatus.notLoggedIn.toString()) {
           throw Exception(
@@ -219,12 +207,6 @@ class SolidFileDownloadOperations {
         );
       } catch (e) {
         if (context.mounted) {
-          // Close loading dialog if still open.
-
-          Navigator.of(context).pop();
-
-          // Show error message.
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Download error: ${e.toString()}'),
@@ -233,6 +215,11 @@ class SolidFileDownloadOperations {
             ),
           );
         }
+      } finally {
+        // Always tear down the loading dialog, even if we returned early
+        // because the originating context became unmounted.
+
+        loading.close();
       }
     } catch (e) {
       if (context.mounted) {
@@ -328,32 +315,30 @@ class SolidFileDownloadOperations {
 
       if (!context.mounted) return;
 
-      // Show a progress dialogue while downloading and zipping.
+      // Show a progress dialogue while downloading and zipping. We use a
+      // [LoadingDialogController] so the dialog can be torn down
+      // reliably in the `finally` block, regardless of whether the
+      // originating context is still mounted.
 
       final progressNotifier = ValueNotifier<double>(0);
 
-      showDialog(
+      final loading = LoadingDialogController.show(
         context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) {
-          return AlertDialog(
-            title: const Text('Downloading'),
-            content: ValueListenableBuilder<double>(
-              valueListenable: progressNotifier,
-              builder: (_, progress, __) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    LinearProgressIndicator(value: progress),
-                    const SizedBox(height: 12),
-                    Text('Reading files… '
-                        '${(progress * 100).round()}%'),
-                  ],
-                );
-              },
-            ),
-          );
-        },
+        title: 'Downloading',
+        child: ValueListenableBuilder<double>(
+          valueListenable: progressNotifier,
+          builder: (_, progress, __) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(value: progress),
+                const SizedBox(height: 12),
+                Text('Reading files… '
+                    '${(progress * 100).round()}%'),
+              ],
+            );
+          },
+        ),
       );
 
       try {
@@ -367,8 +352,6 @@ class SolidFileDownloadOperations {
         );
 
         if (!context.mounted) return;
-
-        Navigator.of(context).pop();
 
         if (!result.hasContent) {
           // Neither files nor empty directories were added – nothing
@@ -422,8 +405,6 @@ class SolidFileDownloadOperations {
         );
       } catch (e) {
         if (context.mounted) {
-          Navigator.of(context).pop();
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Download failed: ${e.toString()}'),
@@ -433,6 +414,11 @@ class SolidFileDownloadOperations {
           );
         }
       } finally {
+        // Always tear down the progress dialogue and dispose the
+        // notifier, even if we returned early because the originating
+        // context became unmounted.
+
+        loading.close();
         progressNotifier.dispose();
       }
     } catch (e) {
