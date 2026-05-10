@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Permission flow - popup rather than disappearing snack on fail [0.3.40 20260510 gjw]
 + Bug fix: missing menu after invite; overflow menu [0.3.39 20260509 tonypioneer]
 + Profile -> Settings/Logout. About -> Share/Feedback [0.3.38 20260505 tonypioneer]
 + Add button to share the app [0.3.37 20260505 tonypioneer]

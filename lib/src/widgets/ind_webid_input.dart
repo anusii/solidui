@@ -57,6 +57,7 @@ class IndWebIdTextInput extends StatefulWidget {
   const IndWebIdTextInput({
     required this.onSubmitFunction,
     this.uniqRecipWebIdList,
+    this.onTextChanged,
     super.key,
   });
 
@@ -65,6 +66,11 @@ class IndWebIdTextInput extends StatefulWidget {
 
   /// List of unique recipient webIds
   final List<String>? uniqRecipWebIdList;
+
+  /// Optional callback fired on every keystroke with the current raw text.
+  /// Used by the parent form to track the field value so it can fall back to
+  /// it when Grant Permission is pressed before Select WebId is clicked.
+  final void Function(String)? onTextChanged;
 
   @override
   State<IndWebIdTextInput> createState() => _IndWebIdTextInputState();
@@ -177,6 +183,8 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
                   _textEntered = true;
                   // Filter suggestions
                   filterSuggestions(value);
+                  // Notify parent of current raw text
+                  widget.onTextChanged?.call(value);
                 }),
               ),
               smallGapV,
