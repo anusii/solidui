@@ -184,6 +184,12 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
   bool permissionsGrantedSuccessfully = false;
 
+  /// Pending text typed into the individual WebID field but not yet
+  /// confirmed via "Select WebId". Used as a fallback when Grant
+  /// Permission is pressed without explicitly selecting a recipient.
+
+  String _pendingIndWebId = '';
+
   /// read permission checked flag
 
   bool readChecked = false;
@@ -235,10 +241,33 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// directly. Otherwise the original snackbar behaviour is kept so
   /// existing call sites continue to work.
 
+  /// Shows a dismissable error dialog whose content is constrained to
+  /// approximately 60 characters wide.
+
+  Future<void> _showErrorDialog(String title, String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Text(message),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _handleNotInitialisedRecipients() async {
     final invite = widget.inviteConfig;
     if (invite == null) {
-      _showSnackBar(podNotInitMsg, ActionColors.warning);
+      await _showErrorDialog('Recipient POD not initialised', podNotInitMsg);
       return;
     }
 
@@ -411,6 +440,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                   IndWebIdInputScreen(
                     onSubmitFunction: updateIndWebIdInput,
                     dataFilesMap: widget.dataFilesMap,
+                    onTextChanged: (text) =>
+                        setState(() => _pendingIndWebId = text.trim()),
                   ),
                 ] else if (selectedRecipientType == RecipientType.group) ...[
                   // Select group of recipients if required
@@ -445,6 +476,14 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
       actions: <Widget>[
         TextButton(
           onPressed: () async {
+            // If the user typed a WebID in the individual field but didn't
+            // press "Select WebId", use that value as the recipient now.
+            if (selectedRecipientType == RecipientType.individual &&
+                finalWebIdList.isEmpty &&
+                _pendingIndWebId.isNotEmpty) {
+              updateIndWebIdInput(_pendingIndWebId);
+            }
+
             // Grant Permission and update permission map
             // used by permission table
 
@@ -498,8 +537,10 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                   // Trigger the onPermissionGranted callback if provided
                   widget.onPermissionGranted?.call();
                 } else if (result == SolidFunctionCallStatus.fail) {
-                  // More detailed error message with troubleshooting tips
-                  _showSnackBar(failureMsg, ActionColors.error);
+                  await _showErrorDialog(
+                    'Permission granting failed',
+                    failureMsg,
+                  );
 
                   // Also log to console for debugging
                   debugPrintFailure(

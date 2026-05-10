@@ -36,6 +36,17 @@ import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
 
+/// Tracks whether the AppBar overflow menu feature is enabled for the
+/// currently mounted scaffold.
+
+class SolidAppBarOverflowController {
+  /// Whether the overflow menu feature is enabled.
+  /// Defaults to true to preserve existing behaviour for callers that have
+  /// not yet adopted the new [SolidScaffold.enableOverflowMenu] parameter.
+
+  static bool isEnabled = true;
+}
+
 /// Manages AppBar action initialisation and configuration.
 
 class SolidAppBarActionsManager {

@@ -39,6 +39,7 @@ import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
@@ -63,7 +64,13 @@ class SolidAppBarOverflowHandler {
     void Function(BuildContext)? onLogin,
     SolidInviteOthersConfig? inviteConfig,
     bool profileEnabled = false,
+    bool enableOverflowMenu = true,
   }) {
+    // When the overflow feature is disabled at scaffold level, never render
+    // the three-dot menu; every visible button stays in the AppBar.
+
+    if (!enableOverflowMenu) return;
+
     final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
 
     // Only show overflow menu on very narrow screens.
@@ -77,6 +84,12 @@ class SolidAppBarOverflowHandler {
 
     final effectiveShowLogout = showLogout && !profileEnabled;
     final effectiveInviteConfig = profileEnabled ? null : inviteConfig;
+
+    // Skip rendering the overflow button when no visible action is actually
+    // routed into the overflow menu. This keeps the AppBar tidy when the
+    // user (or the application defaults) leaves the menu empty.
+
+    if (!_hasItemsInOverflow(themeToggle, aboutConfig, showLogout)) return;
 
     actions.add(
       _buildOverflowMenu(
@@ -101,6 +114,37 @@ class SolidAppBarOverflowHandler {
         onLogin: onLogin,
       ),
     );
+  }
+
+  /// Returns true when at least one visible AppBar action is configured to
+  /// appear inside the overflow menu. Used to suppress the three-dot button
+  /// when the menu would otherwise render empty.
+
+  static bool _hasItemsInOverflow(
+    SolidThemeToggleConfig? themeToggle,
+    SolidAboutConfig aboutConfig,
+    bool hasLogout,
+  ) {
+    final actions = solidPreferencesNotifier.appBarActions;
+    for (final action in actions) {
+      if (!action.isVisible || !action.showInOverflow) continue;
+
+      // Filter out buttons whose underlying feature is disabled even though
+      // the preference still lists them.
+
+      if (action.id == SolidAppBarActionIds.themeToggle &&
+          (themeToggle == null || !themeToggle.enabled)) {
+        continue;
+      }
+      if (action.id == SolidAppBarActionIds.about && !aboutConfig.enabled) {
+        continue;
+      }
+      if (action.id == SolidAppBarActionIds.logout && !hasLogout) {
+        continue;
+      }
+      return true;
+    }
+    return false;
   }
 
   /// Determines if the Invite Others entry should appear in the

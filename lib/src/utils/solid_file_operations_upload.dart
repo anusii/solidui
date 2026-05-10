@@ -38,6 +38,7 @@ import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/is_text_file.dart';
+import 'package:solidui/src/utils/loading_dialog_controller.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
@@ -64,22 +65,13 @@ class SolidFileUploadOperations {
 
       if (!context.mounted) return;
 
-      // Show loading dialog.
+      // Show loading dialog via a controller, so it can be torn down
+      // reliably in the `finally` block even if the originating context
+      // is unmounted while the upload is in flight.
 
-      showDialog(
+      final loading = LoadingDialogController.show(
         context: context,
-        barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          title: Text('Uploading'),
-          content: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Please wait...'),
-            ],
-          ),
-        ),
+        title: 'Uploading',
       );
 
       try {
@@ -133,10 +125,6 @@ class SolidFileUploadOperations {
 
         if (!context.mounted) return;
 
-        // Close loading dialog.
-
-        Navigator.of(context).pop();
-
         // Show success message.
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -152,12 +140,6 @@ class SolidFileUploadOperations {
         onSuccess?.call();
       } catch (e) {
         if (context.mounted) {
-          // Close loading dialog if still open.
-
-          Navigator.of(context).pop();
-
-          // Show error message.
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Upload error: ${e.toString()}'),
@@ -166,6 +148,11 @@ class SolidFileUploadOperations {
             ),
           );
         }
+      } finally {
+        // Always tear down the loading dialog, even if we returned early
+        // because the originating context became unmounted.
+
+        loading.close();
       }
     } catch (e) {
       if (context.mounted) {

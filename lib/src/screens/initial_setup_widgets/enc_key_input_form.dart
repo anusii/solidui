@@ -71,8 +71,7 @@ class EncKeyInputForm extends StatefulWidget {
   final bool requireRetype;
 
   @override
-  // ignore: library_private_types_in_public_api
-  _EncKeyInputFormState createState() => _EncKeyInputFormState();
+  State<EncKeyInputForm> createState() => _EncKeyInputFormState();
 }
 
 class _EncKeyInputFormState extends State<EncKeyInputForm> {

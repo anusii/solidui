@@ -70,8 +70,15 @@ class SolidScaffoldAppBarBuilder {
     required BoxConstraints constraints,
     bool? enableProfileOverride,
     SolidInviteOthersConfig? inviteConfig,
+    bool enableOverflowMenu = true,
   }) {
     final profileEnabled = enableProfileOverride ?? config.enableProfile;
+
+    // Publish the overflow setting so that downstream UI such as the
+    // preferences dialogue (opened from the About dialogue) can read the
+    // current scaffold's choice without direct parameter plumbing.
+
+    SolidAppBarOverflowController.isEnabled = enableOverflowMenu;
 
     SolidAppBarActionsManager.initializeIfNeeded(
       config,
@@ -120,6 +127,7 @@ class SolidScaffoldAppBarBuilder {
       onLogin: onLogin,
       inviteConfig: inviteConfig,
       profileEnabled: profileEnabled,
+      enableOverflowMenu: enableOverflowMenu,
     );
     actions.addAll(orderedActions);
 
@@ -138,6 +146,7 @@ class SolidScaffoldAppBarBuilder {
       onLogin: onLogin,
       inviteConfig: inviteConfig,
       profileEnabled: profileEnabled,
+      enableOverflowMenu: enableOverflowMenu,
     );
 
     // Append the profile avatar when enabled — rightmost position.

@@ -86,9 +86,13 @@ class SolidScaffoldHelpers {
       child: VersionWidget(
         version: versionToDisplay,
         changelogUrl: config.versionConfig!.changelogUrl,
+        showVersion: config.versionConfig!.showVersion,
         showDate: config.versionConfig!.showDate,
         userTextStyle: config.versionConfig!.userTextStyle ??
             _defaultVersionTextStyle(config, theme),
+        showUpdateButton: config.versionConfig!.showUpdateButton,
+        downloadUrl: config.versionConfig!.downloadUrl,
+        updateButtonLabel: config.versionConfig!.updateButtonLabel,
       ),
     );
   }
@@ -302,6 +306,7 @@ class SolidScaffoldHelpers {
     required BoxConstraints constraints,
     bool? enableProfileOverride,
     SolidInviteOthersConfig? inviteConfig,
+    bool enableOverflowMenu = true,
   }) {
     if (appBar == null) return null;
     if (appBar is! SolidAppBarConfig) return null;
@@ -323,6 +328,7 @@ class SolidScaffoldHelpers {
       constraints: constraints,
       enableProfileOverride: enableProfileOverride,
       inviteConfig: inviteConfig,
+      enableOverflowMenu: enableOverflowMenu,
     );
   }
 

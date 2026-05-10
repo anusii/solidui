@@ -217,8 +217,12 @@ class SolidNavDrawerHeader {
     return VersionWidget(
       version: versionString,
       changelogUrl: versionConfig.changelogUrl,
+      showVersion: versionConfig.showVersion,
       showDate: versionConfig.showDate,
       userTextStyle: versionConfig.userTextStyle,
+      showUpdateButton: versionConfig.showUpdateButton,
+      downloadUrl: versionConfig.downloadUrl,
+      updateButtonLabel: versionConfig.updateButtonLabel,
     );
   }
 }

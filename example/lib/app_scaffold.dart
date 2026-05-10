@@ -70,6 +70,8 @@ class AppScaffold extends StatelessWidget {
           changelogUrl: 'https://github.com/anusii/solidpod/blob/dev/'
               'CHANGELOG.md',
           showDate: true,
+          showUpdateButton: true,
+          downloadUrl: 'https://github.com/anusii/solidpod/releases/latest',
         ),
       ),
       statusBar: const SolidStatusBarConfig(
@@ -120,6 +122,7 @@ class AppScaffold extends StatelessWidget {
         showInAppBarActions: true,
       ),
       enableProfile: true,
+      enableOverflowMenu: true,
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
       child: const Home(),
     );

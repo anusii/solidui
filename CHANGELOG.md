@@ -10,12 +10,17 @@ utilised by the flutter version_widget package.
 The package is available from
 [pub.dev](https://pub.dev/packages/solidui).
 
-Coding documentation is available from [solid community
-au](https://solidcommunity.au/docs/solidui)
+[//]: # (Coding documentation is available from [solid community)
+
+[//]: # (au]&#40;https://solidcommunity.au/docs/solidui&#41;)
 
 ## 0.4.0 Refine and Tune
 
-+ PROFILE -> SETTINGS/LOGOUT. ABOUT -> SHARE/FEEDBACK [0.3.38 20260505 tonypioneer]
++ Support an UPDATE button when version is updated [0.3.42 20260510 tonypioneer]
++ Bug fix popup animation blocking return to screen [0.3.41 20260510 tonypioneer]
++ Permission flow - popup instead disappearing snack on fail [0.3.40 20260510 gjw]
++ Bug fix: missing menu after invite; overflow menu [0.3.39 20260509 tonypioneer]
++ Profile -> Settings/Logout. About -> Share/Feedback [0.3.38 20260505 tonypioneer]
 + Add button to share the app [0.3.37 20260505 tonypioneer]
 + Bug fix CHANGELOG colour choices [0.3.36 20260505 gjw]
 + Update SolidScaffold login/logout/profile defaults [0.3.35 20260501 gjw]

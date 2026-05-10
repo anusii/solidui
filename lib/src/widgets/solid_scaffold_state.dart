@@ -184,17 +184,24 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   void _onMenuSelected(int index) {
-    if (widget.controller?.hasSubpage ?? false) {
-      widget.controller!.clearSubpage();
+    final menu = widget.menu;
+    final isInRange = menu != null && index >= 0 && index < menu.length;
+    final isActionOnly = isInRange && menu[index].child == null;
+
+    if (!isActionOnly) {
+      if (widget.controller?.hasSubpage ?? false) {
+        widget.controller!.clearSubpage();
+      }
+      if (widget.bodyOverride != null) widget.onClearBodyOverride?.call();
+      if (widget.onMenuSelected != null) {
+        widget.onMenuSelected!(index);
+      } else {
+        setState(() => _selectedIndex = index);
+      }
     }
-    if (widget.bodyOverride != null) widget.onClearBodyOverride?.call();
-    if (widget.onMenuSelected != null) {
-      widget.onMenuSelected!(index);
-    } else {
-      setState(() => _selectedIndex = index);
-    }
-    if (widget.menu != null && index < widget.menu!.length) {
-      widget.menu![index].onTap?.call(context);
+
+    if (isInRange) {
+      menu[index].onTap?.call(context);
     }
   }
 

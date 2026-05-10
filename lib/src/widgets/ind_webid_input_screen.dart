@@ -50,6 +50,7 @@ class IndWebIdInputScreen extends StatefulWidget {
   const IndWebIdInputScreen({
     required this.onSubmitFunction,
     this.dataFilesMap = const {},
+    this.onTextChanged,
     super.key,
   });
 
@@ -61,6 +62,9 @@ class IndWebIdInputScreen extends StatefulWidget {
   /// If not provided, the file list must be read to obtain
   /// the user's recipient list used in the WebIdTextInputScreen.
   final Map<String, dynamic> dataFilesMap;
+
+  /// Optional callback fired on every keystroke in the WebID text field.
+  final void Function(String)? onTextChanged;
 
   @override
   State<IndWebIdInputScreen> createState() => _IndWebIdInputScreenState();
@@ -93,6 +97,7 @@ class _IndWebIdInputScreenState extends State<IndWebIdInputScreen> {
     return IndWebIdTextInput(
       onSubmitFunction: onSubmitFunction,
       uniqRecipWebIdList: uniqRecipWebIdList,
+      onTextChanged: widget.onTextChanged,
     );
   }
 
