@@ -86,9 +86,13 @@ class SolidScaffoldHelpers {
       child: VersionWidget(
         version: versionToDisplay,
         changelogUrl: config.versionConfig!.changelogUrl,
+        showVersion: config.versionConfig!.showVersion,
         showDate: config.versionConfig!.showDate,
         userTextStyle: config.versionConfig!.userTextStyle ??
             _defaultVersionTextStyle(config, theme),
+        showUpdateButton: config.versionConfig!.showUpdateButton,
+        downloadUrl: config.versionConfig!.downloadUrl,
+        updateButtonLabel: config.versionConfig!.updateButtonLabel,
       ),
     );
   }
