@@ -33,6 +33,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show
         getAppNameVersion,
@@ -44,7 +45,9 @@ import 'package:solidpod/solidpod.dart'
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
+import 'package:solidui/src/widgets/solid_login_actions.dart';
 import 'package:solidui/src/widgets/solid_login_asset_helper.dart';
+import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_build_helper.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_login_panel.dart';
@@ -181,11 +184,18 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _assetsResolved = false;
 
+  /// Whether the user wishes to persist the login session across app restarts.
+
+  bool _staySignedIn = true;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     solidThemeNotifier.addListener(_onThemeChanged);
+
+    // Load the persisted theme preference before the first build.
+    _initTheme();
 
     // Initialise focus nodes for keyboard navigation.
 
@@ -195,15 +205,26 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _infoFocusNode = FocusNode(debugLabel: 'infoButton');
     _serverInputFocusNode = FocusNode(debugLabel: 'serverInput');
 
+    // Restore the persisted "Stay signed in" preference.
+
+    _loadStaySignedInPreference();
+
     // Resolve image assets with fallback logic.
+
     _resolveImageAssets();
+
+    // Clear any stale session from a previous "Stay signed in" opt-out.
+
+    SolidLoginAuthHandler.clearSessionIfRequired();
 
     // dc 20251022: please explain why calling an async without await.
 
     _initPackageInfo();
 
     // Auto-configure SolidAuthHandler with this login's settings.
-    // This ensures re-login from within the app uses the same configuration.
+    // This ensures re-login from within the app uses the same configuration,
+    // including button styles and theme so the login page appearance is
+    // preserved across logout/re-login cycles.
 
     SolidAuthHandler.instance.autoConfigureFromLogin(
       title: widget.title,
@@ -213,6 +234,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       logo: widget.logo,
       link: widget.link,
       child: widget.child,
+      loginButtonStyle: widget.loginButtonStyle,
+      continueButtonStyle: widget.continueButtonStyle,
+      registerButtonStyle: widget.registerButtonStyle,
+      infoButtonStyle: widget.infoButtonStyle,
+      changeKeyButtonStyle: widget.changeKeyButtonStyle,
+      themeConfig: widget.themeConfig,
+      snackbarConfig: widget.snackbarConfig,
+      required: widget.required,
     );
   }
 
@@ -233,6 +262,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       'app_icon',
     );
     if (mounted) setState(() => _assetsResolved = true);
+  }
+
+  /// Loads the persisted "Stay signed in" preference from SharedPreferences.
+
+  Future<void> _loadStaySignedInPreference() async {
+    final value = await SolidLoginAuthHandler.getStaySignedIn();
+    if (mounted) setState(() => _staySignedIn = value);
   }
 
   @override
@@ -266,20 +302,37 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   void _onThemeChanged() => mounted ? setState(() {}) : null;
   bool get isDarkMode => SolidLoginThemeHelper.isDarkMode(context);
 
+  Future<void> _initTheme() async {
+    await solidThemeNotifier.initialize();
+    if (mounted) setState(() {});
+  }
+
   Future<void> _initPackageInfo() async {
     if (!mounted) return;
+
+    // Configure the app directory name first; the folder/file generators and
+    // package-info query are independent of each other so run them in
+    // parallel to cut startup I/O time.
     await setAppDirName(widget.appDirectory);
-    final folders = await generateDefaultFolders();
-    final files = await generateDefaultFiles();
-    final customFolders = generateCustomFolders(widget.customFolderPathList);
+
+    final results = await Future.wait([
+      generateDefaultFolders(),
+      generateDefaultFiles(),
+      getAppNameVersion(),
+    ]);
+
     if (!mounted) return;
+
+    final folders = results[0] as List<String>;
+    final files = results[1] as Map<dynamic, dynamic>;
+    final appInfo = results[2] as dynamic;
+    final customFolders = generateCustomFolders(widget.customFolderPathList);
+
+    // Collapse all field updates into a single setState to avoid two
+    // consecutive frame rebuilds.
     setState(() {
       defaultFolders = folders + customFolders;
       defaultFiles = files;
-    });
-    final appInfo = await getAppNameVersion();
-    if (!mounted) return;
-    setState(() {
       appName = appInfo.name;
       appVersion = appInfo.version;
     });
@@ -289,6 +342,15 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   void updateState() {
     if (mounted) setState(() => isDialogCanceled = true);
+  }
+
+  // Reset the cancellation flag at the start of each new login or continue
+  // attempt.
+
+  void _resetDialogCanceledState() {
+    if (mounted && isDialogCanceled) {
+      setState(() => isDialogCanceled = false);
+    }
   }
 
   // Helper method to create and show a snackbar with consistent theming.
@@ -340,6 +402,46 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     );
     final webIdController = TextEditingController()..text = widget.webID;
 
+    // Shared login action used by the login button and the server text field's
+    // onFieldSubmitted callback so that pressing Enter in either triggers
+    // login. The implementation lives in [SolidLoginActions] so that this
+    // widget stays focused on composition.
+
+    Future<void> performLogin() {
+      _resetDialogCanceledState();
+      return SolidLoginActions.performLogin(
+        context: context,
+        webIdController: webIdController,
+        defaultFolders: defaultFolders,
+        defaultFiles: defaultFiles,
+        originalLoginWidget: widget,
+        childWidget: widget.child,
+        isDialogCanceled: () => isDialogCanceled,
+        updateDialogCanceledState: updateState,
+        showSnackbar: _showSnackbar,
+        staySignedIn: _staySignedIn,
+      );
+    }
+
+    Future<void> performContinue() {
+      _resetDialogCanceledState();
+      return SolidLoginActions.performContinue(
+        context: context,
+        childWidget: widget.child,
+        defaultFolders: defaultFolders,
+        defaultFiles: defaultFiles,
+        updateDialogCanceledState: updateState,
+        showSnackbar: _showSnackbar,
+        staySignedIn: _staySignedIn,
+      );
+    }
+
+    Future<void> performTryAnotherAccount() =>
+        SolidLoginActions.performTryAnotherAccount(
+          context: context,
+          performLoginCallback: performLogin,
+        );
+
     final registerButton = SolidLoginBuildHelper.buildRegisterButton(
       style: widget.registerButtonStyle,
       webIdController: webIdController,
@@ -349,21 +451,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     final loginButton = SolidLoginBuildHelper.buildLoginButton(
       context: context,
       style: widget.loginButtonStyle,
-      webIdController: webIdController,
-      defaultFolders: defaultFolders,
-      defaultFiles: defaultFiles,
-      originalWidget: widget,
-      childWidget: widget.child,
-      getIsDialogCanceled: () => isDialogCanceled,
-      updateDialogCanceledState: updateState,
-      showSnackbar: _showSnackbar,
+      performLogin: performLogin,
       focusNode: _loginFocusNode,
     );
 
     final continueButton = SolidLoginBuildHelper.buildContinueButton(
       context: context,
       style: widget.continueButtonStyle,
-      childWidget: widget.child,
+      performContinue: performContinue,
       focusNode: _continueFocusNode,
     );
 
@@ -377,6 +472,57 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     final effectiveLogo = _resolvedLogo ?? SolidConfig.soliduiDefaultLogo;
 
+    // "Stay signed in" checkbox.
+
+    final staySignedInCheckbox = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        MarkdownTooltip(
+          message:
+              '**Stay signed in**\n\nWhen ticked, your login session will be '
+              'cached so you can skip the browser login next time. '
+              'Untick to require a fresh login on every launch.',
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: Checkbox(
+              value: _staySignedIn,
+              onChanged: (value) {
+                final newValue = value ?? true;
+                setState(() => _staySignedIn = newValue);
+                SolidLoginAuthHandler.setStaySignedIn(newValue);
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () {
+            final newValue = !_staySignedIn;
+            setState(() => _staySignedIn = newValue);
+            SolidLoginAuthHandler.setStaySignedIn(newValue);
+          },
+          child: Text(
+            'Stay signed in',
+            style: TextStyle(color: currentTheme.textColor, fontSize: 14),
+          ),
+        ),
+      ],
+    );
+
+    final tryAnotherAccountButton = TextButton(
+      onPressed: performTryAnotherAccount,
+      child: Text(
+        'Try another WebID',
+        style: TextStyle(
+          color: currentTheme.textColor.withValues(alpha: 0.7),
+          fontSize: 14,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+
     // Build the login panel content.
 
     final loginPanelContent = SolidLoginPanel.buildPanelContent(
@@ -385,13 +531,23 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       title: widget.title,
       appVersion: appVersion,
       webIdController: webIdController,
-      loginButton: loginButton,
-      registerButton: registerButton,
-      continueButton: continueButton,
-      infoButton: infoButton,
+      buttons: [
+        if (widget.loginButtonStyle.visible) loginButton,
+        // When required=false, Continue is always shown — it is the primary
+        // path for non-mandatory login. When required=true, Register appears
+        // here and respects its own visible flag.
+        if (widget.required ? widget.registerButtonStyle.visible : true)
+          widget.required ? registerButton : continueButton,
+        if (!widget.required && widget.registerButtonStyle.visible)
+          registerButton,
+        if (widget.infoButtonStyle.visible) infoButton,
+      ],
       isRequired: widget.required,
       currentTheme: currentTheme,
       serverInputFocusNode: _serverInputFocusNode,
+      onServerSubmitted: performLogin,
+      staySignedInCheckbox: staySignedInCheckbox,
+      tryAnotherAccountButton: tryAnotherAccountButton,
     );
 
     final loginPanelDecor = SolidLoginPanel.buildPanelWithThemeToggle(
