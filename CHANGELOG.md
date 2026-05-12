@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Updated version widget dependency [0.3.43 20260512 gjw]
 + Support an UPDATE button when version is updated [0.3.42 20260510 tonypioneer]
 + Bug fix popup animation blocking return to screen [0.3.41 20260510 tonypioneer]
 + Permission flow - popup instead disappearing snack on fail [0.3.40 20260510 gjw]
