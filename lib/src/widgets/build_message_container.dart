@@ -91,23 +91,12 @@ Container buildMsgBox(
   String title,
   String msg,
 ) {
-  // Zheyuan might need to use isRTL in the future
-  // ignore: unused_local_variable
-  var isRTL = false;
+  // RTL detection is currently informational only; the layout below does not
+  // yet branch on direction. [Languages.codes] is retained so we can wire the
+  // direction through once the localised design work lands.
 
-  final size = MediaQuery.of(context).size;
-  final loc = Localizations.maybeLocaleOf(context);
-  final localeLanguageCode = loc?.languageCode;
+  final size = MediaQuery.sizeOf(context);
 
-  if (localeLanguageCode != null) {
-    for (final code in Languages.codes) {
-      if (localeLanguageCode.toLowerCase() == code.toLowerCase()) {
-        isRTL = true;
-      }
-    }
-  }
-
-  // Determine device type for layout adjustments
   final isMobile = size.width <= 730;
 
   // Minimal horizontal padding for all devices

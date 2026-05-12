@@ -168,7 +168,7 @@ class FileOperations {
     String currentPath,
     List<String> directories,
   ) async {
-    // Count files in each subdirectory.
+    // Count items (files + folders) in each subdirectory.
 
     final counts = <String, int>{};
     for (var dir in directories) {
@@ -179,24 +179,26 @@ class FileOperations {
     return counts;
   }
 
-  /// Counts the number of files in a directory.
+  /// Counts the total number of items (files and folders) in a directory.
   ///
   /// Parameters:
-  /// - [dirPath]: The directory path to count files in.
+  /// - [dirPath]: The directory path to count items in.
   ///
-  /// Returns the number of files in the directory, or 0 if an error occurs.
+  /// Returns the number of files and subdirectories, or 0 if an error occurs.
 
   static Future<int> getDirectoryFileCount(String dirPath) async {
     try {
-      // Get directory contents and count files.
+      // Get directory contents and count both files and subdirectories.
 
       final dirUrl = await getDirUrl(dirPath);
       final resources = await getResourcesInContainer(dirUrl);
-      return resources.files
+      final fileCount = resources.files
           .where((f) => f.endsWith('.enc.ttl') || f.endsWith('.ttl'))
           .length;
+
+      return fileCount + resources.subDirs.length;
     } catch (e) {
-      debugPrint('Error counting files in directory: $e');
+      debugPrint('Error counting items in directory: $e');
       return 0;
     }
   }

@@ -32,6 +32,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show AccessMode, RecipientType;
 
+import 'package:solidui/src/constants/ui_colors.dart' show ActionColors;
 import 'package:solidui/src/constants/ui_layout.dart' show SharingPageLayout;
 import 'package:solidui/src/widgets/permission_checkbox.dart';
 
@@ -41,27 +42,29 @@ import 'package:solidui/src/widgets/permission_checkbox.dart';
 
 const recipientToolTips = <RecipientType, String>{
   RecipientType.public: '''
- **Public:** This file will be publicly
- accessible so that even users without a
+ **Public**
+
+ This file will be publicly accessible so that even users without a
  Data Vault can access the file.
  ''',
   RecipientType.authUser: '''
-**Users:** The file will be available to
-any user who has registered a Data
-Vault. When they have logged into their
-Data Vault they will be able to access
-the file.
+**Users**
+
+The file will be available to any user who has registered a Data
+Vault. When they have logged into their Data Vault they will be able
+to access the file.
 ''',
   RecipientType.individual: '''
-**Individual:** The file will be available
-only to the identified individual user. A
-WebID is required to identify the
-individual who is gratned access to the
-file.
+**Individual**
+
+The file will be available only to the identified individual user. A
+WebID is required to identify the individual who is granted access to
+the file.
 ''',
   RecipientType.group: '''
-**Group:** A collection of WebIDs can be
-provided so that as a group they can
+**Group**
+
+A collection of WebIDs can be provided so that as a group they can
 access the file.
 ''',
 };
@@ -123,12 +126,17 @@ const ownerRecipientTypes = [
 const granterRecipientTypes = [RecipientType.individual, RecipientType.group];
 
 /// Get title of sharing page.
-String makeSharingTitleStr({String? fileName, bool isFile = false}) =>
-    fileName != null
-        ? isFile
-            ? 'Share $fileName'
-            : 'Share $fileName folder'
-        : 'Share your data with other user\'s PODs';
+String makeSharingTitleStr({
+  List<String>? resourceNames,
+  bool isFile = false,
+}) {
+  if (resourceNames != null && resourceNames.length > 1) {
+    return isFile ? 'Sharing multiple files' : 'Sharing multiple folders';
+  } else if (resourceNames != null) {
+    return isFile ? 'Sharing file' : 'Sharing folder';
+  }
+  return 'Share your data with other user\'s PODs';
+}
 
 // Widget builders
 
@@ -166,18 +174,31 @@ Widget getResourceForm({
                 (value == null || value.isEmpty) ? 'Empty field' : null,
           ),
           const SizedBox(height: 10),
-          SwitchListTile(
-            title: const Text(
-              'Is a File?',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(isFile ? 'Yes' : 'No'),
-            value: isFile,
-            onChanged: onResourceTypeChange,
-            thumbColor: WidgetStateProperty.resolveWith<Color?>(
-              (Set<WidgetState> states) =>
-                  states.contains(WidgetState.selected) ? Colors.green : null,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    'Is a File?',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(isFile ? 'Yes' : 'No'),
+                ],
+              ),
+              Builder(
+                builder: (context) => Switch(
+                  value: isFile,
+                  activeThumbColor:
+                      Theme.of(context).switchTheme.thumbColor?.resolve(
+                            {WidgetState.selected},
+                          ) ??
+                          ActionColors.success,
+                  onChanged: onResourceTypeChange,
+                ),
+              ),
+            ],
           ),
         ],
       ),

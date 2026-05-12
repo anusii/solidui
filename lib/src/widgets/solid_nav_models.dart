@@ -113,6 +113,12 @@ class SolidNavUserInfo {
 
   final SolidVersionConfig? versionConfig;
 
+  /// Whether to enable the POD-backed profile feature (avatar + display name).
+  /// When true, the nav drawer header and app bar will show the profile
+  /// avatar from the POD and allow editing via the profile editor.
+
+  final bool enableProfile;
+
   const SolidNavUserInfo({
     this.userName,
     this.webId,
@@ -121,55 +127,8 @@ class SolidNavUserInfo {
     this.avatarIcon,
     this.avatarSize,
     this.versionConfig,
+    this.enableProfile = false,
   });
-
-  /// Extracts username from WebID URL.
-
-  static String _extractUsernameFromWebId(String webId) {
-    try {
-      final uri = Uri.parse(webId);
-      final pathSegments = uri.pathSegments;
-
-      // Find the username segment (typically the first non-empty path segment).
-
-      for (final segment in pathSegments) {
-        if (segment.isNotEmpty &&
-            segment != 'profile' &&
-            segment != 'card' &&
-            !segment.startsWith('#')) {
-          return segment;
-        }
-      }
-
-      // Fallback: try to extract from the last slash in the full URL
-      final lastSlashIndex = webId.lastIndexOf('/');
-      if (lastSlashIndex != -1 && lastSlashIndex < webId.length - 1) {
-        String candidate = webId.substring(lastSlashIndex + 1);
-
-        // Remove common suffixes
-        const suffixes = ['profile', 'card#me', '#me'];
-        for (final suffix in suffixes) {
-          if (candidate.endsWith(suffix)) {
-            candidate = candidate.substring(
-              0,
-              candidate.length - suffix.length,
-            );
-            if (candidate.endsWith('/')) {
-              candidate = candidate.substring(0, candidate.length - 1);
-            }
-          }
-        }
-
-        if (candidate.isNotEmpty) {
-          return candidate;
-        }
-      }
-
-      return '';
-    } catch (e) {
-      return '';
-    }
-  }
 
   /// Gets the effective display name, extracting from WebID if necessary.
 
@@ -178,11 +137,9 @@ class SolidNavUserInfo {
       return userName!;
     }
 
-    if (webId != null && webId!.isNotEmpty) {
-      final extracted = _extractUsernameFromWebId(webId!);
-      if (extracted.isNotEmpty) {
-        return extracted;
-      }
+    final extracted = WebIdParts.tryParse(webId)?.username ?? '';
+    if (extracted.isNotEmpty) {
+      return extracted;
     }
 
     return 'Not logged in';
@@ -370,6 +327,10 @@ class SolidAppBarConfig {
 
   final double veryNarrowScreenThreshold;
 
+  /// Whether to show the POD-backed profile avatar in the app bar.
+
+  final bool enableProfile;
+
   const SolidAppBarConfig({
     required this.title,
     this.backgroundColor,
@@ -380,6 +341,7 @@ class SolidAppBarConfig {
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.veryNarrowScreenThreshold =
         NavigationConstants.veryNarrowScreenThreshold,
+    this.enableProfile = false,
   });
 }
 

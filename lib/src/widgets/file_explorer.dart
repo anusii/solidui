@@ -389,7 +389,7 @@ class _FileExplorerScreenState extends State<FileExplorerScreen> {
                                           // Close the dialog
                                           Navigator.of(ctx).pop();
                                         },
-                                        child: const Text('Ok'),
+                                        child: const Text('OK'),
                                       ),
                                     ],
                                   ),

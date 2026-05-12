@@ -30,6 +30,8 @@
 
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -59,7 +61,7 @@ ElevatedButton resCreateFormSubmission(
   // Use MediaQuery to determine the screen width and adjust the font size
   // accordingly.
 
-  final screenWidth = MediaQuery.of(context).size.width;
+  final screenWidth = MediaQuery.sizeOf(context).width;
   final isSmallDevice =
       screenWidth < 360; // A threshold for small devices, can be adjusted.
 
@@ -162,12 +164,20 @@ ElevatedButton resCreateFormSubmission(
   return ElevatedButton(
     onPressed: () async {
       if (formKey.currentState?.saveAndValidate() ?? false) {
-        // ignore: unawaited_futures
-        showAnimationDialog(context, 17, 'Creating resources...', false, null);
+        unawaited(
+          showAnimationDialog(
+            context,
+            17,
+            'Creating resources...',
+            false,
+            null,
+          ),
+        );
         final formData = formKey.currentState?.value as Map;
 
         final securityKey = formData[securityKeyStr].toString();
 
+        Object? initError;
         try {
           await initPod(
             securityKey,
@@ -176,14 +186,33 @@ ElevatedButton resCreateFormSubmission(
           );
         } on Exception catch (e) {
           debugPrint('Error initialising POD: $e');
+          initError = e;
         }
 
-        await Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(builder: (context) => child),
-        );
+        // Dismiss the busy animation before we either surface an error or
+        // navigate to the post-setup screen. Without this the spinner is
+        // left orphaned on top of the next page if init fails.
+
         if (context.mounted) Navigator.pop(context);
+
+        if (initError != null) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Setup failed: $initError'),
+                duration: const Duration(seconds: 6),
+              ),
+            );
+          }
+          return;
+        }
+
+        if (context.mounted) {
+          await Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => child),
+          );
+        }
       }
     },
     style: ButtonStyle(

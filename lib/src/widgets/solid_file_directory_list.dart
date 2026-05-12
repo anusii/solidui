@@ -30,26 +30,42 @@ library;
 
 import 'package:flutter/material.dart';
 
-/// A widget that displays a list of directories with their file counts.
+/// A widget that displays a list of directories with their item counts.
 
 class DirectoryList extends StatelessWidget {
   /// List of directory names to display.
 
   final List<String> directories;
 
-  /// Map of directory names to their file counts.
+  /// Map of directory names to their item counts (files + folders).
 
   final Map<String, int> directoryCounts;
 
-  /// Callback when a directory is selected.
+  /// Set of currently selected item keys (e.g. "dir:folderName").
+
+  final Set<String> selectedItems;
+
+  /// Callback when a directory is tapped to navigate into it.
 
   final Function(String) onDirectorySelected;
+
+  /// Callback to toggle selection of an item by its key.
+
+  final Function(String) onToggleSelection;
+
+  /// Callback to add or remove a batch of item keys in one operation.
+
+  final void Function(List<String> keys, {required bool selected})
+      onBatchSetSelection;
 
   const DirectoryList({
     super.key,
     required this.directories,
     required this.directoryCounts,
+    required this.selectedItems,
     required this.onDirectorySelected,
+    required this.onToggleSelection,
+    required this.onBatchSetSelection,
   });
 
   @override
@@ -58,32 +74,93 @@ class DirectoryList extends StatelessWidget {
 
     if (directories.isEmpty) return const SizedBox.shrink();
 
+    // Compute the selection state for the select-all checkbox.
+
+    final allKeys = directories.map((d) => 'dir:$d').toList();
+    final selectedCount =
+        allKeys.where((k) => selectedItems.contains(k)).length;
+    final allSelected = selectedCount == directories.length;
+    final noneSelected = selectedCount == 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header for directories.
+        // Section header with a select-all checkbox.
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Folders',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.titleLarge?.color,
-            ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: Checkbox(
+                  value: allSelected
+                      ? true
+                      : noneSelected
+                          ? false
+                          : null,
+                  tristate: true,
+                  onChanged: (_) {
+                    if (allSelected) {
+                      onBatchSetSelection(allKeys, selected: false);
+                    } else {
+                      onBatchSetSelection(allKeys, selected: true);
+                    }
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Folders',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                ),
+              ),
+            ],
           ),
         ),
 
-        // List of directory items.
-        ...directories.map(
-          (dir) => ListTile(
-            leading: Icon(
-              Icons.folder,
-              color: Theme.of(context).colorScheme.primary,
+        // List of directory items with selection checkboxes.
+
+        ...directories.map((dir) {
+          final itemKey = 'dir:$dir';
+          final isSelected = selectedItems.contains(itemKey);
+
+          return ListTile(
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Selection checkbox.
+
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: (_) => onToggleSelection(itemKey),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Folder icon.
+
+                Icon(
+                  Icons.folder,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ],
             ),
             title: Row(
               children: [
                 // Directory name with overflow protection.
+
                 Expanded(
                   child: Text(
                     dir,
@@ -95,7 +172,7 @@ class DirectoryList extends StatelessWidget {
                   ),
                 ),
 
-                // File count badge. Shows a compact loading indicator while
+                // Item count badge. Shows a compact loading indicator while
                 // counts are being fetched in the background.
 
                 if (directoryCounts.containsKey(dir))
@@ -111,7 +188,8 @@ class DirectoryList extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${directoryCounts[dir]} files',
+                      '${directoryCounts[dir]}'
+                      ' item${directoryCounts[dir] == 1 ? '' : 's'}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).textTheme.bodySmall?.color,
@@ -134,12 +212,16 @@ class DirectoryList extends StatelessWidget {
               borderRadius: BorderRadius.circular(8.0),
             ),
             onTap: () => onDirectorySelected(dir),
-            tileColor: Theme.of(context).cardColor,
+            tileColor: isSelected
+                ? Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.08)
+                : Theme.of(context).cardColor,
             selectedTileColor: Theme.of(
               context,
             ).colorScheme.primary.withValues(alpha: 0.1),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }

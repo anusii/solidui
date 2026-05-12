@@ -50,8 +50,7 @@ import 'package:solidui/src/widgets/revoke_permission_button.dart';
 /// - [isExternalRes] - Boolean flag describing whether the resource
 /// is externally owned.
 /// - [updatePermissionsFunction] is the function to be called to refresh the permission table.
-/// - [parentWidget] is the widget to return to after an action Eg: deletion of a
-/// permission
+/// - [searchKeyword] - search keyworkd for filtereing the permissions table.
 ///
 
 class PermissionTable extends StatefulWidget {
@@ -84,13 +83,13 @@ class PermissionTable extends StatefulWidget {
 
   final Function updatePermissionsFunction;
 
-  /// Parent widget to return to.
-
-  final Widget parentWidget;
-
   /// Layout constraints
 
   final BoxConstraints constraints;
+
+  /// Search keyword for filtering the current permission list.
+
+  final String searchKeyword;
 
   const PermissionTable({
     super.key,
@@ -99,10 +98,10 @@ class PermissionTable extends StatefulWidget {
     required this.ownerWebId,
     required this.granterWebId,
     required this.updatePermissionsFunction,
-    required this.parentWidget,
     required this.isFile,
     this.isExternalRes = false,
     required this.constraints,
+    required this.searchKeyword,
   });
 
   @override
@@ -146,8 +145,23 @@ class _PermissionTableState extends State<PermissionTable> {
       widget.constraints,
     );
 
-    //  By default _permissions is the full list of permissions
-    _permissions = permMapToList(widget.permDataMap);
+    final allPermissions = permMapToList(widget.permDataMap);
+    // Search the current permissions map if keyword not
+    // an empty string
+    if (widget.searchKeyword.isEmpty) {
+      _permissions = allPermissions;
+    } else {
+      bool found(item) =>
+          item.toLowerCase().contains(widget.searchKeyword.toLowerCase());
+      _permissions = allPermissions.where((p) {
+        return [
+          p.recipientName,
+          p.recipientType.toString(),
+          p.recipientWebId,
+          p.permList.join(', '),
+        ].map(found).any((result) => result);
+      }).toList();
+    }
 
     return Expanded(
       child: GridView.builder(

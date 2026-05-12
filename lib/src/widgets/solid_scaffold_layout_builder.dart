@@ -76,7 +76,6 @@ class SolidScaffoldLayoutBuilder {
                   onShowAlert: onShowAlert,
                   settingsWidget: settingsWidget,
                 ),
-                VerticalDivider(width: 1, color: theme.dividerColor),
                 Expanded(child: effectiveChild),
               ],
             ),

@@ -32,12 +32,15 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart'
     show
         ActionColors,
         GrantPermFormLayout,
+        InviteOthersDialog,
+        SolidInviteOthersConfig,
         debugPrintException,
         debugPrintFailure,
         failureMsg,
@@ -50,6 +53,7 @@ import 'package:solidui/solidui.dart'
         updatePermissionMsg;
 import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input_screen.dart';
 import 'package:solidui/src/widgets/select_recipients.dart';
@@ -62,7 +66,9 @@ import 'package:solidui/src/widgets/show_selected_recipients.dart';
 /// provided [resourceName]
 ///
 /// Parameters:
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - List of resource names. The first entry is used for
+/// display in the dialog title and ACL table refresh. All entries receive
+/// the same permission grant.
 /// - [isExternalRes] - Boolean flag describing whether the resource
 /// is externally owned.
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
@@ -84,9 +90,11 @@ class GrantPermissionForm extends StatefulWidget {
 
   final String granterWebId;
 
-  /// The name of the file or directory that access is being granted for.
+  /// List of resource names to grant permission to. The first entry is used
+  /// for display in the dialog title and ACL table refresh after granting.
+  /// All entries receive the same permission grant sequentially.
 
-  final String resourceName;
+  final List<String> resourceNames;
 
   final bool isExternalRes;
 
@@ -124,10 +132,17 @@ class GrantPermissionForm extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional Invite Others configuration. When provided, the
+  /// "POD not initialised" error path offers the user a follow-up
+  /// option to invite the recipient(s) to set up their own POD and
+  /// try the application.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
   const GrantPermissionForm({
     super.key,
     required this.updatePermissionsFunction,
-    required this.resourceName,
+    required this.resourceNames,
     required this.ownerWebId,
     required this.granterWebId,
     this.accessModeList = const ['read', 'write', 'append', 'control'],
@@ -137,6 +152,7 @@ class GrantPermissionForm extends StatefulWidget {
     required this.updatePermissionGrantedFunction,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.inviteConfig,
   });
 
   @override
@@ -211,6 +227,75 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// context. This provides an alert dialog over the top of the
   /// grant permission form dialog.
   Future<void> _alert(String msg) async => alert(context, msg);
+
+  /// Handles the case where granting failed because one or more
+  /// recipients have not yet set up their POD. When an
+  /// [SolidInviteOthersConfig] is provided, the user is offered a
+  /// follow-up option to send the application's invitation
+  /// directly. Otherwise the original snackbar behaviour is kept so
+  /// existing call sites continue to work.
+
+  Future<void> _handleNotInitialisedRecipients() async {
+    final invite = widget.inviteConfig;
+    if (invite == null) {
+      _showSnackBar(podNotInitMsg, ActionColors.warning);
+      return;
+    }
+
+    if (!context.mounted) return;
+    if (!mounted) return;
+    final shouldInvite = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Recipient has not set up a POD'),
+          content: const Text(
+            'One or more of the WebIDs you entered have not yet '
+            'initialised their POD. Ask them to log in once to set up '
+            'their data vault — then you can grant access. Would you '
+            'like to send them an invitation now?',
+          ),
+          actions: [
+            MarkdownTooltip(
+              message: '''
+
+              **Not now**
+
+              Dismiss this dialog without sending an invitation. You
+              can grant access again once the recipient has logged
+              into the app and set up their POD.
+
+              ''',
+              child: TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Not now'),
+              ),
+            ),
+            MarkdownTooltip(
+              message: '''
+
+              **Invite this user**
+
+              Open the Invite Others dialog so you can send the
+              recipient a link to the app, prompting them to set up
+              their data vault.
+
+              ''',
+              child: TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Invite'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) return;
+    if (shouldInvite == true) {
+      await InviteOthersDialog.show(context, config: invite);
+    }
+  }
 
   /// Private function to show snackbar in share resource button context
   Future<void> _showSnackBar(
@@ -289,7 +374,13 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   Widget build(BuildContext context) {
     return AlertDialog(
       insetPadding: GrantPermFormLayout.contentPadding,
-      title: Text('Share ${widget.resourceName}'),
+      title: Text(
+        makeSharingTitleStr(
+          resourceNames: widget.resourceNames,
+          isFile: widget.isFile,
+        ),
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
       content: Scrollbar(
         thumbVisibility: true,
         child: SingleChildScrollView(
@@ -359,20 +450,30 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
             if (selectedRecipientType.type.isNotEmpty) {
               if (selectedPermList.isNotEmpty) {
-                SolidFunctionCallStatus result;
+                // Grant permission for each resource sequentially.
+                // When resourceNames is provided all resources share the
+                // same recipient and permission selections.
+                final resourcesToGrant = widget.resourceNames;
+                SolidFunctionCallStatus result =
+                    SolidFunctionCallStatus.success;
                 try {
-                  // Update ACL and permission logs to grant permission
-                  result = await grantPermission(
-                    fileName: widget.resourceName,
-                    isFile: widget.isFile,
-                    permissionList: selectedPermList,
-                    recipientType: selectedRecipientType,
-                    recipientWebIdList: finalWebIdList,
-                    ownerWebId: widget.ownerWebId,
-                    granterWebId: widget.granterWebId,
-                    isExternalRes: widget.isExternalRes,
-                    groupName: selectedGroupName,
-                  );
+                  for (final name in resourcesToGrant) {
+                    final r = await grantPermission(
+                      fileName: name,
+                      isFile: widget.isFile,
+                      permissionList: selectedPermList,
+                      recipientType: selectedRecipientType,
+                      recipientWebIdList: finalWebIdList,
+                      ownerWebId: widget.ownerWebId,
+                      granterWebId: widget.granterWebId,
+                      isExternalRes: widget.isExternalRes,
+                      groupName: selectedGroupName,
+                    );
+                    if (r != SolidFunctionCallStatus.success) {
+                      result = r;
+                      break;
+                    }
+                  }
 
                   // Close grant permission dialog
                   if (!context.mounted) return;
@@ -384,9 +485,9 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                 if (result == SolidFunctionCallStatus.success) {
                   _showSnackBar(successMsg, ActionColors.success);
-                  // Update permissions table
+                  // Update permissions table for the primary resource.
                   await widget.updatePermissionsFunction(
-                    widget.resourceName, //_resourceName,
+                    widget.resourceNames.first,
                     isFile: widget.isFile,
                     isExternalRes: widget.isExternalRes,
                   );
@@ -402,12 +503,12 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
                   // Also log to console for debugging
                   debugPrintFailure(
-                    widget.resourceName, // _resourceName,
+                    widget.resourceNames.first,
                     finalWebIdList,
                     selectedPermList,
                   );
                 } else if (result == SolidFunctionCallStatus.notInitialised) {
-                  _showSnackBar(podNotInitMsg, ActionColors.warning);
+                  await _handleNotInitialisedRecipients();
                 } else {
                   await _alert(updatePermissionMsg);
                 }

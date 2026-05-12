@@ -34,6 +34,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/widgets/solid_login_helper.dart';
+import 'package:solidui/src/widgets/solid_server_field.dart';
 
 /// Builder class for creating the login panel UI.
 
@@ -46,13 +47,13 @@ class SolidLoginPanel {
     required String title,
     required String appVersion,
     required TextEditingController webIdController,
-    required Widget loginButton,
-    required Widget registerButton,
-    required Widget continueButton,
-    required Widget infoButton,
+    required List<Widget> buttons,
     required bool isRequired,
     required SolidLoginThemeMode currentTheme,
     FocusNode? serverInputFocusNode,
+    VoidCallback? onServerSubmitted,
+    Widget? staySignedInCheckbox,
+    Widget? tryAnotherAccountButton,
   }) {
     const boxTextHeight = 20.0;
 
@@ -79,45 +80,54 @@ class SolidLoginPanel {
           const SizedBox(height: 20.0),
           FocusTraversalOrder(
             order: const NumericFocusOrder(5),
-            child: getSolidServerTooltip(
-              webIdController,
-              currentTheme,
+            child: SolidServerField(
+              controller: webIdController,
+              themeMode: currentTheme,
               focusNode: serverInputFocusNode,
+              onFieldSubmitted:
+                  onServerSubmitted != null ? (_) => onServerSubmitted() : null,
             ),
           ),
           const SizedBox(height: 20.0),
 
-          // Column of buttons.
+          // Column of buttons — dynamic rows of up to 2, skipping hidden ones.
 
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: loginButton),
-                  const SizedBox(width: 15.0),
-                  Expanded(child: isRequired ? registerButton : continueButton),
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              Row(
-                children: [
-                  if (!isRequired) Expanded(child: registerButton),
-                  if (isRequired)
-                    Expanded(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.5,
-                        child: infoButton,
-                      ),
-                    ),
-                  const SizedBox(width: 15.0),
-                  isRequired ? const Spacer() : Expanded(child: infoButton),
-                ],
-              ),
-              const SizedBox(height: 15.0),
+              for (int i = 0; i < buttons.length; i += 2) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: buttons[i]),
+                    if (i + 1 < buttons.length) ...[
+                      const SizedBox(width: 15.0),
+                      Expanded(child: buttons[i + 1]),
+                    ] else
+                      const Expanded(child: SizedBox.shrink()),
+                  ],
+                ),
+                const SizedBox(height: 15.0),
+              ],
             ],
           ),
+
+          if (staySignedInCheckbox != null) ...[
+            if (tryAnotherAccountButton != null)
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: [
+                  staySignedInCheckbox,
+                  tryAnotherAccountButton,
+                ],
+              )
+            else
+              staySignedInCheckbox,
+          ] else if (tryAnotherAccountButton != null)
+            tryAnotherAccountButton,
 
           const SizedBox(height: 20.0),
 
@@ -167,7 +177,9 @@ class SolidLoginPanel {
     required SolidLoginThemeMode currentTheme,
   }) {
     final loginPanelInset =
-        (isVeryNarrowScreen(context) || !isNarrowScreen(context)) ? 0.05 : 0.25;
+        (isVeryNarrowLoginScreen(context) || !isNarrowLoginScreen(context))
+            ? 0.05
+            : 0.25;
 
     return Container(
       margin: EdgeInsets.symmetric(

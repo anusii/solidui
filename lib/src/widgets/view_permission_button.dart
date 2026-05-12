@@ -1,6 +1,6 @@
-/// Check if we are running a desktop (and not a browser).
+/// A button for navigating to the permissions section page.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -24,18 +24,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Tony Chen
+/// Authors: Jess Moore
 
 library;
 
-import 'dart:io' show Platform;
+import 'package:flutter/material.dart';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+/// A button that navigates to the permissions page.
+///
+/// Parameters:
+/// - [onPressed] - Called when the button is pressed.
+/// - [buttonColor] - Optional background colour override, matching the style
+///   of [ShareResourceButton.buttonColor].
 
-/// Test if we are running on a desktop platform but not in a browser.
+class ViewPermissionButton extends StatelessWidget {
+  const ViewPermissionButton({
+    super.key,
+    required this.onPressed,
+    this.buttonColor,
+  });
 
-bool get isDesktop {
-  if (kIsWeb) return false;
+  final VoidCallback onPressed;
+  final Color? buttonColor;
 
-  return Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.visibility),
+      style: buttonColor != null
+          ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                backgroundColor: WidgetStateProperty.all<Color>(buttonColor!),
+              )
+          : Theme.of(context).elevatedButtonTheme.style,
+      onPressed: onPressed,
+      label: const Text('View Permissions'),
+    );
+  }
 }

@@ -159,6 +159,14 @@ class SolidScaffoldInternalConfig {
 
   final void Function(BuildContext)? onLogout;
 
+  /// Optional login callback.
+
+  final void Function(BuildContext)? onLogin;
+
+  /// Whether to show login button when logged out.
+
+  final bool showLogin;
+
   /// Optional alert dialogue callback.
 
   final void Function(BuildContext, String, String?)? onShowAlert;
@@ -247,6 +255,10 @@ class SolidScaffoldInternalConfig {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Optional settings widget.
+
+  final Widget? settingsWidget;
+
   /// Option to force the navigation rail to be hidden and display a
   /// hamburger menu button instead.
 
@@ -269,6 +281,8 @@ class SolidScaffoldInternalConfig {
     this.statusBar,
     this.userInfo,
     this.onLogout,
+    this.onLogin,
+    this.showLogin = true,
     this.onShowAlert,
     this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
     this.backgroundColor,
@@ -291,6 +305,7 @@ class SolidScaffoldInternalConfig {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.settingsWidget,
     this.hideNavRail = false,
   });
 }

@@ -32,10 +32,15 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart';
+import 'package:solidui/src/widgets/grant_permission_resource_list.dart';
+import 'package:solidui/src/widgets/permission_page.dart';
+import 'package:solidui/src/widgets/resource_display_mode_control.dart';
+import 'package:solidui/src/widgets/view_permission_button.dart';
+
+part 'grant_permission_ui_state.dart';
 
 /// A [StatefulWidget] for showing and editing access permissions to a
 /// resource. It displays the permission table of users with access, and
@@ -54,15 +59,21 @@ import 'package:solidui/solidui.dart';
 /// - [recipientTypeList] - List of recipient type options to show.
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
 /// - [granterWebId] - WebId of the granter of the resource. Required if the resource is externall owned.
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - Optional list of file urls of resources to pre-set the
+/// resource. When a single resource is provided, it is shown as-is without a
+/// dropdown. When multiple resources are provided, a dropdown lets the user
+/// select which resource's permissions to view. The permission granting form
+/// applies to all resources in the list at once.
 /// - [isFile] - Boolean flag describing whether the resource is a file. If false, the resource is assumed to be a directory.
 /// - [customAppBar] - Specify a custom app bar widget.
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 /// - [onNavigateBack] - Callback function called when navigating back from the screen.
+/// - [shareButtonColor] - Optional custom colour for the Share Resource button.
+/// - [titleData] - Optional map from resource URL to human-readable title.
 
 class GrantPermissionUi extends StatefulWidget {
   const GrantPermissionUi({
-    required this.child,
+    this.child,
     this.title = 'Demonstrating data sharing functionality',
     this.backgroundColor = const Color.fromARGB(255, 210, 210, 210),
     this.showAppBar = true,
@@ -71,24 +82,34 @@ class GrantPermissionUi extends StatefulWidget {
     this.recipientTypeList = const ['public', 'indi', 'auth', 'group'],
     this.ownerWebId,
     this.granterWebId,
-    this.resourceName,
+    this.resourceNames,
     this.isFile = true,
     this.dataFilesMap = const {},
+    this.buttonColor,
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
+    this.shareButtonColor,
+    this.titleData,
+    this.inviteConfig,
     super.key,
-  }) : assert(
+  })  : assert(
           // Requires ownerWebId if resource
           // is an externally owned.
           isExternalRes == false || ownerWebId != null,
           'ownerWebId must be provided if isExternalRes == true',
+        ),
+        assert(
+          (showAppBar == true && customAppBar != null) ||
+              (showAppBar == true && child != null) ||
+              showAppBar == false,
+          'Either customAppBar, or child and onNavigateBack function, must be provided if showAppBar is selected',
         );
 
   /// The child widget to return to when back button is pressed and/or when
   /// page is reloaded after a permission is granted or revoked.
 
-  final Widget child;
+  final Widget? child;
 
   /// The text appearing in the app bar.
 
@@ -126,12 +147,17 @@ class GrantPermissionUi extends StatefulWidget {
 
   final List<String> recipientTypeList;
 
-  /// The name of the file or directory permission is being set to. This is a
-  /// non required parameter. If not set there will be a text field to define
-  /// the file name. If [isExternalRes] is set to true this must be set and the
-  /// value should be the url of the resource.
+  /// Optional list of resource names. When null, a text field is shown to
+  /// enter a resource manually. When one entry, it is pre-set and shown
+  /// without a dropdown. When multiple entries, a dropdown lets the user
+  /// select which resource's permissions to view; granting applies to all.
+  /// If [isExternalRes] is true, entries must be full resource URLs.
 
-  final String? resourceName;
+  final List<String>? resourceNames;
+
+  /// Optional custom colour for the Share Resource button.
+
+  final Color? shareButtonColor;
 
   /// A flag to determine whether the given resource is a file or not. This is
   /// a parameter with default value true. In the case where [resourceName] is
@@ -150,6 +176,11 @@ class GrantPermissionUi extends StatefulWidget {
 
   final Map<String, dynamic> dataFilesMap;
 
+  /// Optional background color for the Share Resource button.
+  /// When provided, it overrides the theme's elevated button background.
+
+  final Color? buttonColor;
+
   /// App specific app bar
 
   final PreferredSizeWidget? customAppBar;
@@ -162,494 +193,18 @@ class GrantPermissionUi extends StatefulWidget {
 
   final VoidCallback? onNavigateBack;
 
+  /// Optional map from resource URL key to human-readable file title.
+  /// When provided, a radio group replaces the Show Full Path switch,
+  /// offering 'File Url', 'Filename', and 'File Title' display options.
+
+  final Map<String, String>? titleData;
+
+  /// Optional Invite Others configuration. When provided, the share
+  /// permission flow offers an "Invite this user" follow-up if the
+  /// recipient has not yet initialised their POD.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
   @override
   GrantPermissionUiState createState() => GrantPermissionUiState();
-}
-
-/// Class to build a UI for granting permission to a given file
-
-class GrantPermissionUiState extends State<GrantPermissionUi>
-    with SingleTickerProviderStateMixin {
-  /// Flag to check whether permission table is initialised.
-
-  bool permTableInitialied = false;
-
-  /// Flag to check whether permission history is initialised.
-
-  bool permHistoryInitialied = false;
-
-  /// Define access mode list
-
-  List<AccessMode> accessModeList = [];
-
-  /// Define recipient type list
-
-  List<RecipientType> recipientTypeList = [];
-
-  /// Filename text controller
-
-  final fileNameController = TextEditingController();
-
-  /// Permission data map of a file
-
-  Map<dynamic, dynamic> permDataMap = {};
-
-  /// Owner WebId
-
-  String _ownerWebId = '';
-
-  /// Granter WebId
-
-  String _granterWebId = '';
-
-  /// File name of the current permission data map
-
-  String permDataFile = '';
-
-  /// Flag to track if permissions were granted successfully.
-
-  bool permissionsGrantedSuccessfully = false;
-
-  /// Pod data list retreived as a Future
-
-  late Future<PermissionDetails?> getACLPerm;
-
-  /// Permission history list retreived as a Future
-
-  late Future<List<LogRecord>> getPermHistoryList;
-
-  /// Permission history list
-
-  List<LogRecord> permHistoryList = [];
-
-  /// Unfiltered permission history list
-
-  List<LogRecord> unFilteredPermHistoryList = [];
-
-  /// Flag to check whether permission history is initialised.
-
-  bool showCurrentPermOnly = false;
-
-  /// A flag to identify if the resource is a file or not
-  bool isFile = true;
-
-  /// Gets permission details data from ACL on POD server if necessary.
-
-  Future<PermissionDetails?> loadACLData(
-    String resName, {
-    bool isFile = true,
-    bool isExternalRes = false,
-  }) async {
-    final SolidFunctionCallStatus response = await chkExistsAndHasAcl(
-      fileName: resName,
-      isFile: isFile,
-      isExternalRes: isExternalRes,
-    );
-
-    switch (response) {
-      case SolidFunctionCallStatus.aclFound:
-
-        // Permission map from ACL of resource
-        final Map<dynamic, dynamic> result = await readPermission(
-          fileName: resName,
-          isFile: isFile,
-          isExternalRes: isExternalRes,
-        );
-
-        // Permission Details object to store permission map from ACL, and owner
-        // and granter of a resource.
-
-        final permissionDetails = PermissionDetails(
-          permissionMap: result,
-          ownerWebId: await getAuthoriser(
-            isExternalRes: isExternalRes,
-            webId: widget.ownerWebId,
-          ),
-          granterWebId: await getAuthoriser(
-            isExternalRes: isExternalRes,
-            isGranter: true,
-          ),
-        );
-
-        return permissionDetails;
-
-      case SolidFunctionCallStatus.notLoggedIn:
-        await _alert('Please login first to retrieve permission');
-
-      case SolidFunctionCallStatus.noAclFound:
-        await _alert(noAclMsg);
-
-      default:
-        await _alert('Unknown error');
-    }
-
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Load permission map from ACL, owner and granter web ids
-    if (widget.resourceName != null) {
-      getACLPerm = loadACLData(
-        widget.resourceName as String,
-        isFile: widget.isFile,
-        isExternalRes: widget.isExternalRes,
-      );
-      getPermHistoryList =
-          sharedResourcesHistory(resourceName: widget.resourceName as String);
-      // permHistoryList = [];
-    }
-  }
-
-  /// Update the permission data map
-
-  Future<void> _updatePermissions(
-    String fileName, {
-    bool isFile = true,
-    bool isExternalRes = false,
-  }) async {
-    final pdata = await loadACLData(
-      fileName,
-      isFile: isFile,
-      isExternalRes: isExternalRes,
-    );
-    final updatedPermHistoryList =
-        await sharedResourcesHistory(resourceName: fileName);
-
-    assert(pdata != null);
-
-    if (pdata!.permissionMap.isEmpty) {
-      await _alert('We could not find a resource by the name $fileName');
-    } else {
-      setState(() {
-        permDataMap = pdata.permissionMap;
-        permDataFile = fileName;
-        _ownerWebId = pdata.ownerWebId;
-        _granterWebId = pdata.granterWebId;
-      });
-    }
-
-    if (updatedPermHistoryList.isEmpty) {
-      await _alert(
-        'We could not find permission log entries for resource by the name $fileName',
-      );
-    } else {
-      setState(() {
-        permHistoryList = updatedPermHistoryList;
-        // Set full unfiltered list to current list from updated
-        // log fetch
-        unFilteredPermHistoryList = updatedPermHistoryList;
-      });
-    }
-  }
-
-  // Search log records
-  void _searchLogs(String enteredKeyword) {
-    bool found(it) => it.toLowerCase().contains(enteredKeyword.toLowerCase());
-
-    List<LogRecord> results = [];
-    if (enteredKeyword.isEmpty) {
-      // Display all log records if no search string
-      results = unFilteredPermHistoryList;
-      // permHistoryList;
-    } else {
-      // Display log records with recipient name, granter name,
-      // permission type, permission matches
-      results = unFilteredPermHistoryList.where((item) {
-        return [
-          item.recipientName,
-          item.granterName,
-          item.permissionType,
-          item.permissionList,
-        ].map(found).any((result) => result);
-      }).toList();
-    }
-
-    // Refresh the UI
-    setState(() {
-      permHistoryList = results;
-    });
-  }
-
-  /// Filter log records for current/all log records
-  void getLatestLogRecords() {
-    List<LogRecord> currentLogRecords = [];
-    List<String> currentRecipients = [];
-
-    // Loop through logs and get the latest for each resource
-    for (final record in permHistoryList) {
-      // Store most recent grant record
-      if ((record.permissionType).contains('grant')) {
-        final recipientWebId = record.recipientWebId;
-
-        currentRecipients =
-            currentLogRecords.map((item) => item.recipientWebId).toList();
-
-        if (currentRecipients.contains(recipientWebId)) {
-          final int prevMatchIndex = currentLogRecords
-              .indexWhere((item) => item.recipientWebId == recipientWebId);
-          final String prevDateTime =
-              currentLogRecords[prevMatchIndex].dateTimeStr;
-          // Update record if this record more recent than stored record
-          if ([0, 1].contains(
-            DateTime.parse(record.dateTimeStr)
-                .compareTo(DateTime.parse(prevDateTime)),
-          )) {
-            currentLogRecords[prevMatchIndex] = record;
-          }
-        } else {
-          // Store record if no prev record for this recipient
-          currentLogRecords.add(record);
-        }
-      } else {
-        // Skip revoke records
-        continue;
-      }
-    }
-
-    // Refresh the UI
-    setState(() {
-      permHistoryList = currentLogRecords;
-    });
-  }
-
-  /// Private function to call alert dialog in grant permission UI context
-  Future<void> _alert(String msg) async => alert(context, msg);
-
-  /// Build the main widget
-  Widget _buildPermPage(
-    BuildContext context, [
-    PermissionDetails? initPermDetails,
-    List<LogRecord>? initPermHistoryList,
-  ]) {
-    // Check if future is set or not. If set display the permission map
-    if (initPermDetails != null && permTableInitialied == false) {
-      permDataMap = initPermDetails.permissionMap;
-      _ownerWebId = initPermDetails.ownerWebId;
-      _granterWebId = initPermDetails.granterWebId;
-      permDataFile = widget.resourceName!;
-      permTableInitialied = true;
-    }
-
-    if (initPermHistoryList != null && permHistoryInitialied == false) {
-      permHistoryList = initPermHistoryList;
-      // Set full unfiltered list to current list from initial
-      // log fetch
-      unFilteredPermHistoryList = initPermHistoryList;
-      permHistoryInitialied = true;
-    }
-
-    final retrievePermissionButton = ElevatedButton(
-      child: const Text('Retrieve permissions'),
-      onPressed: () async {
-        final fileName = fileNameController.text;
-        if (fileName.isEmpty) {
-          await _alert('Please enter a file name');
-        } else {
-          await _updatePermissions(fileName, isFile: isFile);
-        }
-      },
-    );
-
-    bool getIsFile() => widget.resourceName != null ? widget.isFile : isFile;
-
-    // Use customAppBar if provided
-    final customAppBar = widget.customAppBar ??
-        defaultAppBar(
-          context,
-          widget.title,
-          widget.backgroundColor,
-          widget.child,
-          onNavigateBack: () => widget.onNavigateBack?.call(),
-          getResult: () => permissionsGrantedSuccessfully,
-        );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
-          // Display app bar if showAppBar selected
-          // AppBar will be defaultAppBar() if customAppBar()
-          // not provided
-          appBar: widget.showAppBar ? customAppBar : null,
-
-          body: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                smallGapV,
-                // Sharing heading
-                makeHeading(
-                  makeSharingTitleStr(
-                    fileName: widget.resourceName,
-                    isFile: widget.isFile,
-                  ),
-                  bold: false,
-                  addColor: false,
-                  addPadding: false,
-                ),
-                smallGapV,
-                // Choose resource and show _updatePermissions button
-                if (widget.resourceName == null) ...[
-                  getResourceForm(
-                    formController: fileNameController,
-                    isFile: isFile,
-                    onResourceTypeChange: (bool v) =>
-                        setState(() => isFile = v),
-                  ),
-                  smallGapV,
-                  retrievePermissionButton,
-                  smallGapV,
-                ],
-                ShareResourceButton(
-                  resourceName: widget.resourceName,
-                  fileNameController: fileNameController,
-                  accessModeList: widget.accessModeList,
-                  recipientTypeList: widget.recipientTypeList,
-                  updatePermissionsFunction: _updatePermissions,
-                  ownerWebId: _ownerWebId,
-                  granterWebId: _granterWebId,
-                  isExternalRes: widget.isExternalRes,
-                  isFile: widget.isFile,
-                  dataFilesMap: widget.dataFilesMap,
-                  onPermissionGranted: widget.onPermissionGranted,
-                ),
-
-                mediumGapV,
-                makeSubHeading(
-                  showCurrentPermOnly
-                      ? 'People with current access'
-                      : 'Permission history',
-                  addPadding: false,
-                ),
-                smallGapV,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  spacing: 5.0,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      // Search logs field
-                      child: showCurrentPermOnly
-                          ? const Text('')
-                          : TextField(
-                              onChanged: (value) => _searchLogs(value),
-                              decoration: const InputDecoration(
-                                labelText:
-                                    'Search access level, permission type, recipient or granter name',
-                                labelStyle: TextStyle(fontSize: 12),
-                                hintText: 'Enter search text',
-                                hintStyle: TextStyle(fontSize: 12),
-                                prefixIcon: Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25.0)),
-                                ),
-                              ),
-                            ),
-                    ),
-                    // Current/History permission switch
-                    SizedBox(
-                      width: 170.0,
-                      child: MarkdownTooltip(
-                        message:
-                            'Switch between current people with access and permission history log',
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          spacing: 5.0,
-                          children: [
-                            SizedBox(
-                              width: 100,
-                              child: Text(
-                                showCurrentPermOnly
-                                    ? 'Current Permissions'
-                                    : 'All Permissions',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.end,
-                              ),
-                            ),
-                            Switch(
-                              // This bool value toggles the switch.
-                              value: showCurrentPermOnly,
-                              activeThumbColor: ActionColors.success,
-                              onChanged: (bool value) {
-                                // This is called when the user toggles the switch.
-                                setState(() {
-                                  showCurrentPermOnly = value;
-                                });
-                                // If showing all permission
-                                // default to full permission history
-                                // list
-                                if (!showCurrentPermOnly) {
-                                  setState(() {
-                                    permHistoryList = unFilteredPermHistoryList;
-                                  });
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                vSmallGapV,
-
-                // Show permissions from ACL if showCurrentPermOnly
-                // is selected, else show searchable permission
-                // history.
-
-                showCurrentPermOnly
-                    ? PermissionTable(
-                        resourceName: permDataFile,
-                        permDataMap: permDataMap,
-                        ownerWebId: _ownerWebId,
-                        granterWebId: _granterWebId,
-                        updatePermissionsFunction: _updatePermissions,
-                        parentWidget: widget.child,
-                        isFile: getIsFile(),
-                        isExternalRes: widget.isExternalRes,
-                        constraints: constraints,
-                      )
-                    : PermissionHistory(
-                        // Force history rebuild on permission history change.
-
-                        key: ValueKey(permHistoryList),
-                        resourceName: widget.resourceName!,
-                        permHistory: permHistoryList,
-                        constraints: constraints,
-                      ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.resourceName == null
-      ? _buildPermPage(context)
-      : FutureBuilder(
-          future: Future.wait([
-            // Future that returns List of current access from ACL
-            getACLPerm,
-            // Future that returns List<LogRecord> from permission log
-            getPermHistoryList,
-          ]),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Scaffold(body: loadingScreen(normalLoadingScreenHeight));
-            }
-            final PermissionDetails initCurrentPerm =
-                snapshot.data![0] as PermissionDetails;
-            final List<LogRecord> initPermHistoryList =
-                snapshot.data![1] as List<LogRecord>;
-            return initCurrentPerm.permissionMap.isEmpty
-                ? widget.child
-                : _buildPermPage(context, initCurrentPerm, initPermHistoryList);
-          },
-        );
 }

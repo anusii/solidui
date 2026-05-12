@@ -49,7 +49,7 @@ Widget buildSharedResourcesTable(
   Map<dynamic, dynamic> sharedResMap,
   Widget parentWidget,
 ) {
-  final cWidth = MediaQuery.of(context).size.width * 0.18;
+  final cWidth = MediaQuery.sizeOf(context).width * 0.18;
   DataColumn buildDataColumn(String title, String tooltip) {
     return DataColumn(
       label: Expanded(child: Center(child: Text(title))),
@@ -203,7 +203,7 @@ Widget buildSharedResourcesTable(
                                           // Close the dialog
                                           Navigator.of(ctx).pop();
                                         },
-                                        child: const Text('Ok'),
+                                        child: const Text('OK'),
                                       ),
                                     ],
                                   ),

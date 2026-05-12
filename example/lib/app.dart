@@ -1,30 +1,25 @@
 /// The primary App widget.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2024, Software Innovation Institute, ANU.
 ///
-/// Licensed under the MIT License (the "License").
+/// Licensed under the GNU General Public License, Version 3 (the "License").
 ///
-/// License: https://choosealicense.com/licenses/mit/.
+/// License: https://opensource.org/license/gpl-3-0.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// You should have received a copy of the GNU General Public License along with
+// this program.  If not, see <https://opensource.org/license/gpl-3-0>.
 ///
-/// Authors: Tony Chen
+/// Authors: Graham Williams
 
 library;
 
@@ -32,10 +27,8 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/solidui.dart';
 
-import 'app_scaffold.dart';
-import 'constants/app.dart';
-
-// This widget is the root of the application.
+import 'package:demopod/app_scaffold.dart';
+import 'package:demopod/constants/app.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -43,24 +36,24 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SolidThemeApp(
-      // Turn off debug banner for now.
-
       debugShowCheckedModeBanner: false,
       title: appTitle,
-
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFF0E4D7),
+        ),
         useMaterial3: true,
       ),
-
       home: const SolidLogin(
-        image: AssetImage('assets/images/app_image.jpg'),
-        logo: AssetImage('assets/images/app_icon.png'),
-        customFolderPathList: [
-          'customDir1',
-          'customDir2',
-          'customDir2/customDir3',
-        ],
+        title: 'SOLID POD DEMONSTRATOR',
+        appDirectory: 'demopod',
+        image: AssetImage('assets/images/demopod_image.jpg'),
+        logo: AssetImage('assets/images/demopod_logo.png'),
+        link: 'https://github.com/anusii/solidpod/blob/main/demopod/README.md',
+        required: false,
+        infoButtonStyle: InfoButtonStyle(
+          tooltip: 'Visit the DemoPod documentation.',
+        ),
         child: appScaffold,
       ),
     );

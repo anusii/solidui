@@ -1,6 +1,6 @@
 /// Solid Status Bar.
 ///
-// Time-stamp: <Monday 2025-08-11 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Thursday 2026-03-26 09:23:47 +1100 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -85,6 +85,21 @@ class SolidStatusBar extends StatelessWidget {
     }
   }
 
+  /// Returns a readable status colour that works in both light and dark modes.
+
+  Color _statusColor(BuildContext context, {required bool active}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (active) {
+      return isDark
+          ? const Color(0xFF66BB6A)
+          : Theme.of(context).colorScheme.tertiary;
+    }
+
+    return isDark
+        ? const Color(0xFFEF9A9A)
+        : Theme.of(context).colorScheme.error;
+  }
+
   /// Creates an interactive text widget.
 
   Widget _createInteractiveText({
@@ -94,14 +109,18 @@ class SolidStatusBar extends StatelessWidget {
     TextStyle? style,
   }) {
     final theme = Theme.of(context);
-    final defaultStyle = theme.textTheme.bodyMedium?.copyWith(
+    final defaultStyle = theme.textTheme.bodySmall?.copyWith(
           color: theme.colorScheme.primary,
+          fontSize: 13,
         ) ??
-        const TextStyle(fontSize: 14, color: Colors.blue);
+        const TextStyle(fontSize: 13, color: Colors.blue);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Text(text, style: style ?? defaultStyle),
+    final child = Text(text, style: style ?? defaultStyle);
+    if (onTap == null) return child;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(onTap: onTap, child: child),
     );
   }
 
@@ -122,8 +141,9 @@ class SolidStatusBar extends StatelessWidget {
         onTap: serverInfo.isClickable
             ? () => _launchUrl(serverInfo.serverUri)
             : null,
-        style: theme.textTheme.bodyMedium?.copyWith(
+        style: theme.textTheme.bodySmall?.copyWith(
           color: theme.colorScheme.primary,
+          fontSize: 13,
         ),
       ),
     );
@@ -137,17 +157,37 @@ class SolidStatusBar extends StatelessWidget {
 
     final theme = Theme.of(context);
 
+    final statusColor = _statusColor(context, active: loginStatus.isLoggedIn);
+
     return MarkdownTooltip(
       message: loginStatus.tooltipText,
-      child: _createInteractiveText(
-        context: context,
-        text: 'Login Status: ${loginStatus.displayText}',
-        onTap: loginStatus.onTap ??
-            () => SolidAuthHandler.instance.handleAuthAction(context),
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: loginStatus.isLoggedIn
-              ? theme.colorScheme.tertiary
-              : theme.colorScheme.error,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: loginStatus.onTap ??
+              () => SolidAuthHandler.instance.handleAuthAction(context),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const Gap(6),
+              Text(
+                loginStatus.displayText,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: statusColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -169,16 +209,38 @@ class SolidStatusBar extends StatelessWidget {
 
     onTap ??= () => _showSecurityKeyManager(context, securityKeyStatus);
 
+    final statusColor = _statusColor(
+      context,
+      active: securityKeyStatus.isKeySaved == true,
+    );
+
     return MarkdownTooltip(
       message: securityKeyStatus.tooltipText,
-      child: _createInteractiveText(
-        context: context,
-        text: securityKeyStatus.displayText,
-        onTap: onTap,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: securityKeyStatus.isKeySaved == true
-              ? theme.colorScheme.tertiary
-              : theme.colorScheme.error,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                securityKeyStatus.isKeySaved == true
+                    ? Icons.key
+                    : Icons.key_off,
+                size: 14,
+                color: statusColor,
+              ),
+              const Gap(5),
+              Text(
+                securityKeyStatus.displayText,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: statusColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -253,7 +315,7 @@ class SolidStatusBar extends StatelessWidget {
   /// Builds the narrow layout (vertical stack).
 
   Widget _buildNarrowLayout(BuildContext context) {
-    final theme = Theme.of(context);
+    final cs = Theme.of(context).colorScheme;
     final items = <Widget>[];
 
     final serverInfo = _buildServerInfo(context);
@@ -267,33 +329,26 @@ class SolidStatusBar extends StatelessWidget {
 
     items.addAll(_buildCustomItems());
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Divider(height: 1, color: theme.dividerColor),
-        Container(
-          color: config.backgroundColor ?? theme.colorScheme.surface,
-          height: config.narrowLayoutHeight,
-          padding: config.padding,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: items
-                  .expand((item) => [item, const Gap(2)])
-                  .take(items.length * 2 - 1)
-                  .toList(),
-            ),
-          ),
+    return _statusContainer(
+      cs: cs,
+      height: config.narrowLayoutHeight,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: items
+              .expand((item) => [item, const Gap(2)])
+              .take(items.length * 2 - 1)
+              .toList(),
         ),
-      ],
+      ),
     );
   }
 
   /// Builds the medium layout (mixed vertical and horizontal).
 
   Widget _buildMediumLayout(BuildContext context) {
-    final theme = Theme.of(context);
+    final cs = Theme.of(context).colorScheme;
     final serverInfo = _buildServerInfo(context);
     final loginStatus = _buildLoginStatus(context);
     final securityKeyStatus = _buildSecurityKeyStatus(context);
@@ -304,41 +359,31 @@ class SolidStatusBar extends StatelessWidget {
     if (securityKeyStatus != null) bottomItems.add(securityKeyStatus);
     bottomItems.addAll(customItems);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Divider(height: 1, color: theme.dividerColor),
-        Container(
-          color: config.backgroundColor ?? theme.colorScheme.surface,
-          height: config.mediumLayoutHeight,
-          padding: config.padding,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (serverInfo != null) ...[serverInfo, const Gap(4)],
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: bottomItems
-                        .expand((item) => [item, Gap(config.itemSpacing)])
-                        .take(bottomItems.length * 2 - 1)
-                        .toList(),
-                  ),
-                ),
-              ],
+    return _statusContainer(
+      cs: cs,
+      height: config.mediumLayoutHeight,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (serverInfo != null) ...[serverInfo, const Gap(4)],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: _interleaveWithSeparator(bottomItems, cs),
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
   /// Builds the wide layout (horizontal row).
 
   Widget _buildWideLayout(BuildContext context) {
-    final theme = Theme.of(context);
+    final cs = Theme.of(context).colorScheme;
     final serverInfo = _buildServerInfo(context);
     final loginStatus = _buildLoginStatus(context);
     final securityKeyStatus = _buildSecurityKeyStatus(context);
@@ -349,30 +394,68 @@ class SolidStatusBar extends StatelessWidget {
     if (securityKeyStatus != null) rightItems.add(securityKeyStatus);
     rightItems.addAll(customItems);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Divider(height: 1, color: theme.dividerColor),
-        Container(
-          color: config.backgroundColor ?? theme.colorScheme.surface,
-          height: config.wideLayoutHeight,
-          padding: config.padding,
-          child: Row(
-            children: [
-              // Always use Expanded to push right items to the right side.
-              Expanded(child: serverInfo ?? const SizedBox.shrink()),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: rightItems
-                    .expand((item) => [item, Gap(config.itemSpacing)])
-                    .take(rightItems.length * 2 - 1)
-                    .toList(),
-              ),
-            ],
+    return _statusContainer(
+      cs: cs,
+      height: config.wideLayoutHeight,
+      child: Row(
+        children: [
+          Expanded(child: serverInfo ?? const SizedBox.shrink()),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: _interleaveWithSeparator(rightItems, cs),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  /// Wraps content in a consistent status bar container with a subtle top
+  /// border and surface background.
+
+  Widget _statusContainer({
+    required ColorScheme cs,
+    required double height,
+    required Widget child,
+  }) =>
+      Container(
+        height: height,
+        padding: config.padding,
+        decoration: BoxDecoration(
+          color: config.backgroundColor ?? cs.surface,
+          border: Border(
+            top: BorderSide(
+              color: cs.outlineVariant.withValues(alpha: 0.3),
+              width: 1,
+            ),
           ),
         ),
-      ],
+        child: child,
+      );
+
+  /// Interleaves a list of widgets with subtle separator dots.
+
+  List<Widget> _interleaveWithSeparator(List<Widget> items, ColorScheme cs) {
+    if (items.isEmpty) return items;
+    final sep = Padding(
+      padding: EdgeInsets.symmetric(horizontal: config.itemSpacing / 2),
+      child: Text(
+        '·',
+        style: TextStyle(
+          color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+          fontSize: 16,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
     );
+
+    return [
+      for (int i = 0; i < items.length; i++) ...[
+        items[i],
+        if (i < items.length - 1) sep,
+      ],
+    ];
   }
 
   @override

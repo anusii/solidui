@@ -45,8 +45,10 @@ import 'package:solidui/src/widgets/security_key_ui.dart';
 /// Displays a dialog for changing the security key.
 ///
 /// [context] is the BuildContext from which this function is called.
+/// Returns `true` if the security key was changed successfully, otherwise
+/// `false`.
 
-Future<void> changeKeyPopup(BuildContext context, Widget child) async {
+Future<bool> changeKeyPopup(BuildContext context, Widget child) async {
   if (!await isUserLoggedIn()) {
     throw NotLoggedInException(
       'User must be logged in to change security key.',
@@ -86,6 +88,11 @@ Future<void> changeKeyPopup(BuildContext context, Widget child) async {
 
     final outerContext = context;
 
+    // Tracks whether the security key was actually changed, so callers can
+    // react accordingly.
+
+    var changedSuccessfully = false;
+
     Future<void> submitForm(Map<String, dynamic> formDataMap) async {
       final currentKey = formDataMap[currentKeyStr].toString();
       final newKey = formDataMap[newKeyStr].toString();
@@ -104,6 +111,7 @@ Future<void> changeKeyPopup(BuildContext context, Widget child) async {
       try {
         await KeyManager.changeSecurityKey(currentKey, newKey);
 
+        changedSuccessfully = true;
         msg = 'Successfully changed the security key!';
         bgColor = Colors.green;
         duration = const Duration(seconds: 4);
@@ -165,5 +173,7 @@ Future<void> changeKeyPopup(BuildContext context, Widget child) async {
         ),
       );
     }
+
+    return changedSuccessfully;
   }
 }

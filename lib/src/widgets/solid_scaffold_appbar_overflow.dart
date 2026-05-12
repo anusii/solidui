@@ -35,13 +35,24 @@ import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_about_button.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
 
 /// Handles overflow menu logic for AppBar.
+
+class SolidAppBarOverflowController {
+  /// Whether the overflow menu feature is enabled at the scaffold level.
+  /// When false, the three-dot menu button is never rendered and all visible
+  /// buttons are displayed directly in the AppBar.
+
+  static bool isEnabled = true;
+}
 
 class SolidAppBarOverflowHandler {
   /// Handles overflow menu on narrow screens.
@@ -49,23 +60,44 @@ class SolidAppBarOverflowHandler {
   static void handleOverflowMenu(
     List<Widget> actions,
     SolidAppBarConfig config,
-    double screenWidth,
+    double layoutWidth,
     SolidThemeToggleConfig? themeToggle,
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
     SolidAboutConfig aboutConfig,
     BuildContext context, {
+    bool showLogout = true,
+    bool showLogin = true,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
+    SolidInviteOthersConfig? inviteConfig,
+    bool profileEnabled = false,
+    bool enableOverflowMenu = true,
   }) {
-    // Use narrowScreenThreshold to determine when to show overflow menu.
+    // When the overflow feature is disabled at scaffold level, never render
+    // the three-dot menu; every visible button stays in the AppBar.
 
-    final isNarrowScreen = screenWidth < config.narrowScreenThreshold;
+    if (!enableOverflowMenu) return;
 
-    // Only show overflow menu on narrow screens.
-    // On wide screens, all buttons are displayed directly in AppBar.
+    final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
 
-    if (!isNarrowScreen) return;
+    // Only show overflow menu on very narrow screens.
+    // On wider screens, all buttons are displayed directly in AppBar.
+
+    if (!isVeryNarrowScreen) return;
+
+    // When profiles are enabled, the avatar popup hosts Logout/Login
+    // and the About dialog hosts Share, so the overflow menu must
+    // not duplicate those entries.
+
+    final effectiveShowLogout = showLogout && !profileEnabled;
+    final effectiveInviteConfig = profileEnabled ? null : inviteConfig;
+
+    // Skip rendering the overflow button when no visible action is actually
+    // routed into the overflow menu. This keeps the AppBar tidy when the
+    // user (or the application defaults) leaves the menu empty.
+
+    if (!_hasItemsInOverflow(themeToggle, aboutConfig, showLogout)) return;
 
     actions.add(
       _buildOverflowMenu(
@@ -78,13 +110,67 @@ class SolidAppBarOverflowHandler {
         shouldShowAboutInOverflow(aboutConfig, forceOverflow: true),
         context,
         hasLogoutInOverflow: shouldShowLogoutInOverflow(
-          true,
+          effectiveShowLogout,
           forceOverflow: true,
         ),
+        hasInviteOthersInOverflow: shouldShowInviteOthersInOverflow(
+          effectiveInviteConfig,
+          forceOverflow: true,
+        ),
+        inviteConfig: effectiveInviteConfig,
         onLogout: onLogout,
         onLogin: onLogin,
       ),
     );
+  }
+
+  /// Returns true when at least one visible AppBar action is configured to
+  /// appear inside the overflow menu. Used to suppress the three-dot button
+  /// when the menu would otherwise render empty.
+
+  static bool _hasItemsInOverflow(
+    SolidThemeToggleConfig? themeToggle,
+    SolidAboutConfig aboutConfig,
+    bool hasLogout,
+  ) {
+    final actions = solidPreferencesNotifier.appBarActions;
+    for (final action in actions) {
+      if (!action.isVisible || !action.showInOverflow) continue;
+
+      // Filter out buttons whose underlying feature is disabled even though
+      // the preference still lists them.
+
+      if (action.id == SolidAppBarActionIds.themeToggle &&
+          (themeToggle == null || !themeToggle.enabled)) {
+        continue;
+      }
+      if (action.id == SolidAppBarActionIds.about && !aboutConfig.enabled) {
+        continue;
+      }
+      if (action.id == SolidAppBarActionIds.logout && !hasLogout) {
+        continue;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /// Determines if the Invite Others entry should appear in the
+  /// overflow menu.
+
+  static bool shouldShowInviteOthersInOverflow(
+    SolidInviteOthersConfig? inviteConfig, {
+    bool forceOverflow = false,
+  }) {
+    if (inviteConfig == null || !inviteConfig.enabled) return false;
+    final actionConfig = SolidAppBarActionsManager.getActionConfig(
+      SolidAppBarActionIds.inviteOthers,
+    );
+    final isVisible = actionConfig?.isVisible ?? true;
+    if (!isVisible) return false;
+    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    if (forceOverflow) return isInOverflow;
+    return isInOverflow;
   }
 
   /// Determines if logout should be shown in overflow menu.
@@ -166,6 +252,8 @@ class SolidAppBarOverflowHandler {
     bool hasAboutInOverflow,
     BuildContext parentContext, {
     bool hasLogoutInOverflow = false,
+    bool hasInviteOthersInOverflow = false,
+    SolidInviteOthersConfig? inviteConfig,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
   }) {
@@ -178,6 +266,8 @@ class SolidAppBarOverflowHandler {
       hasThemeToggleInOverflow: hasThemeToggleInOverflow,
       hasAboutInOverflow: hasAboutInOverflow,
       hasLogoutInOverflow: hasLogoutInOverflow,
+      hasInviteOthersInOverflow: hasInviteOthersInOverflow,
+      inviteConfig: inviteConfig,
       onLogout: onLogout,
       onLogin: onLogin,
     );
@@ -195,6 +285,8 @@ class _DynamicOverflowMenu extends StatefulWidget {
   final bool hasThemeToggleInOverflow;
   final bool hasAboutInOverflow;
   final bool hasLogoutInOverflow;
+  final bool hasInviteOthersInOverflow;
+  final SolidInviteOthersConfig? inviteConfig;
   final void Function(BuildContext)? onLogout;
   final void Function(BuildContext)? onLogin;
 
@@ -207,6 +299,8 @@ class _DynamicOverflowMenu extends StatefulWidget {
     required this.hasThemeToggleInOverflow,
     required this.hasAboutInOverflow,
     required this.hasLogoutInOverflow,
+    required this.hasInviteOthersInOverflow,
+    required this.inviteConfig,
     required this.onLogout,
     required this.onLogin,
   });
@@ -260,6 +354,11 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
         widget.aboutConfig.onPressed!();
       } else {
         SolidAbout.show(context, widget.aboutConfig);
+      }
+    } else if (id == SolidAppBarActionIds.inviteOthers) {
+      final invite = widget.inviteConfig;
+      if (invite != null) {
+        InviteOthersDialog.show(context, config: invite);
       }
     } else if (id == 'logout') {
       // User tapped logout whilst logged in.
@@ -321,6 +420,8 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
           widget.hasAboutInOverflow,
           hasLogoutInOverflow: widget.hasLogoutInOverflow,
           isLoggedIn: _isLoggedIn,
+          hasInviteOthersInOverflow: widget.hasInviteOthersInOverflow,
+          inviteConfig: widget.inviteConfig,
         );
       },
     );

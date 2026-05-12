@@ -44,30 +44,31 @@ class FileList extends StatelessWidget {
 
   final String currentPath;
 
-  /// The currently selected file name.
+  /// Set of currently selected item keys (e.g. "file:fileName").
 
-  final String? selectedFile;
+  final Set<String> selectedItems;
 
-  /// Callback when a file is selected.
+  /// Callback when a file is tapped to view/open it.
 
   final Function(String, String) onFileSelected;
 
-  /// Callback when a file is downloaded.
+  /// Callback to toggle selection of an item by its key.
 
-  final Function(String, String) onFileDownload;
+  final Function(String) onToggleSelection;
 
-  /// Callback when a file is deleted.
+  /// Callback to add or remove a batch of item keys in one operation.
 
-  final Function(String, String) onFileDelete;
+  final void Function(List<String> keys, {required bool selected})
+      onBatchSetSelection;
 
   const FileList({
     super.key,
     required this.files,
     required this.currentPath,
-    required this.selectedFile,
+    required this.selectedItems,
     required this.onFileSelected,
-    required this.onFileDownload,
-    required this.onFileDelete,
+    required this.onToggleSelection,
+    required this.onBatchSetSelection,
   });
 
   @override
@@ -76,32 +77,71 @@ class FileList extends StatelessWidget {
 
     if (files.isEmpty) return const SizedBox.shrink();
 
+    // Compute the selection state for the select-all checkbox.
+
+    final allKeys = files.map((f) => 'file:${f.name}').toList();
+    final selectedCount =
+        allKeys.where((k) => selectedItems.contains(k)).length;
+    final allSelected = selectedCount == files.length;
+    final noneSelected = selectedCount == 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header for files.
+        // Section header with a select-all checkbox.
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Files',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.titleLarge?.color,
-            ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: Checkbox(
+                  value: allSelected
+                      ? true
+                      : noneSelected
+                          ? false
+                          : null,
+                  tristate: true,
+                  onChanged: (_) {
+                    if (allSelected) {
+                      onBatchSetSelection(allKeys, selected: false);
+                    } else {
+                      onBatchSetSelection(allKeys, selected: true);
+                    }
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Files',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                ),
+              ),
+            ],
           ),
         ),
 
-        // List of file items.
+        // List of file items with selection support.
+
         ...files.map(
-          (file) => FileListItem(
-            file: file,
-            currentPath: currentPath,
-            isSelected: selectedFile == file.name,
-            onFileSelected: onFileSelected,
-            onFileDownload: onFileDownload,
-            onFileDelete: onFileDelete,
-          ),
+          (file) {
+            final itemKey = 'file:${file.name}';
+
+            return FileListItem(
+              file: file,
+              currentPath: currentPath,
+              isSelected: selectedItems.contains(itemKey),
+              onFileSelected: onFileSelected,
+              onToggleSelect: () => onToggleSelection(itemKey),
+            );
+          },
         ),
       ],
     );

@@ -40,16 +40,20 @@ import 'package:solidui/src/widgets/solid_security_key_view_dialogs.dart';
 
 class SolidSecurityKeyManagerDialogs {
   /// Shows the key input dialog for existing keys.
+  ///
+  /// Returns `true` if the security key was successfully changed, otherwise
+  /// `false`.
 
-  static Future<void> showKeyInputDialog(
+  static Future<bool> showKeyInputDialog(
     BuildContext context,
     Widget appWidget,
     Future<void> Function() onKeyChanged,
   ) async {
     try {
-      await changeKeyPopup(context, appWidget);
-      if (!context.mounted) return;
+      final changed = await changeKeyPopup(context, appWidget);
+      if (!context.mounted) return changed;
       await onKeyChanged();
+      return changed;
     } catch (e) {
       final errorStr = e.toString().toLowerCase();
       final isScaffoldError =
@@ -63,6 +67,7 @@ class SolidSecurityKeyManagerDialogs {
           'Failed to change security key: ${e.toString()}',
         );
       }
+      return false;
     }
   }
 

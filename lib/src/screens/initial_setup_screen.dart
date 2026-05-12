@@ -51,6 +51,7 @@ class InitialSetupScreen extends StatefulWidget {
     required this.resCheckList,
     required this.child,
     this.originalLogin,
+    this.isUpdate,
     super.key,
   });
 
@@ -75,6 +76,14 @@ class InitialSetupScreen extends StatefulWidget {
   /// The original SolidLogin widget to return to when back is pressed
 
   final SolidLogin? originalLogin;
+
+  /// Pre-computed "update mode" flag supplied by the caller (typically the
+  /// login handler). When non-null the wizard uses this value directly and
+  /// skips its own remote check, avoiding a loading spinner and an extra
+  /// network round-trip. When null the wizard falls back to detecting
+  /// update mode itself for backwards compatibility.
+
+  final bool? isUpdate;
 
   @override
   State<InitialSetupScreen> createState() => _InitialSetupScreenState();
@@ -101,6 +110,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
             child: InitialSetupScreenBody(
               resNeedToCreate: resNeedToCreate,
               originalLogin: widget.originalLogin,
+              isUpdate: widget.isUpdate,
               child: widget.child,
             ),
           ),

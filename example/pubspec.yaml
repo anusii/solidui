@@ -1,35 +1,26 @@
-name: myapp
-description: My App - A SolidUI Template Application
+name: demopod
+description: 'SolidGUI Demonstrator.'
 publish_to: 'none'
-version: 0.0.4+0
+version: 1.0.0+0
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: ">=3.10.0"
+  sdk: '>=3.4.3 <4.0.0'
 
 dependencies:
+  editable: ^2.0.0
+  file_picker: ^11.0.2
   flutter:
     sdk: flutter
-  markdown_tooltip: 0.0.10
-  shared_preferences: ^2.5.4
-  solidpod: ^0.10.1
-  solidui: # ^0.1.0
-    path: ..
-  window_manager: ^0.5.1
-
-dependency_overrides:
-  solidpod:
-    git:
-      url: https://github.com/anusii/solidpod.git
-      ref: dev
+  intl: any
+  markdown_tooltip: ^0.0.10
+  rdflib: ^0.2.12
+  solidpod: ^0.12.4
   solidui:
     path: ..
-
-dev_dependencies:
-  flutter_lints: ^5.0.0
+  universal_io: ^2.3.1
+  window_manager: ^0.5.1
 
 flutter:
   uses-material-design: true
-
   assets:
     - assets/images/

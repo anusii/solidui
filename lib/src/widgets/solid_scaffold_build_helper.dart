@@ -118,6 +118,7 @@ class SolidScaffoldBuildHelper {
 
   static Widget buildConfiguredScaffold({
     required BuildContext context,
+    required BoxConstraints constraints,
     required GlobalKey<ScaffoldState> scaffoldKey,
     required SolidScaffoldInternalConfig config,
     required bool isWideScreen,
@@ -162,10 +163,14 @@ class SolidScaffoldBuildHelper {
           shouldShowVersion,
           getVersionToDisplay,
           hideNavRail: config.hideNavRail,
+          onLogout: config.onLogout,
+          onLogin: config.onLogin,
+          settingsWidget: config.settingsWidget,
         ),
       ),
       buildDrawer: () {
         if (isWideScreen || config.menu == null) return null;
+
         return SolidNavDrawer(
           userInfo: config.userInfo,
           tabs: SolidScaffoldHelpers.convertToNavTabs(config.menu),
@@ -173,6 +178,7 @@ class SolidScaffoldBuildHelper {
           onTabSelected: onMenuSelected,
           onLogout: config.onLogout,
           showLogout: config.onLogout != null,
+          settingsWidget: config.settingsWidget,
         );
       },
       endDrawer: config.endDrawer,

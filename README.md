@@ -30,15 +30,23 @@ utilising the solidui package.
 ## Table of Contents
 
 - [Installation](#installation)
+- [Features](#features)
 - [Requirements](#requirements)
+- [Quick Start to Create an App](#quick-start-to-create-an-app)
 - [SolidScaffold](#solidscaffold)
+- [Appearance Preferences](#appearance-preferences)
 - [SolidFile](#solidfile)
+- [Login Example](#login-example)
+- [Change Security Key Example](#change-security-key-example)
 - [Grant Permission UI Example](#grant-permission-ui-example)
 - [View Permission UI Example](#view-permission-ui-example)
 - [Authentication and Login Detection](#authentication-and-login-detection)
 - [Security Key Management](#security-key-management)
 - [API Reference](#api-reference)
 - [Examples](#examples)
+- [Licence](#licence)
+- [Authors](#authors)
+- [Additional information](#additional-information)
 
 ## Installation
 
@@ -170,21 +178,24 @@ published by `example.com` begin with:
 flutter create --template solidui --domain com.example myapp
 ```
 
-This will create a template app which we also included here under the
-`example/` directory. The app consists of several files within the
-`lib/` directory.  `main.dart` is the main entry point to the app. Its
-task in our framework is to initialise the application and then launch
-the app itself.  `app.dart` implements the `App()` which is typically
-where we instantiate a `SolidLogin()`, often as the `child:` of a
-`SolidThemeApp()`.  The `SolidLogin()` provides the login page for the
-app. After logging in the `AppScaffold()`, as the `child:` of the
-`SolidLogin()`, is instantiated to contain the main functionality of
-the app.  `app_scaffold.dart` implements the `AppScaffold()` widget
-which builds a `SolidScaffold()` to set up the framework for a typical
-Solid app. The child is the `Home()` widget. `home.dart` implements
-the `Home()` widget as the main app functionality. Constants are
-defined in `constants/app.dart` and utilities such as desktop platform
-detection are in `utils/is_desktop.dart`.
+A demonstrator example application (DemoPod) is available in the
+[example](example/) folder of this repository. DemoPod showcases the
+suite of functionality provided by `solidpod` and `solidui`,
+including reading and writing encrypted data, ACL inheritance,
+permission management, large file transfers, and more.
+
+A standalone file browser application is available in the
+[FilePod](https://github.com/anusii/filepod) repository. FilePod
+demonstrates building a complete Solid app using `SolidScaffold`,
+`SolidFile`, and the broader `solidui` framework.
+
+Both applications consist of several files within their `lib/`
+directory.  `main.dart` is the main entry point to the app. Its task
+in our framework is to initialise the application and then launch the
+app itself. `home.dart` implements the `Home()` widget as the main
+app functionality. Constants are defined in `constants/app.dart` and
+utilities such as desktop platform detection are in
+`utils/is_desktop.dart`.
 
 ## SolidScaffold
 
@@ -444,6 +455,44 @@ class SolidThemeToggleConfig {
                                      // (default: true)
 }
 ```
+
+### Appearance Preferences
+
+SolidUI stores user appearance preferences via `SolidPreferencesNotifier`
+and `SolidPreferencesConfig`. These preferences persist across sessions
+using `shared_preferences`. The `SolidPreferencesDialog` provides a UI
+for configuring AppBar layout.
+
+#### AppBar Layout Preferences
+
+AppBar action buttons can be customised via the AppBar Layout Preferences
+dialogue (typically opened from the AppBar Layout Preferences button in the
+About Dialogue):
+
+- **Button order**: Drag to reorder buttons. Order is saved and used
+  across screen sizes.
+- **Visibility**: Use the eye icon to show or hide individual buttons.
+  Hidden buttons are not shown in the AppBar or overflow menu.
+- **Overflow behaviour**: Use the menu icon to choose whether a button
+  appears in the AppBar or only in the overflow menu on narrow screens.
+  Buttons in the overflow menu are accessible via the "more" (⋮) icon.
+
+Preferences are stored per application and persist across restarts.
+
+#### Theme Mode Configuration
+
+`SolidThemeModeConfig` controls which theme modes appear in the theme
+toggle cycle and how switching behaves:
+
+| Option | Default | Description |
+| -------- | --------- | ------------- |
+| `lightModeEnabled` | `true` | Include Light mode in the toggle cycle. When enabled, users can switch to a light theme optimised for bright viewing conditions. |
+| `darkModeEnabled` | `true` | Include Dark mode in the toggle cycle. When enabled, users can switch to a dark theme for low-light viewing. |
+| `systemModeEnabled` | `true` | Include System mode in the toggle cycle. When enabled, the app follows the device's light/dark setting. |
+| `smartToggle` | `true` | When all three modes are enabled: in System mode, tapping the theme toggle switches to the opposite of the current system brightness (e.g. light → dark), then toggles between Light and Dark. When `false`, the toggle cycles mechanically: System → Light → Dark → System. |
+
+At least one of `lightModeEnabled`, `darkModeEnabled`, or
+`systemModeEnabled` must be `true`.
 
 ### About Dialogue Configuration
 
@@ -786,9 +835,13 @@ ElevatedButton(
 The `GrantPermissionUi` widget provides a full-featured page for
 granting, editing, and revoking access permissions on resources stored
 in a Solid POD. Wrap it inside a navigation action to reach the
-permission management page.
+permission management page.  The titleData parameter, if provides,
+adds support for switch between file url, filename and file title.
 
-### Basic usage (browse all resources)
+### Basic usage to grant/revoke/change permissions for any resource
+
+This allows the user to select the resource, before inspecting their permissions
+and granting, revoking or editing permissions.
 
 ```dart
 ElevatedButton(
@@ -804,16 +857,16 @@ ElevatedButton(
 )
 ```
 
-### Permissions for a specific file
+### Grant/revoke/change permissions for a specific file
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from a Specific File'),
+  child: const Text('Add/Delete Permissions to a Specific File'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => const GrantPermissionUi(
-        resourceName: 'my-data-file.ttl',
+        resourceNames: ['my-data-file.ttl'],
         child: ReturnPage(),
       ),
     ),
@@ -821,16 +874,16 @@ ElevatedButton(
 )
 ```
 
-### Permissions for a specific directory
+### Grant/revoke/change permissions for a specific directory
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from a Specific Directory'),
+  child: const Text('Add/Delete Permissions to a Specific Directory'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => const GrantPermissionUi(
-        resourceName: 'parentDir/',
+        resourceNames: ['parentDir/'],
         child: ReturnPage(),
         isFile: false,
       ),
@@ -839,19 +892,41 @@ ElevatedButton(
 )
 ```
 
-### Permissions for an externally owned resource
+### Grant/revoke/change permissions for an externally owned resource
 
 When the user has *control* access to a resource owned by someone else:
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from an External File'),
+  child: const Text('Add/Delete Permissions to an External File'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => GrantPermissionUi(
-        resourceName: 'my-data-file.ttl',
+        resourceNames: const ['my-data-file.ttl'],
         isExternalRes: true,
+        ownerWebId: ownerWebId,
+        granterWebId: granterWebId,
+        child: ReturnPage(),
+      ),
+    ),
+  ),
+)
+```
+
+### Grant permissions for multiple user owned resources
+
+When the user wants to apply the same grant permission operation on
+a list of resources:
+
+```dart
+ElevatedButton(
+  child: const Text('Add/Delete Permissions for Multiple Files'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => GrantPermissionUi(
+        resourceNames: const ['my-data-file1.ttl', 'my-data-file2.ttl', 'my-data-file3.ttl'],
         ownerWebId: ownerWebId,
         granterWebId: granterWebId,
         child: ReturnPage(),
@@ -1074,15 +1149,14 @@ class NavigationConstants {
   static const double veryNarrowScreenThreshold = 400.0;
   static const double statusBarHeight = 32.0; // Default status bar height
   static const double navRailWidth = 72.0; // Navigation rail width
-  static const double navRailExtendedWidth = 256.0; // Extended navigation
-  rail width
+  static const double navRailExtendedWidth = 256.0; // Extended navigation rail width
 }
 ```
 
 #### Responsive Behaviour Summary
 
 | Screen Width (px) | Navigation | App Bar Actions | Status Bar | File Layout |
-|------|------------|-----------------|-----------|-------------|
+| ------ | ------------ | ----------------- | ----------- | ------------- |
 | ≥800 | SolidNavBar | All actions visible | Full status | Side-by-side |
 | 400-799 | SolidNavDrawer | Selected actions + overflow | Compact | Stacked |
 | <400 | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |

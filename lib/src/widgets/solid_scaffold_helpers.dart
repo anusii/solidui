@@ -33,6 +33,8 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:version_widget/version_widget.dart';
 
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
+
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_overflow_menu_helpers.dart';
@@ -134,6 +136,8 @@ class SolidScaffoldHelpers {
     bool hasAboutInOverflow, {
     bool hasLogoutInOverflow = false,
     bool isLoggedIn = true,
+    bool hasInviteOthersInOverflow = false,
+    SolidInviteOthersConfig? inviteConfig,
   }) =>
       SolidOverflowMenuHelpers.buildOverflowMenuItems(
         config,
@@ -144,6 +148,8 @@ class SolidScaffoldHelpers {
         hasAboutInOverflow,
         hasLogoutInOverflow: hasLogoutInOverflow,
         isLoggedIn: isLoggedIn,
+        hasInviteOthersInOverflow: hasInviteOthersInOverflow,
+        inviteConfig: inviteConfig,
       );
 
   /// Builds overflow icon buttons for wider screens.
