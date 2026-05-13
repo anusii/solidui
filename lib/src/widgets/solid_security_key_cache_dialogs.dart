@@ -85,6 +85,9 @@ class SecurityKeyCacheDialogs {
                   TextField(
                     controller: keyController,
                     obscureText: obscureKey,
+                    keyboardType: TextInputType.visiblePassword,
+                    enableSuggestions: false,
+                    autocorrect: false,
                     autofocus: true,
                     textInputAction: TextInputAction.done,
                     onSubmitted: (_) => submitKey(),
