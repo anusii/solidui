@@ -107,10 +107,12 @@ class SolidFileUploadOperations {
 
         // Ensure the security key is available before writing encrypted data.
 
-        await getKeyFromUserIfRequired(
+        if (!await getKeyFromUserIfRequired(
           context,
           const Text('Please enter your security key to upload the file'),
-        );
+        )) {
+          return;
+        }
 
         if (!context.mounted) return;
 

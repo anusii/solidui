@@ -419,10 +419,12 @@ class SolidFilePrintOperations {
     try {
       if (!context.mounted) return;
 
-      await getKeyFromUserIfRequired(
+      if (!await getKeyFromUserIfRequired(
         context,
         const Text('Please enter your security key to print the file'),
-      );
+      )) {
+        return;
+      }
 
       if (!context.mounted) return;
 

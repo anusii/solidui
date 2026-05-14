@@ -232,7 +232,7 @@ class SolidLoginAuthHandler {
       }
 
       if (!context.mounted) return false;
-      await getKeyFromUserIfRequired(context, childWidget);
+      if (!await getKeyFromUserIfRequired(context, childWidget)) return false;
       if (!context.mounted) return true;
       await pushReplacement(context, childWidget);
     }
@@ -481,7 +481,7 @@ class SolidLoginAuthHandler {
         }
 
         if (!context.mounted) return false;
-        await getKeyFromUserIfRequired(context, childWidget);
+        if (!await getKeyFromUserIfRequired(context, childWidget)) return false;
         if (!context.mounted) return true;
         await pushReplacement(context, childWidget);
       }

@@ -165,10 +165,12 @@ class SolidFileDownloadOperations {
 
         if (!context.mounted) return;
 
-        await getKeyFromUserIfRequired(
+        if (!await getKeyFromUserIfRequired(
           context,
           const Text('Please enter your security key to download the file'),
-        );
+        )) {
+          return;
+        }
 
         if (!context.mounted) return;
 
@@ -308,10 +310,12 @@ class SolidFileDownloadOperations {
 
       // Get security key if required.
 
-      await getKeyFromUserIfRequired(
+      if (!await getKeyFromUserIfRequired(
         context,
         const Text('Please enter your security key to download the files'),
-      );
+      )) {
+        return;
+      }
 
       if (!context.mounted) return;
 
