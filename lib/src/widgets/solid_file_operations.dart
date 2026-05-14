@@ -31,10 +31,12 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
+
 import 'package:solidui/src/models/file_state.dart';
 import 'package:solidui/src/utils/is_text_file.dart';
 import 'package:solidui/src/utils/path_utils.dart';

@@ -29,8 +29,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:solidui/src/utils/web_id_parser.dart';
+
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:solidui/src/utils/web_id_parser.dart';
 
 /// Helper class for URL-related operations in navigation drawer.
 

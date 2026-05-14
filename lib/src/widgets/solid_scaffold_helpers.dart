@@ -29,7 +29,10 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:markdown_tooltip/markdown_tooltip.dart';
+import 'package:version_widget/version_widget.dart';
+
 import 'package:solidui/src/constants/ui_window.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
@@ -40,7 +43,6 @@ import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 import 'package:solidui/src/widgets/solid_theme_toggle_helpers.dart';
-import 'package:version_widget/version_widget.dart';
 
 // Re-export helpers for backwards compatibility.
 

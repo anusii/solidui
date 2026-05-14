@@ -31,16 +31,18 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_feedback_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// A button that shows an About dialogue when pressed.
 

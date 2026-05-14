@@ -29,14 +29,16 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import 'package:gap/gap.dart';
+import 'package:version_widget/version_widget.dart';
+
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer_url_helper.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_profile_avatar.dart';
 import 'package:solidui/src/widgets/solid_profile_editor.dart';
-import 'package:version_widget/version_widget.dart';
 
 /// Helper class for building the user info header in navigation drawer.
 
