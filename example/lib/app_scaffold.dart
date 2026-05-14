@@ -23,12 +23,10 @@
 
 library;
 
-import 'package:flutter/material.dart';
-
-import 'package:solidui/solidui.dart';
-
 import 'package:demopod/constants/app.dart';
 import 'package:demopod/home.dart';
+import 'package:flutter/material.dart';
+import 'package:solidui/solidui.dart';
 
 const appScaffold = AppScaffold();
 

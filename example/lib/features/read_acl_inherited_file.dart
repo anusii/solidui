@@ -26,6 +26,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show readPod;
+
 import 'package:solidui/solidui.dart' show SolidScaffold;
 
 // A widget to create a resource with inherited ACL.

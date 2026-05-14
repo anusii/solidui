@@ -29,12 +29,10 @@
 library;
 
 import 'package:flutter/material.dart';
-
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Helper class for building SolidLogin UI components.
 

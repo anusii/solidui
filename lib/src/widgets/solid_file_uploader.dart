@@ -28,10 +28,8 @@
 
 library;
 
-import 'package:flutter/material.dart';
-
 import 'package:file_picker/file_picker.dart';
-
+import 'package:flutter/material.dart';
 import 'package:solidui/src/models/file_state.dart';
 import 'package:solidui/src/widgets/solid_file_uploader_helpers.dart';
 

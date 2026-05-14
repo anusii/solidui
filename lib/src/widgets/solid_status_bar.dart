@@ -31,18 +31,16 @@
 library;
 
 import 'package:flutter/material.dart';
-
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart' show isUserLoggedIn;
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_security_key_cache_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// A responsive status bar component for Solid applications.
 

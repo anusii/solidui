@@ -30,11 +30,9 @@ library;
 
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
-
 import 'package:solidui/src/utils/is_text_file.dart';
 
 /// Helper class for file uploader operations.

@@ -32,10 +32,8 @@ library;
 // ignore_for_file: public_member_api_docs
 
 import 'package:flutter/material.dart';
-
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:solidui/src/widgets/solid_login_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Builder class for creating login screen buttons.
 

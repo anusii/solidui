@@ -28,26 +28,21 @@
 
 library;
 
-// Window and list item size constants.
-
-export 'ui_window.dart';
-
 // Colour constants.
 
 export 'ui_colors.dart';
-
-// Text style constants.
-
-export 'ui_text_styles.dart';
-
-// Layout constants.
-
-export 'ui_layout.dart';
-
-// String constants.
-
-export 'ui_strings.dart';
-
 // Common constants and helper functions.
 
 export 'ui_common.dart';
+// Layout constants.
+
+export 'ui_layout.dart';
+// String constants.
+
+export 'ui_strings.dart';
+// Text style constants.
+
+export 'ui_text_styles.dart';
+// Window and list item size constants.
+
+export 'ui_window.dart';

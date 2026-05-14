@@ -25,13 +25,11 @@
 
 library;
 
-import 'package:flutter/material.dart';
-
-import 'package:solidui/solidui.dart';
-import 'package:window_manager/window_manager.dart';
-
 import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
+import 'package:flutter/material.dart';
+import 'package:solidui/solidui.dart';
+import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

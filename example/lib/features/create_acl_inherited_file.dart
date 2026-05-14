@@ -23,12 +23,10 @@
 
 library;
 
+import 'package:demopod/constants/app.dart';
 import 'package:flutter/material.dart';
-
 import 'package:solidpod/solidpod.dart' show writePod, setInheritKeyDir;
 import 'package:solidui/solidui.dart' show SolidScaffold;
-
-import 'package:demopod/constants/app.dart';
 
 // A widget to create a resource with inherited ACL.
 //

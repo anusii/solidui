@@ -31,11 +31,9 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart';
-
 import 'package:solidui/src/constants/ui_colors.dart';
 import 'package:solidui/src/utils/loading_dialog_controller.dart';
 import 'package:solidui/src/utils/path_utils.dart';

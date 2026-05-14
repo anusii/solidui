@@ -23,13 +23,11 @@
 
 library;
 
-import 'package:flutter/material.dart';
-
+import 'package:demopod/dialogs/alert.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart';
 import 'package:solidui/solidui.dart' show SolidScaffold;
-
-import 'package:demopod/dialogs/alert.dart';
 
 class FileService extends StatefulWidget {
   const FileService({required this.child, required this.webId, super.key});
