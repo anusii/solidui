@@ -30,6 +30,8 @@
 
 library;
 
+import 'package:flutter/material.dart';
+
 import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
 import 'package:demopod/dialogs/alert.dart';
@@ -41,10 +43,10 @@ import 'package:demopod/features/permission_callback_demo.dart';
 import 'package:demopod/features/read_acl_inherited_file.dart';
 import 'package:demopod/features/view_keys.dart';
 import 'package:demopod/utils/rdf.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
+
 import 'package:solidui/solidui.dart'
     show
         GrantPermissionUi,

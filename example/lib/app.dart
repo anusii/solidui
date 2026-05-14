@@ -23,9 +23,11 @@
 
 library;
 
+import 'package:flutter/material.dart';
+
 import 'package:demopod/app_scaffold.dart';
 import 'package:demopod/constants/app.dart';
-import 'package:flutter/material.dart';
+
 import 'package:solidui/solidui.dart';
 
 class App extends StatelessWidget {
