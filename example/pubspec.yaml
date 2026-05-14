@@ -28,3 +28,12 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+import_order:
+  project_name: demopod
+  groups:
+    - dart
+    - package:flutter
+    - package
+    - project
+    - relative

@@ -28,3 +28,12 @@ analyzer:
   exclude:
     - ignore/**
     - ignore/
+
+import_order:
+  project_name: solidui
+  groups:
+    - dart
+    - package:flutter
+    - package
+    - project
+    - relative
