@@ -28,11 +28,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show
-        ResourceStatus,
-        checkResourceStatus,
-        filenameToResourceUrl,
-        writePod;
+    show ResourceStatus, checkResourceStatus, filenameToResourceUrl, writePod;
 
 import 'package:demopod/dialogs/alert.dart';
 
