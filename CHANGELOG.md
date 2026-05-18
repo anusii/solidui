@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Attempt to suppress macOS char on typing disclosure #315 [0.3.45 20260518 gjw]
 + Bug fix override version widget colours [0.3.44 20260515 gjw]
 + Updated version widget dependency [0.3.43 20260512 gjw]
 + Support an UPDATE button when version is updated [0.3.42 20260510 tonypioneer]
