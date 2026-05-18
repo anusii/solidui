@@ -208,6 +208,9 @@ class _SetKeyDialogState extends State<SetKeyDialog> {
                   ),
                 ),
                 obscureText: _obscureKey,
+                keyboardType: TextInputType.visiblePassword,
+                enableSuggestions: false,
+                autocorrect: false,
               ),
               const SizedBox(height: 16),
               TextField(
@@ -231,6 +234,9 @@ class _SetKeyDialogState extends State<SetKeyDialog> {
                   ),
                 ),
                 obscureText: _obscureConfirmKey,
+                keyboardType: TextInputType.visiblePassword,
+                enableSuggestions: false,
+                autocorrect: false,
               ),
             ] else ...[
               const SizedBox(height: 20),
