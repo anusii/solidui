@@ -32,6 +32,7 @@ flutter:
 
   minor_versions   Increment pubspec.yaml minor version
   major_versions   Increment pubspec.yaml major version
+  version	   Report the current app version
   versions         Copy pubspec.yaml version to snapcraft.yaml
 
   docs	    Run `dart doc` to create documentation.
