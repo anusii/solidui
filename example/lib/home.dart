@@ -59,6 +59,7 @@ import 'package:demopod/features/multiple_resource_sharing.dart';
 import 'package:demopod/features/permission_callback_demo.dart';
 import 'package:demopod/features/read_acl_inherited_file.dart';
 import 'package:demopod/features/view_keys.dart';
+import 'package:demopod/utils/ensure_resource.dart';
 import 'package:demopod/utils/rdf.dart';
 
 /// A widget for the demonstration screen of the application.
@@ -658,12 +659,27 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
+
+                        // Ensure the target resource exists on the Pod before
+                        // opening the grant permission UI. The button
+                        // previously failed with a "not found" error when
+                        // keyvalue/key-value.ttl had never been created.
+
+                        if (!context.mounted) return;
+                        final ready = await ensurePodResourceExists(
+                          context,
+                          relativePath: dataFile,
+                          defaultContent: createDemoTtlStr('key-value'),
+                        );
+                        if (!ready) return;
+
+                        if (!context.mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const GrantPermissionUi(
                               backgroundColor: titleBackgroundColor,
-                              resourceNames: ['keyvalue/key-value.ttl'],
+                              resourceNames: [dataFile],
                               child: Home(),
                             ),
                           ),
@@ -741,6 +757,21 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
+
+                        // Ensure the target resource exists on the Pod before
+                        // opening the shared resources UI. The button
+                        // previously failed with a "not found" error when
+                        // keyvalue/key-value.ttl had never been created.
+
+                        if (!context.mounted) return;
+                        final ready = await ensurePodResourceExists(
+                          context,
+                          relativePath: dataFile,
+                          defaultContent: createDemoTtlStr('key-value'),
+                        );
+                        if (!ready) return;
+
+                        if (!context.mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
