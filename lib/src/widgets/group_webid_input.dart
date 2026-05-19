@@ -175,9 +175,8 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
                         ),
                       );
 
-                      final failures = results
-                          .where((r) => !r.$2.isValid)
-                          .toList();
+                      final failures =
+                          results.where((r) => !r.$2.isValid).toList();
 
                       if (failures.isEmpty) {
                         widget.onSubmitFunction(groupName, webIdList);
@@ -186,8 +185,10 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
 
                       if (!context.mounted) return;
                       final report = _pickGroupFailureToReport(failures);
-                      final message =
-                          webIdCheckMessage(report.$2, webId: report.$1) ??
+                      final message = webIdCheckMessage(
+                            report.$2,
+                            webId: report.$1,
+                          ) ??
                           'At least one of the Web IDs you entered is not valid';
                       await alert(context, message);
                     },
