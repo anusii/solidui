@@ -2,7 +2,7 @@
 ///
 // Time-stamp: <Sunday 2024-07-11 12:23:00 +1000 Anushka Vidange>
 ///
-/// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2024-2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -26,8 +26,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-///
-/// Authors: Anushka Vidanage
+/// Authors: Anushka Vidanage, Tony Chen
 
 library;
 
@@ -35,11 +34,42 @@ import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
-    show checkResourceStatus, ResourceStatus, whatIsWebID, demoWebID;
+    show
+        WebIdCheckResult,
+        WebIdCheckStatus,
+        validateWebId,
+        whatIsWebID,
+        demoWebID;
 
 import 'package:solidui/solidui.dart'
     show smallGapV, makeSubHeading, GrantPermFormLayout;
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
+
+/// Priority order used when several WebIDs in the list fail at once.
+
+const List<WebIdCheckStatus> _groupReportPriority = [
+  WebIdCheckStatus.invalidIpv4,
+  WebIdCheckStatus.unreachable,
+  WebIdCheckStatus.notProfile,
+];
+
+/// Pick the [WebIdCheckResult] to surface in a single dialog when more than
+/// one WebID in the group has failed. Higher-priority statuses are preferred
+/// (see [_groupReportPriority]); otherwise the first failure in input order
+/// is returned.
+
+(String, WebIdCheckResult) _pickGroupFailureToReport(
+  List<(String, WebIdCheckResult)> failures,
+) {
+  assert(failures.isNotEmpty);
+  for (final status in _groupReportPriority) {
+    for (final failure in failures) {
+      if (failure.$2.status == status) return failure;
+    }
+  }
+  return failures.first;
+}
 
 /// A [StatefulWidget] dialog for entering group of webIds.
 ///
@@ -117,43 +147,49 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
                 children: [
                   TextButton(
                     onPressed: () async {
-                      // Check if all the input entries are correct
                       final groupName = formControllerGroupName.text.trim();
                       final groupWebIds = formControllerGroupWebIds.text.trim();
 
-                      // Check if both fields are not empty
-                      if (groupName.isNotEmpty && groupWebIds.isNotEmpty) {
-                        final webIdList = groupWebIds.split(';');
-
-                        // Check if all the webIds are true links
-                        var trueWebIdsFlag = true;
-                        for (final webId in webIdList) {
-                          if (!Uri.parse(
-                                webId.replaceAll('#me', ''),
-                              ).isAbsolute ||
-                              !(await checkResourceStatus(webId) ==
-                                  ResourceStatus.exist)) {
-                            trueWebIdsFlag = false;
-                          }
-                        }
-
-                        if (trueWebIdsFlag) {
-                          // Save selected webid group
-                          widget.onSubmitFunction(groupName, webIdList);
-                        } else {
-                          if (!context.mounted) return;
-                          await alert(
-                            context,
-                            'At least one of the Web IDs you entered is not valid',
-                          );
-                        }
-                      } else {
+                      if (groupName.isEmpty || groupWebIds.isEmpty) {
                         if (!context.mounted) return;
                         await alert(
                           context,
                           'Please enter a group name and a list of Web IDs',
                         );
+                        return;
                       }
+
+                      final webIdList = groupWebIds
+                          .split(';')
+                          .map((e) => e.trim())
+                          .where((e) => e.isNotEmpty)
+                          .toList();
+
+                      // Validate every WebID in parallel and pair each result
+                      // with its source URL so the dialog can name the
+                      // offending entry.
+
+                      final results = await Future.wait(
+                        webIdList.map(
+                          (webId) async => (webId, await validateWebId(webId)),
+                        ),
+                      );
+
+                      final failures = results
+                          .where((r) => !r.$2.isValid)
+                          .toList();
+
+                      if (failures.isEmpty) {
+                        widget.onSubmitFunction(groupName, webIdList);
+                        return;
+                      }
+
+                      if (!context.mounted) return;
+                      final report = _pickGroupFailureToReport(failures);
+                      final message =
+                          webIdCheckMessage(report.$2, webId: report.$1) ??
+                          'At least one of the Web IDs you entered is not valid';
+                      await alert(context, message);
                     },
                     child: const Text('Select Group of WebIds'),
                   ),
