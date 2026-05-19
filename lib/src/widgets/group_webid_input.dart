@@ -50,7 +50,16 @@ class GroupWebIdTextInput extends StatefulWidget {
   /// Function run on Submit button press.
   final Function onSubmitFunction;
 
-  const GroupWebIdTextInput({super.key, required this.onSubmitFunction});
+  /// Optional callback fired when the user presses the Clear button. The
+  /// parent form uses this to drop any group already confirmed via
+  /// "Select Group of WebIds" so the dialog returns to a clean state.
+  final VoidCallback? onClearFunction;
+
+  const GroupWebIdTextInput({
+    super.key,
+    required this.onSubmitFunction,
+    this.onClearFunction,
+  });
 
   @override
   State<GroupWebIdTextInput> createState() => _GroupWebIdTextInputState();
@@ -156,6 +165,18 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
                       }
                     },
                     child: const Text('Select Group of WebIds'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // Wipe both group fields and any cached selection so
+                      // the user can start over.
+                      setState(() {
+                        formControllerGroupName.clear();
+                        formControllerGroupWebIds.clear();
+                      });
+                      widget.onClearFunction?.call();
+                    },
+                    child: const Text('Clear'),
                   ),
                 ],
               ),

@@ -58,6 +58,7 @@ class IndWebIdTextInput extends StatefulWidget {
     required this.onSubmitFunction,
     this.uniqRecipWebIdList,
     this.onTextChanged,
+    this.onClearFunction,
     super.key,
   });
 
@@ -71,6 +72,11 @@ class IndWebIdTextInput extends StatefulWidget {
   /// Used by the parent form to track the field value so it can fall back to
   /// it when Grant Permission is pressed before Select WebId is clicked.
   final void Function(String)? onTextChanged;
+
+  /// Optional callback fired when the user presses the Clear button. The
+  /// parent form uses this to drop any recipient already confirmed via
+  /// "Select WebId" so the dialog returns to a clean state.
+  final VoidCallback? onClearFunction;
 
   @override
   State<IndWebIdTextInput> createState() => _IndWebIdTextInputState();
@@ -223,6 +229,20 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
                       }
                     },
                     child: const Text('Select WebId'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // Wipe the WebID field and any cached selection so the
+                      // user can start over.
+                      setState(() {
+                        formControllerWebId.clear();
+                        _textEntered = false;
+                        suggestionList.clear();
+                      });
+                      widget.onTextChanged?.call('');
+                      widget.onClearFunction?.call();
+                    },
+                    child: const Text('Clear'),
                   ),
                 ],
               ),

@@ -352,6 +352,22 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
         selectedGroupName = groupName;
       });
 
+  /// Drop any individual WebID the user has previously confirmed via
+  /// "Select WebId" along with any pending text.
+  void clearIndWebIdInput() => setState(() {
+        selectedRecipientDetails = '';
+        finalWebIdList = [];
+        _pendingIndWebId = '';
+      });
+
+  /// Drop any group the user has previously confirmed via
+  /// "Select Group of WebIds".
+  void clearGroupWebIdInput() => setState(() {
+        selectedRecipientDetails = '';
+        finalWebIdList = [];
+        selectedGroupName = '';
+      });
+
   /// Update checked status of access mode boxes to show
   /// selected access modes.
   void updateCheckbox(bool newValue, AccessMode accessMode) => setState(() {
@@ -442,10 +458,14 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                     dataFilesMap: widget.dataFilesMap,
                     onTextChanged: (text) =>
                         setState(() => _pendingIndWebId = text.trim()),
+                    onClearFunction: clearIndWebIdInput,
                   ),
                 ] else if (selectedRecipientType == RecipientType.group) ...[
                   // Select group of recipients if required
-                  GroupWebIdTextInput(onSubmitFunction: updateGroupWebIdInput),
+                  GroupWebIdTextInput(
+                    onSubmitFunction: updateGroupWebIdInput,
+                    onClearFunction: clearGroupWebIdInput,
+                  ),
                 ],
                 // List selected recipient webids or recipient
                 // type (public/auth)

@@ -51,6 +51,7 @@ class IndWebIdInputScreen extends StatefulWidget {
     required this.onSubmitFunction,
     this.dataFilesMap = const {},
     this.onTextChanged,
+    this.onClearFunction,
     super.key,
   });
 
@@ -65,6 +66,10 @@ class IndWebIdInputScreen extends StatefulWidget {
 
   /// Optional callback fired on every keystroke in the WebID text field.
   final void Function(String)? onTextChanged;
+
+  /// Optional callback fired when the user presses the Clear button on the
+  /// individual WebID dialog. Forwarded to [IndWebIdTextInput].
+  final VoidCallback? onClearFunction;
 
   @override
   State<IndWebIdInputScreen> createState() => _IndWebIdInputScreenState();
@@ -98,6 +103,7 @@ class _IndWebIdInputScreenState extends State<IndWebIdInputScreen> {
       onSubmitFunction: onSubmitFunction,
       uniqRecipWebIdList: uniqRecipWebIdList,
       onTextChanged: widget.onTextChanged,
+      onClearFunction: widget.onClearFunction,
     );
   }
 
