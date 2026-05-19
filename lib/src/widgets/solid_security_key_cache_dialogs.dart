@@ -30,7 +30,6 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_required_dialog.dart';
 
 /// Dialogs for caching security keys.
@@ -218,19 +217,17 @@ class SecurityKeyCacheDialogs {
   static Future<bool> showLoginRequiredDialog(BuildContext context) async {
     return SolidLoginRequiredDialog.show(
       context,
-      message:
-          'Please log in to your POD first before caching the security key.',
+      message: SolidLoginRequiredDialog.securityKeyMessage,
     );
   }
 
-  /// Handles the login redirect after showing login required dialog.
+  /// Handles the login redirect after showing the login required dialog.
 
   static Future<void> handleLoginRedirect(BuildContext context) async {
-    final shouldLogin = await showLoginRequiredDialog(context);
-
-    if (shouldLogin && context.mounted) {
-      Navigator.of(context).pop();
-      await SolidAuthHandler.instance.handleLogin(context);
-    }
+    await SolidLoginRequiredDialog.showAndHandle(
+      context,
+      message: SolidLoginRequiredDialog.securityKeyMessage,
+      popRouteBeforeLogin: true,
+    );
   }
 }
