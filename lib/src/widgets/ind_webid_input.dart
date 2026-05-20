@@ -33,8 +33,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/solidpod.dart'
-    show checkResourceStatus, ResourceStatus, whatIsWebID, demoWebID;
+import 'package:solidpod/solidpod.dart' show whatIsWebID, demoWebID;
 
 import 'package:solidui/solidui.dart'
     show
@@ -43,39 +42,70 @@ import 'package:solidui/solidui.dart'
         GrantPermFormLayout,
         WebIdLayout,
         DropdownColors;
-import 'package:solidui/src/utils/solid_alert.dart';
 
-/// A [StatefulWidget] dialog for adding an individual webId.
-/// Function call requires the following inputs.
-/// [onSubmitFunction] is the function to be called on submit.
-/// [uniqRecipWebIdList] is a list of the webIds of unique recipients of the
-/// owner's data.
+/// Returns a human-readable error describing why [text] is not a valid WebID,
+/// or `null` if [text] is well-formed.
+///
+/// This is shared between the inline field validation in
+/// [IndWebIdTextInput] and the deferred validation performed when the user
+/// presses "Grant Permission" on the parent dialog.
+String? indWebIdFormatError(String text) {
+  final trimmed = text.trim();
+  final uri = Uri.parse(trimmed);
+
+  // Check for https scheme and ://
+  if (!uri.isScheme('HTTPS') || !uri.toString().contains('://')) {
+    return 'Must start with https://';
+  }
+  // Check WebID contains host followed by '/'
+  if (!uri.path.contains('/')) {
+    return 'Must have form https://[POD server host]/[their username]/profile/card#me';
+  }
+  // Check for WebID path with profile suffix
+  if (!uri.path.toLowerCase().contains('/profile/card')) {
+    return 'Must end with \'/[their username]/profile/card#me\'';
+  }
+  // Check ends in #me
+  if (uri.fragment.toLowerCase() != 'me') {
+    return 'Must end with URL fragment #me after /profile/card';
+  }
+  // Check fully qualified web address
+  // 20250721 jm Retaining this check, may not be needed
+  if (!Uri.parse(trimmed.replaceAll('#me', '')).isAbsolute) {
+    return 'Must be a fully qualified web address';
+  }
+  return null;
+}
+
+/// A [StatefulWidget] dialog for entering an individual WebID.
+///
+/// The widget no longer confirms a selection on its own; instead the parent
+/// form reads the typed text via [onTextChanged] and validates it when the
+/// user presses Grant Permission. [uniqRecipWebIdList] is a list of the
+/// webIds of unique recipients of the owner's data, used to populate
+/// suggestions.
 ///
 class IndWebIdTextInput extends StatefulWidget {
   /// Initialise widget variables.
 
   const IndWebIdTextInput({
-    required this.onSubmitFunction,
     this.uniqRecipWebIdList,
     this.onTextChanged,
     this.onClearFunction,
     super.key,
   });
 
-  /// Function run on Submit button press.
-  final Function onSubmitFunction;
-
   /// List of unique recipient webIds
   final List<String>? uniqRecipWebIdList;
 
   /// Optional callback fired on every keystroke with the current raw text.
-  /// Used by the parent form to track the field value so it can fall back to
-  /// it when Grant Permission is pressed before Select WebId is clicked.
+  /// The parent form uses this to capture the field value so it can be
+  /// validated when Grant Permission is pressed.
   final void Function(String)? onTextChanged;
 
   /// Optional callback fired when the user presses the Clear button. The
-  /// parent form uses this to drop any recipient already confirmed via
-  /// "Select WebId" so the dialog returns to a clean state.
+  /// parent form uses this to drop any cached state so the dialog returns
+  /// to a clean state.
   final VoidCallback? onClearFunction;
 
   @override
@@ -109,36 +139,9 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
     super.initState();
   }
 
-  /// Generate advice to help user enter valid WebID
-  String? get _helpText {
-    final text = formControllerWebId.value.text.trim();
-    final uri = Uri.parse(text);
-
-    // Check for https scheme and ://
-    if (!uri.isScheme('HTTPS') || !uri.toString().contains('://')) {
-      return 'Must start with https://';
-    }
-    // Check WebID contains host followed by '/'
-
-    if (!uri.path.contains('/')) {
-      return 'Must have form https://[POD server host]/[their username]/profile/card#me';
-    }
-    // Check for WebID path with profile suffix
-    if (!uri.path.toLowerCase().contains('/profile/card')) {
-      return 'Must end with \'/[their username]/profile/card#me\'';
-    }
-    // Check ends in #me
-    if (!(uri.fragment.toLowerCase() == 'me')) {
-      return 'Must end with URL fragment #me after /profile/card';
-    }
-    // Check fully qualified web address
-    // 20250721 jm Retaining this check, may not be needed
-    if (!Uri.parse(text.replaceAll('#me', '')).isAbsolute) {
-      return 'Must be a fully qualified web address';
-    }
-    // return null if the text is valid
-    return null;
-  }
+  /// Generate advice to help user enter valid WebID.
+  String? get _helpText =>
+      indWebIdFormatError(formControllerWebId.value.text);
 
   /// Generate suggestions for users based on input matches to
   /// current complete recipient list of user
@@ -207,33 +210,10 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
                     ],
                   ],
                   TextButton(
-                    onPressed: () async {
-                      final receiverWebId = formControllerWebId.text.trim();
-
-                      // User has entered WebId text that satisfies error checks
-                      if (receiverWebId.isNotEmpty && _helpText == null) {
-                        // Check WebId exists
-
-                        if (await checkResourceStatus(receiverWebId) ==
-                            ResourceStatus.exist) {
-                          // Save provided WebId
-                          widget.onSubmitFunction(receiverWebId);
-                        } else {
-                          if (!context.mounted) return;
-                          // Request WebId that exists
-                          await alert(
-                            context,
-                            'This WebID does not exist. Please enter the correct WebID',
-                          );
-                        }
-                      }
-                    },
-                    child: const Text('Select WebId'),
-                  ),
-                  TextButton(
                     onPressed: () {
-                      // Wipe the WebID field and any cached selection so the
-                      // user can start over.
+                      // Wipe the WebID field and any cached state so the
+                      // user can start over. The actual recipient is
+                      // confirmed later when Grant Permission is pressed.
                       setState(() {
                         formControllerWebId.clear();
                         _textEntered = false;
@@ -268,11 +248,15 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
                 focusColor: DropdownColors.primary,
                 hoverColor: DropdownColors.accent,
                 splashColor: DropdownColors.primary,
-                onTap: () => setState(() {
-                  // User has started entering text
-                  _textEntered = true;
-                  formControllerWebId.text = idList[index];
-                }),
+                onTap: () {
+                  setState(() {
+                    // User has started entering text
+                    _textEntered = true;
+                    formControllerWebId.text = idList[index];
+                  });
+                  // Notify parent so it picks up the chosen value.
+                  widget.onTextChanged?.call(idList[index]);
+                },
               ),
             );
           },

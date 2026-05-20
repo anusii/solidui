@@ -55,9 +55,9 @@ import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
+import 'package:solidui/src/widgets/ind_webid_input.dart' show indWebIdFormatError;
 import 'package:solidui/src/widgets/ind_webid_input_screen.dart';
 import 'package:solidui/src/widgets/select_recipients.dart';
-import 'package:solidui/src/widgets/show_selected_recipients.dart';
 
 /// Sharing (grant permission) form dialog function
 ///
@@ -164,11 +164,10 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
   RecipientType selectedRecipientType = RecipientType.none;
 
-  /// Selected recipient details
-
-  String selectedRecipientDetails = '';
-
-  /// List of webIds for group permission
+  /// List of webIds for group permission. Populated for public and
+  /// authenticated recipients on type-selection; for individual and group
+  /// recipients it is populated after Grant Permission is pressed and the
+  /// typed WebID(s) have been validated.
 
   List<dynamic> finalWebIdList = [];
 
@@ -184,11 +183,20 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
   bool permissionsGrantedSuccessfully = false;
 
-  /// Pending text typed into the individual WebID field but not yet
-  /// confirmed via "Select WebId". Used as a fallback when Grant
-  /// Permission is pressed without explicitly selecting a recipient.
+  /// Current text typed into the individual WebID field. Validated on
+  /// Grant Permission rather than via a dedicated "Select" button.
 
   String _pendingIndWebId = '';
+
+  /// Current text typed into the group name field. Validated on Grant
+  /// Permission rather than via a dedicated "Select" button.
+
+  String _pendingGroupName = '';
+
+  /// Current text typed into the group "List of WebIDs" field. Validated
+  /// on Grant Permission rather than via a dedicated "Select" button.
+
+  String _pendingGroupWebIds = '';
 
   /// read permission checked flag
 
@@ -334,39 +342,88 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   }) async =>
       showSnackBar(context, msg, bgColor, duration: duration);
 
-  /// Update selected webid list with individual recipient webid
-  /// [receiverWebId].
-  void updateIndWebIdInput(String receiverWebId) => setState(() {
-        selectedRecipientDetails = receiverWebId;
-        finalWebIdList = [receiverWebId];
-      });
-
-  /// Update selected webid list with list of webids in
-  /// recipient group [webIdList] and their group name
-  /// [groupName].
-
-  void updateGroupWebIdInput(String groupName, List<dynamic> webIdList) =>
-      setState(() {
-        selectedRecipientDetails = webIdList.join(', ');
-        finalWebIdList = webIdList;
-        selectedGroupName = groupName;
-      });
-
-  /// Drop any individual WebID the user has previously confirmed via
-  /// "Select WebId" along with any pending text.
+  /// Drop any individual WebID text typed by the user. Invoked by the
+  /// Clear button on the individual WebID input widget.
   void clearIndWebIdInput() => setState(() {
-        selectedRecipientDetails = '';
         finalWebIdList = [];
         _pendingIndWebId = '';
       });
 
-  /// Drop any group the user has previously confirmed via
-  /// "Select Group of WebIds".
+  /// Drop any group text typed by the user. Invoked by the Clear button
+  /// on the group WebID input widget.
   void clearGroupWebIdInput() => setState(() {
-        selectedRecipientDetails = '';
         finalWebIdList = [];
         selectedGroupName = '';
+        _pendingGroupName = '';
+        _pendingGroupWebIds = '';
       });
+
+  /// Validate the individual WebID typed by the user and, when valid,
+  /// populate [finalWebIdList]. Returns true when the value is acceptable
+  /// and Grant Permission may proceed; otherwise an alert has been shown
+  /// and the caller should stop.
+  Future<bool> _validateAndApplyIndWebId() async {
+    final webId = _pendingIndWebId.trim();
+    if (webId.isEmpty) {
+      await _alert('Please enter a recipient WebID');
+      return false;
+    }
+    final formatError = indWebIdFormatError(webId);
+    if (formatError != null) {
+      await _alert(formatError);
+      return false;
+    }
+    if (await checkResourceStatus(webId) != ResourceStatus.exist) {
+      if (!mounted) return false;
+      await _alert(
+        'This WebID does not exist. Please enter the correct WebID',
+      );
+      return false;
+    }
+    setState(() {
+      finalWebIdList = [webId];
+    });
+    return true;
+  }
+
+  /// Validate the group fields typed by the user and, when valid,
+  /// populate [finalWebIdList] and [selectedGroupName]. Returns true when
+  /// the value is acceptable and Grant Permission may proceed; otherwise
+  /// an alert has been shown and the caller should stop.
+  Future<bool> _validateAndApplyGroupWebIds() async {
+    final groupName = _pendingGroupName.trim();
+    final groupWebIds = _pendingGroupWebIds.trim();
+    if (groupName.isEmpty || groupWebIds.isEmpty) {
+      await _alert('Please enter a group name and a list of Web IDs');
+      return false;
+    }
+    final webIdList = groupWebIds
+        .split(';')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    if (webIdList.isEmpty) {
+      await _alert('Please enter a group name and a list of Web IDs');
+      return false;
+    }
+    for (final webId in webIdList) {
+      final isAbsolute = Uri.parse(webId.replaceAll('#me', '')).isAbsolute;
+      final exists =
+          isAbsolute && await checkResourceStatus(webId) == ResourceStatus.exist;
+      if (!mounted) return false;
+      if (!isAbsolute || !exists) {
+        await _alert(
+          'At least one of the Web IDs you entered is not valid',
+        );
+        return false;
+      }
+    }
+    setState(() {
+      finalWebIdList = webIdList;
+      selectedGroupName = groupName;
+    });
+    return true;
+  }
 
   /// Update checked status of access mode boxes to show
   /// selected access modes.
@@ -393,15 +450,12 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// Set recipients to public
   void _setRecipientsToPublic() => setState(() {
         selectedRecipientType = RecipientType.public;
-        selectedRecipientDetails = 'Anyone (release publicly)';
         finalWebIdList = [publicAgent.value];
       });
 
   /// Set recipients to authorised users
   void _setRecipientsToAuthUsers() => setState(() {
         selectedRecipientType = RecipientType.authUser;
-        selectedRecipientDetails =
-            'Authenticated Users (any user logged in with their webId)';
         finalWebIdList = [authenticatedAgent.value];
       });
 
@@ -454,7 +508,6 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 // Select Individual recipient if required
                 if (selectedRecipientType == RecipientType.individual) ...[
                   IndWebIdInputScreen(
-                    onSubmitFunction: updateIndWebIdInput,
                     dataFilesMap: widget.dataFilesMap,
                     onTextChanged: (text) =>
                         setState(() => _pendingIndWebId = text.trim()),
@@ -463,17 +516,13 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 ] else if (selectedRecipientType == RecipientType.group) ...[
                   // Select group of recipients if required
                   GroupWebIdTextInput(
-                    onSubmitFunction: updateGroupWebIdInput,
+                    onGroupNameChanged: (value) =>
+                        setState(() => _pendingGroupName = value),
+                    onGroupWebIdsChanged: (value) =>
+                        setState(() => _pendingGroupWebIds = value),
                     onClearFunction: clearGroupWebIdInput,
                   ),
                 ],
-                // List selected recipient webids or recipient
-                // type (public/auth)
-                ShowSelectedRecipients(
-                  selectedRecipientType: selectedRecipientType,
-                  selectedRecipientDetails: selectedRecipientDetails,
-                  selectedGroupName: selectedGroupName,
-                ),
                 smallGapV,
                 makeSubHeading('Select one or more file access permissions'),
                 // Show access mode checkboxes and update
@@ -496,90 +545,92 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
       actions: <Widget>[
         TextButton(
           onPressed: () async {
-            // If the user typed a WebID in the individual field but didn't
-            // press "Select WebId", use that value as the recipient now.
-            if (selectedRecipientType == RecipientType.individual &&
-                finalWebIdList.isEmpty &&
-                _pendingIndWebId.isNotEmpty) {
-              updateIndWebIdInput(_pendingIndWebId);
+            // Bail out early when no recipient type has been chosen yet.
+            if (selectedRecipientType.type.isEmpty) {
+              await _alert('Please select a type of recipient');
+              return;
+            }
+
+            // Validate the typed WebID(s). On failure the helper has already
+            // shown an alert; stop here so we do not attempt to grant.
+            if (selectedRecipientType == RecipientType.individual) {
+              if (!await _validateAndApplyIndWebId()) return;
+            } else if (selectedRecipientType == RecipientType.group) {
+              if (!await _validateAndApplyGroupWebIds()) return;
             }
 
             // Grant Permission and update permission map
-            // used by permission table
+            // used by permission table.
 
-            if (selectedRecipientType.type.isNotEmpty) {
-              if (selectedPermList.isNotEmpty) {
-                // Grant permission for each resource sequentially.
-                // When resourceNames is provided all resources share the
-                // same recipient and permission selections.
-                final resourcesToGrant = widget.resourceNames;
-                SolidFunctionCallStatus result =
-                    SolidFunctionCallStatus.success;
-                try {
-                  for (final name in resourcesToGrant) {
-                    final r = await grantPermission(
-                      fileName: name,
-                      isFile: widget.isFile,
-                      permissionList: selectedPermList,
-                      recipientType: selectedRecipientType,
-                      recipientWebIdList: finalWebIdList,
-                      ownerWebId: widget.ownerWebId,
-                      granterWebId: widget.granterWebId,
-                      isExternalRes: widget.isExternalRes,
-                      groupName: selectedGroupName,
-                    );
-                    if (r != SolidFunctionCallStatus.success) {
-                      result = r;
-                      break;
-                    }
-                  }
+            if (selectedPermList.isEmpty) {
+              await _alert(
+                'Please select one or more file access permissions',
+              );
+              return;
+            }
 
-                  // Close grant permission dialog
-                  if (!context.mounted) return;
-                  Navigator.of(context).pop();
-                } on Object catch (e, stackTrace) {
-                  result = SolidFunctionCallStatus.fail;
-                  debugPrintException(e, stackTrace);
-                }
-
-                if (result == SolidFunctionCallStatus.success) {
-                  _showSnackBar(successMsg, ActionColors.success);
-                  // Update permissions table for the primary resource.
-                  await widget.updatePermissionsFunction(
-                    widget.resourceNames.first,
-                    isFile: widget.isFile,
-                    isExternalRes: widget.isExternalRes,
-                  );
-
-                  // Mark permissions as granted successfully for callback tracking
-                  await widget.updatePermissionGrantedFunction();
-
-                  // Trigger the onPermissionGranted callback if provided
-                  widget.onPermissionGranted?.call();
-                } else if (result == SolidFunctionCallStatus.fail) {
-                  await _showErrorDialog(
-                    'Permission granting failed',
-                    failureMsg,
-                  );
-
-                  // Also log to console for debugging
-                  debugPrintFailure(
-                    widget.resourceNames.first,
-                    finalWebIdList,
-                    selectedPermList,
-                  );
-                } else if (result == SolidFunctionCallStatus.notInitialised) {
-                  await _handleNotInitialisedRecipients();
-                } else {
-                  await _alert(updatePermissionMsg);
-                }
-              } else {
-                await _alert(
-                  'Please select one or more file access permissions',
+            // Grant permission for each resource sequentially. When
+            // resourceNames is provided all resources share the same
+            // recipient and permission selections.
+            final resourcesToGrant = widget.resourceNames;
+            SolidFunctionCallStatus result = SolidFunctionCallStatus.success;
+            try {
+              for (final name in resourcesToGrant) {
+                final r = await grantPermission(
+                  fileName: name,
+                  isFile: widget.isFile,
+                  permissionList: selectedPermList,
+                  recipientType: selectedRecipientType,
+                  recipientWebIdList: finalWebIdList,
+                  ownerWebId: widget.ownerWebId,
+                  granterWebId: widget.granterWebId,
+                  isExternalRes: widget.isExternalRes,
+                  groupName: selectedGroupName,
                 );
+                if (r != SolidFunctionCallStatus.success) {
+                  result = r;
+                  break;
+                }
               }
+
+              // Close grant permission dialog
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+            } on Object catch (e, stackTrace) {
+              result = SolidFunctionCallStatus.fail;
+              debugPrintException(e, stackTrace);
+            }
+
+            if (result == SolidFunctionCallStatus.success) {
+              _showSnackBar(successMsg, ActionColors.success);
+              // Update permissions table for the primary resource.
+              await widget.updatePermissionsFunction(
+                widget.resourceNames.first,
+                isFile: widget.isFile,
+                isExternalRes: widget.isExternalRes,
+              );
+
+              // Mark permissions as granted successfully for callback tracking
+              await widget.updatePermissionGrantedFunction();
+
+              // Trigger the onPermissionGranted callback if provided
+              widget.onPermissionGranted?.call();
+            } else if (result == SolidFunctionCallStatus.fail) {
+              await _showErrorDialog(
+                'Permission granting failed',
+                failureMsg,
+              );
+
+              // Also log to console for debugging
+              debugPrintFailure(
+                widget.resourceNames.first,
+                finalWebIdList,
+                selectedPermList,
+              );
+            } else if (result == SolidFunctionCallStatus.notInitialised) {
+              await _handleNotInitialisedRecipients();
             } else {
-              await _alert('Please select a type of recipient');
+              await _alert(updatePermissionMsg);
             }
           },
           child: const Text('Grant Permission'),

@@ -42,21 +42,14 @@ import 'package:solidui/src/widgets/solid_loading_screen.dart';
 /// A screen that runs before opening the WebID input dialog, which
 /// retrieves the list of files in the owner's pod.
 ///
-/// Parameters:
-/// - [onSubmitFunction] is the function to be called on submit
-///
 class IndWebIdInputScreen extends StatefulWidget {
   /// Initialise widget variables.
   const IndWebIdInputScreen({
-    required this.onSubmitFunction,
     this.dataFilesMap = const {},
     this.onTextChanged,
     this.onClearFunction,
     super.key,
   });
-
-  /// Function run on Submit button press.
-  final Function onSubmitFunction;
 
   /// Map of data files on a user's POD used to extract the
   /// user's recipient list by the WebIdTextInputScreen.
@@ -95,12 +88,10 @@ class _IndWebIdInputScreenState extends State<IndWebIdInputScreen> {
   }
 
   // Load Individual WebId Text Input
-  Widget _loadIndWebIdTextInput(
-    Function onSubmitFunction, [
+  Widget _loadIndWebIdTextInput([
     List<String> uniqRecipWebIdList = const [],
   ]) {
     return IndWebIdTextInput(
-      onSubmitFunction: onSubmitFunction,
       uniqRecipWebIdList: uniqRecipWebIdList,
       onTextChanged: widget.onTextChanged,
       onClearFunction: widget.onClearFunction,
@@ -110,7 +101,7 @@ class _IndWebIdInputScreenState extends State<IndWebIdInputScreen> {
   @override
   Widget build(BuildContext context) {
     return (widget.dataFilesMap.isNotEmpty)
-        ? _loadIndWebIdTextInput(widget.onSubmitFunction, uniqRecipWebIdList)
+        ? _loadIndWebIdTextInput(uniqRecipWebIdList)
         : FutureBuilder(
             future: _asyncGetRecipList,
             builder: (context, snapshot) {
@@ -120,14 +111,9 @@ class _IndWebIdInputScreenState extends State<IndWebIdInputScreen> {
                         snapshot.data.toString() == 'null' ||
                         snapshot.data == []
                     // Load Individual WebId Input Dialog Screen without recipient list
-                    ? returnVal = _loadIndWebIdTextInput(
-                        widget.onSubmitFunction,
-                      )
+                    ? returnVal = _loadIndWebIdTextInput()
                     // Load Individual WebId Input Dialog Screen with recipient list
-                    : returnVal = _loadIndWebIdTextInput(
-                        widget.onSubmitFunction,
-                        snapshot.data!,
-                      );
+                    : returnVal = _loadIndWebIdTextInput(snapshot.data!);
               } else {
                 returnVal = loadingScreen(normalLoadingScreenHeight);
               }
