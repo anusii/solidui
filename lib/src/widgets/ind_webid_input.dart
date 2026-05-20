@@ -140,8 +140,7 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
   }
 
   /// Generate advice to help user enter valid WebID.
-  String? get _helpText =>
-      indWebIdFormatError(formControllerWebId.value.text);
+  String? get _helpText => indWebIdFormatError(formControllerWebId.value.text);
 
   /// Generate suggestions for users based on input matches to
   /// current complete recipient list of user

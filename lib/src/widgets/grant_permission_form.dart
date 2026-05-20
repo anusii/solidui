@@ -53,10 +53,11 @@ import 'package:solidui/solidui.dart'
         updatePermissionMsg;
 import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
-import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
-import 'package:solidui/src/widgets/ind_webid_input.dart' show indWebIdFormatError;
+import 'package:solidui/src/widgets/ind_webid_input.dart'
+    show indWebIdFormatError;
 import 'package:solidui/src/widgets/ind_webid_input_screen.dart';
 import 'package:solidui/src/widgets/select_recipients.dart';
 
@@ -446,8 +447,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
     if (failures.isNotEmpty) {
       // Surface the most informative failure to the user.
-      final (failedWebId, failedResult) =
-          _pickGroupFailureToReport(failures);
+      final (failedWebId, failedResult) = _pickGroupFailureToReport(failures);
       final msg = webIdCheckMessage(failedResult, webId: failedWebId) ??
           'At least one of the Web IDs you entered is not valid';
       await _alert(msg);
