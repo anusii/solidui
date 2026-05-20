@@ -100,11 +100,20 @@ Future<void> handleNotInitialisedRecipients(
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: const Text('Recipient has not set up a POD'),
-      content: const Text(
-        'One or more of the WebIDs you entered have not yet '
-        'initialised their POD. Ask them to log in once to set up '
-        'their data vault — then you can grant access. Would you '
-        'like to send them an invitation now?',
+      // Cap the message column at ~90 characters (within the 80–100
+      // character convention used by the shared [alert] helper) so the
+      // dialog reads comfortably on wide desktop windows rather than
+      // stretching across the full window width.
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: alertMaxWidthForCharsPerLine(defaultAlertMaxCharsPerLine),
+        ),
+        child: const Text(
+          'One or more of the WebIDs you entered have not yet '
+          'initialised their POD. Ask them to log in once to set up '
+          'their data vault — then you can grant access. Would you '
+          'like to send them an invitation now?',
+        ),
       ),
       actions: [
         MarkdownTooltip(
