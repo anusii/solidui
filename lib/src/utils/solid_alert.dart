@@ -53,7 +53,7 @@ const int defaultDialogMaxCharsPerLine = 90;
 Future<void> alert(
   BuildContext context,
   String msg, {
-  String title = 'Notice',
+  String title = 'Alert',
   int? maxCharsPerLine,
 }) async {
   await showDialog(
