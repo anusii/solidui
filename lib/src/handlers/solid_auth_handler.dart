@@ -86,6 +86,18 @@ class SolidAuthConfig {
 
   final VoidCallback? onLogout;
 
+  /// URL of the app's client profile JSON-LD document. Required parameter
+
+  final String? clientId;
+
+  /// Custom URL scheme for the OAuth to redirect to after authentication.
+
+  final String? redirectUri;
+
+  /// Optional redirect URI for logout.
+
+  final String? postLogoutRedirectUri;
+
   const SolidAuthConfig({
     this.returnTo,
     this.loginPageBuilder,
@@ -98,6 +110,9 @@ class SolidAuthConfig {
     this.loginSuccessWidget,
     this.onSecurityKeyReset,
     this.onLogout,
+    this.clientId,
+    this.redirectUri,
+    this.postLogoutRedirectUri,
   });
 }
 
@@ -258,6 +273,9 @@ class SolidAuthHandler {
         themeConfig: _cachedThemeConfig,
         snackbarConfig: _cachedSnackbarConfig,
         required: _cachedRequired,
+        clientId: _config!.clientId!,
+        redirectUri: _config!.redirectUri!,
+        postLogoutRedirectUri: _config!.postLogoutRedirectUri!,
       );
     }
 
@@ -273,6 +291,9 @@ class SolidAuthHandler {
       appLink: _config?.appLink,
       loginSuccessWidget: _config?.loginSuccessWidget,
       navigateToRootOnSuccess: _config?.loginSuccessWidget == null,
+      clientId: _config!.clientId!,
+      redirectUri: _config!.redirectUri!,
+      postLogoutRedirectUri: _config!.postLogoutRedirectUri!,
     );
   }
 

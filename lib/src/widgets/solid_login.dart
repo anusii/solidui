@@ -81,6 +81,9 @@ class SolidLogin extends StatefulWidget {
     this.themeConfig = const SolidLoginTheme(),
     this.snackbarConfig = const SnackbarConfig(),
     this.customFolderPathList = const [],
+    required this.clientId,
+    required this.redirectUri,
+    this.postLogoutRedirectUri,
     super.key,
   });
 
@@ -143,6 +146,18 @@ class SolidLogin extends StatefulWidget {
   /// Custom list of folders to be created inside the data folder.
 
   final List customFolderPathList;
+
+  /// URL of the app's client profile JSON-LD document. Required parameter
+
+  final String clientId;
+
+  /// Custom URL scheme for the OAuth to redirect to after authentication.
+
+  final String redirectUri;
+
+  /// Optional redirect URI for logout.
+
+  final String? postLogoutRedirectUri;
 
   @override
   State<SolidLogin> createState() => _SolidLoginState();
@@ -408,6 +423,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         updateDialogCanceledState: updateState,
         showSnackbar: _showSnackbar,
         staySignedIn: _staySignedIn,
+        clientId: widget.clientId,
+        redirectUri: widget.redirectUri,
+        postLogoutRedirectUri: widget.postLogoutRedirectUri,
       );
     }
 

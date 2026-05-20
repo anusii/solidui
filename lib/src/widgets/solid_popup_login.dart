@@ -141,7 +141,8 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
 
   Future<bool> _loginAndInitPods(String webId, BuildContext context) async {
     try {
-      await solidAuthenticate(webId, context);
+      await solidAuthenticate(webId, context,
+          clientId: '', redirectUri: '', postLogoutRedirectUri: '');
 
       // Persist the WebID/server URL so the re-login dialog can prefill it
       // next time the user is logged out. Prefer the canonical WebID

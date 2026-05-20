@@ -250,11 +250,14 @@ class SolidLoginAuthHandler {
     required List<String> defaultFolders,
     required Map<dynamic, dynamic> defaultFiles,
     required dynamic originalLoginWidget,
+    required final String clientId,
+    required final String redirectUri,
     required Widget childWidget,
     required ValueGetter<bool> isDialogCanceled,
     required VoidCallback updateDialogCanceledState,
     required Function(String message, {Duration? duration, bool showAction})
         showSnackbar,
+    final String? postLogoutRedirectUri,
     bool staySignedIn = true,
   }) async {
     // Method to show busy animation requiring BuildContext.
@@ -305,7 +308,13 @@ class SolidLoginAuthHandler {
 
     List<dynamic>? authResult;
     try {
-      authResult = await solidAuthenticate(podServer, context);
+      authResult = await solidAuthenticate(
+        podServer,
+        context,
+        clientId: clientId,
+        redirectUri: redirectUri,
+        postLogoutRedirectUri: postLogoutRedirectUri,
+      );
     } on Object catch (e) {
       // Check whether auth data was persisted before the failure (i.e. POD
       // not initialised) vs a genuine server/network error.

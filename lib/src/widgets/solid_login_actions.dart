@@ -85,6 +85,9 @@ class SolidLoginActions {
     required VoidCallback updateDialogCanceledState,
     required LoginSnackbar showSnackbar,
     required bool staySignedIn,
+    required final String clientId,
+    required final String redirectUri,
+    final String? postLogoutRedirectUri,
   }) async {
     // When the user has opted out of staying signed in, discard any existing
     // cached session immediately so browser authentication is always
@@ -132,6 +135,9 @@ class SolidLoginActions {
       updateDialogCanceledState: updateDialogCanceledState,
       showSnackbar: showSnackbar,
       staySignedIn: staySignedIn,
+      clientId: clientId,
+      redirectUri: redirectUri,
+      postLogoutRedirectUri: postLogoutRedirectUri,
     );
   }
 
