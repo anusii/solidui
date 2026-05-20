@@ -34,6 +34,15 @@ library;
 import 'package:solidpod/solidpod.dart'
     show WebIdCheckResult, WebIdCheckStatus, isValidIpv4;
 
+/// Recommended character-per-line cap for WebID error dialogs.
+///
+/// These messages can be quite long (host names, URL examples, etc.) and on
+/// a wide desktop window they would otherwise stretch the dialog across the
+/// entire screen and become hard to read. ~90 characters gives a comfortable
+/// reading width on both phone and desktop. Callers should pass this to
+/// `alert(..., maxCharsPerLine: webIdMessageMaxCharsPerLine)`.
+const int webIdMessageMaxCharsPerLine = 90;
+
 /// Build a user-facing message for a non-valid [result], or `null` when the
 /// result is [WebIdCheckStatus.valid] and no message is needed.
 ///

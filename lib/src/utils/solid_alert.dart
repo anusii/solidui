@@ -30,24 +30,54 @@ library;
 
 import 'package:flutter/material.dart';
 
-/// Alert widget to popup a dialog with a given message and an optional title.
+/// Approximate average width, in logical pixels, of one character at the
+/// default Material body text size (~14 sp). Used to translate
+/// [alert]'s `maxCharsPerLine` into an actual `maxWidth` constraint. A
+/// slightly conservative value is chosen so that wide glyphs (e.g. `m`, `W`)
+/// still tend to fit within the requested character budget.
+const double _approxCharWidthLogicalPixels = 7.5;
 
+/// Default character-per-line cap used by callers that want a sensible
+/// reading width without picking a number themselves. ~90 characters keeps
+/// long messages readable on wide desktop windows while still leaving room
+/// for the dialog's chrome on a phone.
+const int defaultDialogMaxCharsPerLine = 90;
+
+/// Pop up an alert dialog with the given [msg].
+///
+/// [title] defaults to `'Notice'`. Pass [maxCharsPerLine] to cap the width
+/// of the message column at roughly that many characters of body text,
+/// preventing the dialog from stretching across the full width of a desktop
+/// window when the message is long. Pass `null` (the default) to keep the
+/// platform default sizing.
 Future<void> alert(
   BuildContext context,
-  String msg, [
+  String msg, {
   String title = 'Notice',
-]) async {
+  int? maxCharsPerLine,
+}) async {
   await showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(title),
-      content: Text(msg),
-      actions: [
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
-        ),
-      ],
-    ),
+    builder: (context) {
+      final messageText = Text(msg);
+      final content = maxCharsPerLine == null
+          ? messageText
+          : ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: maxCharsPerLine * _approxCharWidthLogicalPixels,
+              ),
+              child: messageText,
+            );
+      return AlertDialog(
+        title: Text(title),
+        content: content,
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
   );
 }

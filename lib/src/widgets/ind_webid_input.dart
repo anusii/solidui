@@ -44,7 +44,8 @@ import 'package:solidui/solidui.dart'
         WebIdLayout,
         DropdownColors;
 import 'package:solidui/src/utils/solid_alert.dart';
-import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
+import 'package:solidui/src/utils/webid_message.dart'
+    show webIdCheckMessage, webIdMessageMaxCharsPerLine;
 
 /// A [StatefulWidget] dialog for adding an individual webId.
 /// Function call requires the following inputs.
@@ -225,7 +226,13 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
                         result,
                         webId: receiverWebId,
                       );
-                      if (message != null) await alert(context, message);
+                      if (message != null) {
+                        await alert(
+                          context,
+                          message,
+                          maxCharsPerLine: webIdMessageMaxCharsPerLine,
+                        );
+                      }
                     },
                     child: const Text('Select WebId'),
                   ),

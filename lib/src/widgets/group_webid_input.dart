@@ -44,7 +44,8 @@ import 'package:solidpod/solidpod.dart'
 import 'package:solidui/solidui.dart'
     show smallGapV, makeSubHeading, GrantPermFormLayout;
 import 'package:solidui/src/utils/solid_alert.dart';
-import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
+import 'package:solidui/src/utils/webid_message.dart'
+    show webIdCheckMessage, webIdMessageMaxCharsPerLine;
 
 /// Priority order used when several WebIDs in the list fail at once.
 
@@ -190,7 +191,11 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
                             webId: report.$1,
                           ) ??
                           'At least one of the Web IDs you entered is not valid';
-                      await alert(context, message);
+                      await alert(
+                        context,
+                        message,
+                        maxCharsPerLine: webIdMessageMaxCharsPerLine,
+                      );
                     },
                     child: const Text('Select Group of WebIds'),
                   ),
