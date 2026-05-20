@@ -33,8 +33,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/solidpod.dart'
-    show validateWebId, whatIsWebID, demoWebID;
+import 'package:solidpod/solidpod.dart' show whatIsWebID, demoWebID;
 
 import 'package:solidui/solidui.dart'
     show
@@ -43,8 +42,6 @@ import 'package:solidui/solidui.dart'
         GrantPermFormLayout,
         WebIdLayout,
         DropdownColors;
-import 'package:solidui/src/utils/solid_alert.dart';
-import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 
 /// Returns a human-readable error describing why [text] is not a valid WebID,
 /// or `null` if [text] is well-formed.

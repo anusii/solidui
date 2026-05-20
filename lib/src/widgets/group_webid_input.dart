@@ -33,43 +33,10 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/solidpod.dart'
-    show
-        WebIdCheckResult,
-        WebIdCheckStatus,
-        validateWebId,
-        whatIsWebID,
-        demoWebID;
+import 'package:solidpod/solidpod.dart' show whatIsWebID, demoWebID;
 
 import 'package:solidui/solidui.dart'
     show smallGapV, makeSubHeading, GrantPermFormLayout;
-import 'package:solidui/src/utils/solid_alert.dart';
-import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
-
-/// Priority order used when several WebIDs in the list fail at once.
-
-const List<WebIdCheckStatus> _groupReportPriority = [
-  WebIdCheckStatus.invalidIpv4,
-  WebIdCheckStatus.unreachable,
-  WebIdCheckStatus.notProfile,
-];
-
-/// Pick the [WebIdCheckResult] to surface in a single dialog when more than
-/// one WebID in the group has failed. Higher-priority statuses are preferred
-/// (see [_groupReportPriority]); otherwise the first failure in input order
-/// is returned.
-
-(String, WebIdCheckResult) _pickGroupFailureToReport(
-  List<(String, WebIdCheckResult)> failures,
-) {
-  assert(failures.isNotEmpty);
-  for (final status in _groupReportPriority) {
-    for (final failure in failures) {
-      if (failure.$2.status == status) return failure;
-    }
-  }
-  return failures.first;
-}
 
 /// A [StatefulWidget] dialog for entering a group of WebIDs.
 ///

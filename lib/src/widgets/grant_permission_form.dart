@@ -55,6 +55,7 @@ import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
+import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 import 'package:solidui/src/widgets/ind_webid_input.dart' show indWebIdFormatError;
 import 'package:solidui/src/widgets/ind_webid_input_screen.dart';
 import 'package:solidui/src/widgets/select_recipients.dart';
@@ -342,6 +343,31 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   }) async =>
       showSnackBar(context, msg, bgColor, duration: duration);
 
+  /// Priority order used when several WebIDs in the group list fail. We
+  /// surface a single dialog and prefer the most actionable failure mode.
+
+  static const List<WebIdCheckStatus> _groupReportPriority = [
+    WebIdCheckStatus.invalidIpv4,
+    WebIdCheckStatus.unreachable,
+    WebIdCheckStatus.notProfile,
+  ];
+
+  /// Pick the [WebIdCheckResult] to surface in a single dialog when more
+  /// than one WebID in the group has failed. Higher-priority statuses are
+  /// preferred (see [_groupReportPriority]); otherwise the first failure
+  /// in input order is returned.
+  static (String, WebIdCheckResult) _pickGroupFailureToReport(
+    List<(String, WebIdCheckResult)> failures,
+  ) {
+    assert(failures.isNotEmpty);
+    for (final status in _groupReportPriority) {
+      for (final failure in failures) {
+        if (failure.$2.status == status) return failure;
+      }
+    }
+    return failures.first;
+  }
+
   /// Drop any individual WebID text typed by the user. Invoked by the
   /// Clear button on the individual WebID input widget.
   void clearIndWebIdInput() => setState(() {
@@ -373,11 +399,12 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
       await _alert(formatError);
       return false;
     }
-    if (await checkResourceStatus(webId) != ResourceStatus.exist) {
-      if (!mounted) return false;
-      await _alert(
-        'This WebID does not exist. Please enter the correct WebID',
-      );
+    final result = await validateWebId(webId);
+    if (!mounted) return false;
+    if (!result.isValid) {
+      final msg = webIdCheckMessage(result, webId: webId) ??
+          'This WebID does not exist. Please enter the correct WebID.';
+      await _alert(msg);
       return false;
     }
     setState(() {
@@ -406,18 +433,27 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
       await _alert('Please enter a group name and a list of Web IDs');
       return false;
     }
+
+    // Validate every WebID and collect any failures.
+    final failures = <(String, WebIdCheckResult)>[];
     for (final webId in webIdList) {
-      final isAbsolute = Uri.parse(webId.replaceAll('#me', '')).isAbsolute;
-      final exists =
-          isAbsolute && await checkResourceStatus(webId) == ResourceStatus.exist;
+      final result = await validateWebId(webId);
       if (!mounted) return false;
-      if (!isAbsolute || !exists) {
-        await _alert(
-          'At least one of the Web IDs you entered is not valid',
-        );
-        return false;
+      if (!result.isValid) {
+        failures.add((webId, result));
       }
     }
+
+    if (failures.isNotEmpty) {
+      // Surface the most informative failure to the user.
+      final (failedWebId, failedResult) =
+          _pickGroupFailureToReport(failures);
+      final msg = webIdCheckMessage(failedResult, webId: failedWebId) ??
+          'At least one of the Web IDs you entered is not valid';
+      await _alert(msg);
+      return false;
+    }
+
     setState(() {
       finalWebIdList = webIdList;
       selectedGroupName = groupName;
