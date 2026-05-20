@@ -33,55 +33,37 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/solidpod.dart'
-    show
-        WebIdCheckResult,
-        WebIdCheckStatus,
-        validateWebId,
-        whatIsWebID,
-        demoWebID;
+import 'package:solidpod/solidpod.dart' show whatIsWebID, demoWebID;
 
 import 'package:solidui/solidui.dart'
     show smallGapV, makeSubHeading, GrantPermFormLayout;
-import 'package:solidui/src/utils/solid_alert.dart';
-import 'package:solidui/src/utils/webid_message.dart'
-    show webIdCheckMessage, webIdMessageMaxCharsPerLine;
 
-/// Priority order used when several WebIDs in the list fail at once.
-
-const List<WebIdCheckStatus> _groupReportPriority = [
-  WebIdCheckStatus.invalidIpv4,
-  WebIdCheckStatus.unreachable,
-  WebIdCheckStatus.notProfile,
-];
-
-/// Pick the [WebIdCheckResult] to surface in a single dialog when more than
-/// one WebID in the group has failed. Higher-priority statuses are preferred
-/// (see [_groupReportPriority]); otherwise the first failure in input order
-/// is returned.
-
-(String, WebIdCheckResult) _pickGroupFailureToReport(
-  List<(String, WebIdCheckResult)> failures,
-) {
-  assert(failures.isNotEmpty);
-  for (final status in _groupReportPriority) {
-    for (final failure in failures) {
-      if (failure.$2.status == status) return failure;
-    }
-  }
-  return failures.first;
-}
-
-/// A [StatefulWidget] dialog for entering group of webIds.
+/// A [StatefulWidget] dialog for entering a group of WebIDs.
 ///
-/// Parameters:
-/// - [onSubmitFunction] - function to be called on submit.
-
+/// The widget no longer confirms a selection on its own; the parent form
+/// reads the typed values via [onGroupNameChanged] and
+/// [onGroupWebIdsChanged] and validates them when the user presses
+/// Grant Permission.
 class GroupWebIdTextInput extends StatefulWidget {
-  /// Function run on Submit button press.
-  final Function onSubmitFunction;
+  /// Optional callback fired on every keystroke in the group name field.
+  final void Function(String)? onGroupNameChanged;
 
-  const GroupWebIdTextInput({super.key, required this.onSubmitFunction});
+  /// Optional callback fired on every keystroke in the list of WebIDs
+  /// field. The raw text is passed through; splitting on ';' is performed
+  /// by the parent at validation time.
+  final void Function(String)? onGroupWebIdsChanged;
+
+  /// Optional callback fired when the user presses the Clear button. The
+  /// parent form uses this to drop any cached state so the dialog returns
+  /// to a clean state.
+  final VoidCallback? onClearFunction;
+
+  const GroupWebIdTextInput({
+    super.key,
+    this.onGroupNameChanged,
+    this.onGroupWebIdsChanged,
+    this.onClearFunction,
+  });
 
   @override
   State<GroupWebIdTextInput> createState() => _GroupWebIdTextInputState();
@@ -133,6 +115,7 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
                   hintText:
                       'Multiple words will be combined using the symbol -',
                 ),
+                onChanged: (value) => widget.onGroupNameChanged?.call(value),
               ),
               smallGapV,
               // List of Web IDs divided by semicolon
@@ -142,62 +125,25 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
                   labelText: 'List of WebIDs',
                   hintText: 'Divide multiple WebIDs using the semicolon (;)',
                 ),
+                onChanged: (value) => widget.onGroupWebIdsChanged?.call(value),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () async {
-                      final groupName = formControllerGroupName.text.trim();
-                      final groupWebIds = formControllerGroupWebIds.text.trim();
-
-                      if (groupName.isEmpty || groupWebIds.isEmpty) {
-                        if (!context.mounted) return;
-                        await alert(
-                          context,
-                          'Please enter a group name and a list of Web IDs',
-                        );
-                        return;
-                      }
-
-                      final webIdList = groupWebIds
-                          .split(';')
-                          .map((e) => e.trim())
-                          .where((e) => e.isNotEmpty)
-                          .toList();
-
-                      // Validate every WebID in parallel and pair each result
-                      // with its source URL so the dialog can name the
-                      // offending entry.
-
-                      final results = await Future.wait(
-                        webIdList.map(
-                          (webId) async => (webId, await validateWebId(webId)),
-                        ),
-                      );
-
-                      final failures =
-                          results.where((r) => !r.$2.isValid).toList();
-
-                      if (failures.isEmpty) {
-                        widget.onSubmitFunction(groupName, webIdList);
-                        return;
-                      }
-
-                      if (!context.mounted) return;
-                      final report = _pickGroupFailureToReport(failures);
-                      final message = webIdCheckMessage(
-                            report.$2,
-                            webId: report.$1,
-                          ) ??
-                          'At least one of the Web IDs you entered is not valid';
-                      await alert(
-                        context,
-                        message,
-                        maxCharsPerLine: webIdMessageMaxCharsPerLine,
-                      );
+                    onPressed: () {
+                      // Wipe both group fields and any cached state so the
+                      // user can start over. The actual recipient list is
+                      // confirmed later when Grant Permission is pressed.
+                      setState(() {
+                        formControllerGroupName.clear();
+                        formControllerGroupWebIds.clear();
+                      });
+                      widget.onGroupNameChanged?.call('');
+                      widget.onGroupWebIdsChanged?.call('');
+                      widget.onClearFunction?.call();
                     },
-                    child: const Text('Select Group of WebIds'),
+                    child: const Text('Clear'),
                   ),
                 ],
               ),

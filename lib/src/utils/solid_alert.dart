@@ -31,53 +31,57 @@ library;
 import 'package:flutter/material.dart';
 
 /// Approximate average width, in logical pixels, of one character at the
-/// default Material body text size (~14 sp). Used to translate
-/// [alert]'s `maxCharsPerLine` into an actual `maxWidth` constraint. A
-/// slightly conservative value is chosen so that wide glyphs (e.g. `m`, `W`)
+/// default Material body text size (~14 sp). Used to translate a
+/// "characters per line" budget into an actual `maxWidth` constraint for
+/// alert dialogs. Slightly conservative so wider glyphs (e.g. `m`, `W`)
 /// still tend to fit within the requested character budget.
-const double _approxCharWidthLogicalPixels = 7.5;
 
-/// Default character-per-line cap used by callers that want a sensible
-/// reading width without picking a number themselves. ~90 characters keeps
-/// long messages readable on wide desktop windows while still leaving room
-/// for the dialog's chrome on a phone.
-const int defaultDialogMaxCharsPerLine = 90;
+const double _approxCharWidthLogicalPixels = 7.0;
 
-/// Pop up an alert dialog with the given [msg].
+/// Default character-per-line cap applied to alert dialogs raised by
+/// [alert]. ~90 characters keeps long error messages readable on wide
+/// desktop windows without forcing short messages to look awkwardly narrow
+/// on phones; it also matches the 80–100 character convention familiar
+/// from prose and source-code line lengths.
+
+const int defaultAlertMaxCharsPerLine = 90;
+
+/// Convert a "characters per line" budget into a logical-pixel `maxWidth`
+/// suitable for use with [BoxConstraints]. Shared by [alert] and any
+/// custom alert dialogs that want a consistent reading width.
+
+double alertMaxWidthForCharsPerLine(int maxCharsPerLine) =>
+    maxCharsPerLine * _approxCharWidthLogicalPixels;
+
+/// Pop up a dismissable alert dialog with the given [msg].
 ///
-/// [title] defaults to `'Notice'`. Pass [maxCharsPerLine] to cap the width
-/// of the message column at roughly that many characters of body text,
-/// preventing the dialog from stretching across the full width of a desktop
-/// window when the message is long. Pass `null` (the default) to keep the
-/// platform default sizing.
+/// [title] defaults to `'Alert'`. The message column is capped at
+/// approximately [defaultAlertMaxCharsPerLine] characters wide so that long
+/// messages do not stretch across the full width of a desktop window.
+/// Short messages are unaffected — the cap only takes effect when the
+/// natural width of the text exceeds it.
+
 Future<void> alert(
   BuildContext context,
-  String msg, {
+  String msg, [
   String title = 'Alert',
-  int? maxCharsPerLine,
-}) async {
+]) async {
   await showDialog(
     context: context,
-    builder: (context) {
-      final messageText = Text(msg);
-      final content = maxCharsPerLine == null
-          ? messageText
-          : ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: maxCharsPerLine * _approxCharWidthLogicalPixels,
-              ),
-              child: messageText,
-            );
-      return AlertDialog(
-        title: Text(title),
-        content: content,
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: alertMaxWidthForCharsPerLine(defaultAlertMaxCharsPerLine),
+        ),
+        child: Text(msg),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
   );
 }
