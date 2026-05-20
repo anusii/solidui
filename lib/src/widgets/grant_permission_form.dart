@@ -32,14 +32,12 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart'
     show
         ActionColors,
         GrantPermFormLayout,
-        InviteOthersDialog,
         SolidInviteOthersConfig,
         debugPrintException,
         debugPrintFailure,
@@ -47,13 +45,13 @@ import 'package:solidui/solidui.dart'
         getPermissionCheckBoxes,
         isPhone,
         makeSubHeading,
-        podNotInitMsg,
         smallGapV,
         successMsg,
         updatePermissionMsg;
 import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
+import 'package:solidui/src/widgets/grant_permission_dialogs.dart';
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input.dart'
@@ -244,98 +242,6 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// grant permission form dialog.
   Future<void> _alert(String msg) async => alert(context, msg);
 
-  /// Handles the case where granting failed because one or more
-  /// recipients have not yet set up their POD. When an
-  /// [SolidInviteOthersConfig] is provided, the user is offered a
-  /// follow-up option to send the application's invitation
-  /// directly. Otherwise the original snackbar behaviour is kept so
-  /// existing call sites continue to work.
-
-  /// Shows a dismissable error dialog whose content is constrained to
-  /// approximately 60 characters wide.
-
-  Future<void> _showErrorDialog(String title, String message) async {
-    if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(title),
-        content: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Text(message),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _handleNotInitialisedRecipients() async {
-    final invite = widget.inviteConfig;
-    if (invite == null) {
-      await _showErrorDialog('Recipient POD not initialised', podNotInitMsg);
-      return;
-    }
-
-    if (!context.mounted) return;
-    if (!mounted) return;
-    final shouldInvite = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Recipient has not set up a POD'),
-          content: const Text(
-            'One or more of the WebIDs you entered have not yet '
-            'initialised their POD. Ask them to log in once to set up '
-            'their data vault — then you can grant access. Would you '
-            'like to send them an invitation now?',
-          ),
-          actions: [
-            MarkdownTooltip(
-              message: '''
-
-              **Not now**
-
-              Dismiss this dialog without sending an invitation. You
-              can grant access again once the recipient has logged
-              into the app and set up their POD.
-
-              ''',
-              child: TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Not now'),
-              ),
-            ),
-            MarkdownTooltip(
-              message: '''
-
-              **Invite this user**
-
-              Open the Invite Others dialog so you can send the
-              recipient a link to the app, prompting them to set up
-              their data vault.
-
-              ''',
-              child: TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text('Invite'),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (!mounted) return;
-    if (shouldInvite == true) {
-      await InviteOthersDialog.show(context, config: invite);
-    }
-  }
-
   /// Private function to show snackbar in share resource button context
   Future<void> _showSnackBar(
     String msg,
@@ -343,31 +249,6 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     Duration duration = const Duration(seconds: 4),
   }) async =>
       showSnackBar(context, msg, bgColor, duration: duration);
-
-  /// Priority order used when several WebIDs in the group list fail. We
-  /// surface a single dialog and prefer the most actionable failure mode.
-
-  static const List<WebIdCheckStatus> _groupReportPriority = [
-    WebIdCheckStatus.invalidIpv4,
-    WebIdCheckStatus.unreachable,
-    WebIdCheckStatus.notProfile,
-  ];
-
-  /// Pick the [WebIdCheckResult] to surface in a single dialog when more
-  /// than one WebID in the group has failed. Higher-priority statuses are
-  /// preferred (see [_groupReportPriority]); otherwise the first failure
-  /// in input order is returned.
-  static (String, WebIdCheckResult) _pickGroupFailureToReport(
-    List<(String, WebIdCheckResult)> failures,
-  ) {
-    assert(failures.isNotEmpty);
-    for (final status in _groupReportPriority) {
-      for (final failure in failures) {
-        if (failure.$2.status == status) return failure;
-      }
-    }
-    return failures.first;
-  }
 
   /// Drop any individual WebID text typed by the user. Invoked by the
   /// Clear button on the individual WebID input widget.
@@ -447,7 +328,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
     if (failures.isNotEmpty) {
       // Surface the most informative failure to the user.
-      final (failedWebId, failedResult) = _pickGroupFailureToReport(failures);
+      final (failedWebId, failedResult) = pickGroupFailureToReport(failures);
       final msg = webIdCheckMessage(failedResult, webId: failedWebId) ??
           'At least one of the Web IDs you entered is not valid';
       await _alert(msg);
@@ -652,7 +533,9 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
               // Trigger the onPermissionGranted callback if provided
               widget.onPermissionGranted?.call();
             } else if (result == SolidFunctionCallStatus.fail) {
-              await _showErrorDialog(
+              if (!context.mounted) return;
+              await showGrantPermissionErrorDialog(
+                context,
                 'Permission granting failed',
                 failureMsg,
               );
@@ -664,7 +547,11 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 selectedPermList,
               );
             } else if (result == SolidFunctionCallStatus.notInitialised) {
-              await _handleNotInitialisedRecipients();
+              if (!context.mounted) return;
+              await handleNotInitialisedRecipients(
+                context,
+                widget.inviteConfig,
+              );
             } else {
               await _alert(updatePermissionMsg);
             }
