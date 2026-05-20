@@ -72,7 +72,7 @@ class _LogoutDialogState extends State<LogoutDialog> {
         : 'Logout from the remote Solid Server for $title?';
 
     return AlertDialog(
-      title: const Text('Notice'),
+      title: const Text('Confirm'),
       content: Text(contentText),
       actions: [
         ElevatedButton(

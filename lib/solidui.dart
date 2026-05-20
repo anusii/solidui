@@ -52,6 +52,7 @@ export 'src/widgets/solid_default_login.dart';
 
 export 'src/widgets/solid_login.dart';
 export 'src/widgets/solid_login_helper.dart';
+export 'src/widgets/solid_login_required_dialog.dart';
 export 'src/widgets/solid_server_field.dart';
 export 'src/widgets/solid_popup_login.dart';
 export 'src/widgets/solid_login_webid_input_dialog.dart';

@@ -35,7 +35,7 @@ import 'package:flutter/material.dart';
 Future<void> alert(
   BuildContext context,
   String msg, [
-  String title = 'Notice',
+  String title = 'Alert',
 ]) async {
   await showDialog(
     context: context,

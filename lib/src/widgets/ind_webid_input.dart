@@ -2,7 +2,7 @@
 ///
 // Time-stamp: <Tuesday 2025-07-22 13:59:21 +1000 Graham Williams>
 ///
-/// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2024-2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -26,14 +26,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Anushka Vidanage, Jess Moore
+/// Authors: Anushka Vidanage, Jess Moore, Tony Chen
 
 library;
 
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/solidpod.dart' show whatIsWebID, demoWebID;
+import 'package:solidpod/solidpod.dart'
+    show validateWebId, whatIsWebID, demoWebID;
 
 import 'package:solidui/solidui.dart'
     show
@@ -42,6 +43,8 @@ import 'package:solidui/solidui.dart'
         GrantPermFormLayout,
         WebIdLayout,
         DropdownColors;
+import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 
 /// Returns a human-readable error describing why [text] is not a valid WebID,
 /// or `null` if [text] is well-formed.
