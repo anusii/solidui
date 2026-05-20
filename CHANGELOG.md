@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Update Try Another WebID workflow [0.3.48 20260520 tonypioneer]
 + Review and improve Not Logged In workflow [0.3.47 20260520 tonypioneer]
 + Bug fix when resource does not exist #21 [0.3.46 20260519 tonypioneer]
 + Attempt to suppress macOS char on typing disclosure #315 [0.3.45 20260518 gjw]
