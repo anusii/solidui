@@ -2,7 +2,7 @@
 ///
 // Time-stamp: <Tuesday 2025-07-22 13:59:21 +1000 Graham Williams>
 ///
-/// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2024-2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -26,7 +26,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Anushka Vidanage, Jess Moore
+/// Authors: Anushka Vidanage, Jess Moore, Tony Chen
 
 library;
 
@@ -34,7 +34,7 @@ import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
-    show checkResourceStatus, ResourceStatus, whatIsWebID, demoWebID;
+    show validateWebId, whatIsWebID, demoWebID;
 
 import 'package:solidui/solidui.dart'
     show
@@ -44,6 +44,7 @@ import 'package:solidui/solidui.dart'
         WebIdLayout,
         DropdownColors;
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 
 /// A [StatefulWidget] dialog for adding an individual webId.
 /// Function call requires the following inputs.
@@ -205,22 +206,26 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
                       final receiverWebId = formControllerWebId.text.trim();
 
                       // User has entered WebId text that satisfies error checks
-                      if (receiverWebId.isNotEmpty && _helpText == null) {
-                        // Check WebId exists
+                      if (receiverWebId.isEmpty || _helpText != null) return;
 
-                        if (await checkResourceStatus(receiverWebId) ==
-                            ResourceStatus.exist) {
-                          // Save provided WebId
-                          widget.onSubmitFunction(receiverWebId);
-                        } else {
-                          if (!context.mounted) return;
-                          // Request WebId that exists
-                          await alert(
-                            context,
-                            'This WebID does not exist. Please enter the correct WebID',
-                          );
-                        }
+                      // Run the full WebID validation pipeline (IP form check
+                      // + RDF profile content check + network error mapping)
+                      // in one call so the failure modes can be reported
+                      // through a single dialog rather than a series of
+                      // nested try/catch blocks.
+                      final result = await validateWebId(receiverWebId);
+
+                      if (result.isValid) {
+                        widget.onSubmitFunction(receiverWebId);
+                        return;
                       }
+
+                      if (!context.mounted) return;
+                      final message = webIdCheckMessage(
+                        result,
+                        webId: receiverWebId,
+                      );
+                      if (message != null) await alert(context, message);
                     },
                     child: const Text('Select WebId'),
                   ),
