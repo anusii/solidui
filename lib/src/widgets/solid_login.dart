@@ -40,7 +40,8 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFolders,
         generateDefaultFiles,
         generateCustomFolders,
-        setAppDirName;
+        setAppDirName,
+        tryRestoreSession;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
@@ -84,6 +85,7 @@ class SolidLogin extends StatefulWidget {
     required this.clientId,
     required this.redirectUri,
     this.postLogoutRedirectUri,
+    this.autoLogin = false,
     super.key,
   });
 
@@ -159,6 +161,14 @@ class SolidLogin extends StatefulWidget {
 
   final String? postLogoutRedirectUri;
 
+  /// When true, automatically restores a saved session on startup and navigates
+  /// directly to [child] without showing the login page.
+  ///
+  /// Falls back to showing the login page if no valid session is found or if
+  /// the user has opted out of "Stay signed in".
+
+  final bool autoLogin;
+
   @override
   State<SolidLogin> createState() => _SolidLoginState();
 }
@@ -199,6 +209,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _assetsResolved = false;
 
+  /// Whether an auto-login check is in progress (shows a loading screen).
+
+  bool _checkingAutoLogin = false;
+
   /// Whether the user wishes to persist the login session across app restarts.
 
   bool _staySignedIn = true;
@@ -231,6 +245,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // Clear any stale session from a previous "Stay signed in" opt-out.
 
     SolidLoginAuthHandler.clearSessionIfRequired();
+
+    // If autoLogin is requested, attempt silent session restoration after the
+    // first frame so that context is available for navigation.
+
+    if (widget.autoLogin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkAutoLogin());
+    }
 
     // dc 20251022: please explain why calling an async without await.
 
@@ -284,6 +305,32 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   Future<void> _loadStaySignedInPreference() async {
     final value = await SolidLoginAuthHandler.getStaySignedIn();
     if (mounted) setState(() => _staySignedIn = value);
+  }
+
+  /// Attempts silent session restoration. On success navigates directly to
+  /// [widget.child]; on failure shows the login page as normal.
+
+  Future<void> _checkAutoLogin() async {
+    if (!mounted) return;
+
+    // Honour the "Stay signed in" opt-out — if disabled, skip auto-login.
+    final staySignedIn = await SolidLoginAuthHandler.getStaySignedIn();
+    if (!staySignedIn || !mounted) return;
+
+    if (mounted) setState(() => _checkingAutoLogin = true);
+
+    final session = await tryRestoreSession();
+
+    if (!mounted) return;
+    if (session == null) {
+      setState(() => _checkingAutoLogin = false);
+      return;
+    }
+
+    // Session restored — navigate directly to the child widget.
+    await Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => widget.child),
+    );
   }
 
   @override
@@ -381,9 +428,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // Show a loading indicator whilst assets are being resolved.
+    // Show a loading indicator whilst assets are being resolved or an
+    // auto-login check is in progress.
 
-    if (!_assetsResolved) {
+    if (!_assetsResolved || _checkingAutoLogin) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
