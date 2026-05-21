@@ -81,9 +81,9 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
 
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
-      if (oldIndex < newIndex) {
-        newIndex -= 1;
-      }
+      // newIndex is already adjusted by ReorderableListView.onReorderItem
+      // (see solid_preferences_button_order.dart). No manual `-= 1`
+      // shift needed.
       final item = _appBarActions.removeAt(oldIndex);
       _appBarActions.insert(newIndex, item);
 
