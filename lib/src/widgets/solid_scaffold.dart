@@ -49,6 +49,7 @@ import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_init_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
+import 'package:solidui/src/widgets/solid_scaffold_last_index.dart';
 import 'package:solidui/src/widgets/solid_scaffold_state_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_widget_builder.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
@@ -224,6 +225,17 @@ class SolidScaffold extends StatefulWidget {
 
   final int initialIndex;
 
+  /// When `true` (the default), the scaffold persists the currently
+  /// selected menu index to shared_preferences and restores it on the
+  /// next launch. Set to `false` to opt out and always start at
+  /// [initialIndex].
+  ///
+  /// Persistence is automatic: no setup is required in the host app.
+  /// The saved value is read once on first frame and applied to the
+  /// internal `_selectedIndex`; subsequent menu taps overwrite it.
+
+  final bool rememberLastIndex;
+
   /// Optional menu selection callback (for external state management).
 
   final void Function(int)? onMenuSelected;
@@ -326,6 +338,7 @@ class SolidScaffold extends StatefulWidget {
     this.endDrawerEnableOpenDragGesture = true,
     this.restorationId,
     this.initialIndex = 0,
+    this.rememberLastIndex = true,
     this.onMenuSelected,
     this.selectedIndex,
     this.themeToggle,
