@@ -33,25 +33,36 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart' show WebIdCheckResult, WebIdCheckStatus;
 
+import 'package:solidui/src/utils/solid_alert.dart'
+    show alertMaxWidthForCharsPerLine, defaultAlertMaxCharsPerLine;
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart'
     show podNotInitMsg;
 import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 
-/// Shows a dismissable error dialog whose content is constrained to
-/// approximately 60 characters wide.
+/// Shows a dismissable error dialog whose message column is constrained to
+/// approximately [maxCharsPerLine] characters wide.
+///
+/// The default ([defaultAlertMaxCharsPerLine], ~90 characters) matches the
+/// width used by the shared [alert] helper so error dialogs raised from
+/// the grant permission flow have the same reading width as alerts raised
+/// elsewhere in the app. Callers can pass a smaller value for short,
+/// narrow notices.
 
 Future<void> showGrantPermissionErrorDialog(
   BuildContext context,
   String title,
-  String message,
-) async {
+  String message, {
+  int maxCharsPerLine = defaultAlertMaxCharsPerLine,
+}) async {
   await showDialog<void>(
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: Text(title),
       content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
+        constraints: BoxConstraints(
+          maxWidth: alertMaxWidthForCharsPerLine(maxCharsPerLine),
+        ),
         child: Text(message),
       ),
       actions: [
@@ -89,11 +100,20 @@ Future<void> handleNotInitialisedRecipients(
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: const Text('Recipient has not set up a POD'),
-      content: const Text(
-        'One or more of the WebIDs you entered have not yet '
-        'initialised their POD. Ask them to log in once to set up '
-        'their data vault — then you can grant access. Would you '
-        'like to send them an invitation now?',
+      // Cap the message column at ~90 characters (within the 80–100
+      // character convention used by the shared [alert] helper) so the
+      // dialog reads comfortably on wide desktop windows rather than
+      // stretching across the full window width.
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: alertMaxWidthForCharsPerLine(defaultAlertMaxCharsPerLine),
+        ),
+        child: const Text(
+          'One or more of the WebIDs you entered have not yet '
+          'initialised their POD. Ask them to log in once to set up '
+          'their data vault — then you can grant access. Would you '
+          'like to send them an invitation now?',
+        ),
       ),
       actions: [
         MarkdownTooltip(
