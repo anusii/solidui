@@ -45,15 +45,28 @@ class App extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SolidLogin(
-        title: 'SOLID POD DEMONSTRATOR',
+        // Images generated using Bing Image Creator from Designer, powered by
+        // DALL-E3.
+
+        title: 'SOLID UI DEMONSTRATOR',
         appDirectory: 'demopod',
-        image: AssetImage('assets/images/demopod_image.jpg'),
+        image: AssetImage('assets/images/demopod_image.png'),
         logo: AssetImage('assets/images/demopod_logo.png'),
         link: 'https://github.com/anusii/solidpod/blob/main/demopod/README.md',
         required: false,
         infoButtonStyle: InfoButtonStyle(
           tooltip: 'Visit the DemoPod documentation.',
         ),
+        clientId:
+            'https://anushkavidanage.github.io/solidui/example/client-profile.jsonld',
+        // Use the following schemas depending on the platform
+        //  Web: https://anushkavidanage.github.io/solidpod/example/redirect.html
+        //  Mobile: com.example.demopod://redirect
+        //  Desktop: http://localhost:4400/redirect
+        //    (can use any port as long as it matches with the one in your id document)
+        redirectUri: 'http://localhost:4400/redirect',
+        postLogoutRedirectUri: 'http://localhost:4400/redirect',
+        autoLogin: true,
         child: appScaffold,
       ),
     );
