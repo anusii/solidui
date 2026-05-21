@@ -44,6 +44,18 @@ class SolidScaffoldState extends State<SolidScaffold> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    // Restore last-visited menu position if requested. Runs async so we
+    // don't block initState; the visible page swaps once the value
+    // arrives. If no value is saved (first launch) or the saved index
+    // is out of range, _selectedIndex stays at widget.initialIndex.
+    if (widget.rememberLastIndex && widget.menu != null) {
+      SolidScaffoldLastIndex.load(menuLength: widget.menu!.length).then((
+        saved,
+      ) {
+        if (!mounted || saved == null || saved == _selectedIndex) return;
+        setState(() => _selectedIndex = saved);
+      });
+    }
     _initSecurityKey();
     if (SolidScaffoldInitHelpers.hasVersionConfig(widget.appBar)) {
       _loadAppVersion();
@@ -174,10 +186,21 @@ class SolidScaffoldState extends State<SolidScaffold> {
         widget.controller!.clearSubpage();
       }
       if (widget.bodyOverride != null) widget.onClearBodyOverride?.call();
-      if (widget.onMenuSelected != null) {
-        widget.onMenuSelected!(index);
-      } else {
-        setState(() => _selectedIndex = index);
+      // Always update internal state. When in controlled mode the caller
+      // passes selectedIndex, which takes precedence in _currentSelectedIndex
+      // (so updating _selectedIndex here is a harmless no-op for them).
+      // When in uncontrolled mode this is what actually drives the
+      // visible page change. Previously this only ran when
+      // onMenuSelected was null, which broke callers that wanted to
+      // observe selections (e.g. to persist them) without also taking
+      // over navigation.
+      setState(() => _selectedIndex = index);
+      widget.onMenuSelected?.call(index);
+
+      // If the caller asked solidui to remember the last menu, persist
+      // the new selection. Fire-and-forget; saving must never block UI.
+      if (widget.rememberLastIndex) {
+        SolidScaffoldLastIndex.save(index);
       }
     }
 
