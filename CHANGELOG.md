@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Remember last menu selected - optional [0.3.50 20260521 gjw]
 + Check web hosts in permission form [0.3.49 20260520 tonypioneer]
 + Update Try Another WebID workflow [0.3.48 20260520 tonypioneer]
 + Review and improve Not Logged In workflow [0.3.47 20260520 tonypioneer]
