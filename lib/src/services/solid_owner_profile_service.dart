@@ -33,6 +33,7 @@ import 'dart:async';
 import 'dart:convert' show base64Decode;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Color;
 
 import 'package:solidpod/solidpod.dart';
 
@@ -262,6 +263,118 @@ class SolidOwnerProfileService {
       return null;
     }
   }
+}
+
+/// A pair of background + foreground colours used to render an owner's
+/// initials or placeholder icon.
+///
+/// Both colours together satisfy WCAG AA contrast (≥ 4.5:1) so labels remain
+/// legible for low-vision users.
+
+@immutable
+class SolidOwnerColourPair {
+  /// Fill colour for the avatar circle.
+
+  final Color background;
+
+  /// Recommended text/icon colour for legible contrast on [background].
+
+  final Color foreground;
+
+  const SolidOwnerColourPair({
+    required this.background,
+    required this.foreground,
+  });
+}
+
+/// Accessible colour palette used to distinguish between different POD owners
+/// who happen to share the same initials (or first WebID letters).
+///
+/// Each background is dark enough that white foreground text/icons satisfy
+/// WCAG AA contrast (computed contrast ratios all exceed 4.5:1). The hues are
+/// spread around the colour wheel so that adjacent entries remain
+/// distinguishable under common forms of colour-vision deficiency
+/// (deuteranopia, protanopia, tritanopia). The palette is intentionally
+/// kept short (10 swatches) to maximise pairwise distinguishability — beyond
+/// this many owners, collisions are unavoidable without sacrificing clarity.
+
+const List<SolidOwnerColourPair> accessibleOwnerColourPalette =
+    <SolidOwnerColourPair>[
+  // Deep navy blue.
+  SolidOwnerColourPair(
+    background: Color(0xFF1F4E79),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Burnt orange / rust.
+  SolidOwnerColourPair(
+    background: Color(0xFFB35900),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Forest green.
+  SolidOwnerColourPair(
+    background: Color(0xFF2E7D32),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Royal purple.
+  SolidOwnerColourPair(
+    background: Color(0xFF6A1B9A),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Raspberry / dark pink.
+  SolidOwnerColourPair(
+    background: Color(0xFFC2185B),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Deep teal.
+  SolidOwnerColourPair(
+    background: Color(0xFF00695C),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Chocolate brown.
+  SolidOwnerColourPair(
+    background: Color(0xFF5D4037),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Blue-grey slate.
+  SolidOwnerColourPair(
+    background: Color(0xFF455A64),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Magenta.
+  SolidOwnerColourPair(
+    background: Color(0xFFAD1457),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Cerulean blue.
+  SolidOwnerColourPair(
+    background: Color(0xFF01579B),
+    foreground: Color(0xFFFFFFFF),
+  ),
+];
+
+/// Returns a stable accent colour pair for [webId] drawn from
+/// [accessibleOwnerColourPalette].
+///
+/// The mapping is deterministic: the same WebID always resolves to the same
+/// entry, so an owner's avatar colour is consistent across rebuilds, sessions
+/// and devices. Returns `null` when [webId] is `null` or empty so that
+/// callers can fall back to a neutral theme colour for unknown owners.
+
+SolidOwnerColourPair? ownerColourPairFor(String? webId) {
+  if (webId == null) return null;
+  final trimmed = webId.trim();
+  if (trimmed.isEmpty) return null;
+
+  // Use a deterministic char-code based hash so the mapping is stable across
+  // platforms and runs, unlike `String.hashCode` which is documented as
+  // implementation-defined.
+
+  var hash = 0;
+  for (final code in trimmed.codeUnits) {
+    hash = (hash * 31 + code) & 0x7FFFFFFF;
+  }
+  final index = hash % accessibleOwnerColourPalette.length;
+  return accessibleOwnerColourPalette[index];
 }
 
 /// Computes a short text label (the "initials") to display when no avatar

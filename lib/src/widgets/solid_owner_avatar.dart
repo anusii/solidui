@@ -210,27 +210,42 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
     required String? displayName,
     required String webId,
   }) {
+    // Pick a stable accent colour for this owner so that two owners sharing
+    // the same initials (or WebID first letters) still appear visually
+    // different. The palette is curated for accessibility (WCAG AA contrast
+    // and colour-vision-deficiency friendly hues).
+
+    final accent = ownerColourPairFor(webId);
+
     if (avatarBytes != null && avatarBytes.isNotEmpty) {
-      return _buildAvatarImage(context, avatarBytes);
+      return _buildAvatarImage(context, avatarBytes, accent);
     }
     final initials = computeOwnerInitials(
       displayName: displayName,
       webId: webId,
     );
     if (initials.isNotEmpty) {
-      return _buildInitials(context, initials);
+      return _buildInitials(context, initials, accent);
     }
-    return _buildPlaceholder(context);
+    return _buildPlaceholder(context, accent);
   }
 
-  Widget _buildAvatarImage(BuildContext context, Uint8List bytes) {
+  // The colour pair fed into each branch is `null` when no WebID is
+  // available, in which case the helpers fall back to the neutral theme
+  // colours used before owner-distinguishing colours were introduced.
+
+  Widget _buildAvatarImage(
+    BuildContext context,
+    Uint8List bytes,
+    SolidOwnerColourPair? accent,
+  ) {
     final theme = Theme.of(context);
     return Container(
       width: widget.size,
       height: widget.size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: theme.colorScheme.primaryContainer,
+        color: accent?.background ?? theme.colorScheme.primaryContainer,
         image: DecorationImage(
           image: MemoryImage(bytes),
           fit: BoxFit.cover,
@@ -239,20 +254,28 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
     );
   }
 
-  Widget _buildInitials(BuildContext context, String initials) {
+  Widget _buildInitials(
+    BuildContext context,
+    String initials,
+    SolidOwnerColourPair? accent,
+  ) {
     final theme = Theme.of(context);
+    final background =
+        accent?.background ?? theme.colorScheme.primaryContainer;
+    final foreground =
+        accent?.foreground ?? theme.colorScheme.onPrimaryContainer;
     return Container(
       width: widget.size,
       height: widget.size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: theme.colorScheme.primaryContainer,
+        color: background,
       ),
       child: Text(
         initials,
         style: TextStyle(
-          color: theme.colorScheme.onPrimaryContainer,
+          color: foreground,
           fontSize: widget.size * 0.4,
           fontWeight: FontWeight.w600,
           height: 1.0,
@@ -261,20 +284,27 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
     );
   }
 
-  Widget _buildPlaceholder(BuildContext context) {
+  Widget _buildPlaceholder(
+    BuildContext context, [
+    SolidOwnerColourPair? accent,
+  ]) {
     final theme = Theme.of(context);
+    final background =
+        accent?.background ?? theme.colorScheme.primaryContainer;
+    final foreground =
+        accent?.foreground ?? theme.colorScheme.onPrimaryContainer;
     return Container(
       width: widget.size,
       height: widget.size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: theme.colorScheme.primaryContainer,
+        color: background,
       ),
       child: Icon(
         widget.placeholderIcon,
         size: widget.size * 0.55,
-        color: theme.colorScheme.onPrimaryContainer,
+        color: foreground,
       ),
     );
   }
