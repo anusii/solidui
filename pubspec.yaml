@@ -1,6 +1,6 @@
 name: solidui
 description: 'A UI library for building Solid applications with Flutter.'
-version: 0.3.50
+version: 0.3.51
 homepage: https://github.com/anusii/solidui
 
 environment:

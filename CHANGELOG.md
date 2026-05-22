@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Simplify INDIVIDUAL PERMISSION interface [0.3.51 20260521 tonypioneer]
 + Remember last menu selected - optional [0.3.50 20260521 gjw]
 + Check web hosts in permission form [0.3.49 20260520 tonypioneer]
 + Update Try Another WebID workflow [0.3.48 20260520 tonypioneer]
