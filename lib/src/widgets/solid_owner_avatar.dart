@@ -260,8 +260,7 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
     SolidOwnerColourPair? accent,
   ) {
     final theme = Theme.of(context);
-    final background =
-        accent?.background ?? theme.colorScheme.primaryContainer;
+    final background = accent?.background ?? theme.colorScheme.primaryContainer;
     final foreground =
         accent?.foreground ?? theme.colorScheme.onPrimaryContainer;
     return Container(
@@ -289,8 +288,7 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
     SolidOwnerColourPair? accent,
   ]) {
     final theme = Theme.of(context);
-    final background =
-        accent?.background ?? theme.colorScheme.primaryContainer;
+    final background = accent?.background ?? theme.colorScheme.primaryContainer;
     final foreground =
         accent?.foreground ?? theme.colorScheme.onPrimaryContainer;
     return Container(
