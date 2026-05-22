@@ -105,11 +105,7 @@ class SolidPreferencesButtonOrderSection extends StatelessWidget {
                 shrinkWrap: true,
                 buildDefaultDragHandles: false,
                 itemCount: appBarActions.length,
-                // onReorderItem (post v3.41.0-0.0.pre) replaces the legacy
-                // onReorder. The framework now hands us the already-adjusted
-                // target index, so callers no longer need
-                // `if (oldIndex < newIndex) newIndex--`.
-                onReorderItem: onReorder,
+                onReorder: onReorder,
                 itemBuilder: (context, index) {
                   final action = appBarActions[index];
                   return _SolidPreferencesButtonItem(
