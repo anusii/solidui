@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Add README to and resize ABOUT dialog [0.3.52 20260526 gjw]
 + Simplify INDIVIDUAL PERMISSION interface [0.3.51 20260521 tonypioneer]
 + Remember last menu selected - optional [0.3.50 20260521 gjw]
 + Check web hosts in permission form [0.3.49 20260520 tonypioneer]
