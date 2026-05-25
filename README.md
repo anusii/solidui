@@ -42,6 +42,8 @@ utilising the solidui package.
 - [View Permission UI Example](#view-permission-ui-example)
 - [Authentication and Login Detection](#authentication-and-login-detection)
 - [Security Key Management](#security-key-management)
+- [Profile Management](#profile-management)
+- [Theme Management](#theme-management)
 - [API Reference](#api-reference)
 - [Examples](#examples)
 - [Licence](#licence)
@@ -114,13 +116,14 @@ Fine tune to suit the theme of the app:
  alt="KeyPod Login" width="400">
 </div>
 
-- readPod() function reads file content
-  (either encrypted or plaintext) from a Pod.
+- `SolidFile` widget provides a complete file management solution for
+  browsing, uploading, downloading, and deleting files in a POD.
+  Underlying POD reads and writes are handled by
+  [`solidpod`](https://pub.dev/packages/solidpod)'s `readPod()` and
+  `writePod()` functions, which are also available directly if you need
+  lower-level access.
 
-- writePod() function writes content
-  (either encrypted or plaintext) to a file in a Pod.
-
-- GrantPermissionUi widget supports
+- `GrantPermissionUi` widget supports
   permission granting/revoking for resources:
   - For defining specific access mode types or recipient types, use
     optional parameters `accessModeList` and `recipientTypeList`.
@@ -158,7 +161,9 @@ Revoking permission:
 SolidUI requires the following dependencies:
 
 - `solidpod`: Solid POD integration
-- `flutter_markdown`: Markdown rendering support
+- `flutter_markdown_plus`: Markdown rendering support
+- `flutter_form_builder`: Form building and validation
+- `form_builder_validators`: Form field validators
 - `file_picker`: File selection functionality
 - `shared_preferences`: Local storage for settings
 - `package_info_plus`: Application metadata access
@@ -168,6 +173,11 @@ SolidUI requires the following dependencies:
 - `gap`: Spacing utilities
 - `path`: Path manipulation
 - `version_widget`: Version display widget
+- `pdf`: PDF generation support
+- `printing`: Print and PDF preview functionality
+- `share_plus`: Cross-platform file and content sharing
+- `loading_indicator`: Animated loading indicators
+- `universal_io`: Cross-platform IO utilities
 
 ## Quick Start to Create an App
 
@@ -799,20 +809,90 @@ SolidFile(
 
 ## Login Example
 
-A simple login screen to authenticate a user against a Solid server.
-If your own home widget is called `MyHome()` then simply wrap this within
-the `SolidLogin()` widget:
+`SolidLogin` is the full-page login widget. Wrap your home widget in it
+and it handles session restore, OIDC login, and POD initialisation
+automatically.
 
 ```dart
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Pod',
-      home: const SolidLogin(
-        child: Scaffold(body: MyHome()),
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return MaterialApp(
+    title: 'My Pod',
+    home: SolidLogin(
+      clientId: 'https://your-domain/client-profile.jsonld',
+      redirectUri: 'https://your-domain/redirect.html',
+      postLogoutRedirectUri: 'https://your-domain/redirect.html', // optional
+      child: const Scaffold(body: MyHome()),
+    ),
+  );
+}
+```
+
+### SolidLogin Constructor Parameters
+
+```dart
+SolidLogin({
+  // Required
+  required Widget child,            // Widget shown after successful login
+  required String clientId,         // URL of the app's client ID document
+  required String redirectUri,      // OAuth redirect URI
+
+  // Authentication
+  String? postLogoutRedirectUri,    // Redirect URI after logout (optional)
+  bool autoLogin = false,           // Silently restore saved session on startup
+  bool required = false,            // false adds a CONTINUE button (no-auth path)
+
+  // Appearance
+  AssetImage image,                 // Left-panel / background image
+  AssetImage logo,                  // Logo shown in the login panel
+  String title = 'Log in to your Solid Pod', // Header text
+  String webID,                     // Pre-filled server/WebID field value
+  String link = 'https://solidproject.org', // URL opened by the info button
+
+  // Button styles
+  LoginButtonStyle loginButtonStyle,
+  RegisterButtonStyle registerButtonStyle,
+  ContinueButtonStyle continueButtonStyle,
+  InfoButtonStyle infoButtonStyle,
+  ChangeKeyButtonStyle changeKeyButtonStyle,
+
+  // Theme & notifications
+  SolidLoginTheme themeConfig,      // Light/dark colour scheme for the panel
+  SnackbarConfig snackbarConfig,    // Snackbar style for login notifications
+
+  // POD setup
+  String appDirectory = '',         // App-specific subdirectory name in the POD
+  List customFolderPathList = [],   // Extra folders to create under data/
+})
+```
+
+**`autoLogin`** - when `true`, `SolidLogin` silently calls
+`tryRestoreSession()` on startup and navigates directly to `child` if a
+valid persisted session is found. Falls back to the login page if no
+session exists or the user has opted out of "Stay signed in".
+
+### SolidPopupLogin
+
+`SolidPopupLogin` triggers the OIDC login flow inline within an already-
+running app. Useful when a user action requires authentication but the
+app wasn't launched from a `SolidLogin` screen.
+
+```dart
+// Navigate to the popup login when unauthenticated access is attempted.
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => SolidPopupLogin(
+      webId: 'https://pods.solidcommunity.au', // optional, pre-fills the field
+    ),
+  ),
+);
+```
+
+```dart
+SolidPopupLogin({
+  String webId,  // Pre-filled WebID/server URI (optional)
+})
 ```
 
 ## Change Security Key Example
@@ -1010,7 +1090,7 @@ SolidDynamicLoginStatus(
   ),
   onTap: () {
     // Handle login/logout based on current state
-    if (isLoggedIn) {
+    if (getWebId() != null) {
       performLogout();
     } else {
       showLoginDialog();
@@ -1131,6 +1211,109 @@ securityKeyService.addListener(() {
 // Refresh status
 await securityKeyService.refreshKeyStatus();
 ```
+
+## Profile Management
+
+SolidUI provides widgets for displaying and editing a user's Solid profile
+(avatar and display name), backed by `SolidProfileNotifier` and
+`SolidProfileService`.
+
+### SolidProfileAvatar
+
+Displays a circular avatar sourced from the user's POD profile. Listens
+to `solidProfileNotifier` and rebuilds automatically when the avatar
+changes.
+
+```dart
+// Simple display avatar (40 px default)
+const SolidProfileAvatar()
+
+// Larger tappable avatar with edit badge (e.g. on a profile page)
+SolidProfileAvatar(
+  size: 80,
+  showEditBadge: true,
+  onTap: () => SolidProfileEditor.show(context),
+)
+```
+
+```dart
+SolidProfileAvatar({
+  double size = 40,              // Diameter of the avatar circle
+  VoidCallback? onTap,           // Tap callback (e.g. to open editor)
+  bool showEditBadge = false,    // Overlay a camera/edit badge icon
+  IconData placeholderIcon = Icons.person, // Icon shown when no image
+})
+```
+
+### SolidProfileEditor
+
+A full-page editor for the user's avatar and display name. Opens as a
+modal page and saves changes back to the POD.
+
+```dart
+// Navigate to the profile editor page
+SolidProfileEditor.show(context);
+
+// Or embed it directly in a route
+Navigator.push(
+  context,
+  MaterialPageRoute(builder: (_) => const SolidProfileEditor()),
+);
+```
+
+### SolidProfileService & SolidProfileNotifier
+
+`SolidProfileService` handles loading and saving avatar/display-name
+data from the POD. `solidProfileNotifier` (a global `ChangeNotifier`) is
+updated whenever the profile changes and is listened to by
+`SolidProfileAvatar` and `SolidNavUserInfo`.
+
+```dart
+// Load the current user's profile from their POD
+await SolidProfileService.loadProfile();
+
+// Listen for profile changes
+solidProfileNotifier.addListener(() {
+  final bytes = solidProfileNotifier.avatarBytes;
+  final name  = solidProfileNotifier.displayName;
+});
+```
+
+## Theme Management
+
+`SolidThemeApp` is a `MaterialApp` wrapper that integrates SolidUI's
+theme persistence. Use it instead of plain `MaterialApp` to get automatic
+light/dark/system mode switching that persists across restarts.
+
+```dart
+void main() {
+  runApp(
+    SolidThemeApp(
+      title: 'My Solid App',
+      home: SolidLogin(
+        clientId: 'https://your-domain/client-profile.jsonld',
+        redirectUri: 'https://your-domain/redirect.html',
+        child: const MyHome(),
+      ),
+    ),
+  );
+}
+```
+
+```dart
+class SolidThemeNotifier extends ChangeNotifier {
+  ThemeMode get themeMode;                   // Current theme mode
+  Future<void> initialize();                 // Load persisted preference
+  Future<void> setThemeMode(ThemeMode mode); // Persist and apply a mode
+  void toggleTheme();                        // Cycle to the next mode
+}
+```
+
+The global `solidThemeNotifier` instance is pre-created by solidui — add
+a listener or call `solidThemeNotifier.setThemeMode(ThemeMode.dark)` from
+anywhere in your app. `SolidThemeToggleConfig` (in `SolidScaffold`)
+controls which modes appear in the toggle cycle — see
+[Appearance Preferences](#appearance-preferences) for details.
 
 ## API Reference
 
@@ -1336,7 +1519,7 @@ class _CompleteExampleAppState extends State<CompleteExampleApp> {
 
 ## Licence
 
-Copyright (C) 2025, Software Innovation Institute, ANU.
+Copyright (C) 2025–2026, Software Innovation Institute, ANU.
 
 Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
@@ -1353,7 +1536,7 @@ For more information about Solid and PODs, visit
 The source code can be accessed via the [GitHub
 repository](https://github.com/anusii/solidui).  You can also file
 issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
-The authors of the package will respond to issues as best we can but.
+The authors of the package will respond to issues as best we can.
 
 <!-- markdownlint-disable MD036 -->
 *Time-stamp: <Monday 2026-01-19 16:52:46 +1100 Graham Williams>*
