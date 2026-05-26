@@ -34,8 +34,10 @@ import 'package:flutter/material.dart';
 
 import 'package:loading_indicator/loading_indicator.dart';
 
-// The following are the constant default values, mostly for colors
-// of loading animation widget.
+export 'package:loading_indicator/loading_indicator.dart' show Indicator;
+
+// The following are the constant default values, mostly for colours
+// of the loading animation widget.
 
 const _darkBlue = Color.fromARGB(255, 7, 87, 153);
 const _darkGreen = Color.fromARGB(255, 64, 163, 81);
@@ -43,7 +45,7 @@ const _lightBlue = Color(0xFF61B2CE);
 const _darkCopper = Color(0xFFBE4E0E);
 const _titleAsh = Color(0xFF30384D);
 
-/// The list contains a series of custom color variables.
+/// The list contains a series of custom colour variables.
 
 List<Color> _defaultPodColors = const [
   _darkBlue,
@@ -54,20 +56,38 @@ List<Color> _defaultPodColors = const [
 ];
 
 /// An asynchronous utility designed to display a custom animation dialog.
-/// [context] locates the widget in the widget tree and display the dialog accordingly.
-/// [animationIndex] determines the type of animation.
-/// This index is used to select from a predefined list of animations (Indicator.values).
-/// [alertMsg] is the message text displayed within the dialog.
-/// [showPathBackground] is a boolean flag to decide whether to show a background for
-/// the animation path or not.
+///
+/// - [context] locates the widget in the widget tree and displays the dialog
+///   accordingly.
+/// - [animationIndex] determines the type of animation. This index is used to
+///   select from the predefined list of animations (`Indicator.values`). If
+///   [indicatorType] is provided, it takes precedence over [animationIndex].
+/// - [alertMsg] is the message text displayed within the dialog.
+/// - [showPathBackground] is a boolean flag to decide whether to show a
+///   background for the animation path or not.
+/// - [updateStateCallback] is invoked when the user dismisses the dialog via
+///   the Cancel button. Only applies when [showCancelButton] is true.
+/// - [colors] overrides the default colour palette used by the indicator.
+/// - [strokeWidth] overrides the indicator stroke width.
+/// - [width] and [height] override the dialog content size.
+/// - [showCancelButton] toggles the Cancel button. When false the indicator
+///   acts as a non-dismissible busy spinner.
+/// - [indicatorType] allows callers to pass an [Indicator] directly instead of
+///   selecting one via [animationIndex].
 
 Future<void> showAnimationDialog(
   BuildContext context,
   int animationIndex,
   String alertMsg,
   bool showPathBackground,
-  VoidCallback? updateStateCallback,
-) {
+  VoidCallback? updateStateCallback, {
+  List<Color>? colors,
+  double strokeWidth = 100.0,
+  double width = 200,
+  double height = 290,
+  bool showCancelButton = true,
+  Indicator? indicatorType,
+}) {
   return showDialog(
     barrierDismissible: false,
     context: context,
@@ -76,15 +96,16 @@ Future<void> showAnimationDialog(
         padding: const EdgeInsets.all(50),
         child: Center(
           child: SizedBox(
-            width: 200,
-            height: 290,
+            width: width,
+            height: height,
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   LoadingIndicator(
-                    indicatorType: Indicator.values[animationIndex],
-                    colors: _defaultPodColors,
-                    strokeWidth: 100.0,
+                    indicatorType:
+                        indicatorType ?? Indicator.values[animationIndex],
+                    colors: colors ?? _defaultPodColors,
+                    strokeWidth: strokeWidth,
                     pathBackgroundColor: showPathBackground
                         ? const Color.fromARGB(59, 0, 0, 0)
                         : null,
@@ -94,16 +115,18 @@ Future<void> showAnimationDialog(
                     style: const TextStyle(fontSize: 20, color: Colors.white),
                     child: Text(alertMsg),
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(animationContext).pop();
-                      if (context.mounted && updateStateCallback != null) {
-                        updateStateCallback();
-                      }
-                    },
-                    child: const Text('Cancel'),
-                  ),
+                  if (showCancelButton) ...[
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(animationContext).pop();
+                        if (context.mounted && updateStateCallback != null) {
+                          updateStateCallback();
+                        }
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                  ],
                 ],
               ),
             ),
