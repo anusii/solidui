@@ -85,8 +85,10 @@ export 'src/services/solid_security_key_service.dart';
 export 'src/services/solid_login_status_notifier.dart';
 export 'src/services/solid_security_key_notifier.dart';
 
+export 'src/services/solid_owner_profile_service.dart';
 export 'src/services/solid_profile_notifier.dart';
 export 'src/services/solid_profile_service.dart';
+export 'src/widgets/solid_owner_avatar.dart';
 export 'src/widgets/solid_profile_avatar.dart';
 export 'src/widgets/solid_profile_crop_dialog.dart';
 export 'src/widgets/solid_profile_editor.dart';

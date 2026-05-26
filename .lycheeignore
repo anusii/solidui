@@ -63,6 +63,7 @@ https://graph.facebook.com/
 https://login.microsoftonline.com/
 https://securetoken.google.com/
 
-# File URL used in comments
+# URL used in comments
 
 file:///home/runner/work/solidui/solidui/lib/src/utils/scheme
+https://pods.example.au/john-doe/profile/card#me
