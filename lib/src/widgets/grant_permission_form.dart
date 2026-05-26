@@ -486,6 +486,20 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
               return;
             }
 
+            // For Public or Authenticated User sharing we need to warn
+            // the user that the file will be decrypted in their POD as
+            // part of granting access (see `decryptFileInPlace` in
+            // solidpod). The helper is a no-op and returns true for
+            // other recipient types so we can always await it here.
+            if (!context.mounted) return;
+            if (!await confirmPublicSharingDecryption(
+              context,
+              selectedRecipientType,
+            )) {
+              return;
+            }
+            if (!context.mounted) return;
+
             // Grant permission for each resource sequentially. When
             // resourceNames is provided all resources share the same
             // recipient and permission selections.

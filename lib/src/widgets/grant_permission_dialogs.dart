@@ -31,8 +31,10 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/solidpod.dart' show WebIdCheckResult, WebIdCheckStatus;
+import 'package:solidpod/solidpod.dart'
+    show RecipientType, WebIdCheckResult, WebIdCheckStatus;
 
+import 'package:solidui/src/constants/ui_colors.dart' show ActionColors;
 import 'package:solidui/src/utils/solid_alert.dart'
     show alertMaxWidthForCharsPerLine, defaultAlertMaxCharsPerLine;
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart'
@@ -154,6 +156,109 @@ Future<void> handleNotInitialisedRecipients(
   if (shouldInvite == true) {
     await InviteOthersDialog.show(context, config: inviteConfig);
   }
+}
+
+/// Confirm with the user before granting Public or Authenticated User
+/// access to a resource.
+
+Future<bool> confirmPublicSharingDecryption(
+  BuildContext context,
+  RecipientType recipientType,
+) async {
+  if (recipientType != RecipientType.public &&
+      recipientType != RecipientType.authUser) {
+    return true;
+  }
+
+  final isPublic = recipientType == RecipientType.public;
+  final title = isPublic
+      ? 'Make this file publicly readable?'
+      : 'Share this file with all signed-in users?';
+  final audienceSummary = isPublic
+      ? 'Anyone on the internet — including people without a Data Vault — '
+          'will be able to read this file simply by opening its URL in a '
+          'web browser.'
+      : 'Every person who is signed in to a Data Vault will be able to '
+          'read this file by opening its URL while logged in.';
+  final actionLabel = isPublic ? 'Share Publicly' : 'Share with Signed-In Users';
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(title),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: alertMaxWidthForCharsPerLine(defaultAlertMaxCharsPerLine),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(audienceSummary),
+            const SizedBox(height: 12),
+            const Text(
+              'If this file is currently encrypted, it will be decrypted in '
+              'your POD so that the new recipients can read its contents. '
+              'The plaintext will be written back to the same URL, replacing '
+              'the encrypted copy at rest.',
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'You can reverse this later by revoking the permission. When '
+              'you do, the file will be re-encrypted automatically using '
+              'the same encryption key it had before.',
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        MarkdownTooltip(
+          message: '''
+
+          **Cancel**
+
+          Close this dialog without changing the file. Your file remains
+          encrypted and private, and no new recipients are granted access.
+
+          ''',
+          child: TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+        ),
+        MarkdownTooltip(
+          message: isPublic
+              ? '''
+
+          **Share Publicly**
+
+          Decrypt this file in your POD and grant the Public class the
+          selected permissions. After this, anyone with the file URL can
+          read its contents.
+
+          '''
+              : '''
+
+          **Share with Signed-In Users**
+
+          Decrypt this file in your POD and grant the Authenticated User
+          class the selected permissions. After this, any signed-in Data
+          Vault user can read its contents.
+
+          ''',
+          child: TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: ActionColors.warning,
+            ),
+            child: Text(actionLabel),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  return confirmed ?? false;
 }
 
 /// Priority order used when several WebIDs in the group list fail. We
