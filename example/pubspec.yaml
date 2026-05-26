@@ -20,6 +20,12 @@ dependencies:
   universal_io: ^2.3.1
   window_manager: ^0.5.1
 
+dependency_overrides:
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: tony/587_check_file_encryption
+
 dev_dependencies:
   flutter_lints: ^6.0.0
 
