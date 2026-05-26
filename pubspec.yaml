@@ -5,6 +5,7 @@ homepage: https://github.com/anusii/solidui
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
+  flutter: '>=3.44.0'
 
 # To automatically upgrade package dependencies to the latest versions:
 #
