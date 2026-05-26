@@ -36,9 +36,9 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart' show ActionColors;
+import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart'
     show alertMaxWidthForCharsPerLine, defaultAlertMaxCharsPerLine;
-import 'package:solidui/src/utils/snack_bar.dart';
 
 /// A [StatefulWidget] for the revoke permission icon button. Updates
 /// owner's ACL for resource, updates owner, granter, recipient logs,
