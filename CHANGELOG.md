@@ -16,7 +16,8 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
-+ Update SolidAnimationDialog from NotePod updates 0.3.54 tonypioneer]
++ Support file uploads in FileBrowser [0.3.55 20260526 tonypioneer]
++ Update SolidAnimationDialog from NotePod updates [0.3.54 20260526 tonypioneer]
 + Fix onReorderItem. Support shared pod name/avatar [0.3.53 20260526 tonypioneer]
 + Add README to and resize ABOUT dialog [0.3.52 20260526 gjw]
 + Simplify INDIVIDUAL PERMISSION interface [0.3.51 20260521 tonypioneer]
