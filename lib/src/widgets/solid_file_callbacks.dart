@@ -39,12 +39,18 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 
 class SolidFileDefaultCallbacks {
   /// Creates default upload callbacks with working file operations.
+  ///
+  /// When [allowedExtensions] is provided and non-empty, the default upload
+  /// callback restricts the file picker to the given extensions. Both the
+  /// top-of-browser upload button and the side upload panel are wired to the
+  /// same callback, so a single allow list governs every entry point.
 
   static SolidFileUploadCallbacks createUploadCallbacks(
     BuildContext context,
     String currentPath,
-    GlobalKey<SolidFileBrowserState> browserKey,
-  ) {
+    GlobalKey<SolidFileBrowserState> browserKey, {
+    List<String>? allowedExtensions,
+  }) {
     // Normalise paths to ensure consistent handling without leading slashes.
 
     final normalisedCurrentPath = PathUtils.normalise(currentPath);
@@ -56,6 +62,7 @@ class SolidFileDefaultCallbacks {
         SolidFileOperations.uploadFile(
           context,
           normalisedCurrentPath,
+          allowedExtensions: allowedExtensions,
           onSuccess: () {
             // Refresh the file browser after successful upload.
 

@@ -103,6 +103,15 @@ class SolidFileBrowser extends StatefulWidget {
 
   final Function(String currentPath)? onCreateFolder;
 
+  /// Callback for uploading a file into the current directory.
+  ///
+  /// When provided, a dedicated upload button is shown in the toolbar at the
+  /// top of the browser. The intent is to share a single handler with the
+  /// side-panel upload button so users have two equivalent entry points
+  /// driven by the same code path. Null hides/disables the toolbar button.
+
+  final VoidCallback? onUpload;
+
   /// Callback for moving selected items.
   /// Receives the current path and the set of selected item keys.
   /// Null disables the toolbar button.
@@ -146,6 +155,7 @@ class SolidFileBrowser extends StatefulWidget {
     this.initialPath,
     this.folderNameOverrides,
     this.onCreateFolder,
+    this.onUpload,
     this.onMoveItems,
     this.onCopyItems,
     this.onDownloadItems,
@@ -453,6 +463,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   onNavigateHome: navigateHome,
                   onRefresh: refreshFiles,
                   onNewFolder: _handleCreateFolder,
+                  onUpload: widget.onUpload,
                   onMoveTo: widget.onMoveItems != null
                       ? () => widget.onMoveItems!(currentPath, selectedItems)
                       : null,

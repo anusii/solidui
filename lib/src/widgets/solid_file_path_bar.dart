@@ -98,6 +98,15 @@ class PathBar extends StatelessWidget {
 
   final VoidCallback? onNewFolder;
 
+  /// Callback for uploading a file into the current directory.
+  ///
+  /// When wired by the parent widget, this points at the same handler used by
+  /// the side-panel upload button, so both entry points share a single code
+  /// path. Null disables the toolbar button (e.g. when uploading is not
+  /// configured for the current view).
+
+  final VoidCallback? onUpload;
+
   /// Callback for moving selected items. Null disables the button.
 
   final VoidCallback? onMoveTo;
@@ -147,6 +156,7 @@ class PathBar extends StatelessWidget {
     required this.onNavigateHome,
     required this.onRefresh,
     this.onNewFolder,
+    this.onUpload,
     this.onMoveTo,
     this.onCopyTo,
     this.onDownload,
@@ -228,6 +238,12 @@ class PathBar extends StatelessWidget {
                               icon: Icons.create_new_folder,
                               label: 'New Folder',
                               onPressed: onNewFolder,
+                            ),
+                            _buildActionButton(
+                              context,
+                              icon: Icons.file_upload,
+                              label: 'Upload File',
+                              onPressed: onUpload,
                             ),
                             _buildActionButton(
                               context,

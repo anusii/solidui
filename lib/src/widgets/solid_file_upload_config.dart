@@ -63,6 +63,17 @@ class SolidFileUploadConfig {
 
   final String? uploadTooltip;
 
+  /// Optional whitelist of file extensions allowed when uploading.
+  ///
+  /// Extensions may be supplied with or without a leading dot and are matched
+  /// case-insensitively (e.g. `['csv', '.json', 'PDF']`). When null or empty,
+  /// no client-side restriction is applied and any file may be selected.
+  ///
+  /// The same allow list is honoured by every upload entry point fed by the
+  /// default callbacks, ensuring a single source of truth for the restriction.
+
+  final List<String>? allowedExtensions;
+
   const SolidFileUploadConfig({
     this.showCsvButtons = false,
     this.showProfileButtons = false,
@@ -71,6 +82,7 @@ class SolidFileUploadConfig {
     this.formatConfig,
     this.uploadButtonText = 'Upload File',
     this.uploadTooltip,
+    this.allowedExtensions,
   });
 }
 
