@@ -34,6 +34,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
 
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
+import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 
 /// Builds the button order section for preferences dialogue.
 
@@ -80,6 +81,8 @@ class SolidPreferencesButtonOrderSection extends StatelessWidget {
       );
     }
 
+    final overflowEnabled = SolidAppBarOverflowController.isEnabled;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -87,8 +90,12 @@ class SolidPreferencesButtonOrderSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Drag to reorder buttons. Use the eye icon to toggle visibility, '
-              'and the menu icon to move to overflow on narrow screens:',
+              overflowEnabled
+                  ? 'Drag to reorder buttons. Use the eye icon to toggle '
+                      'visibility, and the menu icon to move to overflow on '
+                      'narrow screens:'
+                  : 'Drag to reorder buttons. Use the eye icon to toggle '
+                      'visibility:',
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -98,7 +105,7 @@ class SolidPreferencesButtonOrderSection extends StatelessWidget {
                 shrinkWrap: true,
                 buildDefaultDragHandles: false,
                 itemCount: appBarActions.length,
-                onReorder: onReorder,
+                onReorderItem: onReorder,
                 itemBuilder: (context, index) {
                   final action = appBarActions[index];
                   return _SolidPreferencesButtonItem(
@@ -192,6 +199,7 @@ class _SolidPreferencesButtonItemState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final action = widget.action;
+    final overflowEnabled = SolidAppBarOverflowController.isEnabled;
 
     // Determine display label and icon for auth button based on login state.
 
@@ -252,25 +260,29 @@ class _SolidPreferencesButtonItemState
               ),
             ),
 
-            // Overflow toggle.
-            MarkdownTooltip(
-              message: action.showInOverflow
-                  ? 'Show in AppBar'
-                  : 'Move to overflow menu',
-              child: IconButton(
-                icon: Icon(
-                  action.showInOverflow ? Icons.more_vert : Icons.push_pin,
-                  size: 20,
-                  color: action.showInOverflow
-                      ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
-                      : theme.colorScheme.primary,
-                ),
-                onPressed: () => widget.onOverflowChanged(
-                  widget.index,
-                  !action.showInOverflow,
+            // Overflow toggle. Hidden entirely when the scaffold disables the
+            // overflow menu, so users cannot route buttons to a menu that
+            // will never be rendered.
+
+            if (overflowEnabled)
+              MarkdownTooltip(
+                message: action.showInOverflow
+                    ? 'Show in AppBar'
+                    : 'Move to overflow menu',
+                child: IconButton(
+                  icon: Icon(
+                    action.showInOverflow ? Icons.more_vert : Icons.push_pin,
+                    size: 20,
+                    color: action.showInOverflow
+                        ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
+                        : theme.colorScheme.primary,
+                  ),
+                  onPressed: () => widget.onOverflowChanged(
+                    widget.index,
+                    !action.showInOverflow,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
         dense: true,

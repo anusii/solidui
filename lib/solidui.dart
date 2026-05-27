@@ -52,6 +52,8 @@ export 'src/widgets/solid_default_login.dart';
 
 export 'src/widgets/solid_login.dart';
 export 'src/widgets/solid_login_helper.dart';
+export 'src/widgets/solid_login_required_dialog.dart';
+export 'src/widgets/solid_server_field.dart';
 export 'src/widgets/solid_popup_login.dart';
 export 'src/widgets/solid_login_webid_input_dialog.dart';
 export 'src/widgets/solid_logout_dialog.dart';
@@ -73,12 +75,26 @@ export 'src/widgets/solid_about_button.dart';
 export 'src/widgets/solid_notification_button.dart';
 export 'src/widgets/solid_notification_centre.dart';
 
+export 'src/widgets/solid_invite_others_models.dart';
+export 'src/widgets/solid_invite_others.dart';
+
+export 'src/widgets/solid_feedback_models.dart';
+
 export 'src/widgets/solid_security_key_utils.dart';
 export 'src/widgets/solid_security_key_manager.dart';
 export 'src/widgets/solid_security_key_view.dart';
 export 'src/widgets/solid_security_key_central_manager.dart';
 export 'src/services/solid_security_key_service.dart';
+export 'src/services/solid_login_status_notifier.dart';
 export 'src/services/solid_security_key_notifier.dart';
+
+export 'src/services/solid_owner_profile_service.dart';
+export 'src/services/solid_profile_notifier.dart';
+export 'src/services/solid_profile_service.dart';
+export 'src/widgets/solid_owner_avatar.dart';
+export 'src/widgets/solid_profile_avatar.dart';
+export 'src/widgets/solid_profile_crop_dialog.dart';
+export 'src/widgets/solid_profile_editor.dart';
 
 export 'src/widgets/secret_text_field.dart';
 export 'src/widgets/security_key_ui.dart';
@@ -102,7 +118,9 @@ export 'src/models/file_type_config.dart';
 export 'src/models/snackbar_config.dart';
 
 export 'src/utils/file_operations.dart';
+export 'src/utils/is_desktop.dart';
 export 'src/utils/is_text_file.dart';
+export 'src/utils/loading_dialog_controller.dart';
 export 'src/utils/solid_file_operations.dart';
 export 'src/utils/solid_file_operations_print.dart';
 export 'src/utils/is_phone.dart';
@@ -110,6 +128,7 @@ export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_notifications.dart';
 export 'src/utils/solid_pod_helpers.dart'
     show loginIfRequired, getKeyFromUserIfRequired;
+export 'src/utils/web_id_parser.dart';
 
 export 'src/widgets/solid_format_info_card.dart';
 

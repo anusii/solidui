@@ -277,7 +277,9 @@ class SolidFileUploadArea extends StatelessWidget {
           label: 'Visualise JSON from POD',
           tooltip: '''
 
-**Visualise JSON from POD**: Tap here to select and visualise a JSON file from 
+**Visualise JSON from POD**
+
+Tap here to select and visualise a JSON file from 
 your Solid POD.
 
 ''',
@@ -297,7 +299,9 @@ your Solid POD.
           label: 'Visualise Local JSON',
           tooltip: '''
 
-**Visualise Local JSON**: Tap here to select and visualise a JSON file from 
+**Visualise Local JSON**
+
+Tap here to select and visualise a JSON file from 
 your local device.
 
 ''',
@@ -319,7 +323,9 @@ your local device.
           label: 'Preview File',
           tooltip: '''
 
-**Preview File**: Tap here to preview the recently uploaded file.
+**Preview File**
+
+Tap here to preview the recently uploaded file.
 
 ''',
         ),
@@ -340,7 +346,9 @@ your local device.
           label: 'Convert to JSON',
           tooltip: '''
 
-**Convert to JSON**: Tap here to convert the PDF file to JSON format and upload both files.
+**Convert to JSON**
+
+Tap here to convert the PDF file to JSON format and upload both files.
 This will extract text from the PDF, structure it as JSON data, and upload both files to your POD.
 
 ''',

@@ -93,7 +93,9 @@ class SolidThemeToggleConfig {
 
   final lightModeTooltip = '''
 
-  **Theme:** Currently **Light Mode** is active.  Light Mode is best for
+  **Theme**
+
+  Currently **Light Mode** is active. Light Mode is best for
   viewing in light conditions. Tap here to switch to Dark Mode for low
   light conditions.
 
@@ -103,7 +105,9 @@ class SolidThemeToggleConfig {
 
   final darkModeTooltip = '''
 
-  **Theme:** Currently **Dark Mode** is active. Dark Mode is best for viewing in
+  **Theme**
+
+  Currently **Dark Mode** is active. Dark Mode is best for viewing in
   low light conditions. Tap here to switch to Light Mode for bright viewing
   conditions.
 
@@ -113,7 +117,9 @@ class SolidThemeToggleConfig {
 
   final systemModeTooltip = '''
 
-  **Theme:** Currently **System Mode** is active. System Mode follows your
+  **Theme**
+
+  Currently **System Mode** is active. System Mode follows your
   device settings. This is the initial mode. Tap here to switch to the opposite
   of your current system theme, and afterwards toggle between Light and Dark
   modes.

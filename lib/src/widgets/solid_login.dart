@@ -36,24 +36,17 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show
-        clearPodStructureInitialised,
-        deleteLogIn,
+        cancelSolidAuthenticate,
         getAppNameVersion,
         generateDefaultFolders,
         generateDefaultFiles,
         generateCustomFolders,
-        getWebId,
-        initialStructureTest,
-        isUserLoggedIn,
-        setAppDirName,
-        silentLogout;
+        setAppDirName;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
-import 'package:solidui/src/utils/solid_pod_helpers.dart'
-    show getKeyFromUserIfRequired;
-import 'package:solidui/src/widgets/solid_animation_dialog.dart';
+import 'package:solidui/src/widgets/solid_login_actions.dart';
 import 'package:solidui/src/widgets/solid_login_asset_helper.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_build_helper.dart';
@@ -230,7 +223,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     _initPackageInfo();
 
     // Auto-configure SolidAuthHandler with this login's settings.
-    // This ensures re-login from within the app uses the same configuration.
+    // This ensures re-login from within the app uses the same configuration,
+    // including button styles and theme so the login page appearance is
+    // preserved across logout/re-login cycles.
 
     SolidAuthHandler.instance.autoConfigureFromLogin(
       title: widget.title,
@@ -240,6 +235,14 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       logo: widget.logo,
       link: widget.link,
       child: widget.child,
+      loginButtonStyle: widget.loginButtonStyle,
+      continueButtonStyle: widget.continueButtonStyle,
+      registerButtonStyle: widget.registerButtonStyle,
+      infoButtonStyle: widget.infoButtonStyle,
+      changeKeyButtonStyle: widget.changeKeyButtonStyle,
+      themeConfig: widget.themeConfig,
+      snackbarConfig: widget.snackbarConfig,
+      required: widget.required,
     );
   }
 
@@ -273,6 +276,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     solidThemeNotifier.removeListener(_onThemeChanged);
+
+    // Abandon any in-flight OAuth flow so the awaited future does not leak
+    // beyond the lifetime of this widget.
+
+    cancelSolidAuthenticate();
 
     // Dispose focus nodes to avoid memory leaks.
 
@@ -328,6 +336,16 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   void updateState() {
     if (mounted) setState(() => isDialogCanceled = true);
+    cancelSolidAuthenticate();
+  }
+
+  // Reset the cancellation flag at the start of each new login or continue
+  // attempt.
+
+  void _resetDialogCanceledState() {
+    if (mounted && isDialogCanceled) {
+      setState(() => isDialogCanceled = false);
+    }
   }
 
   // Helper method to create and show a snackbar with consistent theming.
@@ -381,154 +399,43 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     // Shared login action used by the login button and the server text field's
     // onFieldSubmitted callback so that pressing Enter in either triggers
-    // login.
-    //
-    // When a cached session already exists the server origin is compared with
-    // the server currently entered in the text field:
-    //   - Same server  → reuse the cached session.
-    //   - Different    → clear stale credentials and start a fresh browser
-    //                    login against the newly specified server.
-    //   - No cache     → start the browser login flow as normal.
+    // login. The implementation lives in [SolidLoginActions] so that this
+    // widget stays focused on composition.
 
-    Future<void> performLogin() async {
-      // When the user has opted out of staying signed in, discard any
-      // existing cached session immediately so browser authentication
-      // is always required.
-
-      if (!_staySignedIn) {
-        await deleteLogIn();
-      }
-
-      final podServer = webIdController.text.trim().isNotEmpty
-          ? webIdController.text.trim()
-          : SolidConfig.defaultServerUrl;
-
-      final alreadyLoggedIn = await isUserLoggedIn();
-
-      if (alreadyLoggedIn) {
-        final cachedWebId = await getWebId();
-        if (cachedWebId != null && cachedWebId.isNotEmpty) {
-          try {
-            final cachedOrigin = Uri.parse(cachedWebId).origin;
-            final requestedOrigin = Uri.parse(podServer).origin;
-
-            if (cachedOrigin != requestedOrigin) {
-              await deleteLogIn();
-            }
-          } on FormatException {
-            // If either URL cannot be parsed, fall through and let
-            // handleLogin deal with the server as-is.
-          }
-        }
-      }
-
-      if (!context.mounted) return;
-
-      await SolidLoginAuthHandler.handleLogin(
+    Future<void> performLogin() {
+      _resetDialogCanceledState();
+      return SolidLoginActions.performLogin(
         context: context,
-        podServer: podServer,
+        webIdController: webIdController,
         defaultFolders: defaultFolders,
         defaultFiles: defaultFiles,
         originalLoginWidget: widget,
         childWidget: widget.child,
-        isDialogCanceled: isDialogCanceled,
+        isDialogCanceled: () => isDialogCanceled,
         updateDialogCanceledState: updateState,
         showSnackbar: _showSnackbar,
         staySignedIn: _staySignedIn,
       );
     }
 
-    // When the user taps Continue with an existing cached session, verify
-    // the remote POD directory structure before proceeding. If the remote
-    // directories are missing, clear stale credentials and ask the user to
-    // re-login so the setup wizard can re-initialise the POD.
+    Future<void> performContinue() {
+      _resetDialogCanceledState();
+      return SolidLoginActions.performContinue(
+        context: context,
+        childWidget: widget.child,
+        defaultFolders: defaultFolders,
+        defaultFiles: defaultFiles,
+        updateDialogCanceledState: updateState,
+        showSnackbar: _showSnackbar,
+        staySignedIn: _staySignedIn,
+      );
+    }
 
-    Future<void> performContinue() async {
-      // When the user has opted out of staying signed in, discard any
-      // existing cached session immediately so the user proceeds in a
-      // logged-out state.
-
-      if (!_staySignedIn) {
-        await deleteLogIn();
-      }
-
-      final isLoggedIn = await isUserLoggedIn();
-
-      if (isLoggedIn && defaultFolders.isNotEmpty) {
-        if (!context.mounted) return;
-
-        showAnimationDialog(
-          context,
-          7,
-          '',
-          // 20260410 gjw Replaced the original 'Verifying POD structure...'
-          // message with nothing. It suddenly started appearing when I enter
-          // the app via CONTINUE and we are already logged in. I'm not sure
-          // that as a user I want to know this.
-          false,
-          updateState,
+    Future<void> performTryAnotherAccount() =>
+        SolidLoginActions.performTryAnotherAccount(
+          context: context,
+          performLoginCallback: performLogin,
         );
-
-        try {
-          final resCheckList = await initialStructureTest(
-            defaultFolders,
-            defaultFiles,
-          );
-          final allExists = resCheckList.first as bool;
-
-          if (!context.mounted) return;
-
-          Navigator.of(context, rootNavigator: true).pop();
-
-          if (!allExists) {
-            await clearPodStructureInitialised();
-            await silentLogout();
-
-            if (!context.mounted) return;
-
-            _showSnackbar(
-              'Your POD directory structure is incomplete or has been '
-              'removed. Please log in again to re-initialise your POD.',
-              duration: const Duration(seconds: 5),
-            );
-
-            return;
-          }
-        } on Object catch (e) {
-          debugPrint('Continue: POD structure check failed: $e');
-
-          if (!context.mounted) return;
-
-          Navigator.of(context, rootNavigator: true).pop();
-
-          _showSnackbar(
-            'Unable to verify POD structure. '
-            'The server may be inaccessible.',
-            duration: const Duration(seconds: 5),
-          );
-
-          return;
-        }
-      }
-
-      if (!context.mounted) return;
-
-      // Ensure security key has been fetched once logged in
-      if (isLoggedIn) {
-        await getKeyFromUserIfRequired(context, widget.child);
-        if (!context.mounted) return;
-      }
-
-      await pushReplacement(context, widget.child);
-    }
-
-    Future<void> performTryAnotherAccount() async {
-      await silentLogout();
-      await clearPodStructureInitialised();
-      if (!context.mounted) return;
-
-      await performLogin();
-    }
 
     final registerButton = SolidLoginBuildHelper.buildRegisterButton(
       style: widget.registerButtonStyle,
@@ -568,7 +475,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       children: [
         MarkdownTooltip(
           message:
-              '**Stay signed in:** When ticked, your login session will be '
+              '**Stay signed in**\n\nWhen ticked, your login session will be '
               'cached so you can skip the browser login next time. '
               'Untick to require a fresh login on every launch.',
           child: SizedBox(

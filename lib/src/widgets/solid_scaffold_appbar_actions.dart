@@ -31,10 +31,22 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_theme_models.dart';
+
+/// Tracks whether the AppBar overflow menu feature is enabled for the
+/// currently mounted scaffold.
+
+class SolidAppBarOverflowController {
+  /// Whether the overflow menu feature is enabled.
+  /// Defaults to true to preserve existing behaviour for callers that have
+  /// not yet adopted the new [SolidScaffold.enableOverflowMenu] parameter.
+
+  static bool isEnabled = true;
+}
 
 /// Manages AppBar action initialisation and configuration.
 
@@ -53,7 +65,17 @@ class SolidAppBarActionsManager {
     bool hasLogout = false,
     bool hasLogin = true,
     bool hasNotifications = false,
+    SolidInviteOthersConfig? inviteConfig,
+    bool profileEnabled = false,
   }) {
+    // When the profile feature is enabled, the avatar's popup hosts
+    // the Logout entry and the About dialog hosts the Share entry,
+    // so neither button should be registered as a top-level AppBar
+    // action.
+
+    final effectiveHasLogout = hasLogout && !profileEnabled;
+    final effectiveInviteConfig = profileEnabled ? null : inviteConfig;
+
     // Check if we need to add missing buttons (standard or custom).
 
     final existingActions = solidPreferencesNotifier.appBarActions;
@@ -63,8 +85,9 @@ class SolidAppBarActionsManager {
           existingActions,
           config,
           themeToggle,
-          hasLogout,
+          effectiveHasLogout,
           hasNotifications,
+          effectiveInviteConfig,
         );
 
     // Apply app-level overflow defaults to existing preferences, ensuring
@@ -158,9 +181,34 @@ class SolidAppBarActionsManager {
       );
     }
 
-    // Add Logout button if the application has provided a logout callback.
+    // Add Invite Others button when the application has provided an
+    // invitation configuration AND the profile feature is disabled.
+    // When profiles are enabled, Share lives in the About dialog only.
 
-    if (hasLogout) {
+    if (effectiveInviteConfig != null && effectiveInviteConfig.enabled) {
+      actionEntries.add(
+        _ActionEntry(
+          item: SolidAppBarActionItem(
+            id: SolidAppBarActionIds.inviteOthers,
+            label: 'Invite Others',
+            icon: effectiveInviteConfig.effectiveIcon,
+            showInOverflow: false,
+          ),
+          initialIndex: effectiveInviteConfig
+              .priority, // Defaults to 600 (between auth & about).
+        ),
+      );
+    }
+
+    // Add Logout button when the application has provided a logout
+    // callback AND the profile feature is disabled. When profiles are
+    // enabled, the avatar popup owns the Logout entry instead.
+    //
+    // The initial index sits between Invite Others (600) and About
+    // (900) so Logout appears as the second-to-last AppBar action,
+    // immediately to the left of the rightmost About button.
+
+    if (effectiveHasLogout) {
       actionEntries.add(
         _ActionEntry(
           item: SolidAppBarActionItem(
@@ -171,7 +219,7 @@ class SolidAppBarActionsManager {
               SolidAppBarActionIds.logout,
             ),
           ),
-          initialIndex: 300, // Logout button after custom/overflow actions.
+          initialIndex: 800,
         ),
       );
     }
@@ -227,6 +275,7 @@ class SolidAppBarActionsManager {
     SolidThemeToggleConfig? themeToggle,
     bool hasLogout,
     bool hasNotifications,
+    SolidInviteOthersConfig? inviteConfig,
   ) {
     final existingIds = actions.map((a) => a.id).toSet();
 
@@ -257,6 +306,12 @@ class SolidAppBarActionsManager {
 
     if (hasNotifications) {
       expectedIds.add(SolidAppBarActionIds.notifications);
+    }
+
+    // Invite Others button (only when invite config is provided).
+
+    if (inviteConfig != null && inviteConfig.enabled) {
+      expectedIds.add(SolidAppBarActionIds.inviteOthers);
     }
 
     // Logout button (only if application has provided a logout callback).

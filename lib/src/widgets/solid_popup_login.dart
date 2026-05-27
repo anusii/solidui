@@ -30,18 +30,25 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidpod/solidpod.dart'
     show
+        getWebId,
         isUserLoggedIn,
         solidAuthenticate,
         initialStructureTest,
         generateDefaultFolders,
         generateDefaultFiles;
 
+import 'package:solidui/src/constants/initial_setup.dart'
+    show initialStructureSnackbarMsg, initialUpdateSnackbarMsg;
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/screens/initial_setup_screen.dart';
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/utils/solid_pod_helpers.dart' show isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_loading_screen.dart';
+import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 
 /// A widget to pop up the login prompt if the user is not logged in.
 
@@ -64,6 +71,23 @@ class SolidPopupLogin extends StatefulWidget {
 class _SolidPopupLoginState extends State<SolidPopupLogin> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  // Returns the capitalised current app name from the platform package
+  // info, or the generic fallback when unavailable. Used to produce the
+  // POD setup snackbar message. Also replaces a trailing pod with
+  // Pod.
+
+  Future<String> _currentAppName() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final name = packageInfo.appName;
+      if (name.isEmpty) return 'the App';
+      return name[0].toUpperCase() +
+          name.substring(1).replaceAll(RegExp(r'pod$'), 'Pod');
+    } on Object {
+      return 'the App';
+    }
+  }
+
   // Verify the remote POD directory structure and navigate to the setup
   // screen when resources are missing.
 
@@ -79,11 +103,30 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     if (!context.mounted) return false;
 
     if (!allExists) {
+      // Determine whether the POD needs a first-time setup or an update,
+      // then surface the corresponding snackbar so the user has the
+      // right context before the wizard opens.
+
+      final isUpdate = await isPodUpdateMode(resCheckList);
+      final appName = await _currentAppName();
+      if (!context.mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isUpdate
+                ? initialUpdateSnackbarMsg(appName)
+                : initialStructureSnackbarMsg(appName),
+          ),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+
       await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => InitialSetupScreen(
             resCheckList: resCheckList,
+            isUpdate: isUpdate,
             child: _successDialog(),
           ),
         ),
@@ -100,6 +143,22 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     try {
       await solidAuthenticate(webId, context);
 
+      // Persist the WebID/server URL so the re-login dialog can prefill it
+      // next time the user is logged out. Prefer the canonical WebID
+      // returned by the server when available.
+
+      final canonicalWebId = await getWebId();
+      await SolidLoginAuthHandler.setLastWebId(
+        (canonicalWebId != null && canonicalWebId.isNotEmpty)
+            ? canonicalWebId
+            : webId,
+      );
+
+      // Notify global listeners (e.g. the status bar) that the login state
+      // has just changed.
+
+      await solidLoginStatusNotifier.refreshStatus();
+
       if (!context.mounted) return false;
 
       return _checkAndSetupPod(context);
@@ -114,14 +173,8 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
       if (!context.mounted) return false;
 
       if (isNowLoggedIn) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'The POD is not initialised. Setting up your POD...',
-            ),
-            duration: Duration(seconds: 5),
-          ),
-        );
+        // Snackbar is emitted by _checkAndSetupPod() once it knows
+        // whether the POD needs a first-time setup or an update.
 
         return _checkAndSetupPod(context);
       } else {

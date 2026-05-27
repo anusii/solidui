@@ -34,8 +34,11 @@ import 'package:gap/gap.dart';
 import 'package:version_widget/version_widget.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer_url_helper.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_profile_avatar.dart';
+import 'package:solidui/src/widgets/solid_profile_editor.dart';
 
 /// Helper class for building the user info header in navigation drawer.
 
@@ -73,14 +76,24 @@ class SolidNavDrawerHeader {
       ),
       child: Column(
         children: [
-          user.avatar ??
-              Icon(
-                user.avatarIcon ?? Icons.account_circle,
-                size: user.avatarSize ?? NavigationConstants.userAvatarSize,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
+          if (user.enableProfile)
+            SolidProfileAvatar(
+              size: user.avatarSize ?? NavigationConstants.userAvatarSize,
+              showEditBadge: true,
+              onTap: () => SolidProfileEditor.show(context),
+            )
+          else
+            user.avatar ??
+                Icon(
+                  user.avatarIcon ?? Icons.account_circle,
+                  size: user.avatarSize ?? NavigationConstants.userAvatarSize,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
           const Gap(NavigationConstants.userInfoSpacing),
-          _buildUserName(theme, user, onUserNameTap),
+          if (user.enableProfile)
+            _buildProfileName(theme, user)
+          else
+            _buildUserName(theme, user, onUserNameTap),
           if (user.showWebId && user.webId != null && user.webId!.isNotEmpty)
             ..._buildWebIdSection(context, theme, user),
           if (user.versionConfig != null)
@@ -94,6 +107,28 @@ class SolidNavDrawerHeader {
             ),
         ],
       ),
+    );
+  }
+
+  /// Displays the display name from [solidProfileNotifier], falling back
+  /// to the effective user name extracted from the WebID.
+
+  static Widget _buildProfileName(ThemeData theme, SolidNavUserInfo user) {
+    return ListenableBuilder(
+      listenable: solidProfileNotifier,
+      builder: (context, _) {
+        final displayName = solidProfileNotifier.hasDisplayName
+            ? solidProfileNotifier.displayName!
+            : user.effectiveUserName;
+        return Text(
+          displayName,
+          style: TextStyle(
+            color: theme.colorScheme.onPrimaryContainer,
+            fontSize: NavigationConstants.userNameFontSize,
+            fontWeight: FontWeight.w600,
+          ),
+        );
+      },
     );
   }
 
@@ -182,8 +217,12 @@ class SolidNavDrawerHeader {
     return VersionWidget(
       version: versionString,
       changelogUrl: versionConfig.changelogUrl,
+      showVersion: versionConfig.showVersion,
       showDate: versionConfig.showDate,
       userTextStyle: versionConfig.userTextStyle,
+      showUpdateButton: versionConfig.showUpdateButton,
+      downloadUrl: versionConfig.downloadUrl,
+      updateButtonLabel: versionConfig.updateButtonLabel,
     );
   }
 }

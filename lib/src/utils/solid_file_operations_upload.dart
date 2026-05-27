@@ -38,6 +38,7 @@ import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/is_text_file.dart';
+import 'package:solidui/src/utils/loading_dialog_controller.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
@@ -47,39 +48,77 @@ class SolidFileUploadOperations {
   const SolidFileUploadOperations._();
 
   /// Default file upload implementation.
+  ///
+  /// When [allowedExtensions] is provided and non-empty, the file picker is
+  /// restricted to the given extensions (without leading dots, e.g. `['csv',
+  /// 'json']`). Selected files whose extensions fall outside the allow list
+  /// are rejected with a snackbar message so the same constraint is enforced
+  /// across all entry points that share this function.
 
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
     VoidCallback? onSuccess,
+    List<String>? allowedExtensions,
   }) async {
     try {
-      // Pick file to upload.
+      // Normalise the allow list once: drop empty entries, strip any leading
+      // dots, and lowercase so comparisons are case-insensitive. A null or
+      // empty result means "no restriction".
 
-      final result = await FilePicker.platform.pickFiles();
+      final List<String>? sanitisedExtensions = allowedExtensions
+          ?.map((e) => e.trim().toLowerCase().replaceFirst(RegExp(r'^\.'), ''))
+          .where((e) => e.isNotEmpty)
+          .toList();
+      final bool hasRestriction =
+          sanitisedExtensions != null && sanitisedExtensions.isNotEmpty;
+
+      // Pick file to upload, restricting the dialogue to the allow list when
+      // one is provided.
+
+      final result = hasRestriction
+          ? await FilePicker.pickFiles(
+              type: FileType.custom,
+              allowedExtensions: sanitisedExtensions,
+            )
+          : await FilePicker.pickFiles();
       if (result == null || result.files.isEmpty) return;
 
       final file = result.files.first;
       if (file.path == null) return;
 
+      // Defensive client-side check in case the underlying picker on a given
+      // platform does not honour the [allowedExtensions] filter.
+
+      if (hasRestriction) {
+        final ext =
+            path.extension(file.path!).toLowerCase().replaceFirst('.', '');
+        if (!sanitisedExtensions.contains(ext)) {
+          if (context.mounted) {
+            final allowed = sanitisedExtensions.join(', ');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Unsupported file type. Allowed formats: $allowed',
+                ),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
       if (!context.mounted) return;
 
-      // Show loading dialog.
+      // Show loading dialog via a controller, so it can be torn down
+      // reliably in the `finally` block even if the originating context
+      // is unmounted while the upload is in flight.
 
-      showDialog(
+      final loading = LoadingDialogController.show(
         context: context,
-        barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          title: Text('Uploading'),
-          content: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Please wait...'),
-            ],
-          ),
-        ),
+        title: 'Uploading',
       );
 
       try {
@@ -133,10 +172,6 @@ class SolidFileUploadOperations {
 
         if (!context.mounted) return;
 
-        // Close loading dialog.
-
-        Navigator.of(context).pop();
-
         // Show success message.
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -152,12 +187,6 @@ class SolidFileUploadOperations {
         onSuccess?.call();
       } catch (e) {
         if (context.mounted) {
-          // Close loading dialog if still open.
-
-          Navigator.of(context).pop();
-
-          // Show error message.
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Upload error: ${e.toString()}'),
@@ -166,6 +195,11 @@ class SolidFileUploadOperations {
             ),
           );
         }
+      } finally {
+        // Always tear down the loading dialog, even if we returned early
+        // because the originating context became unmounted.
+
+        loading.close();
       }
     } catch (e) {
       if (context.mounted) {

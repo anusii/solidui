@@ -21,7 +21,6 @@
 // You should have received a copy of the GNU General Public License along with
 // this program.  If not, see <https://opensource.org/license/gpl-3-0>.
 ///
-///
 /// Authors: Zheyuan Xu, Anushka Vidanage, Kevin Wang, Dawei Chen, Graham Williams
 
 // TODO 20240411 gjw EITHER REPAIR ALL CONTEXT ISSUES OR EXPLAIN WHY NOT?
@@ -46,17 +45,21 @@ import 'package:solidui/solidui.dart'
         largeGapV,
         loginIfRequired,
         logoutPopup,
-        smallGapV;
+        smallGapV,
+        solidLoginStatusNotifier;
 
 import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
 import 'package:demopod/dialogs/alert.dart';
+import 'package:demopod/features/check_file_encryption.dart';
 import 'package:demopod/features/create_acl_inherited_file.dart';
 import 'package:demopod/features/edit_keyvalue.dart';
 import 'package:demopod/features/file_service.dart';
+import 'package:demopod/features/multiple_resource_sharing.dart';
 import 'package:demopod/features/permission_callback_demo.dart';
 import 'package:demopod/features/read_acl_inherited_file.dart';
 import 'package:demopod/features/view_keys.dart';
+import 'package:demopod/utils/ensure_resource.dart';
 import 'package:demopod/utils/rdf.dart';
 
 /// A widget for the demonstration screen of the application.
@@ -88,6 +91,21 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    solidLoginStatusNotifier.addListener(_onLoginStatusChanged);
+  }
+
+  @override
+  void dispose() {
+    solidLoginStatusNotifier.removeListener(_onLoginStatusChanged);
+    super.dispose();
+  }
+
+  void _onLoginStatusChanged() {
+    if (!mounted) return;
+    setState(() {
+      _webId = solidLoginStatusNotifier.webId;
+    });
   }
 
   void _resetWebId() {
@@ -150,15 +168,17 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     }
 
     await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => KeyValueEdit(
-                  title: 'Basic Key Value Editor',
-                  fileName: fileName,
-                  keyValuePairs: pairs,
-                  encrypted: _writeEncrypted,
-                  child: widget,
-                )));
+      context,
+      MaterialPageRoute(
+        builder: (context) => KeyValueEdit(
+          title: 'Basic Key Value Editor',
+          fileName: fileName,
+          keyValuePairs: pairs,
+          encrypted: _writeEncrypted,
+          child: widget,
+        ),
+      ),
+    );
 
     setState(() {
       _isLoading = false;
@@ -202,8 +222,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
       // Inform user about what will happen next.
 
-      await alert(context,
-          'The security key has been forgotten locally. The next step will show the security key prompt which you would normally see when accessing secured data after logging in.');
+      await alert(
+        context,
+        'The security key has been forgotten locally. The next step will show the security key prompt which you would normally see when accessing secured data after logging in.',
+      );
 
       // Directly show the security key prompt with WebID.
 
@@ -214,8 +236,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
         // Only show this if the user enters the correct key.
 
-        await alert(context,
-            'Your security key was entered correctly and has been saved for this session.');
+        await alert(
+          context,
+          'Your security key was entered correctly and has been saved for this session.',
+        );
       } catch (e) {
         debugPrint('Error: $e');
         await alert(context, 'Error or cancelled: $e');
@@ -556,6 +580,23 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
+                        await getKeyFromUserIfRequired(context, widget);
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CheckFileEncryption(),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Check File Encryption'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final loggedIn = await loginIfRequired(context);
+                      if (loggedIn) {
                         final webId = await getWebId();
                         setState(() {
                           _webId = webId;
@@ -596,7 +637,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CreateAclInheritedFile(),
+                              builder: (context) =>
+                                  const CreateAclInheritedFile(),
                             ),
                           );
                         }
@@ -617,7 +659,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ReadAclInheritedFile(),
+                              builder: (context) =>
+                                  const ReadAclInheritedFile(),
                             ),
                           );
                         }
@@ -655,7 +698,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ),
                   ElevatedButton(
                     child: const Text(
-                        'Show Security Key Prompt (For Demonstration)'),
+                      'Show Security Key Prompt (For Demonstration)',
+                    ),
                     onPressed: () async {
                       await _showSecurityKeyPrompt();
                     },
@@ -714,6 +758,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       onPressed: () async {
                         final deleteRes = await deleteLogIn();
 
+                        if (deleteRes) {
+                          solidLoginStatusNotifier.markLoggedOut();
+                        }
+
                         var deleteMsg = '';
 
                         if (deleteRes) {
@@ -755,6 +803,48 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       child: const Text('Logout From Remote Solid Server'),
                     ),
                   ),
+                  MarkdownTooltip(
+                    message:
+                        'Simulates the kind of *accidental* logout caused by '
+                        'an expired or invalidated authentication token: the '
+                        'local session is silently cleared without going '
+                        'through the proper logout flow. Use this to verify '
+                        'that the next action requiring authentication '
+                        'reopens the login popup with your previous WebID '
+                        'prefilled.',
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Silently drop the cached session to mimic a token
+                        // that the server (or device storage) has invalidated
+                        // behind the user's back.
+
+                        final wasLoggedIn = await isUserLoggedIn();
+                        await deleteLogIn();
+
+                        solidLoginStatusNotifier.markLoggedOut();
+
+                        if (!context.mounted) return;
+                        _resetWebId();
+
+                        await alert(
+                          context,
+                          wasLoggedIn
+                              ? 'Authentication token invalidated. '
+                                  'The next action that requires login should '
+                                  'reopen the login popup with your previous '
+                                  'WebID prefilled.'
+                              : 'No active session was found, but any cached '
+                                  'auth data has been cleared. Trigger a '
+                                  'feature that requires login to see the '
+                                  'login popup.',
+                        );
+
+                        if (!context.mounted) return;
+                        await loginIfRequired(context);
+                      },
+                      child: const Text('Simulate Token Invalidation'),
+                    ),
+                  ),
                 ]),
 
                 largeGapV,
@@ -765,25 +855,40 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 smallGapV,
                 _buttonRow([
                   ElevatedButton(
-                    child: const Text('Add/Delete Permissions (key-value.ttl)'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
+
+                        // Ensure the target resource exists on the Pod before
+                        // opening the grant permission UI. The button
+                        // previously failed with a "not found" error when
+                        // keyvalue/key-value.ttl had never been created.
+
+                        if (!context.mounted) return;
+                        final ready = await ensurePodResourceExists(
+                          context,
+                          relativePath: dataFile,
+                          defaultContent: createDemoTtlStr('key-value'),
+                        );
+                        if (!ready) return;
+
+                        if (!context.mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SolidScaffold(
-                              body: GrantPermissionUi(
-                                backgroundColor: titleBackgroundColor,
-                                resourceName: 'keyvalue/key-value.ttl',
-                                child: Home(),
-                              ),
+                            builder: (context) => const GrantPermissionUi(
+                              backgroundColor: titleBackgroundColor,
+                              resourceNames: [dataFile],
+                              child: Home(),
                             ),
                           ),
                         );
                       }
                     },
+                    child: const Text(
+                      'Add/Delete Permissions to a Specific Resource (key-value.ttl)',
+                    ),
                   ),
                   ElevatedButton(
                     child: const Text('Permission Callback Demo'),
@@ -803,7 +908,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     },
                   ),
                   ElevatedButton(
-                    child: const Text('Add/Delete Permissions (any Resource)'),
+                    child: const Text('Add/Delete Permissions to any Resource'),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -811,11 +916,26 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SolidScaffold(
-                              body: GrantPermissionUi(
-                                backgroundColor: titleBackgroundColor,
-                                child: Home(),
-                              ),
+                            builder: (context) => const GrantPermissionUi(
+                              backgroundColor: titleBackgroundColor,
+                              child: Home(),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('Share Multiple Specified Resources'),
+                    onPressed: () async {
+                      final loggedIn = await loginIfRequired(context);
+                      if (loggedIn) {
+                        await getKeyFromUserIfRequired(context, widget);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MultiResourceShareDemo(
+                              child: Home(),
                             ),
                           ),
                         );
@@ -837,6 +957,21 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
+
+                        // Ensure the target resource exists on the Pod before
+                        // opening the shared resources UI. The button
+                        // previously failed with a "not found" error when
+                        // keyvalue/key-value.ttl had never been created.
+
+                        if (!context.mounted) return;
+                        final ready = await ensurePodResourceExists(
+                          context,
+                          relativePath: dataFile,
+                          defaultContent: createDemoTtlStr('key-value'),
+                        );
+                        if (!ready) return;
+
+                        if (!context.mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -854,7 +989,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ),
                   ElevatedButton(
                     child: const Text(
-                        'View ALL Resources your WebID has access to'),
+                      'View ALL Resources your WebID has access to',
+                    ),
                     onPressed: () async {
                       final loggedIn = await loginIfRequired(context);
                       if (loggedIn) {
@@ -897,15 +1033,19 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         return;
                       }
 
-                      final sampleDirUrl = await getDirUrl([
-                        await getDataDirPath(),
-                        'setup_wizard_demo',
-                      ].join('/'));
+                      final sampleDirUrl = await getDirUrl(
+                        [
+                          await getDataDirPath(),
+                          'setup_wizard_demo',
+                        ].join('/'),
+                      );
                       final sampleFileName = 'setup_wizard_demo.ttl';
-                      final sampleFileUrl = await getFileUrl([
-                        await getDataDirPath(),
-                        'sampleFileName',
-                      ].join('/'));
+                      final sampleFileUrl = await getFileUrl(
+                        [
+                          await getDataDirPath(),
+                          'sampleFileName',
+                        ].join('/'),
+                      );
 
                       Navigator.push(
                         context,
@@ -926,7 +1066,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       );
                     },
                     child: const Text(
-                        'Show Solid Pod Setup Wizard (Using Real Component)'),
+                      'Show Solid Pod Setup Wizard (Using Real Component)',
+                    ),
                   ),
                 ]),
 

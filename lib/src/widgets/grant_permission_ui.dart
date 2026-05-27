@@ -32,10 +32,14 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart';
+import 'package:solidui/src/utils/path_utils.dart';
+import 'package:solidui/src/widgets/grant_permission_resource_list.dart';
+import 'package:solidui/src/widgets/permission_page.dart';
+import 'package:solidui/src/widgets/resource_display_mode_control.dart';
+import 'package:solidui/src/widgets/view_permission_button.dart';
 
 part 'grant_permission_ui_state.dart';
 
@@ -56,11 +60,17 @@ part 'grant_permission_ui_state.dart';
 /// - [recipientTypeList] - List of recipient type options to show.
 /// - [ownerWebId] - WebId of the owner of the resource. Required if the resource is externally owned.
 /// - [granterWebId] - WebId of the granter of the resource. Required if the resource is externall owned.
-/// - [resourceName] - The filename or file url of the resource. If [isExternalRes], it should be the url of the resource.
+/// - [resourceNames] - Optional list of file urls of resources to pre-set the
+/// resource. When a single resource is provided, it is shown as-is without a
+/// dropdown. When multiple resources are provided, a dropdown lets the user
+/// select which resource's permissions to view. The permission granting form
+/// applies to all resources in the list at once.
 /// - [isFile] - Boolean flag describing whether the resource is a file. If false, the resource is assumed to be a directory.
 /// - [customAppBar] - Specify a custom app bar widget.
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 /// - [onNavigateBack] - Callback function called when navigating back from the screen.
+/// - [shareButtonColor] - Optional custom colour for the Share Resource button.
+/// - [titleData] - Optional map from resource URL to human-readable title.
 
 class GrantPermissionUi extends StatefulWidget {
   const GrantPermissionUi({
@@ -73,13 +83,17 @@ class GrantPermissionUi extends StatefulWidget {
     this.recipientTypeList = const ['public', 'indi', 'auth', 'group'],
     this.ownerWebId,
     this.granterWebId,
-    this.resourceName,
+    this.resourceNames,
     this.isFile = true,
     this.dataFilesMap = const {},
+    this.buttonColor,
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
     this.resourceDisplayName,
+    this.shareButtonColor,
+    this.titleData,
+    this.inviteConfig,
     super.key,
   })  : assert(
           // Requires ownerWebId if resource
@@ -135,12 +149,17 @@ class GrantPermissionUi extends StatefulWidget {
 
   final List<String> recipientTypeList;
 
-  /// The name of the file or directory permission is being set to. This is a
-  /// non required parameter. If not set there will be a text field to define
-  /// the file name. If [isExternalRes] is set to true this must be set and the
-  /// value should be the url of the resource.
+  /// Optional list of resource names. When null, a text field is shown to
+  /// enter a resource manually. When one entry, it is pre-set and shown
+  /// without a dropdown. When multiple entries, a dropdown lets the user
+  /// select which resource's permissions to view; granting applies to all.
+  /// If [isExternalRes] is true, entries must be full resource URLs.
 
-  final String? resourceName;
+  final List<String>? resourceNames;
+
+  /// Optional custom colour for the Share Resource button.
+
+  final Color? shareButtonColor;
 
   /// A flag to determine whether the given resource is a file or not. This is
   /// a parameter with default value true. In the case where [resourceName] is
@@ -159,6 +178,11 @@ class GrantPermissionUi extends StatefulWidget {
 
   final Map<String, dynamic> dataFilesMap;
 
+  /// Optional background color for the Share Resource button.
+  /// When provided, it overrides the theme's elevated button background.
+
+  final Color? buttonColor;
+
   /// App specific app bar
 
   final PreferredSizeWidget? customAppBar;
@@ -173,9 +197,21 @@ class GrantPermissionUi extends StatefulWidget {
 
   /// Optional human-readable name for the resource, used in notification
   /// messages sent to recipients upon successful permission granting.
-  /// Falls back to [resourceName] when not provided.
+  /// Falls back to the resource name when not provided.
 
   final String? resourceDisplayName;
+
+  /// Optional map from resource URL key to human-readable file title.
+  /// When provided, a radio group replaces the Show Full Path switch,
+  /// offering 'File Url', 'Filename', and 'File Title' display options.
+
+  final Map<String, String>? titleData;
+
+  /// Optional Invite Others configuration. When provided, the share
+  /// permission flow offers an "Invite this user" follow-up if the
+  /// recipient has not yet initialised their POD.
+
+  final SolidInviteOthersConfig? inviteConfig;
 
   @override
   GrantPermissionUiState createState() => GrantPermissionUiState();

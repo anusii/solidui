@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/constants/ui_colors.dart';
+import 'package:solidui/src/utils/loading_dialog_controller.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 
 /// Delete operations for SolidUI widgets.
@@ -77,22 +78,13 @@ class SolidFileDeleteOperations {
 
       if (!context.mounted || confirm != true) return;
 
-      // Show loading dialog.
+      // Show loading dialog via a controller, so it can always be torn
+      // down in the `finally` block — even if the originating context
+      // becomes unmounted while the deletion is in flight.
 
-      showDialog(
+      final loading = LoadingDialogController.show(
         context: context,
-        barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          title: Text('Deleting'),
-          content: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Please wait...'),
-            ],
-          ),
-        ),
+        title: 'Deleting',
       );
 
       try {
@@ -117,10 +109,6 @@ class SolidFileDeleteOperations {
 
         if (!context.mounted) return;
 
-        // Close loading dialog.
-
-        Navigator.of(context).pop();
-
         // Show success message.
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -136,12 +124,6 @@ class SolidFileDeleteOperations {
         onSuccess?.call();
       } catch (e) {
         if (context.mounted) {
-          // Close loading dialog if still open.
-
-          Navigator.of(context).pop();
-
-          // Show error message.
-
           final message = e.toString().contains('404') ||
                   e.toString().contains('NotFoundHttpError')
               ? 'File not found or already deleted'
@@ -155,6 +137,11 @@ class SolidFileDeleteOperations {
             ),
           );
         }
+      } finally {
+        // Always tear down the loading dialog, even if we returned early
+        // because the originating context became unmounted.
+
+        loading.close();
       }
     } catch (e) {
       if (context.mounted) {
@@ -262,33 +249,31 @@ class SolidFileDeleteOperations {
 
     if (confirmed != true || !context.mounted) return;
 
-    // Show a progress dialog that updates as items are deleted.
+    // Show a progress dialog that updates as items are deleted. We use a
+    // [LoadingDialogController] so the dialog can be torn down reliably
+    // in the `finally` block, even when the originating context becomes
+    // unmounted while the batch deletion is in flight.
 
     final progressNotifier = ValueNotifier<double>(0);
 
-    showDialog(
+    final loading = LoadingDialogController.show(
       context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text('Deleting $subject'),
-          content: ValueListenableBuilder<double>(
-            valueListenable: progressNotifier,
-            builder: (_, progress, __) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  LinearProgressIndicator(value: progress),
-                  const SizedBox(height: 12),
-                  Text(
-                    '${(progress * totalCount).round()} / $totalCount',
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      },
+      title: 'Deleting $subject',
+      child: ValueListenableBuilder<double>(
+        valueListenable: progressNotifier,
+        builder: (_, progress, __) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(value: progress),
+              const SizedBox(height: 12),
+              Text(
+                '${(progress * totalCount).round()} / $totalCount',
+              ),
+            ],
+          );
+        },
+      ),
     );
 
     try {
@@ -302,10 +287,6 @@ class SolidFileDeleteOperations {
       );
 
       if (!context.mounted) return;
-
-      // Dismiss the progress dialog.
-
-      Navigator.of(context).pop();
 
       // Show a result snackbar.
 
@@ -347,8 +328,6 @@ class SolidFileDeleteOperations {
       onSuccess?.call();
     } catch (e) {
       if (context.mounted) {
-        Navigator.of(context).pop();
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Batch delete error: ${e.toString()}'),
@@ -358,6 +337,11 @@ class SolidFileDeleteOperations {
         );
       }
     } finally {
+      // Always tear down the progress dialogue and release the
+      // notifier, even if we returned early because the originating
+      // context became unmounted.
+
+      loading.close();
       progressNotifier.dispose();
     }
   }

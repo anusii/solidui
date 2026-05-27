@@ -31,7 +31,9 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/solid_config.dart';
+import 'package:solidui/src/models/snackbar_config.dart';
 import 'package:solidui/src/widgets/solid_login.dart';
+import 'package:solidui/src/widgets/solid_login_helper.dart';
 
 /// A simplified wrapper around [SolidLogin] with sensible defaults.
 
@@ -77,6 +79,40 @@ class SolidDefaultLogin extends StatelessWidget {
 
   final bool navigateToRootOnSuccess;
 
+  /// Optional button styles and theme configuration forwarded to [SolidLogin].
+  /// When non-null these override the [SolidLogin] defaults so that an
+  /// app's custom appearance is preserved across logout/re-login cycles.
+
+  final LoginButtonStyle? loginButtonStyle;
+
+  /// Optional continue button style.
+
+  final ContinueButtonStyle? continueButtonStyle;
+
+  /// Optional register button style.
+
+  final RegisterButtonStyle? registerButtonStyle;
+
+  /// Optional info button style.
+
+  final InfoButtonStyle? infoButtonStyle;
+
+  /// Optional change-key button style.
+
+  final ChangeKeyButtonStyle? changeKeyButtonStyle;
+
+  /// Optional theme configuration.
+
+  final SolidLoginTheme? themeConfig;
+
+  /// Optional snackbar configuration.
+
+  final SnackbarConfig? snackbarConfig;
+
+  /// Whether Solid POD authentication is mandatory.
+
+  final bool required;
+
   const SolidDefaultLogin({
     super.key,
     required this.appTitle,
@@ -87,6 +123,14 @@ class SolidDefaultLogin extends StatelessWidget {
     this.appLink,
     this.loginSuccessWidget,
     this.navigateToRootOnSuccess = false,
+    this.loginButtonStyle,
+    this.continueButtonStyle,
+    this.registerButtonStyle,
+    this.infoButtonStyle,
+    this.changeKeyButtonStyle,
+    this.themeConfig,
+    this.snackbarConfig,
+    this.required = false,
   });
 
   @override
@@ -109,13 +153,21 @@ class SolidDefaultLogin extends StatelessWidget {
           ? ThemeData.dark()
           : ThemeData.light(),
       child: SolidLogin(
-        required: false,
+        required: required,
         title: appTitle,
         appDirectory: appDirectory,
         webID: defaultServerUrl,
         image: appImage ?? SolidConfig.defaultImage,
         logo: appLogo ?? SolidConfig.defaultLogo,
         link: appLink ?? '',
+        loginButtonStyle: loginButtonStyle ?? const LoginButtonStyle(),
+        continueButtonStyle: continueButtonStyle ?? const ContinueButtonStyle(),
+        registerButtonStyle: registerButtonStyle ?? const RegisterButtonStyle(),
+        infoButtonStyle: infoButtonStyle ?? const InfoButtonStyle(),
+        changeKeyButtonStyle:
+            changeKeyButtonStyle ?? const ChangeKeyButtonStyle(),
+        themeConfig: themeConfig ?? const SolidLoginTheme(),
+        snackbarConfig: snackbarConfig ?? const SnackbarConfig(),
         child: successWidget,
       ),
     );

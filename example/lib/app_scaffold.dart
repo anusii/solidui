@@ -44,7 +44,9 @@ class AppScaffold extends StatelessWidget {
           title: 'Home',
           tooltip: '''
 
-            **Home:** Tap here to return to the main demonstrator page.
+            **Home**
+
+            Tap here to return to the main demonstrator page.
 
             ''',
           child: Home(),
@@ -54,7 +56,9 @@ class AppScaffold extends StatelessWidget {
           title: 'Files',
           tooltip: '''
 
-            **Files:** Tap here to browse the files on your POD.
+            **Files**
+
+            Tap here to browse the files on your POD.
 
             ''',
           child: SolidFile(),
@@ -63,9 +67,11 @@ class AppScaffold extends StatelessWidget {
       appBar: SolidAppBarConfig(
         title: appTitle.split(' - ')[0],
         versionConfig: const SolidVersionConfig(
-          changelogUrl: 'https://github.com/anusii/solidpod/blob/main/'
-              'demopod/CHANGELOG.md',
+          changelogUrl: 'https://github.com/anusii/solidpod/blob/dev/'
+              'CHANGELOG.md',
           showDate: true,
+          showUpdateButton: true,
+          downloadUrl: 'https://github.com/anusii/solidpod/releases/latest',
         ),
       ),
       statusBar: const SolidStatusBarConfig(
@@ -82,7 +88,7 @@ class AppScaffold extends StatelessWidget {
         ),
         applicationLegalese: '''
 
-        © 2024 Software Innovation Institute, the Australian National University
+        © 2024-2026 Software Innovation Institute, the Australian National University
 
         ''',
         text: '''
@@ -116,6 +122,8 @@ class AppScaffold extends StatelessWidget {
         enabled: true,
         showInAppBarActions: true,
       ),
+      enableProfile: true,
+      enableOverflowMenu: true,
       onLogout: (context) => SolidAuthHandler.instance.handleLogout(context),
       child: const Home(),
     );

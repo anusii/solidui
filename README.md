@@ -485,7 +485,7 @@ Preferences are stored per application and persist across restarts.
 toggle cycle and how switching behaves:
 
 | Option | Default | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `lightModeEnabled` | `true` | Include Light mode in the toggle cycle. When enabled, users can switch to a light theme optimised for bright viewing conditions. |
 | `darkModeEnabled` | `true` | Include Dark mode in the toggle cycle. When enabled, users can switch to a dark theme for low-light viewing. |
 | `systemModeEnabled` | `true` | Include System mode in the toggle cycle. When enabled, the app follows the device's light/dark setting. |
@@ -835,9 +835,13 @@ ElevatedButton(
 The `GrantPermissionUi` widget provides a full-featured page for
 granting, editing, and revoking access permissions on resources stored
 in a Solid POD. Wrap it inside a navigation action to reach the
-permission management page.
+permission management page.  The titleData parameter, if provides,
+adds support for switch between file url, filename and file title.
 
-### Basic usage (browse all resources)
+### Basic usage to grant/revoke/change permissions for any resource
+
+This allows the user to select the resource, before inspecting their permissions
+and granting, revoking or editing permissions.
 
 ```dart
 ElevatedButton(
@@ -853,16 +857,16 @@ ElevatedButton(
 )
 ```
 
-### Permissions for a specific file
+### Grant/revoke/change permissions for a specific file
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from a Specific File'),
+  child: const Text('Add/Delete Permissions to a Specific File'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => const GrantPermissionUi(
-        resourceName: 'my-data-file.ttl',
+        resourceNames: ['my-data-file.ttl'],
         child: ReturnPage(),
       ),
     ),
@@ -870,16 +874,16 @@ ElevatedButton(
 )
 ```
 
-### Permissions for a specific directory
+### Grant/revoke/change permissions for a specific directory
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from a Specific Directory'),
+  child: const Text('Add/Delete Permissions to a Specific Directory'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => const GrantPermissionUi(
-        resourceName: 'parentDir/',
+        resourceNames: ['parentDir/'],
         child: ReturnPage(),
         isFile: false,
       ),
@@ -888,19 +892,41 @@ ElevatedButton(
 )
 ```
 
-### Permissions for an externally owned resource
+### Grant/revoke/change permissions for an externally owned resource
 
 When the user has *control* access to a resource owned by someone else:
 
 ```dart
 ElevatedButton(
-  child: const Text('Add/Delete Permissions from an External File'),
+  child: const Text('Add/Delete Permissions to an External File'),
   onPressed: () => Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => GrantPermissionUi(
-        resourceName: 'my-data-file.ttl',
+        resourceNames: const ['my-data-file.ttl'],
         isExternalRes: true,
+        ownerWebId: ownerWebId,
+        granterWebId: granterWebId,
+        child: ReturnPage(),
+      ),
+    ),
+  ),
+)
+```
+
+### Grant permissions for multiple user owned resources
+
+When the user wants to apply the same grant permission operation on
+a list of resources:
+
+```dart
+ElevatedButton(
+  child: const Text('Add/Delete Permissions for Multiple Files'),
+  onPressed: () => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => GrantPermissionUi(
+        resourceNames: const ['my-data-file1.ttl', 'my-data-file2.ttl', 'my-data-file3.ttl'],
         ownerWebId: ownerWebId,
         granterWebId: granterWebId,
         child: ReturnPage(),
@@ -1130,7 +1156,7 @@ class NavigationConstants {
 #### Responsive Behaviour Summary
 
 | Screen Width (px) | Navigation | App Bar Actions | Status Bar | File Layout |
-|------|------------|-----------------|-----------|-------------|
+| ------ | ------------ | ----------------- | ----------- | ------------- |
 | ≥800 | SolidNavBar | All actions visible | Full status | Side-by-side |
 | 400-799 | SolidNavDrawer | Selected actions + overflow | Compact | Stacked |
 | <400 | Navigation Drawer | Essential actions only | Minimal/hidden | Stacked |

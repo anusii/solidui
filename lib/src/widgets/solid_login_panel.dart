@@ -34,6 +34,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/widgets/solid_login_helper.dart';
+import 'package:solidui/src/widgets/solid_server_field.dart';
 
 /// Builder class for creating the login panel UI.
 
@@ -79,9 +80,9 @@ class SolidLoginPanel {
           const SizedBox(height: 20.0),
           FocusTraversalOrder(
             order: const NumericFocusOrder(5),
-            child: getSolidServerTooltip(
-              webIdController,
-              currentTheme,
+            child: SolidServerField(
+              controller: webIdController,
+              themeMode: currentTheme,
               focusNode: serverInputFocusNode,
               onFieldSubmitted:
                   onServerSubmitted != null ? (_) => onServerSubmitted() : null,

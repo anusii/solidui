@@ -34,6 +34,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
@@ -54,6 +55,8 @@ class SolidOverflowMenuHelpers {
     bool hasAboutInOverflow, {
     bool hasLogoutInOverflow = false,
     bool isLoggedIn = true,
+    bool hasInviteOthersInOverflow = false,
+    SolidInviteOthersConfig? inviteConfig,
   }) {
     List<PopupMenuItem<String>> items = [];
     final allActions = List<SolidAppBarActionItem>.from(
@@ -81,6 +84,8 @@ class SolidOverflowMenuHelpers {
         _addAbout(items, hasAboutInOverflow, aboutConfig);
       } else if (actionItem.id == SolidAppBarActionIds.notifications) {
         _addNotifications(items, actionItem);
+      } else if (actionItem.id == SolidAppBarActionIds.inviteOthers) {
+        _addInviteOthers(items, hasInviteOthersInOverflow, inviteConfig);
       } else if (customActionIds.contains(actionItem.id)) {
         _addCustomAction(items, actionItem, config);
       } else {
@@ -88,6 +93,26 @@ class SolidOverflowMenuHelpers {
       }
     }
     return items;
+  }
+
+  static void _addInviteOthers(
+    List<PopupMenuItem<String>> items,
+    bool show,
+    SolidInviteOthersConfig? inviteConfig,
+  ) {
+    if (!show || inviteConfig == null) return;
+    items.add(
+      PopupMenuItem<String>(
+        value: SolidAppBarActionIds.inviteOthers,
+        child: Row(
+          children: [
+            Icon(inviteConfig.effectiveIcon),
+            const SizedBox(width: 8),
+            const Text('Invite Others'),
+          ],
+        ),
+      ),
+    );
   }
 
   static void _addThemeToggle(

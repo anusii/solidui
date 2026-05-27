@@ -103,6 +103,15 @@ class SolidFileBrowser extends StatefulWidget {
 
   final Function(String currentPath)? onCreateFolder;
 
+  /// Callback for uploading a file into the current directory.
+  ///
+  /// When provided, a dedicated upload button is shown in the toolbar at the
+  /// top of the browser. The intent is to share a single handler with the
+  /// side-panel upload button so users have two equivalent entry points
+  /// driven by the same code path. Null hides/disables the toolbar button.
+
+  final VoidCallback? onUpload;
+
   /// Callback for moving selected items.
   /// Receives the current path and the set of selected item keys.
   /// Null disables the toolbar button.
@@ -146,6 +155,7 @@ class SolidFileBrowser extends StatefulWidget {
     this.initialPath,
     this.folderNameOverrides,
     this.onCreateFolder,
+    this.onUpload,
     this.onMoveItems,
     this.onCopyItems,
     this.onDownloadItems,
@@ -232,10 +242,14 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   bool get canGoUp => currentPath != _homePath && currentPath.isNotEmpty;
 
   /// Public wrapper around [setState].
-  /// [setState] is `@protected` and cannot be called directly from extensions.
+  ///
+  /// Extensions on this state cannot call [setState] directly because the
+  /// framework declares it as `@protected`. This helper forwards to it so the
+  /// extension methods can request a rebuild without subclassing.
 
-  // ignore: use_setters_to_change_properties
-  void updateState(VoidCallback fn) => setState(fn);
+  void updateState(VoidCallback fn) {
+    setState(fn);
+  }
 
   @override
   void initState() {
@@ -449,6 +463,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   onNavigateHome: navigateHome,
                   onRefresh: refreshFiles,
                   onNewFolder: _handleCreateFolder,
+                  onUpload: widget.onUpload,
                   onMoveTo: widget.onMoveItems != null
                       ? () => widget.onMoveItems!(currentPath, selectedItems)
                       : null,

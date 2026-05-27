@@ -81,9 +81,9 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
 
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
-      if (oldIndex < newIndex) {
-        newIndex -= 1;
-      }
+      // newIndex is already adjusted by ReorderableListView.onReorderItem
+      // (see solid_preferences_button_order.dart). No manual `-= 1`
+      // shift needed.
       final item = _appBarActions.removeAt(oldIndex);
       _appBarActions.insert(newIndex, item);
 
@@ -164,9 +164,9 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
       return 100 + index;
     }
 
-    // Logout: 300.
+    // Logout: 800 — second-to-last, just left of About.
 
-    if (actionId == SolidAppBarActionIds.logout) return 300;
+    if (actionId == SolidAppBarActionIds.logout) return 800;
 
     // About: 900.
 
@@ -186,7 +186,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
         children: [
           const Icon(Icons.tune),
           const SizedBox(width: 8),
-          Text(widget.title),
+          Flexible(child: Text(widget.title)),
         ],
       ),
       content: SizedBox(
@@ -211,22 +211,28 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
       ),
       actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       actions: [
-        Row(
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 8,
+          runSpacing: 8,
           children: [
-            // Default button on the left.
             TextButton(
               onPressed: _resetToDefault,
               child: const Text('Default'),
             ),
-            const Spacer(),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            const SizedBox(width: 8),
-            FilledButton(
-              onPressed: _savePreferences,
-              child: const Text('Save'),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: _savePreferences,
+                  child: const Text('Save'),
+                ),
+              ],
             ),
           ],
         ),

@@ -34,18 +34,29 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_popup_login.dart';
 
 /// A dialog for adding an individual webId. Function call requires the
 /// following inputs
 /// [context] is the BuildContext from which this function is called.
+///
+/// The text field is prefilled with the last WebID/server URL that the
+/// user successfully authenticated with (when available), so an
+/// accidentally logged-out user does not have to retype it. Falls back
+/// to [SolidConfig.defaultServerUrl] for first-time users.
 
-Future<dynamic> loginWebIdInputDialog(BuildContext context) {
+Future<dynamic> loginWebIdInputDialog(BuildContext context) async {
+  final lastWebId = await SolidLoginAuthHandler.getLastWebId();
+  if (!context.mounted) return null;
+
   final formControllerWebId = TextEditingController()
-    ..text = SolidConfig.defaultServerUrl;
+    ..text = (lastWebId != null && lastWebId.isNotEmpty)
+        ? lastWebId
+        : SolidConfig.defaultServerUrl;
   return showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return AlertDialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 50),
         title: const Text('Input server URL/your WebId to login'),
@@ -71,25 +82,25 @@ Future<dynamic> loginWebIdInputDialog(BuildContext context) {
 
               if (receiverWebId.isNotEmpty &&
                   Uri.parse(receiverWebId.replaceAll('#me', '')).isAbsolute) {
-                if (!context.mounted) return;
-                await Navigator.push(
-                  context,
+                final outerNavigator = Navigator.of(context);
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext, rootNavigator: true).pop();
+                }
+                await outerNavigator.push(
                   MaterialPageRoute(
-                    builder: (context) => SolidPopupLogin(webId: receiverWebId),
+                    builder: (_) => SolidPopupLogin(webId: receiverWebId),
                   ),
                 );
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
               } else {
-                if (!context.mounted) return;
-                await alert(context, 'Please enter a valid URL/WebID');
+                if (!dialogContext.mounted) return;
+                await alert(dialogContext, 'Please enter a valid URL/WebID');
               }
             },
             child: const Text('OK'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
             },
             child: const Text('Cancel'),
           ),

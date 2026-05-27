@@ -132,21 +132,27 @@ class SolidThemeNotifier extends ChangeNotifier {
       case ThemeMode.light:
         return '''
 
-  **Theme:** Currently **Light Mode** is active. Light Mode is best for
+  **Theme**
+
+  Currently **Light Mode** is active. Light Mode is best for
   viewing in light conditions. Tap to switch back to System Mode.
 
   ''';
       case ThemeMode.dark:
         return '''
 
-  **Theme:** Currently **Dark Mode** is active. Dark Mode is best for viewing in
+  **Theme**
+
+  Currently **Dark Mode** is active. Dark Mode is best for viewing in
   low light conditions. Tap to switch back to System Mode.
 
   ''';
       case ThemeMode.system:
         return '''
 
-  **Theme:** Currently **System Mode** is active. System Mode follows your
+  **Theme**
+
+  Currently **System Mode** is active. System Mode follows your
   device settings. Tap to switch to the opposite theme.
 
   ''';

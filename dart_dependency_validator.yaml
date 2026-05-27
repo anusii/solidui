@@ -1,6 +1,13 @@
+# Configuration for the `dependency_validator` tool.
+#
+# The `example/` directory is a separate package (`demopod`) with its own
+# `pubspec.yaml`, so its imports (demopod, editable, intl, universal_io, ...)
+# should not be attributed to the root `solidui` package.
+
+exclude:
+  - "example/**"
+
+# Dev-only dependencies that are intentionally declared but not imported
+# directly by this package (e.g. kept for downstream apps / desktop setup).
 ignore:
-  - cupertino_icons  # An asset repository.
-  - demopod          # Example app package name.
-  - editable         # Example app dependency.
-  - intl             # Example app dependency.
-  - universal_io     # Example app dependency.
+  - window_manager

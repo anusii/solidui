@@ -1,6 +1,6 @@
 /// Solid Scaffold - Simplified unified scaffold component.
 ///
-// Time-stamp: <Thursday 2025-08-21 13:20:34 +1000 Graham Williams>
+// Time-stamp: <Friday 2026-05-01 11:47:09 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -35,15 +35,19 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
+import 'package:solidui/src/services/solid_profile_service.dart';
 import 'package:solidui/src/services/solid_security_key_notifier.dart';
 import 'package:solidui/src/services/solid_security_key_service.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_feedback_models.dart';
+import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_controller.dart';
 import 'package:solidui/src/widgets/solid_scaffold_helpers.dart';
 import 'package:solidui/src/widgets/solid_scaffold_init_helpers.dart';
+import 'package:solidui/src/widgets/solid_scaffold_last_index.dart';
 import 'package:solidui/src/widgets/solid_scaffold_layout_builder.dart';
 import 'package:solidui/src/widgets/solid_scaffold_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_state_helpers.dart';
@@ -221,6 +225,17 @@ class SolidScaffold extends StatefulWidget {
 
   final int initialIndex;
 
+  /// When `true` (the default), the scaffold persists the currently
+  /// selected menu index to shared_preferences and restores it on the
+  /// next launch. Set to `false` to opt out and always start at
+  /// [initialIndex].
+  ///
+  /// Persistence is automatic: no setup is required in the host app.
+  /// The saved value is read once on first frame and applied to the
+  /// internal `_selectedIndex`; subsequent menu taps overwrite it.
+
+  final bool rememberLastIndex;
+
   /// Optional menu selection callback (for external state management).
 
   final void Function(int)? onMenuSelected;
@@ -243,9 +258,51 @@ class SolidScaffold extends StatefulWidget {
 
   final bool showNotifications;
 
+  /// Optional Invite Others configuration. When provided, the
+  /// "Invite Others" (Share) entry is surfaced from the About dialog.
+  /// When [enableProfile] is `false`, the legacy behaviour is kept:
+  /// an invite button is also added to the AppBar action list and the
+  /// user can move it into the overflow menu via Layout Preferences.
+
+  final SolidInviteOthersConfig? inviteConfig;
+
+  /// Optional Feedback configuration surfaced from the About dialog.
+  /// When `null`, the About dialog still shows a Feedback placeholder
+  /// (greyed out) so the layout is consistent and applications retain
+  /// a clear integration point for a future feedback flow.
+
+  final SolidFeedbackConfig? feedbackConfig;
+
   /// Option to force the navigation rail to be hidden.
 
   final bool hideNavRail;
+
+  /// Whether to enable the POD-backed profile feature (avatar + display name).
+  /// When true, the profile avatar and display name are shown in both the
+  /// AppBar (right side) and the navigation drawer header. The avatar
+  /// hosts a popup menu with Settings (which opens the profile editor)
+  /// and Logout/Login, so the standalone AppBar Logout/Share buttons are
+  /// suppressed in this mode. When false, the Logout button is rendered
+  /// as the second-to-last AppBar action — immediately to the left of
+  /// the About button. Profile data is automatically loaded from the
+  /// POD on first build. Defaults to true.
+
+  final bool enableProfile;
+
+  /// Whether to enable the AppBar overflow menu (the three-dot menu).
+  ///
+  /// When true (the default), buttons can be moved into an overflow menu via
+  /// AppBar Preferences and, on very narrow screens, buttons marked as
+  /// "move to overflow" collapse into a three-dot popup menu. The overflow
+  /// button itself is only rendered if at least one visible button is set to
+  /// appear in the menu.
+  ///
+  /// When false, the overflow feature is fully disabled: the AppBar
+  /// Preferences dialogue hides the per-button "move to overflow" toggle,
+  /// the three-dot popup menu is never shown, and every visible button is
+  /// rendered directly in the AppBar regardless of window width.
+
+  final bool enableOverflowMenu;
 
   const SolidScaffold({
     super.key,
@@ -287,12 +344,17 @@ class SolidScaffold extends StatefulWidget {
     this.endDrawerEnableOpenDragGesture = true,
     this.restorationId,
     this.initialIndex = 0,
+    this.rememberLastIndex = true,
     this.onMenuSelected,
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
     this.showNotifications = false,
+    this.inviteConfig,
+    this.feedbackConfig,
     this.hideNavRail = false,
+    this.enableProfile = true,
+    this.enableOverflowMenu = true,
   });
 
   @override

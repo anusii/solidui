@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Anushka Vidanage, Jess Moore, Ashley Tang, Dawei Chen
+/// Authors: Anushka Vidanage, Jess Moore, Ashley Tang, Dawei Chen, Tony Chen
 
 part of 'grant_permission_ui.dart';
 
@@ -34,6 +34,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     with SingleTickerProviderStateMixin {
   bool permTableInitialied = false;
   bool permHistoryInitialied = false;
+  bool _viewingPermissions = false;
 
   List<AccessMode> accessModeList = [];
   List<RecipientType> recipientTypeList = [];
@@ -52,8 +53,35 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
   List<LogRecord> permHistoryList = [];
   List<LogRecord> unFilteredPermHistoryList = [];
-  bool showCurrentPermOnly = false;
   bool isFile = true;
+
+  /// True when [sharedResourcesHistory] returned an empty list, meaning
+  /// no sharing history exists for the current resource.
+  bool _noPermissionHistory = false;
+
+  /// The resource currently selected for the permission table/history display.
+  /// Defaults to the first (or only) resource; updated when the user picks a
+  /// different entry from the resource selector dropdown.
+
+  String? _selectedResourceName;
+
+  /// Whether to show full resource paths or just the last path segment.
+
+  bool _showFullPath = true;
+
+  /// Whether to show file titles from [widget.titleData] instead of paths.
+
+  bool _showTitle = false;
+
+  /// Returns the display label for a resource name, respecting [_showTitle]
+  /// and [_showFullPath].
+
+  String _displayName(String name) => PathUtils.resourceDisplayName(
+        name,
+        showFullPath: _showFullPath,
+        showTitle: _showTitle,
+        titleData: widget.titleData,
+      );
 
   /// Loads permission details data from the ACL on the POD server.
 
@@ -96,6 +124,12 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       case SolidFunctionCallStatus.noAclFound:
         await _alert(noAclMsg);
 
+      case SolidFunctionCallStatus.fileNotExists:
+        await _alert(
+          'The resource "$resName" does not exist on your pod. '
+          'Please create it first.',
+        );
+
       default:
         await _alert('Unknown error');
     }
@@ -106,18 +140,32 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   @override
   void initState() {
     super.initState();
-    if (widget.resourceName != null) {
+    // Default to show title if titleData provided
+    _showTitle = widget.titleData?.isNotEmpty ?? false;
+    // Resolve the display resource from the first entry in resourceNames.
+    final displayResource = widget.resourceNames?.firstOrNull;
+    // For a single resource, pre-select it so the permission table loads
+    // immediately. For multiple resources, start with no selection so the
+    // user must pick one from the dropdown first.
+    _selectedResourceName =
+        (widget.resourceNames != null && widget.resourceNames!.length > 1)
+            ? null
+            : displayResource;
+    if (displayResource != null) {
       getACLPerm = loadACLData(
-        widget.resourceName as String,
+        displayResource,
         isFile: widget.isFile,
         isExternalRes: widget.isExternalRes,
       );
       getPermHistoryList =
-          sharedResourcesHistory(resourceName: widget.resourceName as String);
+          sharedResourcesHistory(resourceName: displayResource);
     }
   }
 
-  Future<void> _updatePermissions(
+  /// Loads permission data for [fileName] and returns it as a
+  /// [PermissionLoadResult]. Returns null if the resource could not be found.
+
+  Future<PermissionLoadResult?> _loadPermissionData(
     String fileName, {
     bool isFile = true,
     bool isExternalRes = false,
@@ -127,125 +175,140 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       isFile: isFile,
       isExternalRes: isExternalRes,
     );
-    final updatedPermHistoryList =
-        await sharedResourcesHistory(resourceName: fileName);
 
-    assert(pdata != null);
-
-    if (pdata!.permissionMap.isEmpty) {
-      await _alert('We could not find a resource by the name $fileName');
-    } else {
-      setState(() {
-        permDataMap = pdata.permissionMap;
-        permDataFile = fileName;
-        _ownerWebId = pdata.ownerWebId;
-        _granterWebId = pdata.granterWebId;
-      });
+    if (pdata == null || pdata.permissionMap.isEmpty) {
+      return null;
     }
 
-    if (updatedPermHistoryList.isEmpty) {
-      await _alert(
-        'We could not find permission log entries for resource by the name $fileName',
-      );
+    final history = await sharedResourcesHistory(resourceName: fileName);
+
+    return (
+      permDataMap: pdata.permissionMap,
+      permDataFile: fileName,
+      ownerWebId: pdata.ownerWebId,
+      granterWebId: pdata.granterWebId,
+      permHistoryList: history,
+      noPermissionHistory: history.isEmpty,
+    );
+  }
+
+  Future<void> _updatePermissions(
+    String fileName, {
+    bool isFile = true,
+    bool isExternalRes = false,
+  }) async {
+    final result = await _loadPermissionData(
+      fileName,
+      isFile: isFile,
+      isExternalRes: isExternalRes,
+    );
+    if (result == null) return;
+
+    setState(() {
+      permDataMap = result.permDataMap;
+      permDataFile = result.permDataFile;
+      _ownerWebId = result.ownerWebId;
+      _granterWebId = result.granterWebId;
+    });
+
+    if (result.noPermissionHistory) {
+      setState(() => _noPermissionHistory = true);
     } else {
       setState(() {
-        permHistoryList = updatedPermHistoryList;
-        unFilteredPermHistoryList = updatedPermHistoryList;
+        _noPermissionHistory = false;
+        permHistoryList = result.permHistoryList;
+        unFilteredPermHistoryList = result.permHistoryList;
       });
     }
   }
 
-  void _searchLogs(String enteredKeyword) {
-    bool found(it) => it.toLowerCase().contains(enteredKeyword.toLowerCase());
-
-    List<LogRecord> results = [];
-    if (enteredKeyword.isEmpty) {
-      results = unFilteredPermHistoryList;
-    } else {
-      results = unFilteredPermHistoryList.where((item) {
-        return [
-          item.recipientName,
-          item.granterName,
-          item.permissionType,
-          item.permissionList,
-        ].map(found).any((result) => result);
-      }).toList();
-    }
-
-    setState(() {
-      permHistoryList = results;
-    });
-  }
-
-  void getLatestLogRecords() {
-    List<LogRecord> currentLogRecords = [];
-    List<String> currentRecipients = [];
-
-    for (final record in permHistoryList) {
-      if ((record.permissionType).contains('grant')) {
-        final recipientWebId = record.recipientWebId;
-
-        currentRecipients =
-            currentLogRecords.map((item) => item.recipientWebId).toList();
-
-        if (currentRecipients.contains(recipientWebId)) {
-          final int prevMatchIndex = currentLogRecords
-              .indexWhere((item) => item.recipientWebId == recipientWebId);
-          final String prevDateTime =
-              currentLogRecords[prevMatchIndex].dateTimeStr;
-          if ([0, 1].contains(
-            DateTime.parse(record.dateTimeStr)
-                .compareTo(DateTime.parse(prevDateTime)),
-          )) {
-            currentLogRecords[prevMatchIndex] = record;
-          }
-        } else {
-          currentLogRecords.add(record);
-        }
-      } else {
-        continue;
-      }
-    }
-
-    setState(() {
-      permHistoryList = currentLogRecords;
-    });
+  @override
+  void dispose() {
+    fileNameController.dispose();
+    super.dispose();
   }
 
   Future<void> _alert(String msg) async => alert(context, msg);
+
+  void _initFromSnapshot(
+    PermissionDetails? initPermDetails,
+    List<LogRecord>? initPermHistoryList,
+  ) {
+    if (initPermDetails != null && !permTableInitialied) {
+      permDataMap = initPermDetails.permissionMap;
+      _ownerWebId = initPermDetails.ownerWebId;
+      _granterWebId = initPermDetails.granterWebId;
+      permDataFile = widget.resourceNames!.first;
+      permTableInitialied = true;
+    }
+    if (initPermHistoryList != null && !permHistoryInitialied) {
+      if (initPermHistoryList.isEmpty) {
+        _noPermissionHistory = true;
+      } else {
+        permHistoryList = initPermHistoryList;
+        unFilteredPermHistoryList = initPermHistoryList;
+      }
+      permHistoryInitialied = true;
+    }
+  }
+
+  /// Builds a [PermissionPage] populated with the current state.
+  PermissionPage _buildPermissionPage({
+    bool embedded = false,
+    VoidCallback? onBack,
+    required bool Function() getIsFile,
+  }) =>
+      PermissionPage(
+        resourceNames: widget.resourceNames,
+        initialSelectedResourceName: _selectedResourceName,
+        initialData: (
+          permDataMap: permDataMap,
+          permDataFile: permDataFile,
+          ownerWebId: _ownerWebId,
+          granterWebId: _granterWebId,
+          permHistoryList: permHistoryList,
+          noPermissionHistory: _noPermissionHistory,
+        ),
+        isFile: getIsFile(),
+        isExternalRes: widget.isExternalRes,
+        showFullPath: _showFullPath,
+        showTitle: _showTitle,
+        titleData: widget.titleData,
+        backgroundColor: widget.backgroundColor,
+        loadPermissions: (
+          name, {
+          isFile = true,
+          isExternalRes = false,
+        }) =>
+            _loadPermissionData(
+          name,
+          isFile: isFile,
+          isExternalRes: isExternalRes,
+        ),
+        updatePermissionsFunction: _updatePermissions,
+        embedded: embedded,
+        onBack: onBack,
+      );
 
   Widget _buildPermPage(
     BuildContext context, [
     PermissionDetails? initPermDetails,
     List<LogRecord>? initPermHistoryList,
   ]) {
-    if (initPermDetails != null && permTableInitialied == false) {
-      permDataMap = initPermDetails.permissionMap;
-      _ownerWebId = initPermDetails.ownerWebId;
-      _granterWebId = initPermDetails.granterWebId;
-      permDataFile = widget.resourceName!;
-      permTableInitialied = true;
+    _initFromSnapshot(initPermDetails, initPermHistoryList);
+
+    // A resource is resolved if resourceNames is provided.
+    final resolvedResourceName = widget.resourceNames?.firstOrNull;
+    bool getIsFile() => resolvedResourceName != null ? widget.isFile : isFile;
+
+    // When embedded (no app bar), show PermissionPage inline on demand.
+    if (!widget.showAppBar && _viewingPermissions) {
+      return _buildPermissionPage(
+        embedded: true,
+        onBack: () => setState(() => _viewingPermissions = false),
+        getIsFile: getIsFile,
+      );
     }
-
-    if (initPermHistoryList != null && permHistoryInitialied == false) {
-      permHistoryList = initPermHistoryList;
-      unFilteredPermHistoryList = initPermHistoryList;
-      permHistoryInitialied = true;
-    }
-
-    final retrievePermissionButton = ElevatedButton(
-      child: const Text('Retrieve permissions'),
-      onPressed: () async {
-        final fileName = fileNameController.text;
-        if (fileName.isEmpty) {
-          await _alert('Please enter a file name');
-        } else {
-          await _updatePermissions(fileName, isFile: isFile);
-        }
-      },
-    );
-
-    bool getIsFile() => widget.resourceName != null ? widget.isFile : isFile;
 
     final PreferredSizeWidget? appBar;
     if (widget.showAppBar) {
@@ -264,148 +327,154 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Scaffold(
-          appBar: appBar,
-          body: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                smallGapV,
-                makeHeading(
+        final body = Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              smallGapV,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
                   makeSharingTitleStr(
-                    fileName: widget.resourceName,
+                    resourceNames: widget.resourceNames,
                     isFile: widget.isFile,
                   ),
-                  bold: false,
-                  addColor: false,
-                  addPadding: false,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                smallGapV,
-                if (widget.resourceName == null) ...[
-                  getResourceForm(
-                    formController: fileNameController,
-                    isFile: isFile,
-                    onResourceTypeChange: (bool v) =>
-                        setState(() => isFile = v),
+              ),
+              smallGapV,
+              // Show list of resources
+              if (widget.resourceNames != null) ...[
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ResourceDisplayModeControl(
+                    showFullPath: _showFullPath,
+                    showTitle: _showTitle,
+                    titleData: widget.titleData,
+                    onShowFullPathChanged: (v) =>
+                        setState(() => _showFullPath = v),
+                    onShowTitleChanged: (v) => setState(() => _showTitle = v),
                   ),
-                  smallGapV,
-                  retrievePermissionButton,
-                  smallGapV,
-                ],
-                ShareResourceButton(
-                  resourceName: widget.resourceName,
-                  fileNameController: fileNameController,
-                  accessModeList: widget.accessModeList,
-                  recipientTypeList: widget.recipientTypeList,
-                  updatePermissionsFunction: _updatePermissions,
-                  ownerWebId: _ownerWebId,
-                  granterWebId: _granterWebId,
-                  isExternalRes: widget.isExternalRes,
-                  isFile: widget.isFile,
-                  dataFilesMap: widget.dataFilesMap,
-                  onPermissionGranted: widget.onPermissionGranted,
-                  resourceDisplayName: widget.resourceDisplayName,
-                ),
-                mediumGapV,
-                makeSubHeading(
-                  showCurrentPermOnly
-                      ? 'People with current access'
-                      : 'Permission history',
-                  addPadding: false,
                 ),
                 smallGapV,
+                GrantPermissionResourceList(
+                  resourceNames: widget.resourceNames!,
+                  showFullPath: _showFullPath,
+                  showTitle: _showTitle,
+                  titleData: widget.titleData,
+                ),
+                smallGapV,
+              ] else if (resolvedResourceName != null) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _displayName(resolvedResourceName),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontSize: 12),
+                  ),
+                ),
+                smallGapV,
+              ],
+              if (resolvedResourceName == null) ...[
+                getResourceForm(
+                  formController: fileNameController,
+                  isFile: isFile,
+                  onResourceTypeChange: (bool v) => setState(() => isFile = v),
+                ),
+                smallGapV,
+              ],
+              if (resolvedResourceName != null) ...[
+                // Show hint statement
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  spacing: 5.0,
                   children: [
+                    // Show info icon on first line of hint message
+                    const Icon(Icons.info, color: Colors.grey, size: 18),
+                    const SizedBox(width: 8),
                     Expanded(
-                      flex: 3,
-                      child: showCurrentPermOnly
-                          ? const Text('')
-                          : TextField(
-                              onChanged: (value) => _searchLogs(value),
-                              decoration: const InputDecoration(
-                                labelText:
-                                    'Search access level, permission type, recipient or granter name',
-                                labelStyle: TextStyle(fontSize: 12),
-                                hintText: 'Enter search text',
-                                hintStyle: TextStyle(fontSize: 12),
-                                prefixIcon: Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25.0)),
-                                ),
-                              ),
-                            ),
-                    ),
-                    SizedBox(
-                      width: 170.0,
-                      child: MarkdownTooltip(
-                        message:
-                            'Switch between current people with access and permission history log',
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          spacing: 5.0,
-                          children: [
-                            SizedBox(
-                              width: 100,
-                              child: Text(
-                                showCurrentPermOnly
-                                    ? 'Current Permissions'
-                                    : 'All Permissions',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.end,
-                              ),
-                            ),
-                            Switch(
-                              value: showCurrentPermOnly,
-                              activeThumbColor: ActionColors.success,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  showCurrentPermOnly = value;
-                                });
-                                if (!showCurrentPermOnly) {
-                                  setState(() {
-                                    permHistoryList = unFilteredPermHistoryList;
-                                  });
-                                }
-                              },
-                            ),
-                          ],
-                        ),
+                      child: Text(
+                        (widget.resourceNames!.length > 1)
+                            ? 'Click \'Share Resources\' button to share access to these files'
+                            : 'Click \'Share Resource\' button to share access to this file',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
                 ),
-                vSmallGapV,
-                showCurrentPermOnly
-                    ? PermissionTable(
-                        resourceName: permDataFile,
-                        permDataMap: permDataMap,
-                        ownerWebId: _ownerWebId,
-                        granterWebId: _granterWebId,
-                        updatePermissionsFunction: _updatePermissions,
-                        isFile: getIsFile(),
-                        isExternalRes: widget.isExternalRes,
-                        constraints: constraints,
-                      )
-                    : PermissionHistory(
-                        key: ValueKey(permHistoryList),
-                        resourceName: widget.resourceName!,
-                        permHistory: permHistoryList,
-                        constraints: constraints,
-                      ),
+                smallGapV,
               ],
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                spacing: 10,
+                children: [
+                  if (resolvedResourceName == null)
+                    ElevatedButton(
+                      onPressed: () async {
+                        final fileName = fileNameController.text;
+                        if (fileName.isEmpty) {
+                          await _alert('Please enter a file name');
+                        } else {
+                          await _updatePermissions(fileName, isFile: isFile);
+                        }
+                      },
+                      child: const Text('Retrieve permissions'),
+                    ),
+                  if (resolvedResourceName != null ||
+                      permDataFile.isNotEmpty) ...[
+                    ViewPermissionButton(
+                      buttonColor: widget.buttonColor,
+                      onPressed: () {
+                        if (!widget.showAppBar) {
+                          setState(() => _viewingPermissions = true);
+                          return;
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => _buildPermissionPage(
+                              getIsFile: getIsFile,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    ShareResourceButton(
+                      resourceNames: widget.resourceNames,
+                      fileNameController: fileNameController,
+                      accessModeList: widget.accessModeList,
+                      recipientTypeList: widget.recipientTypeList,
+                      updatePermissionsFunction: _updatePermissions,
+                      ownerWebId: _ownerWebId,
+                      granterWebId: _granterWebId,
+                      isExternalRes: widget.isExternalRes,
+                      isFile: widget.isFile,
+                      dataFilesMap: widget.dataFilesMap,
+                      onPermissionGranted: widget.onPermissionGranted,
+                      resourceDisplayName: widget.resourceDisplayName,
+                      buttonColor:
+                          widget.shareButtonColor ?? widget.buttonColor,
+                      inviteConfig: widget.inviteConfig,
+                    ),
+                  ], // end of resolvedResourceName != null || permDataFile.isNotEmpty
+                ],
+              ),
+            ],
           ),
         );
+        return appBar == null
+            ? body
+            : Scaffold(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                appBar: appBar,
+                body: body,
+              );
       },
     );
   }
 
   @override
-  Widget build(BuildContext context) => widget.resourceName == null
+  Widget build(BuildContext context) => (widget.resourceNames == null)
       ? _buildPermPage(context)
       : FutureBuilder(
           future: Future.wait([
@@ -416,11 +485,15 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
             if (!snapshot.hasData) {
               return Scaffold(body: loadingScreen(normalLoadingScreenHeight));
             }
-            final PermissionDetails initCurrentPerm =
-                snapshot.data![0] as PermissionDetails;
+            final PermissionDetails? initCurrentPerm =
+                snapshot.data![0] as PermissionDetails?;
+            // final PermissionDetails initCurrentPerm =
+            //     snapshot.data![0] as PermissionDetails;
             final List<LogRecord> initPermHistoryList =
                 snapshot.data![1] as List<LogRecord>;
-            return initCurrentPerm.permissionMap.isEmpty
+            return (initCurrentPerm == null ||
+                    initCurrentPerm.permissionMap.isEmpty)
+                // return initCurrentPerm.permissionMap.isEmpty
                 ? _buildPermPage(context)
                 : _buildPermPage(context, initCurrentPerm, initPermHistoryList);
           },

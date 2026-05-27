@@ -1,20 +1,20 @@
 name: demopod
-description: 'A SolidPod Demonstrator.'
+description: 'SolidGUI Demonstrator.'
 publish_to: 'none'
-version: 0.0.1+1
+version: 1.0.0+0
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
 
 dependencies:
   editable: ^2.0.0
-  file_picker: ^10.3.10
+  file_picker: ^11.0.2
   flutter:
     sdk: flutter
   intl: any
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  solidpod: ^0.11.0
+  solidpod: ^0.12.10
   solidui:
     path: ..
   universal_io: ^2.3.1

@@ -45,7 +45,12 @@ class EncKeyInputForm extends StatefulWidget {
   /// Initialising the [StatefulWidget] with the [formKey] and optional
   /// [onSubmit] callback.
 
-  const EncKeyInputForm({required this.formKey, this.onSubmit, super.key});
+  const EncKeyInputForm({
+    required this.formKey,
+    this.onSubmit,
+    this.requireRetype = true,
+    super.key,
+  });
 
   /// The key for the form.
 
@@ -55,9 +60,18 @@ class EncKeyInputForm extends StatefulWidget {
 
   final VoidCallback? onSubmit;
 
+  /// Whether the user must retype their security key in a second field.
+  ///
+  /// Retype protection is necessary when the user is choosing a new key
+  /// (first-time POD setup) so a typo does not lock them out of their
+  /// data. It is redundant when the user is simply supplying an
+  /// existing key to authorise an update, so set this to `false` in
+  /// that case.
+
+  final bool requireRetype;
+
   @override
-  // ignore: library_private_types_in_public_api
-  _EncKeyInputFormState createState() => _EncKeyInputFormState();
+  State<EncKeyInputForm> createState() => _EncKeyInputFormState();
 }
 
 class _EncKeyInputFormState extends State<EncKeyInputForm> {
@@ -84,8 +98,21 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
               child: FormBuilderTextField(
                 name: securityKeyStr,
                 obscureText: !_showSecurityKey,
+                keyboardType: TextInputType.visiblePassword,
+                enableSuggestions: false,
                 autocorrect: false,
                 autofocus: true,
+
+                // When retyping is not required this is the last field in
+                // the form, so pressing Enter should submit rather than
+                // move focus to a non-existent retype field.
+
+                textInputAction: widget.requireRetype
+                    ? TextInputAction.next
+                    : TextInputAction.done,
+                onSubmitted: widget.requireRetype
+                    ? null
+                    : (_) => widget.onSubmit?.call(),
                 decoration: InputDecoration(
                   labelText: 'SECURITY KEY',
                   labelStyle: const TextStyle(
@@ -116,56 +143,60 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          FractionallySizedBox(
-            widthFactor: 0.9,
-            alignment: Alignment.center,
-            child: MarkdownTooltip(
-              message: securityKeyRetypeTooltip,
-              child: FormBuilderTextField(
-                name: securityKeyStrReType,
-                obscureText: !_showRetypedSecurityKey,
-                autocorrect: false,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => widget.onSubmit?.call(),
-                decoration: InputDecoration(
-                  labelText: 'RETYPE SECURITY KEY',
-                  labelStyle: const TextStyle(
-                    color: Colors.blue,
-                    letterSpacing: 1.5,
-                    fontSize: 13.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  suffixIcon: FocusTraversalOrder(
-                    order: const NumericFocusOrder(6),
-                    child: IconButton(
-                      icon: Icon(
-                        _showRetypedSecurityKey
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+          if (widget.requireRetype) ...[
+            const SizedBox(height: 16),
+            FractionallySizedBox(
+              widthFactor: 0.9,
+              alignment: Alignment.center,
+              child: MarkdownTooltip(
+                message: securityKeyRetypeTooltip,
+                child: FormBuilderTextField(
+                  name: securityKeyStrReType,
+                  obscureText: !_showRetypedSecurityKey,
+                  keyboardType: TextInputType.visiblePassword,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => widget.onSubmit?.call(),
+                  decoration: InputDecoration(
+                    labelText: 'RETYPE SECURITY KEY',
+                    labelStyle: const TextStyle(
+                      color: Colors.blue,
+                      letterSpacing: 1.5,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    suffixIcon: FocusTraversalOrder(
+                      order: const NumericFocusOrder(6),
+                      child: IconButton(
+                        icon: Icon(
+                          _showRetypedSecurityKey
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showRetypedSecurityKey = !_showRetypedSecurityKey;
+                          });
+                        },
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _showRetypedSecurityKey = !_showRetypedSecurityKey;
-                        });
-                      },
                     ),
                   ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    (val) {
+                      if (val !=
+                          widget.formKey.currentState!.fields[securityKeyStr]
+                              ?.value) {
+                        return 'Security keys do not match';
+                      }
+                      return null;
+                    },
+                  ]),
                 ),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  (val) {
-                    if (val !=
-                        widget.formKey.currentState!.fields[securityKeyStr]
-                            ?.value) {
-                      return 'Security keys do not match';
-                    }
-                    return null;
-                  },
-                ]),
               ),
             ),
-          ),
+          ],
           const SizedBox(height: 20),
         ],
       ),
