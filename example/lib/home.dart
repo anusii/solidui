@@ -21,7 +21,6 @@
 // You should have received a copy of the GNU General Public License along with
 // this program.  If not, see <https://opensource.org/license/gpl-3-0>.
 ///
-///
 /// Authors: Zheyuan Xu, Anushka Vidanage, Kevin Wang, Dawei Chen, Graham Williams
 
 // TODO 20240411 gjw EITHER REPAIR ALL CONTEXT ISSUES OR EXPLAIN WHY NOT?
@@ -52,6 +51,7 @@ import 'package:solidui/solidui.dart'
 import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
 import 'package:demopod/dialogs/alert.dart';
+import 'package:demopod/features/check_file_encryption.dart';
 import 'package:demopod/features/create_acl_inherited_file.dart';
 import 'package:demopod/features/edit_keyvalue.dart';
 import 'package:demopod/features/file_service.dart';
@@ -405,6 +405,23 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       }
                     },
                     child: const Text('Delete Pod Data File'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final loggedIn = await loginIfRequired(context);
+                      if (loggedIn) {
+                        await getKeyFromUserIfRequired(context, widget);
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CheckFileEncryption(),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Check File Encryption'),
                   ),
                   ElevatedButton(
                     onPressed: () async {
