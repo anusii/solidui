@@ -57,6 +57,7 @@ class SolidFileBrowserBuilder {
       friendlyFolderName: friendlyFolderName,
       initialPath: initialPath,
       folderNameOverrides: folderNameOverrides,
+      onUpload: uploadCallbacks?.onUpload,
       onFileSelected: onFileSelected ??
           (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');

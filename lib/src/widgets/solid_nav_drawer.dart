@@ -36,11 +36,10 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:solidpod/solidpod.dart' show isUserLoggedIn;
 
-import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
+import 'package:solidui/src/widgets/solid_login_required_dialog.dart';
 import 'package:solidui/src/widgets/solid_nav_drawer_header.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
-import 'package:solidui/src/widgets/solid_security_key_cache_dialogs.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
@@ -382,11 +381,14 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
     if (!context.mounted) return;
 
     if (!isLoggedIn) {
-      final shouldLogin =
-          await SecurityKeyCacheDialogs.showLoginRequiredDialog(context);
-      if (shouldLogin && context.mounted) {
-        await SolidAuthHandler.instance.handleLogin(context);
-      }
+      // User is not logged in — show the shared `Login Required`
+      // prompt, which on confirmation navigates to the app's standard
+      // Solid login page.
+
+      await SolidLoginRequiredDialog.showAndHandle(
+        context,
+        message: SolidLoginRequiredDialog.securityKeyMessage,
+      );
       return;
     }
 

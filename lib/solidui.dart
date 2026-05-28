@@ -52,6 +52,7 @@ export 'src/widgets/solid_default_login.dart';
 
 export 'src/widgets/solid_login.dart';
 export 'src/widgets/solid_login_helper.dart';
+export 'src/widgets/solid_login_required_dialog.dart';
 export 'src/widgets/solid_server_field.dart';
 export 'src/widgets/solid_popup_login.dart';
 export 'src/widgets/solid_login_webid_input_dialog.dart';
@@ -84,8 +85,10 @@ export 'src/services/solid_security_key_service.dart';
 export 'src/services/solid_login_status_notifier.dart';
 export 'src/services/solid_security_key_notifier.dart';
 
+export 'src/services/solid_owner_profile_service.dart';
 export 'src/services/solid_profile_notifier.dart';
 export 'src/services/solid_profile_service.dart';
+export 'src/widgets/solid_owner_avatar.dart';
 export 'src/widgets/solid_profile_avatar.dart';
 export 'src/widgets/solid_profile_crop_dialog.dart';
 export 'src/widgets/solid_profile_editor.dart';

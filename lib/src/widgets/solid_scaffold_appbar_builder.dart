@@ -96,7 +96,6 @@ class SolidScaffoldAppBarBuilder {
           narrowThreshold: narrowScreenThreshold,
         ) ||
         SolidScaffoldHelpers.isVeryNarrowScreen(constraints);
-    final theme = Theme.of(context);
 
     List<Widget> actions = [];
 
@@ -107,7 +106,6 @@ class SolidScaffoldAppBarBuilder {
         SolidScaffoldHelpers.buildVersionWidget(
           config,
           versionToDisplay,
-          theme,
         ),
       );
       actions.add(const Gap(8));

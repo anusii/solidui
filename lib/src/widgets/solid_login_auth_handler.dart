@@ -39,6 +39,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart'
     show
+        SolidAuthCancelledException,
         clearPodStructureInitialised,
         deleteLogIn,
         getWebId,
@@ -315,6 +316,17 @@ class SolidLoginAuthHandler {
         redirectUris: redirectUris,
         postLogoutRedirectUris: postLogoutRedirectUris,
       );
+    } on SolidAuthCancelledException {
+      browserMessageTimer?.cancel();
+
+      if (!context.mounted) return false;
+
+      if (!isDialogCanceled() && !wasAlreadyLoggedIn) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      return false;
     } on Object catch (e) {
       // Check whether auth data was persisted before the failure (i.e. POD
       // not initialised) vs a genuine server/network error.

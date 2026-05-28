@@ -40,7 +40,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/utils/solid_notifications.dart';
-import 'package:solidui/src/widgets/solid_security_key_cache_dialogs.dart';
+import 'package:solidui/src/widgets/solid_login_required_dialog.dart';
 import 'package:solidui/src/widgets/solid_security_key_manager.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
@@ -258,13 +258,14 @@ class SolidStatusBar extends StatelessWidget {
     if (!context.mounted) return;
 
     if (!isLoggedIn) {
-      // User is not logged in - show login required dialog.
+      // User is not logged in — show the shared `Login Required`
+      // prompt, which on confirmation navigates to the app's standard
+      // Solid login page.
 
-      final shouldLogin =
-          await SecurityKeyCacheDialogs.showLoginRequiredDialog(context);
-      if (shouldLogin && context.mounted) {
-        await SolidAuthHandler.instance.handleLogin(context);
-      }
+      await SolidLoginRequiredDialog.showAndHandle(
+        context,
+        message: SolidLoginRequiredDialog.securityKeyMessage,
+      );
       return;
     }
 

@@ -275,8 +275,14 @@ class _SolidFileState extends State<SolidFile> {
 
   /// Gets the effective upload callbacks, either from the provided callbacks
   /// or default implementations with working file operations.
+  ///
+  /// When [config] is provided, the upload allow list defined on it
+  /// ([SolidFileUploadConfig.allowedExtensions]) is forwarded to the default
+  /// upload callback so a single restriction governs every entry point.
 
-  SolidFileUploadCallbacks _getEffectiveUploadCallbacks() {
+  SolidFileUploadCallbacks _getEffectiveUploadCallbacks(
+    SolidFileUploadConfig? config,
+  ) {
     if (widget.uploadCallbacks != null) {
       return widget.uploadCallbacks!;
     }
@@ -287,6 +293,7 @@ class _SolidFileState extends State<SolidFile> {
       context,
       _currentPath,
       _browserKey,
+      allowedExtensions: config?.allowedExtensions,
     );
   }
 
@@ -331,6 +338,23 @@ class _SolidFileState extends State<SolidFile> {
       widget.browserHeight,
     );
 
+    // Resolve the upload config and callbacks once so the file browser
+    // toolbar and the side upload panel share the same instances. This keeps
+    // the toolbar Upload button and the panel Upload button driven by a
+    // single source of truth (including any [allowedExtensions] restriction).
+
+    final SolidFileUploadConfig? effectiveUploadConfig =
+        SolidFileHelpers.getEffectiveUploadConfig(
+      _currentPath,
+      _effectiveBasePath,
+      widget.autoConfig,
+      widget.showUpload,
+      widget.uploadConfig,
+      widget.fileTypeResolver,
+    );
+    final SolidFileUploadCallbacks effectiveUploadCallbacks =
+        _getEffectiveUploadCallbacks(effectiveUploadConfig);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -344,36 +368,22 @@ class _SolidFileState extends State<SolidFile> {
                   child: isWideScreen
                       ? SolidFileLayoutBuilder.buildWideScreenLayout(
                           browserHeight: browserHeight,
-                          fileBrowser: _buildFileBrowser(),
+                          fileBrowser:
+                              _buildFileBrowser(effectiveUploadCallbacks),
                           showUpload: widget.showUpload,
-                          uploadConfig:
-                              SolidFileHelpers.getEffectiveUploadConfig(
-                            _currentPath,
-                            _effectiveBasePath,
-                            widget.autoConfig,
-                            widget.showUpload,
-                            widget.uploadConfig,
-                            widget.fileTypeResolver,
-                          ),
-                          uploadCallbacks: _getEffectiveUploadCallbacks(),
+                          uploadConfig: effectiveUploadConfig,
+                          uploadCallbacks: effectiveUploadCallbacks,
                           uploadState: widget.uploadState ??
                               const SolidFileUploadState(),
                           onClosePreview: widget.onClosePreview,
                         )
                       : SolidFileLayoutBuilder.buildNarrowScreenLayout(
                           browserHeight: browserHeight,
-                          fileBrowser: _buildFileBrowser(),
+                          fileBrowser:
+                              _buildFileBrowser(effectiveUploadCallbacks),
                           showUpload: widget.showUpload,
-                          uploadConfig:
-                              SolidFileHelpers.getEffectiveUploadConfig(
-                            _currentPath,
-                            _effectiveBasePath,
-                            widget.autoConfig,
-                            widget.showUpload,
-                            widget.uploadConfig,
-                            widget.fileTypeResolver,
-                          ),
-                          uploadCallbacks: _getEffectiveUploadCallbacks(),
+                          uploadConfig: effectiveUploadConfig,
+                          uploadCallbacks: effectiveUploadCallbacks,
                           uploadState: widget.uploadState ??
                               const SolidFileUploadState(),
                           onClosePreview: widget.onClosePreview,
@@ -391,8 +401,10 @@ class _SolidFileState extends State<SolidFile> {
   ///
   /// Passes the resolved [_currentPath] as the initial path so the browser
   /// starts from the correct location (e.g., POD root for "All POD Files").
+  /// The [uploadCallbacks] are forwarded so the toolbar Upload button reuses
+  /// the same `onUpload` handler as the side upload panel.
 
-  Widget _buildFileBrowser() {
+  Widget _buildFileBrowser(SolidFileUploadCallbacks uploadCallbacks) {
     return SolidFileBrowserBuilder.build(
       browserKey: _browserKey,
       friendlyFolderName: SolidFileHelpers.getEffectiveFriendlyFolderName(
@@ -408,7 +420,7 @@ class _SolidFileState extends State<SolidFile> {
       onFileDelete: widget.onFileDelete,
       onImportCsv: widget.onImportCsv,
       onDirectoryChanged: _handleDirectoryChanged,
-      uploadCallbacks: widget.uploadCallbacks,
+      uploadCallbacks: uploadCallbacks,
       folderNameOverrides: widget.folderNameOverrides,
     );
   }

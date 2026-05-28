@@ -16,6 +16,20 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Implement checking file encryption [0.3.56 20260527 tonypioneer]
++ Support file uploads in FileBrowser [0.3.55 20260526 tonypioneer]
++ Update SolidAnimationDialog from NotePod updates [0.3.54 20260526 tonypioneer]
++ Fix onReorderItem. Support shared pod name/avatar [0.3.53 20260526 tonypioneer]
++ Add README to and resize ABOUT dialog [0.3.52 20260526 gjw]
++ Simplify INDIVIDUAL PERMISSION interface [0.3.51 20260521 tonypioneer]
++ Remember last menu selected - optional [0.3.50 20260521 gjw]
++ Check web hosts in permission form [0.3.49 20260520 tonypioneer]
++ Update Try Another WebID workflow [0.3.48 20260520 tonypioneer]
++ Review and improve Not Logged In workflow [0.3.47 20260520 tonypioneer]
++ Bug fix when resource does not exist #21 [0.3.46 20260519 tonypioneer]
++ Attempt to suppress macOS char on typing disclosure #315 [0.3.45 20260518 gjw]
++ Bug fix override version widget colours [0.3.44 20260515 gjw]
++ Updated version widget dependency [0.3.43 20260512 gjw]
 + Support an UPDATE button when version is updated [0.3.42 20260510 tonypioneer]
 + Bug fix popup animation blocking return to screen [0.3.41 20260510 tonypioneer]
 + Permission flow - popup instead disappearing snack on fail [0.3.40 20260510 gjw]

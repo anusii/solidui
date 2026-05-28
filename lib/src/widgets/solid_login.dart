@@ -36,6 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show
+        cancelSolidAuthenticate,
         getAppNameVersion,
         generateDefaultFolders,
         generateDefaultFiles,
@@ -362,6 +363,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     solidThemeNotifier.removeListener(_onThemeChanged);
 
+    // Abandon any in-flight OAuth flow so the awaited future does not leak
+    // beyond the lifetime of this widget.
+
+    cancelSolidAuthenticate();
+
     // Dispose focus nodes to avoid memory leaks.
 
     _loginFocusNode.dispose();
@@ -416,6 +422,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   void updateState() {
     if (mounted) setState(() => isDialogCanceled = true);
+    cancelSolidAuthenticate();
   }
 
   // Reset the cancellation flag at the start of each new login or continue
