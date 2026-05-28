@@ -16,6 +16,7 @@ The package is available from
 
 ## 0.4.0 Refine and Tune
 
++ Bug fix decrypting public file [0.3.57 tonypioneer]
 + Implement checking file encryption [0.3.56 20260527 tonypioneer]
 + Support file uploads in FileBrowser [0.3.55 20260526 tonypioneer]
 + Update SolidAnimationDialog from NotePod updates [0.3.54 20260526 tonypioneer]
