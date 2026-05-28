@@ -820,25 +820,39 @@ Widget build(BuildContext context) {
     title: 'My Pod',
     home: SolidLogin(
       clientId: 'https://your-domain/client-profile.jsonld',
-      redirectUri: 'https://your-domain/redirect.html',
-      postLogoutRedirectUri: 'https://your-domain/redirect.html', // optional
+      redirectUris: [
+        'https://your-domain/redirect.html', // web
+        'com.example.app://redirect',        // Android / iOS
+        'http://localhost:4400/redirect',    // Windows / Linux / macOS
+      ],
+      postLogoutRedirectUris: [             // optional, defaults to redirectUris selection
+        'https://your-domain/redirect.html',
+        'com.example.app://redirect',
+        'http://localhost:4400/redirect',
+      ],
       child: const Scaffold(body: MyHome()),
     ),
   );
 }
 ```
 
+`redirectUris` and `postLogoutRedirectUris` take a list of URIs, one per
+platform. At runtime `SolidLogin` picks the entry that matches the current
+platform. See the
+[solidpod authentication docs](https://pub.dev/packages/solidpod) for the
+per-platform URI format and the fixed-port requirement for desktop.
+
 ### SolidLogin Constructor Parameters
 
 ```dart
 SolidLogin({
   // Required
-  required Widget child,            // Widget shown after successful login
-  required String clientId,         // URL of the app's client ID document
-  required String redirectUri,      // OAuth redirect URI
+  required Widget child,                    // Widget shown after successful login
+  required String clientId,                 // URL of the app's client ID document
+  List<String> redirectUris = const [],     // OAuth redirect URIs (one per platform)
 
   // Authentication
-  String? postLogoutRedirectUri,    // Redirect URI after logout (optional)
+  List<String> postLogoutRedirectUris = const [], // Redirect URIs after logout (optional)
   bool autoLogin = false,           // Silently restore saved session on startup
   bool required = false,            // false adds a CONTINUE button (no-auth path)
 
@@ -1292,7 +1306,11 @@ void main() {
       title: 'My Solid App',
       home: SolidLogin(
         clientId: 'https://your-domain/client-profile.jsonld',
-        redirectUri: 'https://your-domain/redirect.html',
+        redirectUris: [
+          'https://your-domain/redirect.html', // web
+          'com.example.app://redirect',        // Android / iOS
+          'http://localhost:4400/redirect',    // Windows / Linux / macOS
+        ],
         child: const MyHome(),
       ),
     ),
