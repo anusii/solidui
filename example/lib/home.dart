@@ -61,6 +61,7 @@ import 'package:solidui/solidui.dart'
         logoutPopup,
         smallGapV,
         solidLoginStatusNotifier;
+
 /// A widget for the demonstration screen of the application.
 
 class Home extends StatefulWidget {
