@@ -122,7 +122,7 @@ class SolidAboutConfig {
   /// in the system browser. Typically the raw GitHub README URL or a
   /// documentation page, e.g.:
   ///
-  ///   'https://github.com/gjwgit/myapp/blob/main/README.md'
+  ///   'https://github.com/ANu/solidui/blob/main/README.md',
 
   final String? readmeUrl;
 
