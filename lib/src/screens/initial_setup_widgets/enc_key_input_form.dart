@@ -98,6 +98,8 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
               child: FormBuilderTextField(
                 name: securityKeyStr,
                 obscureText: !_showSecurityKey,
+                keyboardType: TextInputType.visiblePassword,
+                enableSuggestions: false,
                 autocorrect: false,
                 autofocus: true,
 
@@ -151,6 +153,8 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
                 child: FormBuilderTextField(
                   name: securityKeyStrReType,
                   obscureText: !_showRetypedSecurityKey,
+                  keyboardType: TextInputType.visiblePassword,
+                  enableSuggestions: false,
                   autocorrect: false,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => widget.onSubmit?.call(),

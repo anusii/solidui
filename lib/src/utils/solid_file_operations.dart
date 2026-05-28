@@ -102,15 +102,22 @@ class SolidFileOperations {
       );
 
   /// Upload a file to the POD.
+  ///
+  /// When [allowedExtensions] is non-null and non-empty, only files with the
+  /// listed extensions (case-insensitive, leading dots optional) may be
+  /// selected. This restriction is honoured by every caller that delegates to
+  /// this method, so a single allow list applies to all upload entry points.
 
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
     VoidCallback? onSuccess,
+    List<String>? allowedExtensions,
   }) =>
       SolidFileUploadOperations.uploadFile(
         context,
         currentPath,
         onSuccess: onSuccess,
+        allowedExtensions: allowedExtensions,
       );
 }

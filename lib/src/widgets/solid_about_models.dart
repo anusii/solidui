@@ -117,6 +117,15 @@ class SolidAboutConfig {
 
   final SolidFeedbackConfig? feedbackConfig;
 
+  /// Optional URL for the application README. When provided, a README
+  /// button is added to the About dialogue action row. The URL is opened
+  /// in the system browser. Typically the raw GitHub README URL or a
+  /// documentation page, e.g.:
+  ///
+  ///   'https://github.com/gjwgit/myapp/blob/main/README.md'
+
+  final String? readmeUrl;
+
   const SolidAboutConfig({
     this.enabled = true,
     this.icon,
@@ -135,6 +144,7 @@ class SolidAboutConfig {
     this.showLayoutPreferences = true,
     this.inviteConfig,
     this.feedbackConfig,
+    this.readmeUrl,
   });
 
   /// Returns the icon to display for the About button.
@@ -194,6 +204,7 @@ class SolidAboutConfig {
     bool? showLayoutPreferences,
     SolidInviteOthersConfig? inviteConfig,
     SolidFeedbackConfig? feedbackConfig,
+    String? readmeUrl,
   }) {
     return SolidAboutConfig(
       enabled: enabled ?? this.enabled,
@@ -215,6 +226,7 @@ class SolidAboutConfig {
           showLayoutPreferences ?? this.showLayoutPreferences,
       inviteConfig: inviteConfig ?? this.inviteConfig,
       feedbackConfig: feedbackConfig ?? this.feedbackConfig,
+      readmeUrl: readmeUrl ?? this.readmeUrl,
     );
   }
 }

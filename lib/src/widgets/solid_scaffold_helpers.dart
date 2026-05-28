@@ -77,7 +77,6 @@ class SolidScaffoldHelpers {
   static Widget buildVersionWidget(
     SolidAppBarConfig config,
     String versionToDisplay,
-    ThemeData theme,
   ) {
     return MarkdownTooltip(
       message: config.versionConfig!.tooltip ??
@@ -88,29 +87,12 @@ class SolidScaffoldHelpers {
         changelogUrl: config.versionConfig!.changelogUrl,
         showVersion: config.versionConfig!.showVersion,
         showDate: config.versionConfig!.showDate,
-        userTextStyle: config.versionConfig!.userTextStyle ??
-            _defaultVersionTextStyle(config, theme),
+        userTextStyle: config.versionConfig!.userTextStyle,
         showUpdateButton: config.versionConfig!.showUpdateButton,
         downloadUrl: config.versionConfig!.downloadUrl,
         updateButtonLabel: config.versionConfig!.updateButtonLabel,
       ),
     );
-  }
-
-  /// Returns a sensible default [TextStyle] for the version label when the
-  /// host app has not supplied one via [SolidVersionConfig.userTextStyle].
-
-  static TextStyle _defaultVersionTextStyle(
-    SolidAppBarConfig config,
-    ThemeData theme,
-  ) {
-    final isDarkBg = config.backgroundColor != null &&
-        ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
-            Brightness.dark;
-    final colour = isDarkBg
-        ? Colors.white.withValues(alpha: 0.8)
-        : theme.colorScheme.onSurface.withValues(alpha: 0.6);
-    return TextStyle(color: colour, fontSize: 13);
   }
 
   /// Builds theme toggle button for AppBar actions.

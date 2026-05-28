@@ -106,6 +106,11 @@ class _SecretTextFieldState extends State<SecretTextField> {
     return FormBuilderTextField(
       name: widget.fieldKey,
       obscureText: !_showSecret,
+      // Suppress the brief character-reveal that macOS/iOS shows while typing.
+      // TextInputType.visiblePassword disables the input method's character
+      // preview without affecting obscureText behaviour.
+      keyboardType: TextInputType.visiblePassword,
+      enableSuggestions: false,
       autocorrect: false,
       decoration: InputDecoration(
         labelText: widget.fieldLabel.toUpperCase(),

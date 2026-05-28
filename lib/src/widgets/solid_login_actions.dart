@@ -35,6 +35,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
     show
+        cancelSolidAuthenticate,
         clearPodStructureInitialised,
         deleteLogIn,
         getWebId,
@@ -65,6 +66,10 @@ typedef LoginSnackbar = void Function(
 /// flows and are called from the [SolidLogin] build method.
 
 class SolidLoginActions {
+  /// Reentrancy guard for [performTryAnotherAccount].
+
+  static bool _tryAnotherAccountInProgress = false;
+
   /// Performs the login flow.
   ///
   /// When a cached session already exists the server origin is compared with
@@ -238,11 +243,21 @@ class SolidLoginActions {
     required BuildContext context,
     required Future<void> Function() performLoginCallback,
   }) async {
-    await silentLogout();
-    solidLoginStatusNotifier.markLoggedOut();
-    await clearPodStructureInitialised();
-    if (!context.mounted) return;
+    if (_tryAnotherAccountInProgress) {
+      // Ignore rapid repeat clicks while we are already switching account.
+      return;
+    }
+    _tryAnotherAccountInProgress = true;
+    try {
+      cancelSolidAuthenticate();
+      await clearPodStructureInitialised();
+      await silentLogout();
+      solidLoginStatusNotifier.markLoggedOut();
+      if (!context.mounted) return;
 
-    await performLoginCallback();
+      await performLoginCallback();
+    } finally {
+      _tryAnotherAccountInProgress = false;
+    }
   }
 }

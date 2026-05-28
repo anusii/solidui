@@ -382,6 +382,31 @@ class SolidAbout {
       );
     }
 
+    // README button — shown when a readmeUrl is provided.
+
+    if (config.readmeUrl != null && config.readmeUrl!.isNotEmpty) {
+      actionButtons.add(
+        MarkdownTooltip(
+          message: '''
+
+          **README**
+
+          Open the application README in your browser for full
+          documentation and setup instructions.
+
+          ''',
+          child: TextButton.icon(
+            icon: const Icon(Icons.menu_book_outlined),
+            label: const Text('README'),
+            onPressed: () => launchUrl(
+              Uri.parse(config.readmeUrl!),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+        ),
+      );
+    }
+
     // Always show Feedback: enabled when a configuration is supplied,
     // greyed out otherwise.
 
@@ -426,14 +451,26 @@ class SolidAbout {
       );
     }
 
-    showAboutDialog(
+    // showAboutDialog is equivalent to showDialog(builder: AboutDialog).
+    // We replicate that here so we can inject a Theme that caps the
+    // dialog width at 600px — roughly 100 characters of body text.
+    showDialog<void>(
       context: context,
-      applicationName: applicationName,
-      applicationVersion: applicationVersion,
-      applicationIcon: config.applicationIcon,
-      applicationLegalese: config.applicationLegalese ??
-          '© ${DateTime.now().year} $applicationName\n\n',
-      children: children,
+      builder: (ctx) => Theme(
+        data: Theme.of(ctx).copyWith(
+          dialogTheme: Theme.of(ctx).dialogTheme.copyWith(
+                constraints: const BoxConstraints(maxWidth: 600),
+              ),
+        ),
+        child: AboutDialog(
+          applicationName: applicationName,
+          applicationVersion: applicationVersion,
+          applicationIcon: config.applicationIcon,
+          applicationLegalese: config.applicationLegalese ??
+              '© ${DateTime.now().year} $applicationName\n\n',
+          children: children,
+        ),
+      ),
     );
   }
 }

@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidui/src/handlers/solid_auth_handler.dart';
+import 'package:solidui/src/widgets/solid_login_required_dialog.dart';
 
 /// Dialogs for caching security keys.
 
@@ -85,6 +85,9 @@ class SecurityKeyCacheDialogs {
                   TextField(
                     controller: keyController,
                     obscureText: obscureKey,
+                    keyboardType: TextInputType.visiblePassword,
+                    enableSuggestions: false,
+                    autocorrect: false,
                     autofocus: true,
                     textInputAction: TextInputAction.done,
                     onSubmitted: (_) => submitKey(),
@@ -212,68 +215,19 @@ class SecurityKeyCacheDialogs {
   /// Shows a dialog prompting the user to log in.
 
   static Future<bool> showLoginRequiredDialog(BuildContext context) async {
-    final theme = Theme.of(context);
-
-    final shouldLogin = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        title: Text(
-          'Login Required',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        content: Text(
-          'Please log in to your POD first before caching the security key.',
-          style: TextStyle(
-            fontSize: 14,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                fontSize: 16,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Log In', style: TextStyle(fontSize: 16)),
-          ),
-        ],
-      ),
+    return SolidLoginRequiredDialog.show(
+      context,
+      message: SolidLoginRequiredDialog.securityKeyMessage,
     );
-
-    return shouldLogin ?? false;
   }
 
-  /// Handles the login redirect after showing login required dialog.
+  /// Handles the login redirect after showing the login required dialog.
 
   static Future<void> handleLoginRedirect(BuildContext context) async {
-    final shouldLogin = await showLoginRequiredDialog(context);
-
-    if (shouldLogin && context.mounted) {
-      Navigator.of(context).pop();
-      await SolidAuthHandler.instance.handleLogin(context);
-    }
+    await SolidLoginRequiredDialog.showAndHandle(
+      context,
+      message: SolidLoginRequiredDialog.securityKeyMessage,
+      popRouteBeforeLogin: true,
+    );
   }
 }

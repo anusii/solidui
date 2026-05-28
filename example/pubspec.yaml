@@ -14,10 +14,7 @@ dependencies:
   intl: any
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  solidpod:
-    git:
-      url: https://github.com/anusii/solidpod.git
-      ref: dev
+  solidpod: ^0.12.10
   solidui:
     path: ..
   universal_io: ^2.3.1
@@ -25,7 +22,6 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^6.0.0
-
 
 flutter:
   uses-material-design: true

@@ -105,7 +105,7 @@ class SolidPreferencesButtonOrderSection extends StatelessWidget {
                 shrinkWrap: true,
                 buildDefaultDragHandles: false,
                 itemCount: appBarActions.length,
-                onReorder: onReorder,
+                onReorderItem: onReorder,
                 itemBuilder: (context, index) {
                   final action = appBarActions[index];
                   return _SolidPreferencesButtonItem(

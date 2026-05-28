@@ -1,3 +1,5 @@
+/// Solid Logout Dialogue.
+///
 /// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
@@ -32,6 +34,7 @@ import 'package:solidpod/solidpod.dart'
     show getAppNameVersion, getWebId, logoutPod;
 
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/services/solid_owner_profile_service.dart';
 import 'package:solidui/src/services/solid_profile_service.dart';
 import 'package:solidui/src/utils/web_id_parser.dart';
 
@@ -72,7 +75,7 @@ class _LogoutDialogState extends State<LogoutDialog> {
         : 'Logout from the remote Solid Server for $title?';
 
     return AlertDialog(
-      title: const Text('Notice'),
+      title: const Text('Confirm'),
       content: Text(contentText),
       actions: [
         ElevatedButton(
@@ -80,6 +83,7 @@ class _LogoutDialogState extends State<LogoutDialog> {
           onPressed: () async {
             if (await logoutPod()) {
               SolidProfileService.instance.clearCache();
+              SolidOwnerProfileService.instance.clearCache();
               solidLoginStatusNotifier.markLoggedOut();
               widget.onLogoutSuccess?.call();
               if (context.mounted) {
