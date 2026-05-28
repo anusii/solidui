@@ -64,8 +64,16 @@ class App extends StatelessWidget {
         //  Mobile: com.example.demopod://redirect
         //  Desktop: http://localhost:4400/redirect
         //    (can use any port as long as it matches with the one in your id document)
-        redirectUri: 'http://localhost:4400/redirect',
-        postLogoutRedirectUri: 'http://localhost:4400/redirect',
+        redirectUris: [
+          'http://localhost:4400/redirect',
+          'com.example.demopod://redirect',
+          'https://anushkavidanage.github.io/solidui/example/redirect.html'
+        ],
+        postLogoutRedirectUris: [
+          'http://localhost:4400/redirect',
+          'com.example.demopod://redirect',
+          'https://anushkavidanage.github.io/solidui/example/redirect.html'
+        ],
         autoLogin: true,
         child: appScaffold,
       ),

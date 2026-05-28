@@ -86,17 +86,19 @@ class SolidAuthConfig {
 
   final VoidCallback? onLogout;
 
-  /// URL of the app's client profile JSON-LD document. Required parameter
+  /// URL of the app's client profile JSON-LD document. Required parameter.
 
   final String? clientId;
 
-  /// Custom URL scheme for the OAuth to redirect to after authentication.
+  /// One redirect URI per platform — [pickRedirectUri] (from `solidpod`)
+  /// selects the correct entry at runtime.
 
-  final String? redirectUri;
+  final List<String> redirectUris;
 
-  /// Optional redirect URI for logout.
+  /// One post-logout redirect URI per platform. Preferred over
+  /// [postLogoutRedirectUri].
 
-  final String? postLogoutRedirectUri;
+  final List<String> postLogoutRedirectUris;
 
   const SolidAuthConfig({
     this.returnTo,
@@ -111,8 +113,8 @@ class SolidAuthConfig {
     this.onSecurityKeyReset,
     this.onLogout,
     this.clientId,
-    this.redirectUri,
-    this.postLogoutRedirectUri,
+    this.redirectUris = const [],
+    this.postLogoutRedirectUris = const [],
   });
 }
 
@@ -131,6 +133,8 @@ class SolidAuthHandler {
   AssetImage? _cachedLogo;
   String? _cachedLink;
   Widget? _cachedChild;
+  List<String> _cachedRedirectUris = const [];
+  List<String> _cachedPostLogoutRedirectUris = const [];
   bool _isAutoConfigured = false;
 
   // Cached button styles and theme from the app's original SolidLogin widget.
@@ -170,6 +174,8 @@ class SolidAuthHandler {
     required AssetImage logo,
     required String link,
     required Widget child,
+    List<String> redirectUris = const [],
+    List<String> postLogoutRedirectUris = const [],
     LoginButtonStyle? loginButtonStyle,
     ContinueButtonStyle? continueButtonStyle,
     RegisterButtonStyle? registerButtonStyle,
@@ -186,6 +192,8 @@ class SolidAuthHandler {
     _cachedLogo = logo;
     _cachedLink = link;
     _cachedChild = child;
+    _cachedRedirectUris = redirectUris;
+    _cachedPostLogoutRedirectUris = postLogoutRedirectUris;
     _cachedLoginButtonStyle = loginButtonStyle;
     _cachedContinueButtonStyle = continueButtonStyle;
     _cachedRegisterButtonStyle = registerButtonStyle;
@@ -253,6 +261,20 @@ class SolidAuthHandler {
     // available. Styles are preserved so the re-login page matches the
     // app's original appearance.
 
+    // Resolve redirect URI lists: auto-configured cache takes priority, then
+    // fall back to whatever was provided via SolidAuthConfig.configure().
+    final effectiveRedirectUris = _cachedRedirectUris.isNotEmpty
+        ? _cachedRedirectUris
+        : (_config?.redirectUris.isNotEmpty == true
+            ? _config!.redirectUris
+            : const <String>[]);
+
+    final effectivePostLogoutUris = _cachedPostLogoutRedirectUris.isNotEmpty
+        ? _cachedPostLogoutRedirectUris
+        : (_config?.postLogoutRedirectUris.isNotEmpty == true
+            ? _config!.postLogoutRedirectUris
+            : const <String>[]);
+
     if (_isAutoConfigured && _cachedChild != null) {
       return SolidDefaultLogin(
         appTitle: _cachedTitle ?? _config?.appTitle ?? 'Solid App',
@@ -273,9 +295,9 @@ class SolidAuthHandler {
         themeConfig: _cachedThemeConfig,
         snackbarConfig: _cachedSnackbarConfig,
         required: _cachedRequired,
-        clientId: _config!.clientId!,
-        redirectUri: _config!.redirectUri!,
-        postLogoutRedirectUri: _config!.postLogoutRedirectUri!,
+        clientId: _config?.clientId ?? '',
+        redirectUris: effectiveRedirectUris,
+        postLogoutRedirectUris: effectivePostLogoutUris,
       );
     }
 
@@ -291,9 +313,9 @@ class SolidAuthHandler {
       appLink: _config?.appLink,
       loginSuccessWidget: _config?.loginSuccessWidget,
       navigateToRootOnSuccess: _config?.loginSuccessWidget == null,
-      clientId: _config!.clientId!,
-      redirectUri: _config!.redirectUri!,
-      postLogoutRedirectUri: _config!.postLogoutRedirectUri!,
+      clientId: _config?.clientId ?? '',
+      redirectUris: effectiveRedirectUris,
+      postLogoutRedirectUris: effectivePostLogoutUris,
     );
   }
 

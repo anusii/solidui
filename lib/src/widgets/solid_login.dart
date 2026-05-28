@@ -83,8 +83,8 @@ class SolidLogin extends StatefulWidget {
     this.snackbarConfig = const SnackbarConfig(),
     this.customFolderPathList = const [],
     required this.clientId,
-    required this.redirectUri,
-    this.postLogoutRedirectUri,
+    required this.redirectUris,
+    this.postLogoutRedirectUris = const [],
     this.autoLogin = false,
     super.key,
   });
@@ -149,17 +149,29 @@ class SolidLogin extends StatefulWidget {
 
   final List customFolderPathList;
 
-  /// URL of the app's client profile JSON-LD document. Required parameter
+  /// URL of the app's client profile JSON-LD document. Required parameter.
 
   final String clientId;
 
-  /// Custom URL scheme for the OAuth to redirect to after authentication.
+  /// One redirect URI per platform. [pickRedirectUri] selects the correct
+  /// entry at runtime based on the current platform.
+  ///
+  /// Provide all platform URIs here so the app works on every target without
+  /// manual changes:
+  /// ```dart
+  /// redirectUris: [
+  ///   'https://your-domain/redirect.html', // web
+  ///   'com.example.app://redirect',         // android / ios
+  ///   'http://localhost:4400/redirect',      // desktop
+  /// ]
+  /// ```
 
-  final String redirectUri;
+  final List<String> redirectUris;
 
-  /// Optional redirect URI for logout.
+  /// One post-logout redirect URI per platform. Defaults to the same
+  /// selection as [redirectUris] when omitted.
 
-  final String? postLogoutRedirectUri;
+  final List<String> postLogoutRedirectUris;
 
   /// When true, automatically restores a saved session on startup and navigates
   /// directly to [child] without showing the login page.
@@ -278,8 +290,20 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       themeConfig: widget.themeConfig,
       snackbarConfig: widget.snackbarConfig,
       required: widget.required,
+      redirectUris: _effectiveRedirectUris,
+      postLogoutRedirectUris: _effectivePostLogoutUris,
     );
   }
+
+  /// Normalises the redirect URI list, merging the new list param with the
+  /// deprecated single-string param for backward compatibility.
+
+  List<String> get _effectiveRedirectUris => widget.redirectUris;
+
+  List<String> get _effectivePostLogoutUris =>
+      widget.postLogoutRedirectUris.isNotEmpty
+          ? widget.postLogoutRedirectUris
+          : const [];
 
   /// Resolves the image and logo assets with fallback logic.
   ///
@@ -472,8 +496,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         showSnackbar: _showSnackbar,
         staySignedIn: _staySignedIn,
         clientId: widget.clientId,
-        redirectUri: widget.redirectUri,
-        postLogoutRedirectUri: widget.postLogoutRedirectUri,
+        redirectUris: _effectiveRedirectUris,
+        postLogoutRedirectUris: _effectivePostLogoutUris,
       );
     }
 

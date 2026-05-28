@@ -86,8 +86,8 @@ class SolidLoginActions {
     required LoginSnackbar showSnackbar,
     required bool staySignedIn,
     required final String clientId,
-    required final String redirectUri,
-    final String? postLogoutRedirectUri,
+    required final List<String> redirectUris,
+    final List<String> postLogoutRedirectUris = const [],
   }) async {
     // When the user has opted out of staying signed in, discard any existing
     // cached session immediately so browser authentication is always
@@ -136,8 +136,8 @@ class SolidLoginActions {
       showSnackbar: showSnackbar,
       staySignedIn: staySignedIn,
       clientId: clientId,
-      redirectUri: redirectUri,
-      postLogoutRedirectUri: postLogoutRedirectUri,
+      redirectUris: redirectUris,
+      postLogoutRedirectUris: postLogoutRedirectUris,
     );
   }
 
