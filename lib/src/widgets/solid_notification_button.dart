@@ -39,12 +39,13 @@ import 'package:solidui/src/widgets/solid_notification_centre.dart';
 
 /// Polling interval for background unread-count refreshes.
 
-const Duration _pollInterval = Duration(seconds: 30);
+const Duration _pollInterval = Duration(seconds: 10);
 
-/// An AppBar icon button that shows a notification bell with an unread count
-/// badge. Tapping it navigates to the [SolidNotificationCentre]. The badge
-/// count is refreshed when the button is mounted, periodically via a polling
-/// timer, and again after returning from the notification centre.
+/// An AppBar icon button that shows a notification bell with an unread
+/// count badge. Tapping it navigates to the [SolidNotificationCentre].
+/// The badge count is refreshed when the button is mounted, periodically
+/// via a polling timer, and again after returning from the notification
+/// centre.
 
 class SolidNotificationButton extends StatefulWidget {
   const SolidNotificationButton({super.key});
@@ -99,9 +100,9 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton>
     _startTimer();
   }
 
-  /// Fetch the current unread-notification count from the POD and update
-  /// the badge. Concurrent invocations are skipped to avoid redundant
-  /// network traffic.
+  /// Fetch the current unread-notification count via the new pair-based
+  /// notification API and update the badge. Concurrent invocations are
+  /// skipped to avoid redundant cross-POD traffic.
 
   Future<void> _refreshUnreadCount() async {
     if (_isRefreshing) return;
@@ -112,31 +113,13 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton>
         return;
       }
 
-      final notifDirPath = [appDirName, notificationDir].join('/');
-      final dirUrl = await getDirUrl(notifDirPath);
-
-      final status = await checkResourceStatus(dirUrl, isFile: false);
-      if (status != ResourceStatus.exist) {
-        if (mounted) setState(() => _unreadCount = 0);
-        return;
-      }
-
-      final (:subDirs, :files) = await getResourcesInContainer(dirUrl);
-      final jsonFiles = files.where((f) => f.endsWith('.json')).toList();
+      final notifications = await fetchNotifications();
 
       final prefs = await SharedPreferences.getInstance();
       final readList = prefs.getStringList(solidReadNotificationsKey) ?? [];
-      final readTimestamps =
-          readList.map((s) => int.tryParse(s)).whereType<int>().toSet();
+      final readIds = readList.toSet();
 
-      int unread = 0;
-      for (final f in jsonFiles) {
-        final tsStr = f.replaceAll('.json', '');
-        final ts = int.tryParse(tsStr);
-        if (ts != null && !readTimestamps.contains(ts)) {
-          unread++;
-        }
-      }
+      final unread = notifications.where((n) => !readIds.contains(n.id)).length;
 
       if (mounted) setState(() => _unreadCount = unread);
     } on Object catch (e) {

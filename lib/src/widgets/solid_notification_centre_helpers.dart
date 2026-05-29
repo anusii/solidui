@@ -48,7 +48,10 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete'),
           ),
@@ -58,116 +61,93 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
 
     if (confirmed != true) return;
 
-    try {
-      final notifDirPath = [appDirName, notificationDir].join('/');
-      final dirUrl = await getDirUrl(notifDirPath);
-      final fileUrl = '$dirUrl${notification.timestamp}.json';
-
-      await deleteFile(fileUrl: fileUrl);
-
-      _readTimestamps.remove(notification.timestamp);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(
-        solidReadNotificationsKey,
-        _readTimestamps.map((t) => t.toString()).toList(),
-      );
-
-      updateState(() {
-        _notifications.remove(notification);
-        _clampCurrentPage();
-      });
-    } on Object catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete notification: $e')),
-        );
-      }
-    }
+    await _markAsDeleted(notification.id);
+    updateState(() {
+      _notifications.removeWhere((n) => n.id == notification.id);
+      _clampCurrentPage();
+    });
   }
 
   // Detail dialog.
 
   void showNotificationDetail(PodNotification notification) {
-    _markAsRead(notification.timestamp);
+    _markAsRead(notification.id);
 
     final dateTime =
         DateTime.fromMillisecondsSinceEpoch(notification.timestamp);
-    final senderName = extractName(notification.senderWebId);
     final structured = _parseStructuredContent(notification.content);
 
-    final fileTitle = structured?['fileTitle'] ?? notification.title;
-    final permissions = structured?['permissions'];
+    final fileTitle =
+        (structured?['fileTitle'] as String?) ?? notification.title;
+    final permissions = structured?['permissions'] as String?;
 
     showDialog(
       context: context,
       builder: (ctx) {
         final theme = Theme.of(ctx);
+        final maxContentWidth = _detailDialogMaxWidth(theme);
 
         return AlertDialog(
           title: Row(
             children: [
-              Expanded(
-                child: Text(
-                  DateFormat('h:mm a EEEE d MMMM yyyy').format(dateTime),
-                ),
-              ),
+              Expanded(child: Text(notification.title)),
               if (priorityIcon(notification.priority) != null)
                 priorityIcon(notification.priority)!,
             ],
           ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Scrollbar(
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        style: theme.textTheme.bodyLarge,
-                        children: [
-                          TextSpan(
-                            text: (permissions != null)
-                                ? '$senderName shared this file with you. You have ${permissions?.toLowerCase()} permission. \n\n'
-                                : '$senderName shared this file with you. \n\n',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          TextSpan(
-                            text: '$fileTitle\n\n',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+          content: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxContentWidth),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: Scrollbar(
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        formatDateTime(dateTime),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                    const Divider(),
-                    _buildDetailsExpansionTile(
-                      notification,
-                      dateTime,
-                      structured,
-                      theme,
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      _buildLabelLine(
+                        theme,
+                        label: 'From: ',
+                        value: notification.senderWebId,
+                      ),
+                      const SizedBox(height: 4),
+                      _buildLabelLine(
+                        theme,
+                        label: 'To: ',
+                        value: notification.recipientWebId,
+                      ),
+                      const Divider(height: 24),
+                      _buildBodyText(
+                        theme,
+                        notification: notification,
+                        fileTitle: fileTitle,
+                        permissions: permissions,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
           actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+            TextButton.icon(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              label: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
               ),
               onPressed: () {
                 Navigator.pop(ctx);
                 confirmAndDelete(notification);
               },
-              child: const Text('Delete'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx),
@@ -177,6 +157,69 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
         );
       },
     );
+  }
+
+  /// Single "Label: value" row in the dialog body, where the label is
+  /// rendered in bold and the value is selectable so the user can copy
+  /// WebIDs out of the dialog.
+
+  Widget _buildLabelLine(
+    ThemeData theme, {
+    required String label,
+    required String value,
+  }) {
+    return Text.rich(
+      TextSpan(
+        style: theme.textTheme.bodyMedium,
+        children: [
+          TextSpan(
+            text: label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          TextSpan(text: value),
+        ],
+      ),
+    );
+  }
+
+  /// Main body sentence under the From/To header. For share
+  /// notifications (which carry structured permissions metadata) we
+  /// render the templated "You have been granted X access to "Y".".
+  /// For free-form notifications we fall back to the raw content.
+
+  Widget _buildBodyText(
+    ThemeData theme, {
+    required PodNotification notification,
+    required String fileTitle,
+    required String? permissions,
+  }) {
+    final hasPermissions = permissions != null && permissions.isNotEmpty;
+    if (hasPermissions) {
+      return Text.rich(
+        TextSpan(
+          style: theme.textTheme.bodyLarge,
+          children: [
+            const TextSpan(text: 'You have been granted '),
+            TextSpan(
+              text: permissions,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const TextSpan(text: ' access to '),
+            TextSpan(
+              text: '"$fileTitle"',
+              style: const TextStyle(fontStyle: FontStyle.italic),
+            ),
+            const TextSpan(text: '.'),
+          ],
+        ),
+      );
+    }
+
+    final content = notification.content;
+    if (content == null || content.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Text(content, style: theme.textTheme.bodyLarge);
   }
 
   /// Attempts to parse JSON-structured content from a notification.
@@ -191,56 +234,6 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
       // Legacy plain-text content; not JSON.
     }
     return null;
-  }
-
-  Widget _buildDetailsExpansionTile(
-    PodNotification notification,
-    DateTime dateTime,
-    Map<String, dynamic>? structured,
-    ThemeData theme,
-  ) {
-    final smallStyle = theme.textTheme.bodySmall;
-
-    final fileUrl = structured?['fileUrl'] ?? notification.title;
-    final fileTitle = structured?['fileTitle'] ?? notification.title;
-    final sharedBy = structured?['sharedBy'] ?? notification.senderWebId;
-    final owner = structured?['owner'] ?? notification.senderWebId;
-    final permissions = structured?['permissions'] ?? '';
-
-    return ExpansionTile(
-      title: const Text('Details'),
-      tilePadding: EdgeInsets.zero,
-      childrenPadding: const EdgeInsets.only(bottom: 8),
-      children: [
-        _detailLine('Date', formatDateTime(dateTime), smallStyle),
-        _detailLine('File', fileUrl, smallStyle),
-        _detailLine('Title', fileTitle, smallStyle),
-        _detailLine('Shared by', sharedBy, smallStyle),
-        _detailLine('Owner', owner, smallStyle),
-        _detailLine('Permissions', permissions, smallStyle),
-      ],
-    );
-  }
-
-  Widget _detailLine(String label, String value, TextStyle? style) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              '$label:',
-              style: style?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
-            child: SelectableText(value, style: style),
-          ),
-        ],
-      ),
-    );
   }
 
   // Small helpers.
@@ -287,8 +280,8 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
     }
   }
 
-  static final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
-  static final DateFormat _dateTimeFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
+  static final DateFormat _dateFormat = DateFormat('d/M/yyyy');
+  static final DateFormat _dateTimeFormat = DateFormat('d/M/yyyy HH:mm:ss');
 
   String formatRelativeTime(DateTime dt) {
     final diff = DateTime.now().difference(dt);
@@ -300,4 +293,21 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
   }
 
   String formatDateTime(DateTime dt) => _dateTimeFormat.format(dt);
+
+  /// Cap the detail dialog at roughly 80–100 characters of body text so
+  /// long notification content never stretches across the full window
+  /// on wide displays. The cap is measured live against the active
+  /// `bodyLarge` text style so themes that bump the font size scale
+  /// the dialog accordingly.
+
+  double _detailDialogMaxWidth(ThemeData theme) {
+    final style = theme.textTheme.bodyLarge ?? const TextStyle(fontSize: 16);
+    const sample = 'The quick brown fox jumps over the lazy dog 0123456789';
+    final tp = TextPainter(
+      text: TextSpan(text: sample, style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final charWidth = tp.width / sample.length;
+    return charWidth * 90;
+  }
 }

@@ -149,7 +149,7 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
           itemCount: items.length,
           itemBuilder: (context, index) {
             final n = items[index];
-            final isRead = _readTimestamps.contains(n.timestamp);
+            final isRead = _readIds.contains(n.id);
             final dateTime = DateTime.fromMillisecondsSinceEpoch(n.timestamp);
 
             return Card(
@@ -186,7 +186,7 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
                     ),
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
                     onPressed: () => confirmAndDelete(n),
                     tooltip: 'Delete notification',
                   ),

@@ -540,13 +540,22 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 final displayName =
                     widget.resourceDisplayName ?? primaryResource;
                 final permissions = selectedPermList.join(', ');
-                final notificationFailures = <String>[];
+
+                // Track failures separately so the user sees a meaningful
+                // diagnostic — previously non-RecipientNotReady errors
+                // were silently debugPrint'd, which is exactly why a
+                // misconfigured recipient could end the share-note flow
+                // with neither a file nor a warning.
+
+                final notReadyRecipients = <String>[];
+                final otherFailures = <({String recipient, String error})>[];
 
                 for (final recipientWebId in finalWebIdList) {
                   try {
                     await sendNotification(
                       recipientWebId: recipientWebId as String,
-                      title: 'Shared to you: $displayName',
+                      title:
+                          'A resource has been shared with you: $displayName',
                       content: jsonEncode({
                         'fileUrl': primaryResource,
                         'fileUrls': widget.resourceNames,
@@ -562,21 +571,35 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                       '[GrantPermissionForm] '
                       'Recipient not ready for $recipientWebId: $e',
                     );
-                    notificationFailures.add(recipientWebId as String);
+                    notReadyRecipients.add(recipientWebId as String);
                   } on Object catch (e) {
                     debugPrint(
                       '[GrantPermissionForm] '
                       'Failed to send notification to $recipientWebId: $e',
                     );
+                    otherFailures.add(
+                      (recipient: recipientWebId as String, error: '$e'),
+                    );
                   }
                 }
 
-                if (notificationFailures.isNotEmpty) {
-                  final names = notificationFailures.join(', ');
+                if (notReadyRecipients.isNotEmpty) {
+                  final names = notReadyRecipients.join(', ');
                   _showSnackBar(
                     'Permission granted, but could not notify: $names. '
-                    'The recipient(s) may need to log in and update '
-                    'their app setup in their Pod first.',
+                    'The recipient(s) need to log in once to upgrade '
+                    'their Pod setup (the Update Wizard runs on login).',
+                    ActionColors.warning,
+                    duration: const Duration(seconds: 8),
+                  );
+                }
+                if (otherFailures.isNotEmpty) {
+                  final summary = otherFailures
+                      .map((f) => '${f.recipient} (${f.error})')
+                      .join('; ');
+                  _showSnackBar(
+                    'Permission granted, but notification delivery failed: '
+                    '$summary',
                     ActionColors.warning,
                     duration: const Duration(seconds: 8),
                   );

@@ -34,16 +34,27 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
 part 'solid_notification_centre_helpers.dart';
 part 'solid_notification_centre_ui.dart';
 
-/// SharedPreferences key for storing read notification timestamps.
+/// SharedPreferences key for tracking which notification ids the user
+/// has already viewed.
 
-const String solidReadNotificationsKey = 'solid_read_notification_timestamps';
+const String solidReadNotificationsKey = 'solid_read_notification_ids';
+
+/// SharedPreferences key for tracking which notification ids the user
+/// has chosen to delete from the centre. The underlying file in the
+/// sender's POD is left untouched (the recipient holds no write
+/// permission on it) so "delete" is a purely local hide. The storage
+/// key string is kept as the legacy "dismissed" value so users who had
+/// already hidden notifications under the previous wording do not see
+/// them resurface after the rename.
+
+const String _solidDeletedNotificationsKey = 'solid_dismissed_notification_ids';
 
 /// Page-size options for the notification list pagination.
 
@@ -61,8 +72,9 @@ enum _SortMode {
   final String label;
 }
 
-/// Full-screen notification centre that lists all notifications stored in the
-/// user's POD notification folder. Displays notifications as cards with
+/// Full-screen notification centre that lists every notification the
+/// user has received across all sender pairs, fetched via the per-pair
+/// pull model in `solidpod`. Notifications are displayed as cards with
 /// pagination and sorting controls.
 
 class SolidNotificationCentre extends StatefulWidget {
@@ -75,7 +87,8 @@ class SolidNotificationCentre extends StatefulWidget {
 
 class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
   List<PodNotification> _notifications = [];
-  Set<int> _readTimestamps = {};
+  Set<String> _readIds = {};
+  Set<String> _deletedIds = {};
   bool _isLoading = true;
   String? _error;
 
@@ -104,23 +117,37 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
     super.dispose();
   }
 
-  // Read-state persistence.
+  // Read/deleted-state persistence.
 
-  Future<void> _loadReadState() async {
+  Future<void> _loadLocalState() async {
     final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getStringList(solidReadNotificationsKey) ?? [];
-    _readTimestamps =
-        stored.map((s) => int.tryParse(s)).whereType<int>().toSet();
+    _readIds = (prefs.getStringList(solidReadNotificationsKey) ?? []).toSet();
+    _deletedIds =
+        (prefs.getStringList(_solidDeletedNotificationsKey) ?? []).toSet();
   }
 
-  Future<void> _markAsRead(int timestamp) async {
-    _readTimestamps.add(timestamp);
+  Future<void> _markAsRead(String id) async {
+    if (_readIds.contains(id)) return;
+    _readIds.add(id);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
       solidReadNotificationsKey,
-      _readTimestamps.map((t) => t.toString()).toList(),
+      _readIds.toList(),
     );
     if (mounted) setState(() {});
+  }
+
+  /// Record [id] as deleted in the local preferences store. This is
+  /// only a hide because the underlying notification still lives in the
+  /// sender's outbox file (the recipient has Read-only access on it).
+
+  Future<void> _markAsDeleted(String id) async {
+    _deletedIds.add(id);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _solidDeletedNotificationsKey,
+      _deletedIds.toList(),
+    );
   }
 
   // Data loading.
@@ -132,42 +159,29 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
     });
 
     try {
-      await _loadReadState();
+      await _loadLocalState();
 
       if (!await isUserLoggedIn()) {
         throw Exception('Not logged in');
       }
 
-      final notifDirPath = [appDirName, notificationDir].join('/');
-      final dirUrl = await getDirUrl(notifDirPath);
+      final fetched = await fetchNotifications();
 
-      final status = await checkResourceStatus(dirUrl, isFile: false);
-      if (status != ResourceStatus.exist) {
-        setState(() {
-          _notifications = [];
-          _isLoading = false;
-        });
-        return;
+      // De-duplicate by id (the per-pair file can contain repeats only
+      // if a buggy sender ever wrote the same id twice; keep the last).
+
+      final byId = <String, PodNotification>{};
+      for (final n in fetched) {
+        byId[n.id] = n;
       }
 
-      final (:subDirs, :files) = await getResourcesInContainer(dirUrl);
+      // Filter out anything the user has deleted locally.
 
-      final notifications = <PodNotification>[];
-      for (final fileName in files) {
-        if (!fileName.endsWith('.json')) continue;
-        try {
-          final fileUrl = '$dirUrl$fileName';
-          final bytes = await getResource(fileUrl);
-          final content = utf8.decode(bytes);
-          final json = jsonDecode(content) as Map<String, dynamic>;
-          notifications.add(PodNotification.fromJson(json));
-        } on Object catch (e) {
-          debugPrint('[NOTIF] Failed to parse $fileName: $e');
-        }
-      }
+      final filtered =
+          byId.values.where((n) => !_deletedIds.contains(n.id)).toList();
 
       setState(() {
-        _notifications = notifications;
+        _notifications = filtered;
         _currentPage = 0;
         _isLoading = false;
       });
