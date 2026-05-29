@@ -37,7 +37,7 @@ dependencies:
     # path: ../solidpod
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: av/40_migrate_oidc_implementation_reert
+      ref: av/40_migrate_oidc_implementation_revert
   universal_io: ^2.3.1
   url_launcher: ^6.3.2
   version_widget: ^1.0.10
