@@ -91,7 +91,11 @@ class FileBrowserContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        // Background colour intentionally omitted. The ListTile widgets
+        // inside DirectoryList set their own tileColor, and Flutter
+        // asserts when a ListTile is inside a DecoratedBox with a
+        // background — it hides ink splashes on the Material ancestor.
+        // The rounded border is kept for visual grouping.
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: directories.isEmpty && files.isEmpty
