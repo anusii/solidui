@@ -1,6 +1,6 @@
 /// Widget for logging in a POD.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2025-2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -86,7 +86,7 @@ class SolidLogin extends StatefulWidget {
     required this.clientId,
     required this.redirectUris,
     this.postLogoutRedirectUris = const [],
-    this.autoLogin = false,
+    this.autoLogin = true,
     super.key,
   });
 
