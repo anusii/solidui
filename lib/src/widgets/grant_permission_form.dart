@@ -39,12 +39,14 @@ import 'package:solidui/solidui.dart'
         ActionColors,
         GrantPermFormLayout,
         SolidInviteOthersConfig,
+        WebIdParts,
         debugPrintException,
         debugPrintFailure,
         failureMsg,
         getPermissionCheckBoxes,
         isPhone,
         makeSubHeading,
+        shareToSelfMsg,
         smallGapV,
         successMsg,
         updatePermissionMsg;
@@ -266,6 +268,17 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
         _pendingGroupWebIds = '';
       });
 
+  /// Whether [webId] identifies the current user, i.e. the person doing the
+  /// sharing. A resource is owned by [GrantPermissionForm.ownerWebId]; when
+  /// the resource lives on someone else's POD the current user is the
+  /// granter ([GrantPermissionForm.granterWebId]). Granting access to either
+  /// of these is rejected by the server ("Owner WebID cannot also be in
+  /// third party access list"), so we catch it here and explain it plainly
+  /// rather than surfacing the raw failure.
+  bool _isSelfWebId(String webId) =>
+      WebIdParts.isSameWebId(webId, widget.ownerWebId) ||
+      WebIdParts.isSameWebId(webId, widget.granterWebId);
+
   /// Validate the individual WebID typed by the user and, when valid,
   /// populate [finalWebIdList]. Returns true when the value is acceptable
   /// and Grant Permission may proceed; otherwise an alert has been shown
@@ -279,6 +292,13 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     final formatError = indWebIdFormatError(webId);
     if (formatError != null) {
       await _alert(formatError);
+      return false;
+    }
+    // Stop the user from sharing a resource with their own WebID, which the
+    // server rejects and which gains them nothing as they already have
+    // access.
+    if (_isSelfWebId(webId)) {
+      await _alert(shareToSelfMsg);
       return false;
     }
     final result = await validateWebId(webId);
@@ -313,6 +333,14 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
         .toList();
     if (webIdList.isEmpty) {
       await _alert('Please enter a group name and a list of Web IDs');
+      return false;
+    }
+
+    // Stop the user from including their own WebID in the group, which the
+    // server rejects and which gains them nothing as they already have
+    // access.
+    if (webIdList.any(_isSelfWebId)) {
+      await _alert(shareToSelfMsg);
       return false;
     }
 

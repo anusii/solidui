@@ -116,6 +116,45 @@ class WebIdParts {
     }
   }
 
+  /// Normalise a WebID into a canonical form suitable for equality
+  /// comparison. The scheme and host are lower-cased (both are
+  /// case-insensitive per RFC 3986), a single trailing slash is removed from
+  /// the path, and surrounding whitespace is trimmed. The path and fragment
+  /// are otherwise preserved because Solid servers treat them as
+  /// case-sensitive. Unparseable input falls back to a trimmed, lower-cased
+  /// copy so the comparison still degrades gracefully.
+
+  static String _normaliseForComparison(String webId) {
+    final trimmed = webId.trim();
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null || uri.host.isEmpty) {
+      return trimmed.toLowerCase();
+    }
+    final scheme = uri.scheme.toLowerCase();
+    final host = uri.host.toLowerCase();
+    final port = uri.hasPort ? ':${uri.port}' : '';
+    var path = uri.path;
+    if (path.endsWith('/')) {
+      path = path.substring(0, path.length - 1);
+    }
+    final fragment = uri.fragment.isEmpty ? '' : '#${uri.fragment}';
+    return '$scheme://$host$port$path$fragment';
+  }
+
+  /// Whether two WebIDs identify the same Solid user.
+  ///
+  /// Comparison is tolerant of differences that do not change identity, such
+  /// as surrounding whitespace, scheme/host casing, and a trailing slash on
+  /// the path. Returns `false` when either value is empty so an absent WebID
+  /// never counts as a match.
+
+  static bool isSameWebId(String? a, String? b) {
+    final left = a?.trim() ?? '';
+    final right = b?.trim() ?? '';
+    if (left.isEmpty || right.isEmpty) return false;
+    return _normaliseForComparison(left) == _normaliseForComparison(right);
+  }
+
   /// Produce a short, human-readable representation of a WebID suitable for
   /// display in navigation drawers, status bars, and similar UI surfaces.
   ///

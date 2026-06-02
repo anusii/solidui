@@ -76,6 +76,9 @@ const podNotInitMsg =
 const noAclMsg = 'Resource does not have a corresponding ACL file.\n'
     'If the ACL is inherited, provide parent directory as the resource name!';
 const successMsg = 'File access permissions granted successfully!';
+const shareToSelfMsg =
+    'This is your own WebID, so you already have access to this resource. '
+    'Please enter the WebID of the person you would like to share it with.';
 const failureMsg =
     'Permission granting failed. Check console logs for details. Common issues: resource not found, invalid WebID format, or network connectivity.';
 
