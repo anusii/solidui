@@ -37,6 +37,8 @@ import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/solidui.dart' show ActionColors;
 import 'package:solidui/src/utils/snack_bar.dart';
+import 'package:solidui/src/utils/solid_alert.dart'
+    show alertMaxWidthForCharsPerLine, defaultAlertMaxCharsPerLine;
 
 /// A [StatefulWidget] for the revoke permission icon button. Updates
 /// owner's ACL for resource, updates owner, granter, recipient logs,
@@ -110,6 +112,23 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
     super.initState();
   }
 
+  /// Build a human-friendly recipient label for the confirmation dialog.
+  ///
+  /// For Public or Authenticated User permissions, the raw receiver
+  /// identifier is the underlying agent class URI (e.g. the FOAF Agent
+  /// or ACL AuthenticatedAgent IRI), which is not meaningful to the
+  /// user. Show a descriptive label instead.
+
+  String _formatReceiverForDisplay(RecipientType recipientType) {
+    if (recipientType == RecipientType.public) {
+      return 'the Public';
+    }
+    if (recipientType == RecipientType.authUser) {
+      return 'all signed-in users';
+    }
+    return widget.receiverWebId.replaceAll('.ttl', '');
+  }
+
   @override
   Widget build(BuildContext context) {
     return MarkdownTooltip(
@@ -121,13 +140,53 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
           color: ActionColors.delete,
         ),
         onPressed: () {
+          // Derive recipient metadata once so we can adapt the
+          // confirmation message to the recipient class.
+          final recipientType = getRecipientType(
+            widget.permDataMap[widget.receiverWebId][agentStr] as String,
+            widget.receiverWebId,
+          );
+          final permList =
+              widget.permDataMap[widget.receiverWebId][permStr] as List;
+          final isPublicClass = recipientType == RecipientType.public ||
+              recipientType == RecipientType.authUser;
+
           showDialog(
             context: context,
             builder: (ctx) {
               return AlertDialog(
                 title: const Text('Please Confirm'),
-                content: Text(
-                  'Are you sure you want to remove the [${(widget.permDataMap[widget.receiverWebId][permStr] as List).join(', ')}] permission/s from ${widget.receiverWebId.replaceAll('.ttl', '')}?',
+                content: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: alertMaxWidthForCharsPerLine(
+                      defaultAlertMaxCharsPerLine,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Are you sure you want to remove the '
+                        '[${permList.join(', ')}] permission/s from '
+                        '${_formatReceiverForDisplay(recipientType)}?',
+                      ),
+                      // When revoking Public or Authenticated User access,
+                      // solidpod will re-encrypt the file in place if it
+                      // had previously been decrypted for sharing. Make
+                      // that side-effect explicit so the user understands
+                      // the action is not a pure permission change.
+                      if (isPublicClass) ...[
+                        const SizedBox(height: 12),
+                        const Text(
+                          'If this file had been decrypted in your POD so '
+                          'that this audience could read it, it will be '
+                          're-encrypted automatically using the same '
+                          'encryption key it had before.',
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
                 actions: [
                   // The "Yes" button
@@ -136,16 +195,11 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
                       await revokePermission(
                         fileName: widget.resourceName,
                         isFile: widget.isFile,
-                        permissionList: widget.permDataMap[widget.receiverWebId]
-                            [permStr] as List,
+                        permissionList: permList,
                         recipientIndOrGroupWebId: widget.receiverWebId,
                         ownerWebId: widget.ownerWebId,
                         granterWebId: widget.granterWebId,
-                        recipientType: getRecipientType(
-                          widget.permDataMap[widget.receiverWebId][agentStr]
-                              as String,
-                          widget.receiverWebId,
-                        ),
+                        recipientType: recipientType,
                         isExternalRes: widget.isExternalRes,
                       );
 

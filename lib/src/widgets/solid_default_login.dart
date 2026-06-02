@@ -113,6 +113,20 @@ class SolidDefaultLogin extends StatelessWidget {
 
   final bool required;
 
+  /// URL of the app's client profile JSON-LD document. Required parameter.
+
+  final String clientId;
+
+  /// One redirect URI per platform. [SolidLogin] selects the correct entry at
+  /// runtime via `pickRedirectUri`. Preferred over [redirectUri].
+
+  final List<String> redirectUris;
+
+  /// One post-logout redirect URI per platform. Preferred over
+  /// [postLogoutRedirectUri].
+
+  final List<String> postLogoutRedirectUris;
+
   const SolidDefaultLogin({
     super.key,
     required this.appTitle,
@@ -131,6 +145,9 @@ class SolidDefaultLogin extends StatelessWidget {
     this.themeConfig,
     this.snackbarConfig,
     this.required = false,
+    required this.clientId,
+    required this.redirectUris,
+    this.postLogoutRedirectUris = const [],
   });
 
   @override
@@ -168,6 +185,11 @@ class SolidDefaultLogin extends StatelessWidget {
             changeKeyButtonStyle ?? const ChangeKeyButtonStyle(),
         themeConfig: themeConfig ?? const SolidLoginTheme(),
         snackbarConfig: snackbarConfig ?? const SnackbarConfig(),
+        clientId: clientId,
+        redirectUris: redirectUris,
+        postLogoutRedirectUris: postLogoutRedirectUris.isNotEmpty
+            ? postLogoutRedirectUris
+            : const [],
         child: successWidget,
       ),
     );

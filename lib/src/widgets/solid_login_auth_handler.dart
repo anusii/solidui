@@ -251,11 +251,14 @@ class SolidLoginAuthHandler {
     required List<String> defaultFolders,
     required Map<dynamic, dynamic> defaultFiles,
     required dynamic originalLoginWidget,
+    required final String clientId,
+    required final List<String> redirectUris,
     required Widget childWidget,
     required ValueGetter<bool> isDialogCanceled,
     required VoidCallback updateDialogCanceledState,
     required Function(String message, {Duration? duration, bool showAction})
         showSnackbar,
+    final List<String> postLogoutRedirectUris = const [],
     bool staySignedIn = true,
   }) async {
     // Method to show busy animation requiring BuildContext.
@@ -306,7 +309,13 @@ class SolidLoginAuthHandler {
 
     List<dynamic>? authResult;
     try {
-      authResult = await solidAuthenticate(podServer, context);
+      authResult = await solidAuthenticate(
+        podServer,
+        context,
+        clientId: clientId,
+        redirectUris: redirectUris,
+        postLogoutRedirectUris: postLogoutRedirectUris,
+      );
     } on SolidAuthCancelledException {
       browserMessageTimer?.cancel();
 
