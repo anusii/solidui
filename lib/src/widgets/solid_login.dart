@@ -1,6 +1,6 @@
 /// Widget for logging in a POD.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2025-2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -41,7 +41,8 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFolders,
         generateDefaultFiles,
         generateCustomFolders,
-        setAppDirName;
+        setAppDirName,
+        tryRestoreSession;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
@@ -82,6 +83,10 @@ class SolidLogin extends StatefulWidget {
     this.themeConfig = const SolidLoginTheme(),
     this.snackbarConfig = const SnackbarConfig(),
     this.customFolderPathList = const [],
+    required this.clientId,
+    required this.redirectUris,
+    this.postLogoutRedirectUris = const [],
+    this.autoLogin = true,
     super.key,
   });
 
@@ -145,6 +150,38 @@ class SolidLogin extends StatefulWidget {
 
   final List customFolderPathList;
 
+  /// URL of the app's client profile JSON-LD document. Required parameter.
+
+  final String clientId;
+
+  /// One redirect URI per platform. [pickRedirectUri] selects the correct
+  /// entry at runtime based on the current platform.
+  ///
+  /// Provide all platform URIs here so the app works on every target without
+  /// manual changes:
+  /// ```dart
+  /// redirectUris: [
+  ///   'https://your-domain/redirect.html', // web
+  ///   'com.example.app://redirect',         // android / ios
+  ///   'http://localhost:4400/redirect',      // desktop
+  /// ]
+  /// ```
+
+  final List<String> redirectUris;
+
+  /// One post-logout redirect URI per platform. Defaults to the same
+  /// selection as [redirectUris] when omitted.
+
+  final List<String> postLogoutRedirectUris;
+
+  /// When true, automatically restores a saved session on startup and navigates
+  /// directly to [child] without showing the login page.
+  ///
+  /// Falls back to showing the login page if no valid session is found or if
+  /// the user has opted out of "Stay signed in".
+
+  final bool autoLogin;
+
   @override
   State<SolidLogin> createState() => _SolidLoginState();
 }
@@ -185,6 +222,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _assetsResolved = false;
 
+  /// Whether an auto-login check is in progress (shows a loading screen).
+
+  bool _checkingAutoLogin = false;
+
   /// Whether the user wishes to persist the login session across app restarts.
 
   bool _staySignedIn = true;
@@ -218,6 +259,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     SolidLoginAuthHandler.clearSessionIfRequired();
 
+    // If autoLogin is requested, attempt silent session restoration after the
+    // first frame so that context is available for navigation.
+
+    if (widget.autoLogin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkAutoLogin());
+    }
+
     // dc 20251022: please explain why calling an async without await.
 
     _initPackageInfo();
@@ -243,8 +291,20 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       themeConfig: widget.themeConfig,
       snackbarConfig: widget.snackbarConfig,
       required: widget.required,
+      redirectUris: _effectiveRedirectUris,
+      postLogoutRedirectUris: _effectivePostLogoutUris,
     );
   }
+
+  /// Normalises the redirect URI list, merging the new list param with the
+  /// deprecated single-string param for backward compatibility.
+
+  List<String> get _effectiveRedirectUris => widget.redirectUris;
+
+  List<String> get _effectivePostLogoutUris =>
+      widget.postLogoutRedirectUris.isNotEmpty
+          ? widget.postLogoutRedirectUris
+          : const [];
 
   /// Resolves the image and logo assets with fallback logic.
   ///
@@ -270,6 +330,32 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   Future<void> _loadStaySignedInPreference() async {
     final value = await SolidLoginAuthHandler.getStaySignedIn();
     if (mounted) setState(() => _staySignedIn = value);
+  }
+
+  /// Attempts silent session restoration. On success navigates directly to
+  /// [widget.child]; on failure shows the login page as normal.
+
+  Future<void> _checkAutoLogin() async {
+    if (!mounted) return;
+
+    // Honour the "Stay signed in" opt-out — if disabled, skip auto-login.
+    final staySignedIn = await SolidLoginAuthHandler.getStaySignedIn();
+    if (!staySignedIn || !mounted) return;
+
+    if (mounted) setState(() => _checkingAutoLogin = true);
+
+    final session = await tryRestoreSession();
+
+    if (!mounted) return;
+    if (session == null) {
+      setState(() => _checkingAutoLogin = false);
+      return;
+    }
+
+    // Session restored — navigate directly to the child widget.
+    await Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => widget.child),
+    );
   }
 
   @override
@@ -373,9 +459,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // Show a loading indicator whilst assets are being resolved.
+    // Show a loading indicator whilst assets are being resolved or an
+    // auto-login check is in progress.
 
-    if (!_assetsResolved) {
+    if (!_assetsResolved || _checkingAutoLogin) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -415,6 +502,9 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         updateDialogCanceledState: updateState,
         showSnackbar: _showSnackbar,
         staySignedIn: _staySignedIn,
+        clientId: widget.clientId,
+        redirectUris: _effectiveRedirectUris,
+        postLogoutRedirectUris: _effectivePostLogoutUris,
       );
     }
 
