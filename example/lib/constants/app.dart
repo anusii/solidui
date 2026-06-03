@@ -53,3 +53,18 @@ demo:exampleData$fileName
     demo:category "demo-data".
 ''';
 }
+
+const clientIdVal =
+    'https://anushkavidanage.github.io/solidui/example/client-profile.jsonld';
+
+const redirectUrisList = [
+  'http://localhost:4400/redirect',
+  'com.example.demopod://redirect',
+  'https://anushkavidanage.github.io/solidui/example/redirect.html'
+];
+
+const postLogoutRedirectUrisList = [
+  'http://localhost:4400/redirect',
+  'com.example.demopod://redirect',
+  'https://anushkavidanage.github.io/solidui/example/redirect.html'
+];
