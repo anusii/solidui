@@ -3,8 +3,8 @@
 Noted here are the high level changes for the package.
 
 Guide: Each version update is recorded here with a short user-oriented
-description of the update. Updates in the 0.0.n series are heading
-toward a 0.1 release. The `[version timestamp user]` string is
+description of the update. Updates in the 1.0.n series are heading
+toward a 1.1 release. The `[version timestamp user]` string is
 utilised by the flutter version_widget package.
 
 The package is available from
@@ -14,9 +14,13 @@ The package is available from
 
 [//]: # (au]&#40;https://solidcommunity.au/docs/solidui&#41;)
 
-## 0.4.0 Refine and Tune
+## 1.1 Consolidate Android Login
 
-+ Bug fix decrypting public file [0.3.57 tonypioneer]
++ Migrate to certified oidc [1.0.0 20260604 anushkavidanage]
+
+## 0.4 Refine and Tune
+
++ Bug fix decrypting public file [0.3.57 20260604 tonypioneer]
 + Implement checking file encryption [0.3.56 20260527 tonypioneer]
 + Support file uploads in FileBrowser [0.3.55 20260526 tonypioneer]
 + Update SolidAnimationDialog from NotePod updates [0.3.54 20260526 tonypioneer]
@@ -76,14 +80,14 @@ The package is available from
 + Bug fix notification of uninitialised pod [0.3.2 20260318 tonypioneer]
 + Bug fix to support SolidScaffold(showLogout:) [0.3.1 20260318 tonypioneer]
 
-## 0.3.0 Stabilise
+## 0.3 Stabilise
 
 + Publish to pub.dev [0.3.0 20260316 gjw]
 + Optimise pod initialisation check [0.2.2 20260219 tonypioneer]
 + Update SolidFile browser UI and functionals [0.2.1 20260219 tonypioneer]
 + Migrate remaining UI from solidpod to solidui [0.2.0 20260213 tonypioneer]
 
-## 0.2.0 Complete UI Migration
+## 0.2 Complete UI Migration
 
 + Support delete file by url [0.1.5 20260206 dc]
 + Remove overflow on narrow and short login window [0.1.4 20260205 tonypioneer]
@@ -92,7 +96,7 @@ The package is available from
 + Add theme button the security key options [0.1.1 20260204 tonypioneer]
 + Migrate Security Key and Permission GUI from solidpod [0.1.0 20260203 tonypioneer]
 
-## 0.1.0 First Beta Release
+## 0.1 First Beta Release
 
 + Support dark mode for security key UI [0.0.34 20260130 tonypioneer]
 + Update security key workflows [0.0.33 20260130 tonypioneer]
