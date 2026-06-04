@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Fix solid popup login [1.0.1 20260604 anushkavidanage]
 + Migrate to certified oidc [1.0.0 20260604 anushkavidanage]
 
 ## 0.4 Refine and Tune
