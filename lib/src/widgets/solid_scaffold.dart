@@ -304,7 +304,7 @@ class SolidScaffold extends StatefulWidget {
   /// Login and security key actions remain in the drawer. Users can override
   /// this layout from **About → Menu** when enabled on [aboutConfig].
 
-  final bool menuInBottomBar;
+  final bool bottomBarMenu;
 
   const SolidScaffold({
     super.key,
@@ -356,7 +356,7 @@ class SolidScaffold extends StatefulWidget {
     this.hideNavRail = false,
     this.enableProfile = true,
     this.enableOverflowMenu = true,
-    this.menuInBottomBar = true,
+    this.bottomBarMenu = true,
   });
 
   @override

@@ -60,8 +60,8 @@ class SolidScaffoldWidgetBuilder {
     if (widget.feedbackConfig != null && about.feedbackConfig == null) {
       about = about.copyWith(feedbackConfig: widget.feedbackConfig);
     }
-    about = about.copyWith(scaffoldMenuInBottomBar: widget.menuInBottomBar);
-    if (!widget.menuInBottomBar) {
+    about = about.copyWith(scaffoldMenuInBottomBar: widget.bottomBarMenu);
+    if (!widget.bottomBarMenu) {
       about = about.copyWith(showMenuLayoutPreferences: false);
     }
     return about;
@@ -158,7 +158,7 @@ class SolidScaffoldWidgetBuilder {
     final effectiveLogin = _getEffectiveLogin(widget);
     final navTabs = SolidScaffoldHelpers.convertToNavTabs(widget.menu);
     final useMenuInBottomBar = SolidScaffoldLayoutBuilder.useMenuInBottomBar(
-      scaffoldMenuInBottomBar: widget.menuInBottomBar,
+      scaffoldMenuInBottomBar: widget.bottomBarMenu,
       isWideScreen: isWideScreen,
       tabs: navTabs,
     );
