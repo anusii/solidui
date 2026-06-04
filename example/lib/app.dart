@@ -57,23 +57,14 @@ class App extends StatelessWidget {
         infoButtonStyle: InfoButtonStyle(
           tooltip: 'Visit the DemoPod documentation.',
         ),
-        clientId:
-            'https://anushkavidanage.github.io/solidui/example/client-profile.jsonld',
+        clientId: clientIdVal,
         // Use the following schemas depending on the platform
         //  Web: https://anushkavidanage.github.io/solidpod/example/redirect.html
         //  Mobile: com.example.demopod://redirect
         //  Desktop: http://localhost:4400/redirect
         //    (can use any port as long as it matches with the one in your id document)
-        redirectUris: [
-          'http://localhost:4400/redirect',
-          'com.example.demopod://redirect',
-          'https://anushkavidanage.github.io/solidui/example/redirect.html'
-        ],
-        postLogoutRedirectUris: [
-          'http://localhost:4400/redirect',
-          'com.example.demopod://redirect',
-          'https://anushkavidanage.github.io/solidui/example/redirect.html'
-        ],
+        redirectUris: redirectUrisList,
+        postLogoutRedirectUris: postLogoutRedirectUrisList,
         autoLogin: true,
         child: appScaffold,
       ),
