@@ -1293,7 +1293,7 @@ solidProfileNotifier.addListener(() {
 });
 ```
 
-## Theme Management
+## The Theme Management
 
 `SolidThemeApp` is a `MaterialApp` wrapper that integrates SolidUI's
 theme persistence. Use it instead of plain `MaterialApp` to get automatic
@@ -1557,7 +1557,7 @@ issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
 The authors of the package will respond to issues as best we can.
 
 <!-- markdownlint-disable MD036 -->
-*Time-stamp: <Monday 2026-01-19 16:52:46 +1100 Graham Williams>*
+*Time-stamp: <Thursday 2026-06-04 13:02:15 +1000 Graham Williams>*
 <!-- markdownlint-enable MD036 -->
 
 <!-- markdownlint-disable MD053 -->

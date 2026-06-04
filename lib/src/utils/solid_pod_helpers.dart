@@ -99,10 +99,11 @@ Future<bool> loginIfRequired({
   final loggedIn = await isUserLoggedIn();
   if (!loggedIn && context.mounted) {
     await loginWebIdInputDialog(
-        context: context,
-        clientId: clientId,
-        redirectUris: redirectUris,
-        postLogoutRedirectUris: postLogoutRedirectUris);
+      context: context,
+      clientId: clientId,
+      redirectUris: redirectUris,
+      postLogoutRedirectUris: postLogoutRedirectUris,
+    );
     // await Navigator.push(
     //     context,
     //     MaterialPageRoute(
