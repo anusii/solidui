@@ -25,7 +25,7 @@ const List<String> kKnownSolidServers = [
   'https://solidweb.org',
   'https://solidweb.app',
   'https://teamid.live',
-  'https://trinpod.eu',
+  // 20260605 gjw SSL certificate expired. 'https' '://trinpod.eu',
   'https://trinpod.us',
   'https://igrant.io/datapod.html',
   'https://start.inrupt.com',

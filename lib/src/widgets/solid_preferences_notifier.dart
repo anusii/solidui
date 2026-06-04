@@ -45,6 +45,7 @@ class _PreferencesKeys {
   static const String systemModeEnabled = 'solidui_system_mode_enabled';
   static const String smartToggle = 'solidui_smart_toggle';
   static const String appBarActions = 'solidui_appbar_actions';
+  static const String menuInBottomBar = 'solidui_menu_in_bottom_bar';
 
   _PreferencesKeys._();
 }
@@ -94,6 +95,15 @@ class SolidPreferencesNotifier extends ChangeNotifier {
 
   List<SolidAppBarActionItem> get appBarActions => _config.appBarActions;
 
+  /// User override for menu-in-bottom-bar, or null to use the scaffold default.
+
+  bool? get menuInBottomBarOverride => _config.menuInBottomBar;
+
+  /// Resolves whether navigation items appear in the bottom bar on narrow screens.
+
+  bool menuInBottomBarForScaffold(bool scaffoldDefault) =>
+      _config.resolveMenuInBottomBar(scaffoldDefault);
+
   /// Initialises the notifier by loading preferences from SharedPreferences.
 
   Future<void> initialize() async {
@@ -111,6 +121,7 @@ class SolidPreferencesNotifier extends ChangeNotifier {
       _config = SolidPreferencesConfig(
         themeModeConfig: themeModeConfig,
         appBarActions: appBarActions,
+        menuInBottomBar: _loadMenuInBottomBar(prefs),
       );
 
       _isInitialized = true;
@@ -130,6 +141,11 @@ class SolidPreferencesNotifier extends ChangeNotifier {
           prefs.getBool(_PreferencesKeys.systemModeEnabled) ?? true,
       smartToggle: prefs.getBool(_PreferencesKeys.smartToggle) ?? true,
     );
+  }
+
+  bool? _loadMenuInBottomBar(SharedPreferences prefs) {
+    if (!prefs.containsKey(_PreferencesKeys.menuInBottomBar)) return null;
+    return prefs.getBool(_PreferencesKeys.menuInBottomBar);
   }
 
   List<SolidAppBarActionItem> _loadAppBarActions(SharedPreferences prefs) {
@@ -278,6 +294,15 @@ class SolidPreferencesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sets whether menu items appear in the bottom bar on narrow screens.
+
+  void setMenuInBottomBar(bool enabled) {
+    if (_config.menuInBottomBar == enabled) return;
+    _config = _config.copyWith(menuInBottomBar: enabled);
+    _saveMenuInBottomBar();
+    notifyListeners();
+  }
+
   /// Toggles whether an action should appear in the overflow menu.
 
   void toggleActionOverflow(String actionId) {
@@ -313,6 +338,7 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   Future<void> _savePreferences() async {
     await _saveThemeModeConfig();
     await _saveAppBarActions();
+    await _saveMenuInBottomBar();
   }
 
   /// Saves theme mode configuration to SharedPreferences.
@@ -338,6 +364,22 @@ class SolidPreferencesNotifier extends ChangeNotifier {
       );
     } catch (e) {
       debugPrint('Error saving theme mode config: $e');
+    }
+  }
+
+  /// Saves menu layout preference to SharedPreferences.
+
+  Future<void> _saveMenuInBottomBar() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final value = _config.menuInBottomBar;
+      if (value == null) {
+        await prefs.remove(_PreferencesKeys.menuInBottomBar);
+      } else {
+        await prefs.setBool(_PreferencesKeys.menuInBottomBar, value);
+      }
+    } catch (e) {
+      debugPrint('Error saving menu layout preference: $e');
     }
   }
 
