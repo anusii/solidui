@@ -90,10 +90,20 @@ Future<bool> isPodUpdateMode(List<dynamic> resCheckList) async {
 
 /// Login if the user has not done so.
 
-Future<bool> loginIfRequired(BuildContext context) async {
+Future<bool> loginIfRequired({
+  required BuildContext context,
+  required String clientId,
+  required List<String> redirectUris,
+  List<String> postLogoutRedirectUris = const [],
+}) async {
   final loggedIn = await isUserLoggedIn();
   if (!loggedIn && context.mounted) {
-    await loginWebIdInputDialog(context);
+    await loginWebIdInputDialog(
+      context: context,
+      clientId: clientId,
+      redirectUris: redirectUris,
+      postLogoutRedirectUris: postLogoutRedirectUris,
+    );
     // await Navigator.push(
     //     context,
     //     MaterialPageRoute(

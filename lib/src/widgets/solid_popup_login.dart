@@ -55,7 +55,13 @@ import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 class SolidPopupLogin extends StatefulWidget {
   /// Constructor for the PopupLogin.
 
-  const SolidPopupLogin({this.webId = SolidConfig.defaultServerUrl, super.key});
+  const SolidPopupLogin({
+    this.webId = SolidConfig.defaultServerUrl,
+    super.key,
+    required this.clientId,
+    required this.redirectUris,
+    this.postLogoutRedirectUris,
+  });
 
   /// The URI of the user's webID used to identify the Solid server to
   /// authenticate against.
@@ -63,6 +69,12 @@ class SolidPopupLogin extends StatefulWidget {
   /// by default.
 
   final String webId;
+
+  final String clientId;
+
+  final List<String> redirectUris;
+
+  final List<String>? postLogoutRedirectUris;
 
   @override
   State<SolidPopupLogin> createState() => _SolidPopupLoginState();
@@ -139,14 +151,20 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
   // Login and check POD initialisation status.
   // If POD structure is incomplete, navigate to InitialSetupScreen.
 
-  Future<bool> _loginAndInitPods(String webId, BuildContext context) async {
+  Future<bool> _loginAndInitPods(
+    String webId,
+    String clientId,
+    List<String> redirectUris,
+    BuildContext context,
+    List<String>? postLogoutRedirectUris,
+  ) async {
     try {
       await solidAuthenticate(
         webId,
         context,
-        clientId: '',
-        redirectUris: const [],
-        postLogoutRedirectUris: const [],
+        clientId: clientId,
+        redirectUris: redirectUris,
+        postLogoutRedirectUris: postLogoutRedirectUris!,
       );
 
       // Persist the WebID/server URL so the re-login dialog can prefill it
@@ -225,7 +243,13 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     return Scaffold(
       key: _scaffoldKey,
       body: FutureBuilder(
-        future: _loginAndInitPods(widget.webId, context),
+        future: _loginAndInitPods(
+          widget.webId,
+          widget.clientId,
+          widget.redirectUris,
+          context,
+          widget.postLogoutRedirectUris,
+        ),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return _loadedScreen(snapshot.data!);

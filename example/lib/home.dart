@@ -212,7 +212,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     // First ensure we are logged in.
 
     final loggedIn = await loginIfRequired(
-      context,
+      clientId: clientIdVal,
+      redirectUris: redirectUrisList,
+      postLogoutRedirectUris: postLogoutRedirectUrisList,
+      context: context,
     );
 
     if (loggedIn) {
@@ -386,20 +389,35 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ElevatedButton(
                     child: const Text('Read/Write Pod Data File'),
                     onPressed: () async {
-                      await loginIfRequired(context);
+                      await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       await _readWritePrivateData();
                     },
                   ),
                   ElevatedButton(
                     child: const Text('Read Metadata of Pod Data File'),
                     onPressed: () async {
-                      await loginIfRequired(context);
+                      await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       await _readMetaData();
                     },
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         deleteDataFileDialog(dataFile, context);
                       }
@@ -408,7 +426,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
                         if (context.mounted) {
@@ -425,7 +448,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         final webId = await getWebId();
                         setState(() {
@@ -456,7 +484,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 _buttonRow([
                   ElevatedButton(
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         final webId = await getWebId();
                         setState(() {
@@ -478,7 +511,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         final webId = await getWebId();
                         setState(() {
@@ -657,7 +695,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         );
 
                         if (!context.mounted) return;
-                        await loginIfRequired(context);
+                        await loginIfRequired(
+                          clientId: clientIdVal,
+                          redirectUris: redirectUrisList,
+                          postLogoutRedirectUris: postLogoutRedirectUrisList,
+                          context: context,
+                        );
                       },
                       child: const Text('Simulate Token Invalidation'),
                     ),
@@ -673,7 +716,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 _buttonRow([
                   ElevatedButton(
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
 
@@ -710,7 +758,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ElevatedButton(
                     child: const Text('Permission Callback Demo'),
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
                         Navigator.push(
@@ -727,7 +780,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ElevatedButton(
                     child: const Text('Add/Delete Permissions to any Resource'),
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
                         Navigator.push(
@@ -745,7 +803,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ElevatedButton(
                     child: const Text('Share Multiple Specified Resources'),
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
                         Navigator.push(
@@ -771,7 +834,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   ElevatedButton(
                     child: const Text('View specific resource (key-value.ttl)'),
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
 
@@ -809,7 +877,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       'View ALL Resources your WebID has access to',
                     ),
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
                       if (loggedIn) {
                         await getKeyFromUserIfRequired(context, widget);
                         Navigator.push(
@@ -837,7 +910,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 _buttonRow([
                   ElevatedButton(
                     onPressed: () async {
-                      final loggedIn = await loginIfRequired(context);
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
 
                       if (!loggedIn) {
                         debugPrint('Please login to run the demo');
