@@ -291,20 +291,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       themeConfig: widget.themeConfig,
       snackbarConfig: widget.snackbarConfig,
       required: widget.required,
-      redirectUris: _effectiveRedirectUris,
-      postLogoutRedirectUris: _effectivePostLogoutUris,
+      clientId: widget.clientId,
+      redirectUris: widget.redirectUris,
+      postLogoutRedirectUris: widget.postLogoutRedirectUris,
     );
   }
-
-  /// Normalises the redirect URI list, merging the new list param with the
-  /// deprecated single-string param for backward compatibility.
-
-  List<String> get _effectiveRedirectUris => widget.redirectUris;
-
-  List<String> get _effectivePostLogoutUris =>
-      widget.postLogoutRedirectUris.isNotEmpty
-          ? widget.postLogoutRedirectUris
-          : const [];
 
   /// Resolves the image and logo assets with fallback logic.
   ///
@@ -503,8 +494,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         showSnackbar: _showSnackbar,
         staySignedIn: _staySignedIn,
         clientId: widget.clientId,
-        redirectUris: _effectiveRedirectUris,
-        postLogoutRedirectUris: _effectivePostLogoutUris,
+        redirectUris: widget.redirectUris,
+        postLogoutRedirectUris: widget.postLogoutRedirectUris,
       );
     }
 
