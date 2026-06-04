@@ -162,20 +162,35 @@ class SolidPreferencesConfig {
 
   final List<SolidAppBarActionItem> appBarActions;
 
+  /// When non-null, overrides [SolidScaffold.menuInBottomBar] on narrow screens.
+
+  final bool? menuInBottomBar;
+
   const SolidPreferencesConfig({
     this.themeModeConfig = const SolidThemeModeConfig(),
     this.appBarActions = const [],
+    this.menuInBottomBar,
   });
+
+  /// Resolves whether menu items appear in the bottom bar on narrow screens.
+
+  bool resolveMenuInBottomBar(bool scaffoldDefault) =>
+      menuInBottomBar ?? scaffoldDefault;
 
   /// Creates a copy with modified values.
 
   SolidPreferencesConfig copyWith({
     SolidThemeModeConfig? themeModeConfig,
     List<SolidAppBarActionItem>? appBarActions,
+    bool? menuInBottomBar,
+    bool clearMenuInBottomBar = false,
   }) {
     return SolidPreferencesConfig(
       themeModeConfig: themeModeConfig ?? this.themeModeConfig,
       appBarActions: appBarActions ?? this.appBarActions,
+      menuInBottomBar: clearMenuInBottomBar
+          ? null
+          : (menuInBottomBar ?? this.menuInBottomBar),
     );
   }
 }

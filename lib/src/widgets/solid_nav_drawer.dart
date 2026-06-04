@@ -94,6 +94,10 @@ class SolidNavDrawer extends StatefulWidget {
 
   final List<Widget>? additionalMenuItems;
 
+  /// Whether to show the main navigation tabs in the drawer.
+
+  final bool includeNavigationTabs;
+
   /// Optional custom drawer shape.
 
   final ShapeBorder? drawerShape;
@@ -112,6 +116,7 @@ class SolidNavDrawer extends StatefulWidget {
     this.onUserNameTap,
     this.securityKeyStatus,
     this.additionalMenuItems,
+    this.includeNavigationTabs = true,
     this.drawerShape,
   });
 
@@ -193,11 +198,12 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
               children: [
-                ...widget.tabs.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final tab = entry.value;
-                  return _buildNavTile(context, cs, index, tab);
-                }),
+                if (widget.includeNavigationTabs)
+                  ...widget.tabs.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final tab = entry.value;
+                    return _buildNavTile(context, cs, index, tab);
+                  }),
                 if (widget.additionalMenuItems != null)
                   ...widget.additionalMenuItems!,
                 if (widget.securityKeyStatus != null ||
