@@ -30,8 +30,6 @@
 
 library;
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
@@ -55,6 +53,7 @@ import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 import 'package:solidui/src/widgets/grant_permission_dialogs.dart';
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
+import 'package:solidui/src/widgets/grant_permission_notify.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input.dart'
     show indWebIdFormatError;
@@ -596,82 +595,20 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             if (result == SolidFunctionCallStatus.success) {
               _showSnackBar(successMsg, ActionColors.success);
 
-              // Send a notification to each specific recipient (individual
-              // or group members) in the background. Non-specific types
-              // such as public or authenticated users are skipped because
-              // there is no concrete WebID to notify.
+              // Notify specific recipients in the background. Public and
+              // authenticated-user shares are skipped inside the helper
+              // because they have no concrete WebID to notify.
 
-              if (selectedRecipientType == RecipientType.individual ||
-                  selectedRecipientType == RecipientType.group) {
-                final primaryResource = widget.resourceNames.first;
-                final displayName =
-                    widget.resourceDisplayName ?? primaryResource;
-                final permissions = selectedPermList.join(', ');
-
-                // Track failures separately so the user sees a meaningful
-                // diagnostic — previously non-RecipientNotReady errors
-                // were silently debugPrint'd, which is exactly why a
-                // misconfigured recipient could end the share-note flow
-                // with neither a file nor a warning.
-
-                final notReadyRecipients = <String>[];
-                final otherFailures = <({String recipient, String error})>[];
-
-                for (final recipientWebId in finalWebIdList) {
-                  try {
-                    await sendNotification(
-                      recipientWebId: recipientWebId as String,
-                      title:
-                          'A resource has been shared with you: $displayName',
-                      content: jsonEncode({
-                        'fileUrl': primaryResource,
-                        'fileUrls': widget.resourceNames,
-                        'fileTitle': displayName,
-                        'sharedBy': widget.granterWebId,
-                        'owner': widget.ownerWebId,
-                        'permissions': permissions,
-                      }),
-                      priority: 1,
-                    );
-                  } on RecipientNotReadyException catch (e) {
-                    debugPrint(
-                      '[GrantPermissionForm] '
-                      'Recipient not ready for $recipientWebId: $e',
-                    );
-                    notReadyRecipients.add(recipientWebId as String);
-                  } on Object catch (e) {
-                    debugPrint(
-                      '[GrantPermissionForm] '
-                      'Failed to send notification to $recipientWebId: $e',
-                    );
-                    otherFailures.add(
-                      (recipient: recipientWebId as String, error: '$e'),
-                    );
-                  }
-                }
-
-                if (notReadyRecipients.isNotEmpty) {
-                  final names = notReadyRecipients.join(', ');
-                  _showSnackBar(
-                    'Permission granted, but could not notify: $names. '
-                    'The recipient(s) need to log in once to upgrade '
-                    'their Pod setup (the Update Wizard runs on login).',
-                    ActionColors.warning,
-                    duration: const Duration(seconds: 8),
-                  );
-                }
-                if (otherFailures.isNotEmpty) {
-                  final summary = otherFailures
-                      .map((f) => '${f.recipient} (${f.error})')
-                      .join('; ');
-                  _showSnackBar(
-                    'Permission granted, but notification delivery failed: '
-                    '$summary',
-                    ActionColors.warning,
-                    duration: const Duration(seconds: 8),
-                  );
-                }
-              }
+              await notifyShareRecipients(
+                recipientType: selectedRecipientType,
+                recipientWebIds: finalWebIdList,
+                resourceNames: widget.resourceNames,
+                resourceDisplayName: widget.resourceDisplayName,
+                granterWebId: widget.granterWebId,
+                ownerWebId: widget.ownerWebId,
+                permissionList: selectedPermList,
+                showSnack: _showSnackBar,
+              );
 
               // Update permissions table for the primary resource.
               await widget.updatePermissionsFunction(

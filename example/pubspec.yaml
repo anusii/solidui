@@ -26,6 +26,10 @@ dev_dependencies:
 dependency_overrides:
   solidui:
     path: ..
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: tony/257_notification
 
 flutter:
   uses-material-design: true
