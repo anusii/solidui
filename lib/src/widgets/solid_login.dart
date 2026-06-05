@@ -162,10 +162,15 @@ class SolidLogin extends StatefulWidget {
   /// ```dart
   /// redirectUris: [
   ///   'https://your-domain/redirect.html', // web
-  ///   'com.example.app://redirect',         // android / ios
-  ///   'http://localhost:4400/redirect',      // desktop
+  ///   'com.example.app://redirect',         // android / ios / macOS
+  ///   'http://localhost:4400/redirect',      // desktop (Windows / Linux)
   /// ]
   /// ```
+  ///
+  /// macOS shares the custom-scheme entry with mobile because `oidc_macos`
+  /// uses `ASWebAuthenticationSession` and cannot receive a redirect on a
+  /// `http://localhost` loopback URL. Make sure the macOS Runner's
+  /// `Info.plist` registers the same scheme under `CFBundleURLSchemes`.
 
   final List<String> redirectUris;
 
@@ -291,20 +296,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       themeConfig: widget.themeConfig,
       snackbarConfig: widget.snackbarConfig,
       required: widget.required,
-      redirectUris: _effectiveRedirectUris,
-      postLogoutRedirectUris: _effectivePostLogoutUris,
+      clientId: widget.clientId,
+      redirectUris: widget.redirectUris,
+      postLogoutRedirectUris: widget.postLogoutRedirectUris,
     );
   }
-
-  /// Normalises the redirect URI list, merging the new list param with the
-  /// deprecated single-string param for backward compatibility.
-
-  List<String> get _effectiveRedirectUris => widget.redirectUris;
-
-  List<String> get _effectivePostLogoutUris =>
-      widget.postLogoutRedirectUris.isNotEmpty
-          ? widget.postLogoutRedirectUris
-          : const [];
 
   /// Resolves the image and logo assets with fallback logic.
   ///
@@ -503,8 +499,8 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         showSnackbar: _showSnackbar,
         staySignedIn: _staySignedIn,
         clientId: widget.clientId,
-        redirectUris: _effectiveRedirectUris,
-        postLogoutRedirectUris: _effectivePostLogoutUris,
+        redirectUris: widget.redirectUris,
+        postLogoutRedirectUris: widget.postLogoutRedirectUris,
       );
     }
 

@@ -46,7 +46,12 @@ import 'package:solidui/src/widgets/solid_popup_login.dart';
 /// accidentally logged-out user does not have to retype it. Falls back
 /// to [SolidConfig.defaultServerUrl] for first-time users.
 
-Future<dynamic> loginWebIdInputDialog(BuildContext context) async {
+Future<dynamic> loginWebIdInputDialog({
+  required BuildContext context,
+  required String clientId,
+  required List<String> redirectUris,
+  List<String> postLogoutRedirectUris = const [],
+}) async {
   final lastWebId = await SolidLoginAuthHandler.getLastWebId();
   if (!context.mounted) return null;
 
@@ -88,7 +93,12 @@ Future<dynamic> loginWebIdInputDialog(BuildContext context) async {
                 }
                 await outerNavigator.push(
                   MaterialPageRoute(
-                    builder: (_) => SolidPopupLogin(webId: receiverWebId),
+                    builder: (_) => SolidPopupLogin(
+                      webId: receiverWebId,
+                      clientId: clientId,
+                      redirectUris: redirectUris,
+                      postLogoutRedirectUris: postLogoutRedirectUris,
+                    ),
                   ),
                 );
               } else {

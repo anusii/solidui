@@ -304,6 +304,14 @@ class SolidScaffold extends StatefulWidget {
 
   final bool enableOverflowMenu;
 
+  /// On narrow screens, place main menu items in the bottom navigation bar
+  /// instead of the hamburger drawer when true (the default).
+  ///
+  /// Login and security key actions remain in the drawer. Users can override
+  /// this layout from **About → Menu** when enabled on [aboutConfig].
+
+  final bool bottomBarMenu;
+
   const SolidScaffold({
     super.key,
     this.menu,
@@ -355,6 +363,7 @@ class SolidScaffold extends StatefulWidget {
     this.hideNavRail = false,
     this.enableProfile = true,
     this.enableOverflowMenu = true,
+    this.bottomBarMenu = true,
   });
 
   @override

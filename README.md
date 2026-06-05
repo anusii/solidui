@@ -222,9 +222,12 @@ modes based on the screen width:
 
 - **Wide screens (≥800px)**: Display a vertical navigation rail
   `SolidNavBar()` on the left side;
-- **Narrow screens (<800px)**: Replace the navigation rail with a
-  collapsible navigation drawer `SolidNavDrawer()` accessible via a
-  hamburger menu;
+- **Narrow screens (<800px)**: By default, main menu items appear in a
+  bottom navigation bar (`SolidNavBottomBar`). Login and security key
+  actions stay in the collapsible navigation drawer `SolidNavDrawer()`
+  (hamburger menu). Set `menuInBottomBar: false` on `SolidScaffold` to
+  keep all menu items in the drawer instead, or let users choose via
+  **About → Menu**;
 - **Custom threshold**: The breakpoint can be customised using the
   `narrowScreenThreshold` parameter with a value of 0 turning off the
   hamburger menu and a large value effectively turning off the
@@ -1293,7 +1296,7 @@ solidProfileNotifier.addListener(() {
 });
 ```
 
-## Theme Management
+## The Theme Management
 
 `SolidThemeApp` is a `MaterialApp` wrapper that integrates SolidUI's
 theme persistence. Use it instead of plain `MaterialApp` to get automatic
@@ -1557,7 +1560,7 @@ issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
 The authors of the package will respond to issues as best we can.
 
 <!-- markdownlint-disable MD036 -->
-*Time-stamp: <Monday 2026-01-19 16:52:46 +1100 Graham Williams>*
+*Time-stamp: <Thursday 2026-06-04 13:02:15 +1000 Graham Williams>*
 <!-- markdownlint-enable MD036 -->
 
 <!-- markdownlint-disable MD053 -->

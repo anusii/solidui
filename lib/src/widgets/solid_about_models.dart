@@ -103,6 +103,14 @@ class SolidAboutConfig {
 
   final bool showLayoutPreferences;
 
+  /// Whether to show the Menu layout button in the About dialogue.
+
+  final bool showMenuLayoutPreferences;
+
+  /// Default for bottom-bar menu layout before the user saves a preference.
+
+  final bool scaffoldMenuInBottomBar;
+
   /// Optional Invite Others configuration. When supplied, a Share
   /// button is added to the About dialogue so users can invite people
   /// directly from the App Info page.
@@ -142,6 +150,8 @@ class SolidAboutConfig {
     this.tooltip,
     this.onPressed,
     this.showLayoutPreferences = true,
+    this.showMenuLayoutPreferences = true,
+    this.scaffoldMenuInBottomBar = true,
     this.inviteConfig,
     this.feedbackConfig,
     this.readmeUrl,
@@ -202,6 +212,8 @@ class SolidAboutConfig {
     String? tooltip,
     VoidCallback? onPressed,
     bool? showLayoutPreferences,
+    bool? showMenuLayoutPreferences,
+    bool? scaffoldMenuInBottomBar,
     SolidInviteOthersConfig? inviteConfig,
     SolidFeedbackConfig? feedbackConfig,
     String? readmeUrl,
@@ -224,6 +236,10 @@ class SolidAboutConfig {
       onPressed: onPressed ?? this.onPressed,
       showLayoutPreferences:
           showLayoutPreferences ?? this.showLayoutPreferences,
+      showMenuLayoutPreferences:
+          showMenuLayoutPreferences ?? this.showMenuLayoutPreferences,
+      scaffoldMenuInBottomBar:
+          scaffoldMenuInBottomBar ?? this.scaffoldMenuInBottomBar,
       inviteConfig: inviteConfig ?? this.inviteConfig,
       feedbackConfig: feedbackConfig ?? this.feedbackConfig,
       readmeUrl: readmeUrl ?? this.readmeUrl,

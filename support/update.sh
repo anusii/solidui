@@ -31,6 +31,7 @@ FILES=(
     ${SCRIPTS}support/flutter.mk support/flutter.mk
     ${SCRIPTS}support/update.sh support/update.sh
     ${SCRIPTS}flutter/.gitignore .gitignore
+    ${SCRIPTS}flutter/.lycheeignore .lycheeignore
     ${SCRIPTS}Makefile Makefile
 )
 

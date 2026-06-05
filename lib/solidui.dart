@@ -68,6 +68,8 @@ export 'src/widgets/solid_theme.dart';
 export 'src/widgets/solid_preferences_models.dart';
 export 'src/widgets/solid_preferences_notifier.dart';
 export 'src/widgets/solid_preferences_dialog.dart';
+export 'src/widgets/solid_menu_preferences_dialog.dart';
+export 'src/widgets/solid_nav_bottom_bar.dart';
 
 export 'src/widgets/solid_about_models.dart';
 export 'src/widgets/solid_about_button.dart';
