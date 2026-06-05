@@ -331,8 +331,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     // example, `https://alice.example/profile/card#me` and
     // `https://alice.example/profile/card/#me` compare equal.
     final hashIndex = trimmed.indexOf('#');
-    final docPart =
-        hashIndex >= 0 ? trimmed.substring(0, hashIndex) : trimmed;
+    final docPart = hashIndex >= 0 ? trimmed.substring(0, hashIndex) : trimmed;
     final fragment = hashIndex >= 0 ? trimmed.substring(hashIndex) : '';
     final canonicalDoc = docPart.endsWith('/')
         ? docPart.substring(0, docPart.length - 1)
