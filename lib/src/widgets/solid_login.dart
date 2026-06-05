@@ -162,10 +162,15 @@ class SolidLogin extends StatefulWidget {
   /// ```dart
   /// redirectUris: [
   ///   'https://your-domain/redirect.html', // web
-  ///   'com.example.app://redirect',         // android / ios
-  ///   'http://localhost:4400/redirect',      // desktop
+  ///   'com.example.app://redirect',         // android / ios / macOS
+  ///   'http://localhost:4400/redirect',      // desktop (Windows / Linux)
   /// ]
   /// ```
+  ///
+  /// macOS shares the custom-scheme entry with mobile because `oidc_macos`
+  /// uses `ASWebAuthenticationSession` and cannot receive a redirect on a
+  /// `http://localhost` loopback URL. Make sure the macOS Runner's
+  /// `Info.plist` registers the same scheme under `CFBundleURLSchemes`.
 
   final List<String> redirectUris;
 

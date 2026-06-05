@@ -281,6 +281,15 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
       await _alert(formatError);
       return false;
     }
+    // Refuse to share the resource back to its owner. The ACL layer rejects
+    // this combination outright (the owner WebID cannot also appear as a
+    // third-party agent), so catch it here with a friendly explanation
+    // rather than surfacing the raw exception via the generic failure
+    // snackbar.
+    if (_isSelfShare(webId)) {
+      await _alert(_selfShareMessage);
+      return false;
+    }
     final result = await validateWebId(webId);
     if (!mounted) return false;
     if (!result.isValid) {
@@ -293,6 +302,41 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
       finalWebIdList = [webId];
     });
     return true;
+  }
+
+  /// Message shown when the recipient WebID is the same as the resource
+  /// owner. Surfaced both for the individual recipient flow and as part of
+  /// the group flow when one of the group entries matches the owner.
+  static const String _selfShareMessage =
+      'This resource is owned by you, so you already have full access. Please '
+      'enter the WebID of another user if you would like to share this '
+      'resource.';
+
+  /// Returns true when [webId] refers to the same WebID as the resource
+  /// owner, ignoring surrounding whitespace and trailing slashes. The
+  /// comparison is intentionally loose because the owner's WebID is
+  /// captured from different sources (login session, ACL lookup) and the
+  /// trailing-slash form may vary between them.
+  bool _isSelfShare(String webId) {
+    final entered = _normaliseWebId(webId);
+    if (entered.isEmpty) return false;
+    final owner = _normaliseWebId(widget.ownerWebId);
+    return owner.isNotEmpty && entered == owner;
+  }
+
+  String _normaliseWebId(String webId) {
+    final trimmed = webId.trim();
+    if (trimmed.isEmpty) return trimmed;
+    // Drop a trailing slash on the WebID document portion so that, for
+    // example, `https://alice.example/profile/card#me` and
+    // `https://alice.example/profile/card/#me` compare equal.
+    final hashIndex = trimmed.indexOf('#');
+    final docPart = hashIndex >= 0 ? trimmed.substring(0, hashIndex) : trimmed;
+    final fragment = hashIndex >= 0 ? trimmed.substring(hashIndex) : '';
+    final canonicalDoc = docPart.endsWith('/')
+        ? docPart.substring(0, docPart.length - 1)
+        : docPart;
+    return '$canonicalDoc$fragment'.toLowerCase();
   }
 
   /// Validate the group fields typed by the user and, when valid,
@@ -313,6 +357,15 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
         .toList();
     if (webIdList.isEmpty) {
       await _alert('Please enter a group name and a list of Web IDs');
+      return false;
+    }
+
+    // Refuse the group when it would re-share the resource back to the
+    // owner. The ACL layer rejects the owner appearing as a third-party
+    // agent, so flag it here with a friendly message instead of letting
+    // the request fail downstream with a generic snackbar.
+    if (webIdList.any(_isSelfShare)) {
+      await _alert(_selfShareMessage);
       return false;
     }
 
