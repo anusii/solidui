@@ -35,7 +35,9 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_dynamic_login_status.dart';
 import 'package:solidui/src/widgets/solid_nav_bar.dart';
+import 'package:solidui/src/widgets/solid_nav_bottom_bar.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
@@ -146,6 +148,55 @@ class SolidScaffoldLayoutBuilder {
     }
 
     return SolidStatusBar(config: modifiedConfig);
+  }
+
+  /// Whether menu items should appear in the bottom bar on narrow screens.
+
+  static bool useMenuInBottomBar({
+    required bool scaffoldMenuInBottomBar,
+    required bool isWideScreen,
+    required List<SolidNavTab> tabs,
+  }) {
+    if (!scaffoldMenuInBottomBar || isWideScreen || tabs.isEmpty) {
+      return false;
+    }
+    return solidPreferencesNotifier.menuInBottomBarForScaffold(
+      scaffoldMenuInBottomBar,
+    );
+  }
+
+  /// Builds the bottom area: optional status bar plus optional menu bar.
+
+  static Widget? buildBottomBarArea({
+    required bool useMenuInBottomBar,
+    required List<SolidNavTab> tabs,
+    required int? selectedIndex,
+    required void Function(int) onTabSelected,
+    required void Function(BuildContext, String, String?)? onShowAlert,
+    required SolidStatusBarConfig? statusBar,
+    required bool isKeySaved,
+  }) {
+    final statusBarWidget = buildStatusBar(statusBar, isKeySaved);
+    final menuBar = useMenuInBottomBar
+        ? SolidNavBottomBar(
+            tabs: tabs,
+            selectedIndex: selectedIndex,
+            onTabSelected: onTabSelected,
+            onShowAlert: onShowAlert,
+          )
+        : null;
+
+    if (statusBarWidget == null && menuBar == null) return null;
+    if (menuBar == null) return statusBarWidget;
+    if (statusBarWidget == null) return menuBar;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        statusBarWidget,
+        menuBar,
+      ],
+    );
   }
 
   /// Builds hamburger FAB for narrow screens without AppBar.
