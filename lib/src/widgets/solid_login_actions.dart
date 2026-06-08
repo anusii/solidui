@@ -66,6 +66,57 @@ typedef LoginSnackbar = void Function(
 /// flows and are called from the [SolidLogin] build method.
 
 class SolidLoginActions {
+  /// Show a dialog explaining that the system secure storage / keyring could
+  /// not be accessed. Detects the common Linux "KeyringLocked" case and
+  /// offers the fix; otherwise shows the raw error so the user isn't left
+  /// wondering why login silently failed.
+
+  static Future<void> _showSecureStorageError(
+    BuildContext context,
+    Object error,
+  ) {
+    final msg = error.toString();
+    final isKeyringLocked = msg.contains('KeyringLocked');
+    return showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.lock_outline, color: Theme.of(ctx).colorScheme.error),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('Cannot access secure storage')),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Text(
+            isKeyringLocked
+                ? 'Your system keyring is locked, so saved login '
+                    'credentials cannot be read.\n\n'
+                    'On Linux, unlock the GNOME keyring and try again:\n\n'
+                    '  • Install the keyring tools:\n'
+                    '      sudo apt install gnome-keyring seahorse\n\n'
+                    '  • Open Seahorse (Passwords and Keys), then\n'
+                    '    File → New → Password Keyring, name it "Login",\n'
+                    '    and set a blank password (or your login password).\n\n'
+                    'After that the keyring unlocks automatically when you '
+                    'log in, and the app can store and read your '
+                    'credentials.'
+                : 'The app could not read or write the system secure '
+                    'storage, so login cannot continue.\n\n'
+                    'Details:\n$msg',
+            style: const TextStyle(fontSize: 13, height: 1.5),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Reentrancy guard for [performTryAnotherAccount].
 
   static bool _tryAnotherAccountInProgress = false;
@@ -107,10 +158,30 @@ class SolidLoginActions {
         ? webIdController.text.trim()
         : SolidConfig.defaultServerUrl;
 
-    final alreadyLoggedIn = await isUserLoggedIn();
+    // isUserLoggedIn() / getWebId() read cached credentials from the system
+    // secure storage (libsecret/GNOME keyring on Linux). If the keyring is
+    // locked these throw a PlatformException that, left unhandled, makes the
+    // Login button silently do nothing. Catch it and tell the user.
+    final bool alreadyLoggedIn;
+    try {
+      alreadyLoggedIn = await isUserLoggedIn();
+    } catch (e) {
+      if (context.mounted) {
+        await _showSecureStorageError(context, e);
+      }
+      return;
+    }
 
     if (alreadyLoggedIn) {
-      final cachedWebId = await getWebId();
+      String? cachedWebId;
+      try {
+        cachedWebId = await getWebId();
+      } catch (e) {
+        if (context.mounted) {
+          await _showSecureStorageError(context, e);
+        }
+        return;
+      }
       if (cachedWebId != null && cachedWebId.isNotEmpty) {
         try {
           final cachedOrigin = Uri.parse(cachedWebId).origin;
@@ -170,7 +241,15 @@ class SolidLoginActions {
       solidLoginStatusNotifier.markLoggedOut();
     }
 
-    final isLoggedIn = await isUserLoggedIn();
+    final bool isLoggedIn;
+    try {
+      isLoggedIn = await isUserLoggedIn();
+    } catch (e) {
+      if (context.mounted) {
+        await _showSecureStorageError(context, e);
+      }
+      return;
+    }
 
     if (isLoggedIn && defaultFolders.isNotEmpty) {
       if (!context.mounted) return;

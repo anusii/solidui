@@ -49,6 +49,10 @@ https://.*\.tile-cyclosm\.openstreetmap\.fr/.*
 
 web/**
 
+# Placeholder URLs in documentation
+
+https://github.com/gjwgit/innerpod/.*
+
 # Licenses. Note that gnu.org is throttled so do not check it.
 
 https://www.gnu.org/licenses/

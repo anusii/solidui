@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Notify on checking already login fails [1.0.4 20260608 gjw]
 + Improve self share use case [1.0.3 20260605 tonypioneer]
 + Support bottom buttons for narrow screens [1.0.2 20260605 tonypioneer]
 + Fix solid popup login [1.0.1 20260604 anushkavidanage]
