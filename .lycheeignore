@@ -7,6 +7,11 @@ http://localhost:44007/
 http://localhost:8000/
 http://localhost/
 
+# Used by oidc through solid_auth
+
+http://localhost:4400/redirect
+https://your-domain/redirect.html
+
 # Localhost used in comments
 
 http://localhost:3000/
@@ -44,6 +49,10 @@ https://.*\.tile-cyclosm\.openstreetmap\.fr/.*
 
 web/**
 
+# Placeholder URLs in documentation
+
+https://github.com/gjwgit/innerpod/.*
+
 # Licenses. Note that gnu.org is throttled so do not check it.
 
 https://www.gnu.org/licenses/
@@ -68,3 +77,7 @@ https://securetoken.google.com/
 file:///home/runner/work/solidui/solidui/lib/src/utils/scheme
 https://pods.example.au/john-doe/profile/card#me
 https://github.com/gjwgit/myapp/blob/main/README.md
+
+# 20260605 gjw Failing solid servers
+
+https://trinpod.eu/>

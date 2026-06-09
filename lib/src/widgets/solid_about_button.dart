@@ -42,6 +42,7 @@ import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_feedback_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others.dart';
+import 'package:solidui/src/widgets/solid_menu_preferences_dialog.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
 
 /// A button that shows an About dialogue when pressed.
@@ -354,6 +355,35 @@ class SolidAbout {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 SolidPreferencesDialog.show(context);
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (config.showMenuLayoutPreferences) {
+      actionButtons.add(
+        Builder(
+          builder: (dialogContext) => MarkdownTooltip(
+            message: '''
+
+            **Menu**
+
+            Choose whether main navigation items appear along the bottom
+            of the screen or inside the hamburger menu on narrow screens.
+            Login and security key always stay in the menu drawer.
+
+            ''',
+            child: TextButton.icon(
+              icon: const Icon(Icons.tab),
+              label: const Text('Menu'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                SolidMenuPreferencesDialog.show(
+                  context,
+                  scaffoldMenuInBottomBar: config.scaffoldMenuInBottomBar,
+                );
               },
             ),
           ),

@@ -60,6 +60,10 @@ class SolidScaffoldWidgetBuilder {
     if (widget.feedbackConfig != null && about.feedbackConfig == null) {
       about = about.copyWith(feedbackConfig: widget.feedbackConfig);
     }
+    about = about.copyWith(scaffoldMenuInBottomBar: widget.bottomBarMenu);
+    if (!widget.bottomBarMenu) {
+      about = about.copyWith(showMenuLayoutPreferences: false);
+    }
     return about;
   }
 
@@ -152,6 +156,12 @@ class SolidScaffoldWidgetBuilder {
   }) {
     final effectiveLogout = _getEffectiveLogout(widget);
     final effectiveLogin = _getEffectiveLogin(widget);
+    final navTabs = SolidScaffoldHelpers.convertToNavTabs(widget.menu);
+    final useMenuInBottomBar = SolidScaffoldLayoutBuilder.useMenuInBottomBar(
+      scaffoldMenuInBottomBar: widget.bottomBarMenu,
+      isWideScreen: isWideScreen,
+      tabs: navTabs,
+    );
 
     return SolidScaffoldBuildHelper.buildScaffold(
       context: context,
@@ -203,7 +213,7 @@ class SolidScaffoldWidgetBuilder {
 
         return SolidNavDrawer(
           userInfo: effectiveUserInfo,
-          tabs: SolidScaffoldHelpers.convertToNavTabs(widget.menu),
+          tabs: navTabs,
           selectedIndex: currentSelectedIndex,
           onTabSelected: onMenuSelected,
           onLogout: effectiveLogout,
@@ -212,6 +222,7 @@ class SolidScaffoldWidgetBuilder {
           onUserNameTap: (drawerContext) =>
               SolidAuthHandler.instance.handleAuthAction(drawerContext),
           securityKeyStatus: _buildDrawerSecurityKeyStatus(widget, isKeySaved),
+          includeNavigationTabs: !useMenuInBottomBar,
         );
       },
       endDrawer: widget.endDrawer,
@@ -223,9 +234,14 @@ class SolidScaffoldWidgetBuilder {
           ? widget.bottomNavigationBar
           : (widget.hideNavRail
               ? null
-              : SolidScaffoldLayoutBuilder.buildStatusBar(
-                  widget.statusBar,
-                  isKeySaved,
+              : SolidScaffoldLayoutBuilder.buildBottomBarArea(
+                  useMenuInBottomBar: useMenuInBottomBar,
+                  tabs: navTabs,
+                  selectedIndex: currentSelectedIndex,
+                  onTabSelected: onMenuSelected,
+                  onShowAlert: widget.onShowAlert,
+                  statusBar: widget.statusBar,
+                  isKeySaved: isKeySaved,
                 )),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,

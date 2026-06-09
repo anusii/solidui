@@ -91,7 +91,10 @@ class SolidAuthConfig {
   final String? clientId;
 
   /// One redirect URI per platform — [pickRedirectUri] (from `solidpod`)
-  /// selects the correct entry at runtime.
+  /// selects the correct entry at runtime. macOS shares the custom-scheme
+  /// entry with iOS/Android because `oidc_macos` uses
+  /// `ASWebAuthenticationSession` and does not listen on
+  /// `http://localhost`.
 
   final List<String> redirectUris;
 
