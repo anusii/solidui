@@ -197,6 +197,7 @@ class SolidScaffoldWidgetBuilder {
           hideNavRail: widget.hideNavRail,
           showLogout: widget.showLogout,
           showLogin: widget.showLogin,
+          showNotifications: widget.showNotifications,
           onLogout: effectiveLogout,
           onLogin: effectiveLogin,
           constraints: constraints,

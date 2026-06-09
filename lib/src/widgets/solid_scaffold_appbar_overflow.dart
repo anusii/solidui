@@ -38,6 +38,7 @@ import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_notification_centre.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
@@ -89,7 +90,11 @@ class SolidAppBarOverflowHandler {
     // routed into the overflow menu. This keeps the AppBar tidy when the
     // user (or the application defaults) leaves the menu empty.
 
-    if (!_hasItemsInOverflow(themeToggle, aboutConfig, showLogout)) return;
+    if (!_hasItemsInOverflow(themeToggle, aboutConfig, effectiveShowLogout)) {
+      return;
+    }
+
+    final overflowIds = config.defaultOverflowActionIds;
 
     actions.add(
       _buildOverflowMenu(
@@ -98,8 +103,16 @@ class SolidAppBarOverflowHandler {
         currentThemeMode,
         themeToggleCallback,
         aboutConfig,
-        shouldShowThemeToggleInOverflow(themeToggle, forceOverflow: true),
-        shouldShowAboutInOverflow(aboutConfig, forceOverflow: true),
+        shouldShowThemeToggleInOverflow(
+          themeToggle,
+          forceOverflow: true,
+          defaultOverflowActionIds: overflowIds,
+        ),
+        shouldShowAboutInOverflow(
+          aboutConfig,
+          forceOverflow: true,
+          defaultOverflowActionIds: overflowIds,
+        ),
         context,
         hasLogoutInOverflow: shouldShowLogoutInOverflow(
           effectiveShowLogout,
@@ -108,6 +121,7 @@ class SolidAppBarOverflowHandler {
         hasInviteOthersInOverflow: shouldShowInviteOthersInOverflow(
           effectiveInviteConfig,
           forceOverflow: true,
+          defaultOverflowActionIds: overflowIds,
         ),
         inviteConfig: effectiveInviteConfig,
         onLogout: onLogout,
@@ -153,6 +167,7 @@ class SolidAppBarOverflowHandler {
   static bool shouldShowInviteOthersInOverflow(
     SolidInviteOthersConfig? inviteConfig, {
     bool forceOverflow = false,
+    Set<String> defaultOverflowActionIds = const {},
   }) {
     if (inviteConfig == null || !inviteConfig.enabled) return false;
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
@@ -160,7 +175,8 @@ class SolidAppBarOverflowHandler {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        defaultOverflowActionIds.contains(SolidAppBarActionIds.inviteOthers);
     if (forceOverflow) return isInOverflow;
     return isInOverflow;
   }
@@ -170,6 +186,7 @@ class SolidAppBarOverflowHandler {
   static bool shouldShowLogoutInOverflow(
     bool hasLogout, {
     bool forceOverflow = false,
+    Set<String> defaultOverflowActionIds = const {},
   }) {
     if (!hasLogout) return false;
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
@@ -178,10 +195,8 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
-
-    // On narrow screens, only show in overflow if showInOverflow = true.
-    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
+    final isInOverflow = actionConfig?.showInOverflow ??
+        defaultOverflowActionIds.contains(SolidAppBarActionIds.logout);
 
     if (forceOverflow) return isInOverflow;
     return isInOverflow;
@@ -192,6 +207,7 @@ class SolidAppBarOverflowHandler {
   static bool shouldShowThemeToggleInOverflow(
     SolidThemeToggleConfig? themeToggle, {
     bool forceOverflow = false,
+    Set<String> defaultOverflowActionIds = const {},
   }) {
     if (themeToggle == null || !themeToggle.enabled) return false;
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
@@ -200,10 +216,8 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
-
-    // On narrow screens, only show in overflow if showInOverflow = true.
-    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
+    final isInOverflow = actionConfig?.showInOverflow ??
+        defaultOverflowActionIds.contains(SolidAppBarActionIds.themeToggle);
 
     if (forceOverflow) return isInOverflow;
     return isInOverflow;
@@ -214,6 +228,7 @@ class SolidAppBarOverflowHandler {
   static bool shouldShowAboutInOverflow(
     SolidAboutConfig aboutConfig, {
     bool forceOverflow = false,
+    Set<String> defaultOverflowActionIds = const {},
   }) {
     if (!aboutConfig.enabled) return false;
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
@@ -222,10 +237,8 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
-
-    // On narrow screens, only show in overflow if showInOverflow = true.
-    // Buttons marked as "add to appbar" (showInOverflow = false) stay in AppBar.
+    final isInOverflow = actionConfig?.showInOverflow ??
+        defaultOverflowActionIds.contains(SolidAppBarActionIds.about);
 
     if (forceOverflow) return isInOverflow;
     return isInOverflow;
@@ -334,6 +347,17 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
     }
   }
 
+  /// Finds a custom action by explicit id or auto-generated index id.
+
+  SolidAppBarAction? _findCustomAction(String id) {
+    for (int i = 0; i < widget.config.actions.length; i++) {
+      final action = widget.config.actions[i];
+      final effectiveId = action.id ?? 'action_$i';
+      if (effectiveId == id) return action;
+    }
+    return null;
+  }
+
   /// Handles menu selection.
 
   void _handleSelection(String id, BuildContext context) {
@@ -360,6 +384,13 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
       } else {
         SolidAuthHandler.instance.handleLogout(context);
       }
+    } else if (id == SolidAppBarActionIds.notifications) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const SolidNotificationCentre(),
+        ),
+      );
     } else if (id == 'login') {
       // User tapped login whilst logged out.
 
@@ -368,16 +399,8 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
       } else {
         SolidAuthHandler.instance.handleLogin(context);
       }
-    } else if (id.startsWith('action_')) {
-      final actionIndex = int.tryParse(id.replaceFirst('action_', ''));
-      if (actionIndex != null && actionIndex < widget.config.actions.length) {
-        widget.config.actions[actionIndex].onPressed();
-      } else {
-        final action = widget.config.actions
-            .cast<SolidAppBarAction?>()
-            .firstWhere((a) => a?.id == id, orElse: () => null);
-        action?.onPressed();
-      }
+    } else if (_findCustomAction(id) != null) {
+      _findCustomAction(id)!.onPressed();
     } else {
       final item = widget.config.overflowItems
           .cast<SolidOverflowMenuItem?>()

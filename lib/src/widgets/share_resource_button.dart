@@ -57,6 +57,8 @@ import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 /// - [onPermissionGranted] - Callback function called when permissions are granted successfully.
 
 class ShareResourceButton extends StatefulWidget {
+  /// Text editing controller for filename
+
   final TextEditingController fileNameController;
 
   /// String to assign the webId of the resource owner.
@@ -106,6 +108,11 @@ class ShareResourceButton extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional human-readable name for the resource, used in notification
+  /// messages sent to recipients upon successful permission granting.
+
+  final String? resourceDisplayName;
+
   /// Optional background color for the Share Resource button.
   /// When provided, overrides the theme's elevated button background.
 
@@ -131,6 +138,7 @@ class ShareResourceButton extends StatefulWidget {
     required this.isFile,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.resourceDisplayName,
     this.buttonColor,
     this.inviteConfig,
   });
@@ -186,10 +194,8 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   Widget build(BuildContext context) {
     final shareButton = ElevatedButton.icon(
       icon: const Icon(Icons.share),
-      // Set share button background color to
-      // parameter buttonColor or
-      // theme elevated button color
-      // or elevated button default (grey)
+      // Set share button background color to parameter buttonColor,
+      // theme elevated button colour, or the elevated button default.
       style: widget.buttonColor != null
           ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
                 backgroundColor: WidgetStateProperty.all<Color>(
@@ -199,13 +205,13 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
           : Theme.of(context).elevatedButtonTheme.style,
       onPressed: () async {
         // Resolve resource name: use first of resourceNames if set,
-        // otherwise fall back to user-entered filename.
+        // otherwise fall back to the user-entered filename.
         _resourceName =
             widget.resourceNames?.firstOrNull ?? _fileNameController.text;
 
         if (_resourceName != '') {
-          // Display GrantPermissionForm dialog to enter
-          // recipient and access modes
+          // Display GrantPermissionForm dialog to enter recipient and
+          // access modes.
           await showDialog(
             context: context,
             builder: (BuildContext dialogContext) {
@@ -221,6 +227,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
                 dataFilesMap: widget.dataFilesMap,
                 updatePermissionGrantedFunction: _updatePermissionGrantedStatus,
                 onPermissionGranted: widget.onPermissionGranted,
+                resourceDisplayName: widget.resourceDisplayName,
                 inviteConfig: widget.inviteConfig,
               );
             },

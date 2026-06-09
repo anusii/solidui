@@ -65,6 +65,7 @@ class SolidScaffoldAppBarBuilder {
     bool hideNavRail = false,
     bool showLogout = true,
     bool showLogin = true,
+    bool showNotifications = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     required BoxConstraints constraints,
@@ -85,6 +86,7 @@ class SolidScaffoldAppBarBuilder {
       themeToggle,
       hasLogout: showLogout,
       hasLogin: showLogin,
+      hasNotifications: showNotifications,
       inviteConfig: inviteConfig,
       profileEnabled: profileEnabled,
     );
@@ -121,6 +123,7 @@ class SolidScaffoldAppBarBuilder {
       context: context,
       showLogout: showLogout,
       showLogin: showLogin,
+      showNotifications: showNotifications,
       onLogout: onLogout,
       onLogin: onLogin,
       inviteConfig: inviteConfig,

@@ -38,6 +38,7 @@ import 'package:solidui/src/widgets/solid_dynamic_auth_button.dart';
 import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_notification_button.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_visibility.dart';
@@ -62,6 +63,7 @@ class SolidAppBarOrderedActionsBuilder {
     required BuildContext context,
     bool showLogout = true,
     bool showLogin = true,
+    bool showNotifications = false,
     void Function(BuildContext)? onLogout,
     void Function(BuildContext)? onLogin,
     SolidInviteOthersConfig? inviteConfig,
@@ -77,6 +79,12 @@ class SolidAppBarOrderedActionsBuilder {
     final isVeryNarrowScreen =
         enableOverflowMenu && layoutWidth < config.veryNarrowScreenThreshold;
 
+    _addNotificationButton(
+      orderedActions,
+      showNotifications,
+      isVeryNarrowScreen,
+      config,
+    );
     _addThemeToggle(
       orderedActions,
       themeToggle,
@@ -109,6 +117,7 @@ class SolidAppBarOrderedActionsBuilder {
         onLogin,
         isVeryNarrowScreen,
         context,
+        config,
       );
     }
     _addAboutButton(
@@ -138,7 +147,10 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.themeToggle,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.themeToggle,
+        );
     final order = actionConfig?.order ?? 0;
 
     final shouldShow = isVisible &&
@@ -163,6 +175,36 @@ class SolidAppBarOrderedActionsBuilder {
     }
   }
 
+  static void _addNotificationButton(
+    List<_OrderedAction> orderedActions,
+    bool showNotifications,
+    bool isVeryNarrowScreen,
+    SolidAppBarConfig config,
+  ) {
+    if (!showNotifications) return;
+
+    final actionConfig = SolidAppBarActionsManager.getActionConfig(
+      SolidAppBarActionIds.notifications,
+    );
+    final isVisible = actionConfig?.isVisible ?? true;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.notifications,
+        );
+    final order = actionConfig?.order ?? 800;
+
+    if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {
+      orderedActions.add(
+        _OrderedAction(
+          order: order,
+          widget: const SolidNotificationButton(
+            key: ValueKey('solid_notifications'),
+          ),
+        ),
+      );
+    }
+  }
+
   static void _addCustomActions(
     List<_OrderedAction> orderedActions,
     SolidAppBarConfig config,
@@ -174,7 +216,8 @@ class SolidAppBarOrderedActionsBuilder {
       final actionId = action.id ?? 'action_$i';
       final actionConfig = SolidAppBarActionsManager.getActionConfig(actionId);
       final isVisible = actionConfig?.isVisible ?? true;
-      final isInOverflow = actionConfig?.showInOverflow ?? false;
+      final isInOverflow = actionConfig?.showInOverflow ??
+          config.defaultOverflowActionIds.contains(actionId);
       final order = actionConfig?.order ?? (100 + i);
 
       final shouldShow = isVisible &&
@@ -246,12 +289,16 @@ class SolidAppBarOrderedActionsBuilder {
     void Function(BuildContext)? onLogin,
     bool isVeryNarrowScreen,
     BuildContext context,
+    SolidAppBarConfig config,
   ) {
     final actionConfig = SolidAppBarActionsManager.getActionConfig(
       SolidAppBarActionIds.logout,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.logout,
+        );
 
     // Default order keeps the auth button as the second-to-last
     // AppBar action — i.e. immediately to the left of About — when
@@ -332,7 +379,10 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.about,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow = actionConfig?.showInOverflow ?? false;
+    final isInOverflow = actionConfig?.showInOverflow ??
+        config.defaultOverflowActionIds.contains(
+          SolidAppBarActionIds.about,
+        );
     final order = actionConfig?.order ?? 999999;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {

@@ -90,6 +90,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.customAppBar,
     this.onPermissionGranted,
     this.onNavigateBack,
+    this.resourceDisplayName,
     this.shareButtonColor,
     this.titleData,
     this.inviteConfig,
@@ -193,6 +194,12 @@ class GrantPermissionUi extends StatefulWidget {
   /// Callback function called when navigating back from the screen.
 
   final VoidCallback? onNavigateBack;
+
+  /// Optional human-readable name for the resource, used in notification
+  /// messages sent to recipients upon successful permission granting.
+  /// Falls back to the resource name when not provided.
+
+  final String? resourceDisplayName;
 
   /// Optional map from resource URL key to human-readable file title.
   /// When provided, a radio group replaces the Show Full Path switch,

@@ -74,6 +74,9 @@ export 'src/widgets/solid_nav_bottom_bar.dart';
 export 'src/widgets/solid_about_models.dart';
 export 'src/widgets/solid_about_button.dart';
 
+export 'src/widgets/solid_notification_button.dart';
+export 'src/widgets/solid_notification_centre.dart';
+
 export 'src/widgets/solid_invite_others_models.dart';
 export 'src/widgets/solid_invite_others.dart';
 
