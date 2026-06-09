@@ -53,6 +53,7 @@ import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 import 'package:solidui/src/widgets/grant_permission_dialogs.dart';
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
+import 'package:solidui/src/widgets/grant_permission_notify.dart';
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input.dart'
     show indWebIdFormatError;
@@ -132,6 +133,11 @@ class GrantPermissionForm extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Optional human-readable name for the resource, used in notification
+  /// messages sent to recipients upon successful permission granting.
+
+  final String? resourceDisplayName;
+
   /// Optional Invite Others configuration. When provided, the
   /// "POD not initialised" error path offers the user a follow-up
   /// option to invite the recipient(s) to set up their own POD and
@@ -152,6 +158,7 @@ class GrantPermissionForm extends StatefulWidget {
     required this.updatePermissionGrantedFunction,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.resourceDisplayName,
     this.inviteConfig,
   });
 
@@ -529,8 +536,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
               if (!await _validateAndApplyGroupWebIds()) return;
             }
 
-            // Grant Permission and update permission map
-            // used by permission table.
+            // Grant Permission and update permission map used by permission
+            // table.
 
             if (selectedPermList.isEmpty) {
               await _alert(
@@ -587,6 +594,22 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
             if (result == SolidFunctionCallStatus.success) {
               _showSnackBar(successMsg, ActionColors.success);
+
+              // Notify specific recipients in the background. Public and
+              // authenticated-user shares are skipped inside the helper
+              // because they have no concrete WebID to notify.
+
+              await notifyShareRecipients(
+                recipientType: selectedRecipientType,
+                recipientWebIds: finalWebIdList,
+                resourceNames: widget.resourceNames,
+                resourceDisplayName: widget.resourceDisplayName,
+                granterWebId: widget.granterWebId,
+                ownerWebId: widget.ownerWebId,
+                permissionList: selectedPermList,
+                showSnack: _showSnackBar,
+              );
+
               // Update permissions table for the primary resource.
               await widget.updatePermissionsFunction(
                 widget.resourceNames.first,

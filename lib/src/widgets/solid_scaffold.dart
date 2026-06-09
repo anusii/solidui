@@ -252,6 +252,12 @@ class SolidScaffold extends StatefulWidget {
 
   final SolidAboutConfig? aboutConfig;
 
+  /// Whether to show the notification button in the AppBar.
+  /// Defaults to false. When true, a notification bell icon with an unread
+  /// badge is displayed and tapping it opens the notification centre.
+
+  final bool showNotifications;
+
   /// Optional Invite Others configuration. When provided, the
   /// "Invite Others" (Share) entry is surfaced from the About dialog.
   /// When [enableProfile] is `false`, the legacy behaviour is kept:
@@ -351,6 +357,7 @@ class SolidScaffold extends StatefulWidget {
     this.selectedIndex,
     this.themeToggle,
     this.aboutConfig,
+    this.showNotifications = false,
     this.inviteConfig,
     this.feedbackConfig,
     this.hideNavRail = false,
