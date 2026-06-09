@@ -32,7 +32,12 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidpod/solidpod.dart'
-    show getEncKeyPath, getWebId, isUserLoggedIn, KeyManager, verifySecurityKey;
+    show
+        getEncKeyPath,
+        getWebId,
+        isUserLoggedIn,
+        KeyManager,
+        SecurityKeyVerificationException;
 
 import 'package:solidui/src/constants/ui.dart' show SecurityStrings;
 import 'package:solidui/src/services/solid_login_status_notifier.dart'
@@ -130,21 +135,24 @@ Future<void> getKeyFromUserIfRequired(
   if (await KeyManager.hasSecurityKey()) {
     return;
   } else {
-    final verificationKey = await KeyManager.getVerificationKey();
     // Get the webId to display in the security key prompt.
 
     final webId = await getWebId();
 
     const inputKey = 'security_key';
+    final formKey = GlobalKey<FormBuilderState>();
+
+    // The security key can only be verified by deriving it (Argon2id for
+    // version 2 PODs), which is asynchronous and cannot run in a synchronous
+    // form validator. So the validator only checks the field is non-empty;
+    // correctness is verified on submit by `KeyManager.setSecurityKey`, which
+    // throws [SecurityKeyVerificationException] when the key is wrong.
+
     final inputField = (
       fieldKey: inputKey,
       fieldLabel: 'Security Key',
-      validateFunc: (key) {
-        assert(key != null);
-        return verifySecurityKey(key as String, verificationKey)
-            ? null
-            : 'Incorrect Security Key';
-      },
+      validateFunc: (key) =>
+          (key == null || (key as String).isEmpty) ? 'Please enter a key' : null,
     );
 
     // Use the unified SecurityKeyUI widget with the appropriate configuration.
@@ -154,9 +162,17 @@ Future<void> getKeyFromUserIfRequired(
       title: 'Security Key',
       message: SecurityStrings.securityKeyPrompt,
       inputFields: [inputField],
-      formKey: GlobalKey<FormBuilderState>(),
+      formKey: formKey,
       submitFunc: (formDataMap) async {
-        await KeyManager.setSecurityKey(formDataMap[inputKey].toString());
+        try {
+          await KeyManager.setSecurityKey(formDataMap[inputKey].toString());
+        } on SecurityKeyVerificationException {
+          // Wrong key: show an inline error and keep the prompt open.
+
+          formKey.currentState?.fields[inputKey]
+              ?.invalidate('Incorrect Security Key');
+          return;
+        }
         debugPrint('Security key saved');
         if (context.mounted) Navigator.pop(context);
       },

@@ -34,7 +34,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidpod/solidpod.dart'
     show
         NotLoggedInException,
-        verifySecurityKey,
+        SecurityKeyVerificationException,
         KeyManager,
         isUserLoggedIn,
         getWebId;
@@ -54,7 +54,6 @@ Future<bool> changeKeyPopup(BuildContext context, Widget child) async {
       'User must be logged in to change security key.',
     );
   } else {
-    final verificationKey = await KeyManager.getVerificationKey();
     final webId = await getWebId();
 
     const message =
@@ -65,15 +64,28 @@ Future<bool> changeKeyPopup(BuildContext context, Widget child) async {
     const newKeyRepeatStr = 'new_security_key_repeat';
     final formKey = GlobalKey<FormBuilderState>();
 
-    String? validateCurrentKey(String key) =>
-        verifySecurityKey(key, verificationKey)
-            ? null
-            : 'Incorrect security key.';
+    // The current key can only be verified by deriving it (Argon2id for
+    // version 2 PODs), which is asynchronous and cannot run in a synchronous
+    // form validator. So the validator only checks the field is non-empty;
+    // correctness is verified on submit by `KeyManager.changeSecurityKey`,
+    // which throws [SecurityKeyVerificationException] when the current key is
+    // wrong.
 
-    String? validateNewKey(String key) =>
-        verifySecurityKey(key, verificationKey)
-            ? 'New security key is identical to current security key.'
-            : null;
+    String? validateCurrentKey(String key) =>
+        key.isEmpty ? 'Please enter the current security key.' : null;
+
+    String? validateNewKey(String key) {
+      if (key.isEmpty) {
+        return 'Please enter the new security key.';
+      }
+      // Compare the entered strings directly to detect an unchanged key.
+      final formData = formKey.currentState?.value;
+      final currentKey = formData?[currentKeyStr]?.toString();
+      if (currentKey != null && currentKey.isNotEmpty && key == currentKey) {
+        return 'New security key is identical to current security key.';
+      }
+      return null;
+    }
 
     String? validateNewKeyRepeat(String key) {
       final formData = formKey.currentState?.value as Map<String, dynamic>;
@@ -115,6 +127,10 @@ Future<bool> changeKeyPopup(BuildContext context, Widget child) async {
         msg = 'Successfully changed the security key!';
         bgColor = Colors.green;
         duration = const Duration(seconds: 4);
+      } on SecurityKeyVerificationException {
+        msg = 'Incorrect current security key!';
+        bgColor = Colors.red;
+        duration = const Duration(seconds: 7);
       } on Exception catch (e) {
         msg = 'Failed to change security key! $e';
         bgColor = Colors.red;
