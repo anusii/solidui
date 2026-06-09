@@ -88,7 +88,7 @@ Future<bool> ensurePodWritable(
       await alert(
         context,
         'You need to log in to your POD before $actionDescription.\n\n'
-        'Please log in and try again.',
+            'Please log in and try again.',
         'Login Required',
       );
       return false;
@@ -97,8 +97,8 @@ Future<bool> ensurePodWritable(
       await alert(
         context,
         'Your Security Key is not currently cached, '
-        'so $actionDescription cannot be completed.\n\n'
-        'Please provide your Security Key and try again.',
+            'so $actionDescription cannot be completed.\n\n'
+            'Please provide your Security Key and try again.',
         'Security Key Required',
       );
       return false;
@@ -122,7 +122,7 @@ Future<bool> showPodAccessExceptionDialog(
     await alert(
       context,
       'You are not logged in to your POD, so this operation cannot be '
-      'completed.\n\nPlease log in and try again.',
+          'completed.\n\nPlease log in and try again.',
       'Login Required',
     );
     return true;
@@ -132,7 +132,7 @@ Future<bool> showPodAccessExceptionDialog(
     await alert(
       context,
       'Your Security Key is not available, so this operation cannot be '
-      'completed.\n\nPlease provide your Security Key and try again.',
+          'completed.\n\nPlease provide your Security Key and try again.',
       'Security Key Required',
     );
     return true;
@@ -142,9 +142,9 @@ Future<bool> showPodAccessExceptionDialog(
     await alert(
       context,
       'The data on your POD could not be decrypted. This usually means '
-      'the cached Security Key does not match the one used to encrypt '
-      'the file.\n\nPlease re-enter the correct Security Key and try '
-      'again.',
+          'the cached Security Key does not match the one used to encrypt '
+          'the file.\n\nPlease re-enter the correct Security Key and try '
+          'again.',
       'Decryption Failed',
     );
     return true;
@@ -154,7 +154,7 @@ Future<bool> showPodAccessExceptionDialog(
     await alert(
       context,
       'Access to the requested resource on your POD is forbidden.\n\n'
-      'You may not have permission to perform this operation.',
+          'You may not have permission to perform this operation.',
       'Access Forbidden',
     );
     return true;
@@ -164,7 +164,7 @@ Future<bool> showPodAccessExceptionDialog(
     await alert(
       context,
       'A request to your POD failed. Please check your network '
-      'connection and try again.',
+          'connection and try again.',
       'POD Request Failed',
     );
     return true;
