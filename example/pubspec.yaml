@@ -14,7 +14,12 @@ dependencies:
   intl: any
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  solidpod: ^1.0.0
+  # solidpod: ^1.0.0
+  solidpod:
+    # path: ../solidpod
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: av/655_use_kdf_in_key_generation
   solidui:
     path: ..
   universal_io: ^2.3.1
