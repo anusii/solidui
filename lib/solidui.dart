@@ -130,6 +130,12 @@ export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_notifications.dart';
 export 'src/utils/solid_pod_helpers.dart'
     show loginIfRequired, getKeyFromUserIfRequired;
+export 'src/utils/solid_pod_write_guard.dart'
+    show
+        PodWriteGateOutcome,
+        checkPodWritable,
+        ensurePodWritable,
+        showPodAccessExceptionDialog;
 export 'src/utils/web_id_parser.dart';
 
 export 'src/widgets/solid_format_info_card.dart';
