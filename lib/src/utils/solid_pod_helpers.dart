@@ -151,8 +151,9 @@ Future<void> getKeyFromUserIfRequired(
     final inputField = (
       fieldKey: inputKey,
       fieldLabel: 'Security Key',
-      validateFunc: (key) =>
-          (key == null || (key as String).isEmpty) ? 'Please enter a key' : null,
+      validateFunc: (key) => (key == null || (key as String).isEmpty)
+          ? 'Please enter a key'
+          : null,
     );
 
     // Use the unified SecurityKeyUI widget with the appropriate configuration.
