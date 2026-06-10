@@ -34,7 +34,7 @@ dependency_overrides:
   solidpod:
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: tony/257_notification
+      ref: av/655_use_kdf_in_key_generation
 
 flutter:
   uses-material-design: true
