@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Updated security  [1.0.6 20260610 anushkavidanage]
 + Notification support [1.0.5 20260609 tonypioneer]
 + Notify on checking already login fails [1.0.4 20260608 gjw]
 + Improve self share use case [1.0.3 20260605 tonypioneer]
