@@ -448,7 +448,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       ownerWebId: _ownerWebId,
                       granterWebId: _granterWebId,
                       isExternalRes: widget.isExternalRes,
-                      isFile: widget.isFile,
+                      isFile: getIsFile(),
                       dataFilesMap: widget.dataFilesMap,
                       onPermissionGranted: widget.onPermissionGranted,
                       resourceDisplayName: widget.resourceDisplayName,

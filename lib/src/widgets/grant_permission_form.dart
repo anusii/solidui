@@ -48,7 +48,6 @@ import 'package:solidui/solidui.dart'
         smallGapV,
         successMsg,
         updatePermissionMsg;
-import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 import 'package:solidui/src/widgets/grant_permission_dialogs.dart';
@@ -248,14 +247,6 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// context. This provides an alert dialog over the top of the
   /// grant permission form dialog.
   Future<void> _alert(String msg) async => alert(context, msg);
-
-  /// Private function to show snackbar in share resource button context
-  Future<void> _showSnackBar(
-    String msg,
-    Color bgColor, {
-    Duration duration = const Duration(seconds: 4),
-  }) async =>
-      showSnackBar(context, msg, bgColor, duration: duration);
 
   /// Drop any individual WebID text typed by the user. Invoked by the
   /// Clear button on the individual WebID input widget.
@@ -560,6 +551,41 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             }
             if (!context.mounted) return;
 
+            // Capture the ScaffoldMessenger now, while the dialog and its host
+            // page are still mounted, so the success feedback can be shown
+            // after this dialog is popped.
+            final messenger = ScaffoldMessenger.of(context);
+            void showSnack(
+              String message,
+              Color backgroundColor, {
+              Duration duration = const Duration(seconds: 4),
+            }) {
+              // Showing a SnackBar requires a Scaffold registered with the
+              // messenger. Depending on how the host embeds this form, and on
+              // the exact moment the dialog is dismissed, the messenger can
+              // momentarily have no Scaffold, which throws the
+              // "_scaffolds.isNotEmpty" assertion. A confirmation toast is
+              // non-critical (the grant has already succeeded), so we guard the
+              // call and retry once on the next frame rather than ever letting
+              // it crash the app.
+              SnackBar build() => SnackBar(
+                    content: Text(message),
+                    backgroundColor: backgroundColor,
+                    duration: duration,
+                  );
+              try {
+                messenger.showSnackBar(build());
+              } on Object catch (_) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  try {
+                    messenger.showSnackBar(build());
+                  } on Object catch (e) {
+                    debugPrint('Could not show snackbar "$message": $e');
+                  }
+                });
+              }
+            }
+
             // Grant permission for each resource sequentially. When
             // resourceNames is provided all resources share the same
             // recipient and permission selections.
@@ -593,7 +619,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             }
 
             if (result == SolidFunctionCallStatus.success) {
-              _showSnackBar(successMsg, ActionColors.success);
+              showSnack(successMsg, ActionColors.success);
 
               // Notify specific recipients in the background. Public and
               // authenticated-user shares are skipped inside the helper
@@ -607,7 +633,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 granterWebId: widget.granterWebId,
                 ownerWebId: widget.ownerWebId,
                 permissionList: selectedPermList,
-                showSnack: _showSnackBar,
+                showSnack: showSnack,
               );
 
               // Update permissions table for the primary resource.
@@ -642,7 +668,19 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 context,
                 widget.inviteConfig,
               );
+            } else if (result == SolidFunctionCallStatus.noAclFound) {
+              // The resource has no ACL file of its own (its ACL is inherited
+              // from a parent container), so access cannot be granted on it
+              // directly. Show the dedicated hint instead of the misleading
+              // "please login" message.
+              await _alert(noAclMsg);
+            } else if (result == SolidFunctionCallStatus.fileNotExists) {
+              await _alert(
+                'The resource "${widget.resourceNames.first}" does not exist '
+                'on the Pod. Please create it first.',
+              );
             } else {
+              // Remaining statuses (e.g. notLoggedIn).
               await _alert(updatePermissionMsg);
             }
           },
