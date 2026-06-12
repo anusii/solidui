@@ -1,6 +1,6 @@
 /// Solid About Button.
 ///
-// Time-stamp: <Wednesday 2026-04-29 11:42:51 +1000 Graham Williams>
+// Time-stamp: <Friday 2026-06-12 10:10:22 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -370,9 +370,13 @@ class SolidAbout {
 
             **Menu**
 
-            Choose whether main navigation items appear along the bottom
-            of the screen or inside the hamburger menu on narrow screens.
-            Login and security key always stay in the menu drawer.
+            For narrow screens customise the location of the menu navigation
+            items.  The default bottom bar with webid, login, and security key
+            status is replaced with a row of menu buttons migrated from the side
+            of the screen. The buttons can either appear along the bottom or
+            inside the menu drawer (hamburger menu), as a user choice.  The
+            webid, login and security key status always remain with the menu
+            drawer.
 
             ''',
             child: TextButton.icon(
