@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Bump solid_auth token refresh fix [1.0.7 20260612 gjw]
 + Updated security  [1.0.6 20260610 anushkavidanage]
 + Notification support [1.0.5 20260609 tonypioneer]
 + Notify on checking already login fails [1.0.4 20260608 gjw]
