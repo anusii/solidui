@@ -41,6 +41,7 @@ import 'package:solidui/solidui.dart'
         SharedResourcesUi,
         SolidScaffold,
         changeKeyPopup,
+        changePasswordPopup,
         getKeyFromUserIfRequired,
         largeGapV,
         loginIfRequired,
@@ -832,6 +833,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       changeKeyPopup(context, widget);
                     },
                     child: const Text('Change Security Key on Pod'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      changePasswordPopup(context, widget);
+                    },
+                    child: const Text('Change Account Password'),
                   ),
                   ElevatedButton(
                     child: const Text('Forget Security Key Locally'),
