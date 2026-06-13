@@ -19,7 +19,7 @@ dependencies:
     # path: ../solidpod
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: tony/622_save_large_files_to_external_pod
+      ref: dev
   solidui:
     path: ..
   universal_io: ^2.3.1
@@ -30,5 +30,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  config:
+    enable-swift-package-manager: false
   assets:
     - assets/images/
