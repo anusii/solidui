@@ -1,4 +1,4 @@
-/// Menu layout preferences dialogue for narrow-screen navigation.
+/// SolidUI - Menu layout preferences dialogue for narrow-screen navigation.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -106,8 +106,9 @@ class _SolidMenuPreferencesDialogState
             contentPadding: EdgeInsets.zero,
             title: const Text('Show menu in bottom bar'),
             subtitle: const Text(
-              'When on, page buttons sit along the bottom edge. Login and '
-              'security key stay in the menu drawer.',
+              'When on, page buttons sit along the bottom edge. '
+              'When off, page buttons sit in the menu drawer. '
+              'The login and security key remain in the menu drawer.',
             ),
             value: _menuInBottomBar,
             onChanged: (value) => setState(() => _menuInBottomBar = value),
