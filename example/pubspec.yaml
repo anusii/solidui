@@ -19,7 +19,7 @@ dependencies:
     # path: ../solidpod
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: dev
+      ref: tony/622_save_large_files_to_external_pod
   solidui:
     path: ..
   universal_io: ^2.3.1
