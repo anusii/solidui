@@ -46,6 +46,40 @@ typedef NotifySnackBar = void Function(
   Duration duration,
 });
 
+/// Build a resilient [NotifySnackBar] bound to [messenger].
+///
+/// Showing a SnackBar requires a Scaffold registered with the messenger.
+/// Depending on how the host embeds the form, and on the exact moment the
+/// dialog is dismissed, the messenger can momentarily have no Scaffold,
+/// which throws the "_scaffolds.isNotEmpty" assertion. A confirmation toast
+/// is non-critical (the grant has already succeeded), so the call is guarded
+/// and retried once on the next frame rather than ever letting it crash the
+/// app.
+
+NotifySnackBar makeResilientSnackBar(ScaffoldMessengerState messenger) =>
+    (
+      String message,
+      Color backgroundColor, {
+      Duration duration = const Duration(seconds: 4),
+    }) {
+      SnackBar build() => SnackBar(
+            content: Text(message),
+            backgroundColor: backgroundColor,
+            duration: duration,
+          );
+      try {
+        messenger.showSnackBar(build());
+      } on Object catch (_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          try {
+            messenger.showSnackBar(build());
+          } on Object catch (e) {
+            debugPrint('Could not show snackbar "$message": $e');
+          }
+        });
+      }
+    };
+
 /// Send a "resource shared" notification to each recipient WebID and
 /// report delivery problems through [showSnack].
 ///
