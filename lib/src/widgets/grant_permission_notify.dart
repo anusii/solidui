@@ -56,8 +56,7 @@ typedef NotifySnackBar = void Function(
 /// and retried once on the next frame rather than ever letting it crash the
 /// app.
 
-NotifySnackBar makeResilientSnackBar(ScaffoldMessengerState messenger) =>
-    (
+NotifySnackBar makeResilientSnackBar(ScaffoldMessengerState messenger) => (
       String message,
       Color backgroundColor, {
       Duration duration = const Duration(seconds: 4),
