@@ -87,7 +87,8 @@ class SolidScaffoldHelpers {
         changelogUrl: config.versionConfig!.changelogUrl,
         showVersion: config.versionConfig!.showVersion,
         showDate: config.versionConfig!.showDate,
-        userTextStyle: config.versionConfig!.userTextStyle,
+        userTextStyle: config.versionConfig!.appBarTextStyle ??
+            config.versionConfig!.userTextStyle,
         showUpdateButton: config.versionConfig!.showUpdateButton,
         downloadUrl: config.versionConfig!.downloadUrl,
         updateButtonLabel: config.versionConfig!.updateButtonLabel,

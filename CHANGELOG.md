@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Allow different version string colours appbar/menu [1.0.8 20260614 gjw]
 + Bump solid_auth token refresh fix [1.0.7 20260612 gjw]
 + Updated security  [1.0.6 20260610 anushkavidanage]
 + Notification support [1.0.5 20260609 tonypioneer]
