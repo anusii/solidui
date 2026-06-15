@@ -51,6 +51,7 @@ typedef LoadPermissionsCallback = Future<PermissionLoadResult?> Function(
   String name, {
   bool isFile,
   bool isExternalRes,
+  bool silent,
 });
 
 /// A page that displays the [ViewPermission] for a set of resources.
@@ -146,13 +147,30 @@ class _PermissionPageState extends State<PermissionPage> {
     _noPermissionHistory = result.noPermissionHistory;
   }
 
-  Future<void> _loadPermissions(String name) async {
+  /// Loads (or reloads) the permission data for [name].
+  ///
+  /// [silent] is set when this is a refresh triggered by a successful revoke.
+  /// In that case the underlying loader suppresses its alert dialogs, and a
+  /// null result (the ACL is no longer readable — for example after revoking
+  /// our own access to an externally owned resource) clears the table rather
+  /// than leaving the just-revoked entry on screen.
+
+  Future<void> _loadPermissions(String name, {bool silent = false}) async {
     final result = await widget.loadPermissions(
       name,
       isFile: widget.isFile,
       isExternalRes: widget.isExternalRes,
+      silent: silent,
     );
-    if (result == null) return;
+    if (result == null) {
+      if (silent) {
+        setState(() {
+          _selectedResourceName = name;
+          _permDataMap = {};
+        });
+      }
+      return;
+    }
     setState(() {
       _selectedResourceName = name;
       _applyLoadResult(result);
@@ -198,8 +216,9 @@ class _PermissionPageState extends State<PermissionPage> {
               name, {
               isFile = true,
               isExternalRes = false,
+              silent = false,
             }) async =>
-                _loadPermissions(name),
+                _loadPermissions(name, silent: silent),
             onSelectedResource: (name) async => _loadPermissions(name),
             onShowCurrentPermOnlyChanged: (value) {
               setState(() {
