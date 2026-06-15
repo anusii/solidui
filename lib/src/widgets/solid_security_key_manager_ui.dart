@@ -1,6 +1,6 @@
-/// Security Key Manager UI Components.
+/// SolidUI - Security Key Manager UI Components.
 ///
-/// Copyright (C) 2025, Software Innovation Institute, ANU.
+/// Copyright (C) 2025-2026, Software Innovation Institute, ANU.
 ///
 /// Licensed under the MIT License (the "License").
 ///
@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Ashley Tang, Tony Chen
+/// Authors: Ashley Tang, Tony Chen, Graham Williams
 
 library;
 
@@ -148,7 +148,7 @@ class SolidSecurityKeyManagerUI {
                         ],
                         _gap,
                         _btn(
-                          'Cancel',
+                          'Close',
                           onCancel,
                           ElevatedButton.styleFrom(
                             backgroundColor: cs.surfaceContainerHighest,
