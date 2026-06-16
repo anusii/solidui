@@ -42,6 +42,7 @@ import 'package:solidui/solidui.dart'
         SolidScaffold,
         changeKeyPopup,
         changePasswordPopup,
+        createAccountPopup,
         getKeyFromUserIfRequired,
         largeGapV,
         loginIfRequired,
@@ -839,6 +840,16 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       changePasswordPopup(context, widget);
                     },
                     child: const Text('Change Account Password'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final serverUrl = _webId != null
+                          ? Uri.parse(_webId!).origin
+                          : 'https://pods.solidcommunity.au';
+                      createAccountPopup(context, widget,
+                          serverUrl: serverUrl);
+                    },
+                    child: const Text('Create New Account'),
                   ),
                   ElevatedButton(
                     child: const Text('Forget Security Key Locally'),
