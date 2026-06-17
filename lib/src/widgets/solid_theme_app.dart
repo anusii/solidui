@@ -1,6 +1,6 @@
 /// Convenience wrapper for MaterialApp with SolidUI theme management.
 ///
-// Time-stamp: <Monday 2025-08-25 15:30:00 +1000 Tony Chen>
+// Time-stamp: <Wednesday 2026-06-17 17:14:58 +1000 Graham Williams>
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -69,7 +69,7 @@ class SolidThemeApp extends StatefulWidget {
     this.theme,
     this.darkTheme,
     this.themeConfig,
-    this.debugShowCheckedModeBanner = false,
+    this.debugShowCheckedModeBanner = true,
   });
 
   @override
