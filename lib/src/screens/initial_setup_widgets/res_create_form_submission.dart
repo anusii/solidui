@@ -164,6 +164,12 @@ ElevatedButton resCreateFormSubmission(
   return ElevatedButton(
     onPressed: () async {
       if (formKey.currentState?.saveAndValidate() ?? false) {
+        // Capture the navigators and messenger up front.
+
+        final rootNavigator = Navigator.of(context, rootNavigator: true);
+        final pageNavigator = Navigator.of(context);
+        final messenger = ScaffoldMessenger.of(context);
+
         unawaited(
           showAnimationDialog(
             context,
@@ -192,24 +198,34 @@ ElevatedButton resCreateFormSubmission(
         // Dismiss the busy animation before we either surface an error or
         // navigate to the post-setup screen. Without this the spinner is
         // left orphaned on top of the next page if init fails.
+        //
+        // The spinner is shown with showDialog(), which pushes onto the root
+        // navigator, so it must be popped from there too. Popping the nearest
+        // (possibly nested) navigator would instead remove the setup page and
+        // leave that navigator with no routes, which is what triggered the
+        // "Navigator has no active routes to replace" assertion.
 
-        if (context.mounted) Navigator.pop(context);
+        if (rootNavigator.canPop()) {
+          rootNavigator.pop();
+        }
 
         if (initError != null) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Setup failed: $initError'),
-                duration: const Duration(seconds: 6),
-              ),
-            );
-          }
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text('Setup failed: $initError'),
+              duration: const Duration(seconds: 6),
+            ),
+          );
           return;
         }
 
-        if (context.mounted) {
-          await Navigator.pushReplacement(
-            context,
+        // Replace the setup page with the post-setup page on the navigator
+        // that actually hosts it. Guard against a navigator that is no longer
+        // mounted (e.g. after an account switch has torn the stack down) so we
+        // never assert on an empty navigator.
+
+        if (pageNavigator.mounted) {
+          await pageNavigator.pushReplacement(
             MaterialPageRoute(builder: (context) => child),
           );
         }
