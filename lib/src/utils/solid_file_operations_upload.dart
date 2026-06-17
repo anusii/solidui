@@ -54,12 +54,19 @@ class SolidFileUploadOperations {
   /// 'json']`). Selected files whose extensions fall outside the allow list
   /// are rejected with a snackbar message so the same constraint is enforced
   /// across all entry points that share this function.
+  ///
+  /// [pathType] controls how [currentPath] is interpreted. It defaults to
+  /// [PathType.relativeToPod], so existing callers are unaffected. When set to
+  /// [PathType.absoluteUrl], [currentPath] is treated as an absolute directory
+  /// URL and the file is written straight to `currentPath/<fileName>` without
+  /// any relative-path resolution.
 
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
     VoidCallback? onSuccess,
     List<String>? allowedExtensions,
+    PathType pathType = PathType.relativeToPod,
   }) async {
     try {
       // Normalise the allow list once: drop empty entries, strip any leading
@@ -143,12 +150,13 @@ class SolidFileUploadOperations {
 
         final remoteFileName = '$sanitizedFileName.enc.ttl';
 
-        // Construct the full upload path relative to the Pod root.
+        // Construct the full upload path. For an absolute URL the directory
+        // URL is joined verbatim (preserving the scheme); otherwise the path
+        // is resolved relative to the Pod root.
 
-        final normalisedCurrentPath = PathUtils.normalise(currentPath);
-        final uploadPath = normalisedCurrentPath.isNotEmpty
-            ? PathUtils.combine(normalisedCurrentPath, remoteFileName)
-            : remoteFileName;
+        final uploadPath = pathType == PathType.absoluteUrl
+            ? PathUtils.combineUrl(currentPath, remoteFileName)
+            : PathUtils.combine(currentPath, remoteFileName);
 
         if (!context.mounted) return;
 
@@ -161,13 +169,13 @@ class SolidFileUploadOperations {
 
         if (!context.mounted) return;
 
-        // Upload file with encryption using PathType.relativeToPod.
+        // Upload file with encryption using the requested path type.
 
         await writePod(
           uploadPath,
           fileContent,
           encrypted: true,
-          pathType: PathType.relativeToPod,
+          pathType: pathType,
         );
 
         if (!context.mounted) return;

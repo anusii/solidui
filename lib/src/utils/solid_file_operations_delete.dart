@@ -45,12 +45,18 @@ class SolidFileDeleteOperations {
   ///
   /// The [filePath] should be a directory path relative to the Pod root,
   /// e.g., `myapp/data` or `myapp/data/subfolder`.
+  ///
+  /// [pathType] controls how [filePath] is interpreted. It defaults to
+  /// [PathType.relativeToPod], so existing callers are unaffected. When set to
+  /// [PathType.absoluteUrl], [filePath] is treated as an absolute directory
+  /// URL and the file at `filePath/<fileName>` is deleted by that URL directly.
 
   static Future<void> deletePodFile(
     BuildContext context,
     String fileName,
     String filePath, {
     VoidCallback? onSuccess,
+    PathType pathType = PathType.relativeToPod,
   }) async {
     try {
       // Show confirmation dialog.
@@ -88,16 +94,20 @@ class SolidFileDeleteOperations {
       );
 
       try {
-        // Construct the full file path by combining directory path and
-        // filename. Use PathUtils to ensure no leading slashes, which would
-        // cause double slashes in the generated URL.
+        // Resolve the absolute URL of the file to delete. For an absolute URL
+        // the directory URL is joined verbatim (preserving the scheme);
+        // otherwise the relative path is combined and resolved to a URL. Use
+        // PathUtils to ensure no leading slashes, which would cause double
+        // slashes in the generated URL.
 
-        final fullFilePath = PathUtils.combine(filePath, fileName);
+        final String fileUrl = pathType == PathType.absoluteUrl
+            ? PathUtils.combineUrl(filePath, fileName)
+            : await getFileUrl(PathUtils.combine(filePath, fileName));
 
         // Delete the file (this also handles the ACL file automatically).
 
         try {
-          await deleteFile(fileUrl: await getFileUrl(fullFilePath));
+          await deleteFile(fileUrl: fileUrl);
         } catch (e) {
           // Only rethrow if it's not a 404 error.
 
