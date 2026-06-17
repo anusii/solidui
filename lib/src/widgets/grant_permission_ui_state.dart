@@ -84,11 +84,18 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
       );
 
   /// Loads permission details data from the ACL on the POD server.
+  ///
+  /// When [silent] is true the informational alert dialogs are suppressed.
+  /// This is used by the post-revoke table refresh: once a recipient (or the
+  /// current user's own access to an externally owned resource) has been
+  /// revoked, the resource's ACL may no longer be readable, and surfacing a
+  /// "no ACL file" dialog at that point is confusing rather than helpful.
 
   Future<PermissionDetails?> loadACLData(
     String resName, {
     bool isFile = true,
     bool isExternalRes = false,
+    bool silent = false,
   }) async {
     final SolidFunctionCallStatus response = await chkExistsAndHasAcl(
       fileName: resName,
@@ -119,19 +126,21 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
         return permissionDetails;
 
       case SolidFunctionCallStatus.notLoggedIn:
-        await _alert('Please login first to retrieve permission');
+        if (!silent) await _alert('Please login first to retrieve permission');
 
       case SolidFunctionCallStatus.noAclFound:
-        await _alert(noAclMsg);
+        if (!silent) await _alert(noAclMsg);
 
       case SolidFunctionCallStatus.fileNotExists:
-        await _alert(
-          'The resource "$resName" does not exist on your pod. '
-          'Please create it first.',
-        );
+        if (!silent) {
+          await _alert(
+            'The resource "$resName" does not exist on your pod. '
+            'Please create it first.',
+          );
+        }
 
       default:
-        await _alert('Unknown error');
+        if (!silent) await _alert('Unknown error');
     }
 
     return null;
@@ -169,11 +178,13 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     String fileName, {
     bool isFile = true,
     bool isExternalRes = false,
+    bool silent = false,
   }) async {
     final pdata = await loadACLData(
       fileName,
       isFile: isFile,
       isExternalRes: isExternalRes,
+      silent: silent,
     );
 
     if (pdata == null || pdata.permissionMap.isEmpty) {
@@ -279,11 +290,13 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
           name, {
           isFile = true,
           isExternalRes = false,
+          silent = false,
         }) =>
             _loadPermissionData(
           name,
           isFile: isFile,
           isExternalRes: isExternalRes,
+          silent: silent,
         ),
         updatePermissionsFunction: _updatePermissions,
         embedded: embedded,
