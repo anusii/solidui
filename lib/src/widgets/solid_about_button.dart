@@ -402,7 +402,7 @@ class SolidAbout {
             message: config.inviteConfig!.effectiveTooltip,
             child: TextButton.icon(
               icon: Icon(config.inviteConfig!.effectiveIcon),
-              label: const Text('Share'),
+              label: const Text('Invite'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 InviteOthersDialog.show(

@@ -48,12 +48,13 @@ import 'package:solidui/solidui.dart'
         smallGapV,
         successMsg,
         updatePermissionMsg;
-import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 import 'package:solidui/src/widgets/grant_permission_dialogs.dart';
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
 import 'package:solidui/src/widgets/grant_permission_notify.dart';
+import 'package:solidui/src/widgets/grant_permission_webid_utils.dart'
+    show isSelfShare, selfShareMessage;
 import 'package:solidui/src/widgets/group_webid_input.dart';
 import 'package:solidui/src/widgets/ind_webid_input.dart'
     show indWebIdFormatError;
@@ -229,6 +230,11 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
   List<AccessMode> accessModeList = [];
 
+  /// Recipient groups the user has previously shared with, offered for
+  /// quick reuse when the group recipient type is selected.
+
+  List<SharedGroup> _savedGroups = [];
+
   @override
   void initState() {
     super.initState();
@@ -237,6 +243,30 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     for (final accessModeStr in widget.accessModeList) {
       accessModeList.add(getAccessMode(accessModeStr));
     }
+
+    // Load previously used groups in the background so they are ready when
+    // the user selects the group recipient type.
+
+    if (widget.recipientTypeList.contains('group')) {
+      _loadSavedGroups();
+    }
+  }
+
+  /// Fetch the previously used groups from the POD and refresh the list.
+
+  Future<void> _loadSavedGroups() async {
+    final groups = await getSharedGroups();
+    if (!mounted) return;
+    setState(() {
+      _savedGroups = groups;
+    });
+  }
+
+  /// Remove a previously used [group] from the POD and refresh the list.
+
+  Future<void> _deleteSavedGroup(SharedGroup group) async {
+    await deleteSharedGroup(group.name);
+    await _loadSavedGroups();
   }
 
   @override
@@ -248,14 +278,6 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// context. This provides an alert dialog over the top of the
   /// grant permission form dialog.
   Future<void> _alert(String msg) async => alert(context, msg);
-
-  /// Private function to show snackbar in share resource button context
-  Future<void> _showSnackBar(
-    String msg,
-    Color bgColor, {
-    Duration duration = const Duration(seconds: 4),
-  }) async =>
-      showSnackBar(context, msg, bgColor, duration: duration);
 
   /// Drop any individual WebID text typed by the user. Invoked by the
   /// Clear button on the individual WebID input widget.
@@ -293,8 +315,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     // third-party agent), so catch it here with a friendly explanation
     // rather than surfacing the raw exception via the generic failure
     // snackbar.
-    if (_isSelfShare(webId)) {
-      await _alert(_selfShareMessage);
+    if (isSelfShare(webId, widget.ownerWebId)) {
+      await _alert(selfShareMessage);
       return false;
     }
     final result = await validateWebId(webId);
@@ -309,41 +331,6 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
       finalWebIdList = [webId];
     });
     return true;
-  }
-
-  /// Message shown when the recipient WebID is the same as the resource
-  /// owner. Surfaced both for the individual recipient flow and as part of
-  /// the group flow when one of the group entries matches the owner.
-  static const String _selfShareMessage =
-      'This resource is owned by you, so you already have full access. Please '
-      'enter the WebID of another user if you would like to share this '
-      'resource.';
-
-  /// Returns true when [webId] refers to the same WebID as the resource
-  /// owner, ignoring surrounding whitespace and trailing slashes. The
-  /// comparison is intentionally loose because the owner's WebID is
-  /// captured from different sources (login session, ACL lookup) and the
-  /// trailing-slash form may vary between them.
-  bool _isSelfShare(String webId) {
-    final entered = _normaliseWebId(webId);
-    if (entered.isEmpty) return false;
-    final owner = _normaliseWebId(widget.ownerWebId);
-    return owner.isNotEmpty && entered == owner;
-  }
-
-  String _normaliseWebId(String webId) {
-    final trimmed = webId.trim();
-    if (trimmed.isEmpty) return trimmed;
-    // Drop a trailing slash on the WebID document portion so that, for
-    // example, `https://alice.example/profile/card#me` and
-    // `https://alice.example/profile/card/#me` compare equal.
-    final hashIndex = trimmed.indexOf('#');
-    final docPart = hashIndex >= 0 ? trimmed.substring(0, hashIndex) : trimmed;
-    final fragment = hashIndex >= 0 ? trimmed.substring(hashIndex) : '';
-    final canonicalDoc = docPart.endsWith('/')
-        ? docPart.substring(0, docPart.length - 1)
-        : docPart;
-    return '$canonicalDoc$fragment'.toLowerCase();
   }
 
   /// Validate the group fields typed by the user and, when valid,
@@ -371,8 +358,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     // owner. The ACL layer rejects the owner appearing as a third-party
     // agent, so flag it here with a friendly message instead of letting
     // the request fail downstream with a generic snackbar.
-    if (webIdList.any(_isSelfShare)) {
-      await _alert(_selfShareMessage);
+    if (webIdList.any((webId) => isSelfShare(webId, widget.ownerWebId))) {
+      await _alert(selfShareMessage);
       return false;
     }
 
@@ -498,6 +485,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                     onGroupWebIdsChanged: (value) =>
                         setState(() => _pendingGroupWebIds = value),
                     onClearFunction: clearGroupWebIdInput,
+                    savedGroups: _savedGroups,
+                    onDeleteGroup: _deleteSavedGroup,
                   ),
                 ],
                 smallGapV,
@@ -560,6 +549,12 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             }
             if (!context.mounted) return;
 
+            // Capture the ScaffoldMessenger now, while the dialog and its host
+            // page are still mounted, so the success feedback can be shown
+            // after this dialog is popped.
+            final showSnack =
+                makeResilientSnackBar(ScaffoldMessenger.of(context));
+
             // Grant permission for each resource sequentially. When
             // resourceNames is provided all resources share the same
             // recipient and permission selections.
@@ -593,7 +588,25 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             }
 
             if (result == SolidFunctionCallStatus.success) {
-              _showSnackBar(successMsg, ActionColors.success);
+              showSnack(successMsg, ActionColors.success);
+
+              // Remember the group so it can be reused when sharing future
+              // resources. Failure to persist is non-fatal: the share has
+              // already succeeded.
+
+              if (selectedRecipientType == RecipientType.group &&
+                  selectedGroupName.isNotEmpty) {
+                try {
+                  await saveSharedGroup(
+                    SharedGroup(
+                      name: selectedGroupName,
+                      webIds: finalWebIdList.map((e) => e.toString()).toList(),
+                    ),
+                  );
+                } on Object catch (e, stackTrace) {
+                  debugPrintException(e, stackTrace);
+                }
+              }
 
               // Notify specific recipients in the background. Public and
               // authenticated-user shares are skipped inside the helper
@@ -607,7 +620,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 granterWebId: widget.granterWebId,
                 ownerWebId: widget.ownerWebId,
                 permissionList: selectedPermList,
-                showSnack: _showSnackBar,
+                showSnack: showSnack,
               );
 
               // Update permissions table for the primary resource.
@@ -642,7 +655,19 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                 context,
                 widget.inviteConfig,
               );
+            } else if (result == SolidFunctionCallStatus.noAclFound) {
+              // The resource has no ACL file of its own (its ACL is inherited
+              // from a parent container), so access cannot be granted on it
+              // directly. Show the dedicated hint instead of the misleading
+              // "please login" message.
+              await _alert(noAclMsg);
+            } else if (result == SolidFunctionCallStatus.fileNotExists) {
+              await _alert(
+                'The resource "${widget.resourceNames.first}" does not exist '
+                'on the Pod. Please create it first.',
+              );
             } else {
+              // Remaining statuses (e.g. notLoggedIn).
               await _alert(updatePermissionMsg);
             }
           },

@@ -216,6 +216,8 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
                       await widget.updatePermissionsFunction(
                         widget.resourceName,
                         isFile: widget.isFile,
+                        isExternalRes: widget.isExternalRes,
+                        silent: true,
                       );
                     },
                     child: const Text('Yes'),

@@ -14,12 +14,7 @@ dependencies:
   intl: ^0.20.2
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  # solidpod: ^1.0.0
-  solidpod:
-    path: ../../solidpod
-    # git:
-    #   url: https://github.com/anusii/solidpod.git
-    #   ref: av/655_use_kdf_in_key_generation
+  solidpod: ^1.0.6
   solidui:
     path: ..
   universal_io: ^2.3.1
@@ -29,15 +24,15 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 dependency_overrides:
-  solidui:
-    path: ..
   solidpod:
-    path: ../../solidpod
-    # git:
-    #   url: https://github.com/anusii/solidpod.git
-    #   ref: av/655_use_kdf_in_key_generation
+    # path: ../solidpod
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: av/change_css_password
 
 flutter:
   uses-material-design: true
+  config:
+    enable-swift-package-manager: false
   assets:
     - assets/images/

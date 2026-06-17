@@ -258,8 +258,20 @@ class SolidVersionConfig {
   /// Custom text style for the version widget. The default text style
   /// uses color to represent the currency of the app, where blue is
   /// most recent version, and red is more recent version available.
+  ///
+  /// This style is used in the navigation drawer header. For the app bar,
+  /// see [appBarTextStyle], which falls back to this when not set.
 
   final TextStyle? userTextStyle;
+
+  /// Custom text style for the version widget when shown in the app bar.
+  ///
+  /// The app bar typically has a coloured background (e.g. the app's primary
+  /// colour) where the drawer's [userTextStyle] may be unreadable, so this
+  /// allows a separate style (for example white text). When null, the app
+  /// bar falls back to [userTextStyle].
+
+  final TextStyle? appBarTextStyle;
 
   /// Whether to show the discover-and-download button when a newer
   /// version is detected. Defaults to false (hidden). The button is
@@ -288,6 +300,7 @@ class SolidVersionConfig {
     this.showDate = true,
     this.tooltip,
     this.userTextStyle,
+    this.appBarTextStyle,
     this.showUpdateButton = false,
     this.downloadUrl,
     this.updateButtonLabel,
