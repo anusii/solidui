@@ -46,7 +46,7 @@ dependency_overrides:
   solidpod:
     git:
       url: https://github.com/anusii/solidpod.git
-      ref: tony/530_recipients_group
+      ref: dev
 
 flutter:
   uses-material-design: true
