@@ -230,6 +230,11 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
   List<AccessMode> accessModeList = [];
 
+  /// Recipient groups the user has previously shared with, offered for
+  /// quick reuse when the group recipient type is selected.
+
+  List<SharedGroup> _savedGroups = [];
+
   @override
   void initState() {
     super.initState();
@@ -238,6 +243,30 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     for (final accessModeStr in widget.accessModeList) {
       accessModeList.add(getAccessMode(accessModeStr));
     }
+
+    // Load previously used groups in the background so they are ready when
+    // the user selects the group recipient type.
+
+    if (widget.recipientTypeList.contains('group')) {
+      _loadSavedGroups();
+    }
+  }
+
+  /// Fetch the previously used groups from the POD and refresh the list.
+
+  Future<void> _loadSavedGroups() async {
+    final groups = await getSharedGroups();
+    if (!mounted) return;
+    setState(() {
+      _savedGroups = groups;
+    });
+  }
+
+  /// Remove a previously used [group] from the POD and refresh the list.
+
+  Future<void> _deleteSavedGroup(SharedGroup group) async {
+    await deleteSharedGroup(group.name);
+    await _loadSavedGroups();
   }
 
   @override
@@ -456,6 +485,8 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
                     onGroupWebIdsChanged: (value) =>
                         setState(() => _pendingGroupWebIds = value),
                     onClearFunction: clearGroupWebIdInput,
+                    savedGroups: _savedGroups,
+                    onDeleteGroup: _deleteSavedGroup,
                   ),
                 ],
                 smallGapV,
@@ -558,6 +589,24 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
             if (result == SolidFunctionCallStatus.success) {
               showSnack(successMsg, ActionColors.success);
+
+              // Remember the group so it can be reused when sharing future
+              // resources. Failure to persist is non-fatal: the share has
+              // already succeeded.
+
+              if (selectedRecipientType == RecipientType.group &&
+                  selectedGroupName.isNotEmpty) {
+                try {
+                  await saveSharedGroup(
+                    SharedGroup(
+                      name: selectedGroupName,
+                      webIds: finalWebIdList.map((e) => e.toString()).toList(),
+                    ),
+                  );
+                } on Object catch (e, stackTrace) {
+                  debugPrintException(e, stackTrace);
+                }
+              }
 
               // Notify specific recipients in the background. Public and
               // authenticated-user shares are skipped inside the helper
