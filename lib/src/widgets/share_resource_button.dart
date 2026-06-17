@@ -156,10 +156,6 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
 
   String _resourceName = '';
 
-  /// A flag to identify if the resource is a file or not
-
-  bool isFile = true;
-
   /// Flag to track if permissions were granted successfully.
 
   bool permissionsGrantedSuccessfully = false;
@@ -187,8 +183,10 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
   /// grant permission form dialog.
   Future<void> _alert(String msg) async => alert(context, msg);
 
-  // Resource is a file if resource selected in GrantPermissionUi()
-  bool _getIsFile() => widget.resourceNames != null ? widget.isFile : isFile;
+  // Whether the resource is a file. [widget.isFile] already reflects the
+  // correct value for both the resourceNames path and the generic share form
+  // (where it is derived from the "Is a File?" toggle by the caller).
+  bool _getIsFile() => widget.isFile;
 
   @override
   Widget build(BuildContext context) {

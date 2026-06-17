@@ -55,6 +55,7 @@ import 'package:demopod/features/check_file_encryption.dart';
 import 'package:demopod/features/create_acl_inherited_file.dart';
 import 'package:demopod/features/edit_keyvalue.dart';
 import 'package:demopod/features/file_service.dart';
+import 'package:demopod/features/manage_acl_folder.dart';
 import 'package:demopod/features/multiple_resource_sharing.dart';
 import 'package:demopod/features/permission_callback_demo.dart';
 import 'package:demopod/features/read_acl_inherited_file.dart';
@@ -786,6 +787,32 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       }
                     },
                     child: const Text('Read Resource with ACL Inheritance'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
+                      if (loggedIn) {
+                        final webId = await getWebId();
+                        setState(() {
+                          _webId = webId;
+                        });
+                        await getKeyFromUserIfRequired(context, widget);
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ManageAclFolder(),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Create/Delete a Folder with ACL'),
                   ),
                 ]),
 
