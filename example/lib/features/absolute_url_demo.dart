@@ -31,13 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart'
-    show
-        PathType,
-        deleteFile,
-        getDataDirPath,
-        getFileUrl,
-        readPod,
-        writePod;
+    show PathType, deleteFile, getDataDirPath, getFileUrl, readPod, writePod;
 
 /// A widget that exercises [writePod], [readPod] and [deleteFile] using an
 /// absolute-URL path (`PathType.absoluteUrl`).
