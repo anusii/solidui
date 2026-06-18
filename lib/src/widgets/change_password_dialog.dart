@@ -213,8 +213,7 @@ Future<bool> changePasswordPopup(BuildContext context, Widget child) async {
     (
       fieldKey: newPasswordRepeatStr,
       fieldLabel: 'Repeat New Password',
-      validateFunc: (password) =>
-          validateNewPasswordRepeat(password as String),
+      validateFunc: (password) => validateNewPasswordRepeat(password as String),
     ),
   ];
 

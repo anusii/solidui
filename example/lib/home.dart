@@ -873,8 +873,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       final serverUrl = _webId != null
                           ? Uri.parse(_webId!).origin
                           : 'https://pods.solidcommunity.au';
-                      createAccountPopup(context, widget,
-                          serverUrl: serverUrl);
+                      createAccountPopup(context, widget, serverUrl: serverUrl);
                     },
                     child: const Text('Create New Account'),
                   ),

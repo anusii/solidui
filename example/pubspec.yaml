@@ -14,7 +14,7 @@ dependencies:
   intl: ^0.20.2
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  solidpod: ^1.0.6
+  solidpod: ^1.0.8
   solidui:
     path: ..
   universal_io: ^2.3.1
@@ -22,13 +22,6 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^6.0.0
-
-dependency_overrides:
-  solidpod:
-    # path: ../solidpod
-    git:
-      url: https://github.com/anusii/solidpod.git
-      ref: av/change_css_password
 
 flutter:
   uses-material-design: true
