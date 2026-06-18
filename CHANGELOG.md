@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Add account and change password dialogs (CSS v7+) [1.0.10 20260617 anushkavidanage]
 + Support writing large files to external pod [1.0.9 20260618 tonypioneer]
 + Allow different version string colours appbar/menu [1.0.8 20260614 gjw]
 + Bump solid_auth token refresh fix [1.0.7 20260612 gjw]
