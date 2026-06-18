@@ -34,7 +34,6 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show debugPrint;
 
 import 'package:rdflib/rdflib.dart' show Literal, Namespace, URIRef;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/services/solid_profile_notifier.dart';
@@ -46,10 +45,6 @@ const int maxProfilePictureBytes = 2 * 1024 * 1024;
 /// Allowed MIME extensions for profile pictures.
 
 const Set<String> allowedProfileExtensions = {'.png', '.jpg', '.jpeg'};
-
-// SharedPreferences key prefix for the per-WebID privacy preference.
-
-const String _privacyPrefKey = 'solidui_profile_privacy_';
 
 /// Manages reading, writing, and deleting profile data on the user's POD.
 
@@ -98,8 +93,6 @@ class SolidProfileService {
     if (_initialised) return;
     if (!await isUserLoggedIn()) return;
 
-    await _loadPrivacyPreference();
-
     final dirUrl = await _profileDirUrl();
 
     // Create the folder if it is missing. We deliberately do not swallow
@@ -139,6 +132,9 @@ class SolidProfileService {
 
     try {
       await ensureProfileFolder();
+      // Privacy must be resolved before avatar/display-name because it
+      // determines the decryption mode used by readPod.
+      await _loadPrivacyFromAcl();
       await Future.wait([_loadAvatar(), _loadDisplayName()]);
     } catch (e) {
       debugPrint('SolidProfileService.loadProfile: $e');
@@ -256,7 +252,6 @@ class SolidProfileService {
     final currentName = solidProfileNotifier.displayName;
 
     solidProfileNotifier.setPrivacy(mode);
-    await _persistPrivacyPreference(mode);
 
     if (currentAvatar != null) {
       await saveAvatar(currentAvatar);
@@ -294,30 +289,25 @@ class SolidProfileService {
     await createResource(aclUrl, content: aclTurtle, replaceIfExist: true);
   }
 
-  Future<void> _loadPrivacyPreference() async {
-    try {
-      final webId = await getWebId();
-      if (webId == null) return;
-      final prefs = await SharedPreferences.getInstance();
-      final stored = prefs.getString('$_privacyPrefKey$webId');
-      if (stored == SolidProfilePrivacy.public.name) {
-        solidProfileNotifier.setPrivacy(SolidProfilePrivacy.public);
-      } else {
-        solidProfileNotifier.setPrivacy(SolidProfilePrivacy.private);
-      }
-    } catch (e) {
-      debugPrint('SolidProfileService._loadPrivacyPreference: $e');
-    }
-  }
+  /// Reads the profile folder ACL from the POD and updates
+  /// [solidProfileNotifier] with the derived [SolidProfilePrivacy].
+  /// Public mode is inferred from the presence of a public-read grant
+  /// (`foaf:Agent` + `acl:Read`) in the ACL turtle.
 
-  Future<void> _persistPrivacyPreference(SolidProfilePrivacy mode) async {
+  Future<void> _loadPrivacyFromAcl() async {
     try {
-      final webId = await getWebId();
-      if (webId == null) return;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('$_privacyPrefKey$webId', mode.name);
+      final dirUrl = await _profileDirUrl();
+      final aclUrl = '$dirUrl.acl';
+      if (await checkResourceStatus(aclUrl) != ResourceStatus.exist) return;
+
+      final content = await readPod(aclUrl, pathType: PathType.absoluteUrl);
+      final isPublic =
+          content.contains('foaf:Agent') && content.contains('acl:Read');
+      solidProfileNotifier.setPrivacy(
+        isPublic ? SolidProfilePrivacy.public : SolidProfilePrivacy.private,
+      );
     } catch (e) {
-      debugPrint('SolidProfileService._persistPrivacyPreference: $e');
+      debugPrint('SolidProfileService._loadPrivacyFromAcl: $e');
     }
   }
 
