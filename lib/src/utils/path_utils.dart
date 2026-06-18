@@ -132,6 +132,32 @@ class PathUtils {
     return join([directoryPath, fileName]);
   }
 
+  /// Joins an absolute base URL and a resource name into a full URL.
+  ///
+  /// Unlike [combine], this does NOT run the inputs through [normalise],
+  /// which collapses consecutive slashes and would corrupt the scheme
+  /// separator (turning `https://host` into `https:/host`). It only trims a
+  /// single trailing slash from [baseUrl] and a single leading slash from
+  /// [name] before joining them with one slash. Use this when working with
+  /// `PathType.absoluteUrl`.
+  ///
+  /// Examples:
+  /// - `combineUrl('https://pods.au/me/app/data', 'file.ttl')` returns
+  ///   `https://pods.au/me/app/data/file.ttl`
+  /// - `combineUrl('https://pods.au/me/app/data/', '/file.ttl')` returns
+  ///   `https://pods.au/me/app/data/file.ttl`
+  /// - `combineUrl('https://pods.au/me/app/data/file.ttl', '')` returns
+  ///   `https://pods.au/me/app/data/file.ttl`
+
+  static String combineUrl(String baseUrl, String name) {
+    if (name.isEmpty) return baseUrl;
+    final base = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    final resource = name.startsWith('/') ? name.substring(1) : name;
+    return '$base/$resource';
+  }
+
   /// Checks if a path is the root (empty or just slashes).
   ///
   /// Examples:

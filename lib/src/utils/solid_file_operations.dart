@@ -30,6 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart' show PathType;
+
 import 'package:solidui/src/utils/solid_file_operations_delete.dart';
 import 'package:solidui/src/utils/solid_file_operations_download.dart';
 import 'package:solidui/src/utils/solid_file_operations_upload.dart';
@@ -40,31 +42,41 @@ class SolidFileOperations {
   const SolidFileOperations._();
 
   /// Download a file from the POD to local storage.
+  ///
+  /// [pathType] defaults to [PathType.relativeToPod]; pass
+  /// [PathType.absoluteUrl] to read straight from an absolute resource URL.
 
   static Future<void> downloadFile(
     BuildContext context,
     String fileName,
-    String filePath,
-  ) =>
+    String filePath, {
+    PathType pathType = PathType.relativeToPod,
+  }) =>
       SolidFileDownloadOperations.downloadFile(
         context,
         fileName,
         filePath,
+        pathType: pathType,
       );
 
   /// Delete a file from the POD.
+  ///
+  /// [pathType] defaults to [PathType.relativeToPod]; pass
+  /// [PathType.absoluteUrl] to delete by an absolute resource URL.
 
   static Future<void> deletePodFile(
     BuildContext context,
     String fileName,
     String filePath, {
     VoidCallback? onSuccess,
+    PathType pathType = PathType.relativeToPod,
   }) =>
       SolidFileDeleteOperations.deletePodFile(
         context,
         fileName,
         filePath,
         onSuccess: onSuccess,
+        pathType: pathType,
       );
 
   /// Delete a mixed batch of files and/or directories from the POD.
@@ -107,17 +119,22 @@ class SolidFileOperations {
   /// listed extensions (case-insensitive, leading dots optional) may be
   /// selected. This restriction is honoured by every caller that delegates to
   /// this method, so a single allow list applies to all upload entry points.
+  ///
+  /// [pathType] defaults to [PathType.relativeToPod]; pass
+  /// [PathType.absoluteUrl] to upload into an absolute directory URL.
 
   static Future<void> uploadFile(
     BuildContext context,
     String currentPath, {
     VoidCallback? onSuccess,
     List<String>? allowedExtensions,
+    PathType pathType = PathType.relativeToPod,
   }) =>
       SolidFileUploadOperations.uploadFile(
         context,
         currentPath,
         onSuccess: onSuccess,
         allowedExtensions: allowedExtensions,
+        pathType: pathType,
       );
 }

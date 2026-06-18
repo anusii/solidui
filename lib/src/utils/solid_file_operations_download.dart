@@ -114,26 +114,46 @@ class SolidFileDownloadOperations {
   }
 
   /// Default file download implementation.
+  ///
+  /// [pathType] controls how [filePath] is interpreted. It defaults to
+  /// [PathType.relativeToPod], so existing callers are unaffected. When set to
+  /// [PathType.absoluteUrl], [filePath] is treated as an absolute directory
+  /// URL and the file is read straight from `filePath/<fileName>`. In that
+  /// case the cross-app encryption warning is skipped, because the caller has
+  /// supplied an explicit URL rather than a relative Pod path.
 
   static Future<void> downloadFile(
     BuildContext context,
     String fileName,
-    String filePath,
-  ) async {
+    String filePath, {
+    PathType pathType = PathType.relativeToPod,
+  }) async {
     try {
+      final bool isAbsoluteUrl = pathType == PathType.absoluteUrl;
+
+      // Resolve the full target. For an absolute URL the directory URL is
+      // joined verbatim (preserving the scheme); otherwise the path is
+      // resolved relative to the Pod root.
+
+      final targetPath = isAbsoluteUrl
+          ? PathUtils.combineUrl(filePath, fileName)
+          : PathUtils.combine(filePath, fileName);
+
       // Check if the file belongs to another app's folder. If so, warn the
-      // user that the file content may be encrypted.
+      // user that the file content may be encrypted. This check only applies
+      // to relative Pod paths; an explicit absolute URL is taken at face value.
 
-      final fullPath = PathUtils.combine(filePath, fileName);
-      final isInCurrentAppFolder = await isPathInCurrentApp(fullPath);
+      if (!isAbsoluteUrl) {
+        final isInCurrentAppFolder = await isPathInCurrentApp(targetPath);
 
-      if (!isInCurrentAppFolder) {
-        if (!context.mounted) return;
+        if (!isInCurrentAppFolder) {
+          if (!context.mounted) return;
 
-        final shouldProceed = await _showCrossAppDownloadWarning(context);
+          final shouldProceed = await _showCrossAppDownloadWarning(context);
 
-        if (!shouldProceed) {
-          return;
+          if (!shouldProceed) {
+            return;
+          }
         }
       }
 
@@ -172,13 +192,11 @@ class SolidFileDownloadOperations {
 
         if (!context.mounted) return;
 
-        // Read file content from POD. All paths are relative to the Pod
-        // root, so we always use PathType.relativeToPod.
+        // Read file content from POD using the requested path type.
 
-        final normalisedPath = PathUtils.combine(filePath, fileName);
         final fileContent = await readPod(
-          normalisedPath,
-          pathType: PathType.relativeToPod,
+          targetPath,
+          pathType: pathType,
         );
 
         if (!context.mounted) return;

@@ -53,6 +53,7 @@ import 'package:solidui/solidui.dart'
 import 'package:demopod/app.dart';
 import 'package:demopod/constants/app.dart';
 import 'package:demopod/dialogs/alert.dart';
+import 'package:demopod/features/absolute_url_demo.dart';
 import 'package:demopod/features/check_file_encryption.dart';
 import 'package:demopod/features/create_acl_inherited_file.dart';
 import 'package:demopod/features/edit_keyvalue.dart';
@@ -726,6 +727,38 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       }
                     },
                     child: const Text('Upload/Download Large File'),
+                  ),
+
+                  // Entry point to test read/write/delete using an
+                  // absolute-URL path (PathType.absoluteUrl). It sits within
+                  // this data upload/download section so that all of the core
+                  // file operations live in one place.
+
+                  ElevatedButton(
+                    onPressed: () async {
+                      final loggedIn = await loginIfRequired(
+                        clientId: clientIdVal,
+                        redirectUris: redirectUrisList,
+                        postLogoutRedirectUris: postLogoutRedirectUrisList,
+                        context: context,
+                      );
+                      if (loggedIn) {
+                        final webId = await getWebId();
+                        setState(() {
+                          _webId = webId;
+                        });
+                        await getKeyFromUserIfRequired(context, widget);
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AbsoluteUrlDemo(),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Read/Write/Delete by Absolute URL'),
                   ),
                 ]),
 
