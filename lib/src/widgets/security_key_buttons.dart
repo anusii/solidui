@@ -39,14 +39,20 @@ class SecurityKeyButtons extends StatelessWidget {
 
   const SecurityKeyButtons({
     required this.canSubmit,
+    required this.isSubmitting,
     required this.onSubmit,
     required this.onCancel,
     super.key,
   });
 
-  /// Whether the submit button should be enabled.
+  /// Whether the submit button should be enabled (form is valid).
 
   final bool canSubmit;
+
+  /// Whether a submission is currently in flight. When true, both buttons are
+  /// disabled and the submit button shows a spinner instead of its label.
+
+  final bool isSubmitting;
 
   /// Callback when the submit button is pressed.
 
@@ -58,8 +64,22 @@ class SecurityKeyButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final submitChild = isSubmitting
+        ? const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          )
+        : const Text(
+            SecurityStrings.submit,
+            style: SecurityThemeTextStyles.button,
+          );
+
     final submitButton = ElevatedButton(
-      onPressed: canSubmit ? onSubmit : null,
+      onPressed: (canSubmit && !isSubmitting) ? onSubmit : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: SecurityThemeColors.primary(context),
         padding: SecurityLayout.buttonPadding,
@@ -67,14 +87,11 @@ class SecurityKeyButtons extends StatelessWidget {
           borderRadius: BorderRadius.circular(SecurityLayout.buttonRadius),
         ),
       ),
-      child: const Text(
-        SecurityStrings.submit,
-        style: SecurityThemeTextStyles.button,
-      ),
+      child: submitChild,
     );
 
     final cancelButton = TextButton(
-      onPressed: onCancel,
+      onPressed: isSubmitting ? null : onCancel,
       style: TextButton.styleFrom(
         padding: SecurityLayout.buttonPadding,
       ),

@@ -116,6 +116,7 @@ class SecurityKeyUI extends StatefulWidget {
 class _SecurityKeyUIState extends State<SecurityKeyUI> {
   Map<String, bool> _verifiedMap = {};
   bool _canSubmit = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -151,7 +152,7 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
   Future<void> _submit(BuildContext context) async {
     final formData = widget.formKey.currentState?.value as Map<String, dynamic>;
 
-    if (!_canSubmit) {
+    if (!_canSubmit || _isSubmitting) {
       return;
     }
 
@@ -162,10 +163,13 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
       }
     }
 
+    setState(() => _isSubmitting = true);
     try {
       await widget.submitFunc(formData);
     } on Exception catch (e) {
       debugPrint('$e');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -245,6 +249,7 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
                 padding: SecurityLayout.buttonsPadding,
                 child: SecurityKeyButtons(
                   canSubmit: _canSubmit,
+                  isSubmitting: _isSubmitting,
                   onSubmit: () async => _submit(context),
                   onCancel: () {
                     if (widget.displayMode == SecurityKeyDisplayMode.dialog) {
