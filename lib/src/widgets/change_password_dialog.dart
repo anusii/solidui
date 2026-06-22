@@ -227,6 +227,7 @@ Future<bool> changePasswordPopup(BuildContext context, Widget child) async {
     formKey: formKey,
     submitFunc: submitForm,
     displayMode: SecurityKeyDisplayMode.dialog,
+    plainTextFieldKeys: const {emailStr},
     child: child,
   );
 

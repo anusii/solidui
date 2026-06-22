@@ -524,9 +524,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         );
 
     final registerButton = SolidLoginBuildHelper.buildRegisterButton(
+      context: context,
       style: widget.registerButtonStyle,
       webIdController: webIdController,
       focusNode: _registerFocusNode,
+      child: widget.child,
     );
 
     final loginButton = SolidLoginBuildHelper.buildLoginButton(
