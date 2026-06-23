@@ -899,7 +899,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     onPressed: () {
                       changePasswordPopup(context, widget);
                     },
-                    child: const Text('Change Account Password'),
+                    child: const Text('Change POD Password'),
                   ),
                   ElevatedButton(
                     onPressed: () {
