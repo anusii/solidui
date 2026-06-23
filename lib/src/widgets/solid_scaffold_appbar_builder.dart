@@ -32,10 +32,13 @@ import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
-import 'package:solidpod/solidpod.dart' show getWebId, isUserLoggedIn;
+import 'package:solidpod/solidpod.dart'
+    show NotLoggedInException, getWebId, isUserLoggedIn;
 
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
+import 'package:solidui/src/utils/snack_bar.dart';
+import 'package:solidui/src/widgets/change_password_dialog.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -269,6 +272,9 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
       case 'settings':
         SolidProfileEditor.show(context);
         break;
+      case 'change_password':
+        _handleChangePassword();
+        break;
       case 'logout':
         if (widget.onLogout != null) {
           widget.onLogout!(context);
@@ -291,6 +297,27 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) _refreshLoginStatus();
     });
+  }
+
+  /// Opens the Change POD Password dialog. The dialog itself reports the
+  /// outcome via a snack bar; this only guards against the user no longer
+  /// being signed in (the entry should not be reachable in that case, but the
+  /// underlying call throws [NotLoggedInException] defensively).
+
+  Future<void> _handleChangePassword() async {
+    try {
+      // In dialog mode the [child] argument is only used as a navigation
+      // target on cancel in fullscreen mode, so an empty placeholder suffices.
+
+      await changePasswordPopup(context, const SizedBox.shrink());
+    } on NotLoggedInException {
+      if (!mounted) return;
+      showSnackBar(
+        context,
+        'You must be signed in to change your POD password.',
+        Colors.red,
+      );
+    }
   }
 
   @override
@@ -324,15 +351,50 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
               items.add(
                 const PopupMenuItem<String>(
                   value: 'settings',
-                  child: Row(
-                    children: [
-                      Icon(Icons.settings_outlined, size: 20),
-                      SizedBox(width: 12),
-                      Text('Settings'),
-                    ],
+                  child: MarkdownTooltip(
+                    message: '**Settings**\n\n'
+                        'Manage your profile — display name, avatar, and '
+                        'privacy controls.',
+                    child: Row(
+                      children: [
+                        Icon(Icons.settings_outlined, size: 20),
+                        SizedBox(width: 12),
+                        Text('Settings'),
+                      ],
+                    ),
                   ),
                 ),
               );
+
+              // Change POD Password — only meaningful while signed in. The
+              // tooltip warns that the password is shared across every
+              // application that uses this POD, so a change here affects the
+              // ability to log in to all of them.
+
+              if (!_statusLoaded || _isLoggedIn) {
+                items.add(const PopupMenuDivider());
+                items.add(
+                  const PopupMenuItem<String>(
+                    value: 'change_password',
+                    child: MarkdownTooltip(
+                      message: '**Change POD Password**\n\n'
+                          'Change the password of your POD account.\n\n'
+                          '**Important:** this password is shared across '
+                          '**all** applications that use this POD. Changing it '
+                          'here changes it everywhere, so you will need the '
+                          'new password to sign in to every POD application '
+                          'in future.',
+                      child: Row(
+                        children: [
+                          Icon(Icons.lock_reset, size: 20),
+                          SizedBox(width: 12),
+                          Text('Change POD Password'),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
 
               // Auth entry — Logout when signed in, Login otherwise.
               // Both entries respect the scaffold's showLogout /
@@ -345,12 +407,17 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                   items.add(
                     const PopupMenuItem<String>(
                       value: 'logout',
-                      child: Row(
-                        children: [
-                          Icon(Icons.logout, size: 20),
-                          SizedBox(width: 12),
-                          Text('Logout'),
-                        ],
+                      child: MarkdownTooltip(
+                        message: '**Logout**\n\n'
+                            'Sign out of your current POD session on this '
+                            'device.',
+                        child: Row(
+                          children: [
+                            Icon(Icons.logout, size: 20),
+                            SizedBox(width: 12),
+                            Text('Logout'),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -360,12 +427,16 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                 items.add(
                   const PopupMenuItem<String>(
                     value: 'login',
-                    child: Row(
-                      children: [
-                        Icon(Icons.login, size: 20),
-                        SizedBox(width: 12),
-                        Text('Login'),
-                      ],
+                    child: MarkdownTooltip(
+                      message: '**Login**\n\n'
+                          'Sign in to your POD to access your data.',
+                      child: Row(
+                        children: [
+                          Icon(Icons.login, size: 20),
+                          SizedBox(width: 12),
+                          Text('Login'),
+                        ],
+                      ),
                     ),
                   ),
                 );

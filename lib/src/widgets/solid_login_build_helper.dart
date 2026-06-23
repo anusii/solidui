@@ -28,11 +28,12 @@
 
 library;
 
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:solidui/src/constants/solid_config.dart';
+import 'package:solidui/src/widgets/create_account_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 
@@ -42,9 +43,11 @@ class SolidLoginBuildHelper {
   /// Builds the register button.
 
   static Widget buildRegisterButton({
+    required BuildContext context,
     required RegisterButtonStyle style,
     required TextEditingController webIdController,
     required FocusNode focusNode,
+    required Widget child,
   }) {
     if (!style.visible) return const SizedBox.shrink();
     return FocusTraversalOrder(
@@ -52,10 +55,12 @@ class SolidLoginBuildHelper {
       child: SolidLoginButtons.buildRegisterButton(
         style: style,
         onPressed: () {
-          final webId = webIdController.text.trim().isNotEmpty
+          final serverUrl = webIdController.text.trim().isNotEmpty
               ? webIdController.text.trim()
               : SolidConfig.defaultServerUrl;
-          launchUrl(Uri.parse('$webId/.account/login/password/register/'));
+          unawaited(
+            createAccountPopup(context, child, serverUrl: serverUrl),
+          );
         },
         focusNode: focusNode,
       ),

@@ -44,6 +44,7 @@ class SecretTextField extends StatefulWidget {
     required this.fieldKey,
     required this.fieldLabel,
     required this.validateFunc,
+    this.obscure = true,
     super.key,
   });
 
@@ -58,6 +59,12 @@ class SecretTextField extends StatefulWidget {
   /// The verification function.
 
   final String? Function(String) validateFunc;
+
+  /// Whether the entered text should be masked.
+  ///
+  /// Defaults to `true` so the field behaves as a secret/password input.
+
+  final bool obscure;
 
   @override
   State<SecretTextField> createState() => _SecretTextFieldState();
@@ -77,24 +84,27 @@ class _SecretTextFieldState extends State<SecretTextField> {
       fontWeight: FontWeight.bold,
     );
 
-    // The suffix icon with theme-aware colour.
+    // The suffix icon with theme-aware colour. Only secret fields offer a
+    // show/hide toggle; plain-text fields have nothing to reveal.
 
     final iconColor = SecurityThemeColors.labelGrey(context);
-    final icon = IconButton(
-      icon: Icon(
-        _showSecret ? Icons.visibility : Icons.visibility_off,
-        color: iconColor,
-      ),
-      onPressed: () => setState(() {
-        // Toggle the state to show/hide the secret.
+    final icon = widget.obscure
+        ? IconButton(
+            icon: Icon(
+              _showSecret ? Icons.visibility : Icons.visibility_off,
+              color: iconColor,
+            ),
+            onPressed: () => setState(() {
+              // Toggle the state to show/hide the secret.
 
-        _showSecret = !_showSecret;
-      }),
+              _showSecret = !_showSecret;
+            }),
 
-      // Does not participate in focus traversal (ignore TAB key).
+            // Does not participate in focus traversal (ignore TAB key).
 
-      focusNode: FocusNode(skipTraversal: true),
-    );
+            focusNode: FocusNode(skipTraversal: true),
+          )
+        : null;
 
     // The validator.
 
@@ -105,11 +115,15 @@ class _SecretTextFieldState extends State<SecretTextField> {
 
     return FormBuilderTextField(
       name: widget.fieldKey,
-      obscureText: !_showSecret,
-      // Suppress the brief character-reveal that macOS/iOS shows while typing.
-      // TextInputType.visiblePassword disables the input method's character
-      // preview without affecting obscureText behaviour.
-      keyboardType: TextInputType.visiblePassword,
+      obscureText: widget.obscure && !_showSecret,
+
+      // For secret fields, suppress the brief character-reveal that macOS/iOS
+      // shows while typing: TextInputType.visiblePassword disables the input
+      // method's character preview without affecting obscureText behaviour.
+      // Plain-text fields use the standard text keyboard.
+
+      keyboardType:
+          widget.obscure ? TextInputType.visiblePassword : TextInputType.text,
       enableSuggestions: false,
       autocorrect: false,
       decoration: InputDecoration(

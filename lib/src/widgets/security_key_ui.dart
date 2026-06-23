@@ -67,6 +67,7 @@ class SecurityKeyUI extends StatefulWidget {
     required this.submitFunc,
     required this.child,
     this.displayMode = SecurityKeyDisplayMode.fullscreen,
+    this.plainTextFieldKeys = const {},
     super.key,
   });
 
@@ -108,6 +109,11 @@ class SecurityKeyUI extends StatefulWidget {
   /// Display mode (fullscreen prompt or embedded dialog component).
 
   final SecurityKeyDisplayMode displayMode;
+
+  /// Keys of the input fields whose text should be shown as plain text rather
+  /// than masked. Fields not listed here default to a masked secret input.
+
+  final Set<String> plainTextFieldKeys;
 
   @override
   State<SecurityKeyUI> createState() => _SecurityKeyUIState();
@@ -288,6 +294,7 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
             builder: (context, setState) => SecretTextField(
               fieldKey: f.fieldKey,
               fieldLabel: f.fieldLabel,
+              obscure: !widget.plainTextFieldKeys.contains(f.fieldKey),
               validateFunc: (val) {
                 final r = f.validateFunc(val);
 

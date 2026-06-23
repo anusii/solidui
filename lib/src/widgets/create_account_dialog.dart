@@ -218,6 +218,7 @@ Future<bool> createAccountPopup(
     formKey: formKey,
     submitFunc: submitForm,
     displayMode: SecurityKeyDisplayMode.dialog,
+    plainTextFieldKeys: const {emailStr, podNameStr},
     child: child,
   );
 

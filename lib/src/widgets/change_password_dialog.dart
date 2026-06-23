@@ -221,12 +221,13 @@ Future<bool> changePasswordPopup(BuildContext context, Widget child) async {
 
   final changePasswordForm = SecurityKeyUI(
     webId: webId,
-    title: 'Change Account Password',
+    title: 'Change POD Password',
     message: message,
     inputFields: inputFields,
     formKey: formKey,
     submitFunc: submitForm,
     displayMode: SecurityKeyDisplayMode.dialog,
+    plainTextFieldKeys: const {emailStr},
     child: child,
   );
 
