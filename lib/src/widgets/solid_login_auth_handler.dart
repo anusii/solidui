@@ -273,9 +273,23 @@ class SolidLoginAuthHandler {
 
     if (isDialogCanceled()) return false;
 
-    // Check if user is already logged in before attempting authentication.
-
-    final wasAlreadyLoggedIn = await isUserLoggedIn();
+    // isUserLoggedIn() reads from secure storage (libsecret / GNOME keyring on
+    // Linux). Catch PlatformException here so a locked keyring produces a clear
+    // user-facing message rather than an unhandled exception.
+    final bool wasAlreadyLoggedIn;
+    try {
+      wasAlreadyLoggedIn = await isUserLoggedIn();
+    } catch (e) {
+      debugPrint('handleLogin: isUserLoggedIn() failed: $e');
+      if (context.mounted) {
+        showSnackbar(
+          'Cannot access secure storage. '
+          'If your system keyring is locked, please unlock it and try again.',
+          duration: const Duration(seconds: 6),
+        );
+      }
+      return false;
+    }
 
     if (!context.mounted) return false;
 
