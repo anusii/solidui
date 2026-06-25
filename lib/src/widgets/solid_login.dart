@@ -345,7 +345,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // on Linux). If the keyring is locked it throws a PlatformException. Catch
     // it here so the user sees a clear explanation instead of a blank loading
     // screen or a silent crash.
-    final session;
+    final List<dynamic>? session;
     try {
       session = await tryRestoreSession();
     } catch (e) {
