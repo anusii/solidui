@@ -331,8 +331,10 @@ class SolidProfileService {
     try {
       final displayNameUrl = await _displayNameUrl();
       if (await checkResourceStatus(displayNameUrl) == ResourceStatus.exist) {
-        final encrypted = await isFileEncrypted(displayNameUrl,
-            pathType: PathType.absoluteUrl);
+        final encrypted = await isFileEncrypted(
+          displayNameUrl,
+          pathType: PathType.absoluteUrl,
+        );
         return encrypted
             ? SolidProfilePrivacy.private
             : SolidProfilePrivacy.public;
