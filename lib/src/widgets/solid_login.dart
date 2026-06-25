@@ -32,6 +32,7 @@ library;
 // ignore_for_file: public_member_api_docs
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
@@ -340,7 +341,25 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     if (mounted) setState(() => _checkingAutoLogin = true);
 
-    final session = await tryRestoreSession();
+    // tryRestoreSession() reads from secure storage (libsecret / GNOME keyring
+    // on Linux). If the keyring is locked it throws a PlatformException. Catch
+    // it here so the user sees a clear explanation instead of a blank loading
+    // screen or a silent crash.
+    final List<dynamic>? session;
+    try {
+      session = await tryRestoreSession();
+    } catch (e) {
+      debugPrint('_checkAutoLogin: tryRestoreSession failed: $e');
+      if (mounted) {
+        setState(() => _checkingAutoLogin = false);
+        // Only show the dialog for secure-storage errors; other exceptions
+        // (e.g. network issues during token refresh) fall through gracefully.
+        if (e is PlatformException) {
+          await SolidLoginActions.showSecureStorageError(context, e);
+        }
+      }
+      return;
+    }
 
     if (!mounted) return;
     if (session == null) {

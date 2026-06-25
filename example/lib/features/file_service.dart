@@ -275,7 +275,7 @@ class _FileServiceState extends State<FileService> {
                 await writeLargeFile(
                   localFilePath: uploadSharedFile!,
                   remoteFilePath: parsed.fileName,
-                  ownerWebId: parsed.ownerWebId,
+                  // ownerWebId: parsed.ownerWebId,
                   inheritKeyFrom: keyPath,
                   createAcl: false,
                   encrypted: keyPath != null,
