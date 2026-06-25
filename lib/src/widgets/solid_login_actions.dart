@@ -70,8 +70,11 @@ class SolidLoginActions {
   /// not be accessed. Detects the common Linux "KeyringLocked" case and
   /// offers the fix; otherwise shows the raw error so the user isn't left
   /// wondering why login silently failed.
+  ///
+  /// Public so that [SolidLogin] can call this from the auto-login path when
+  /// [tryRestoreSession] throws a [PlatformException].
 
-  static Future<void> _showSecureStorageError(
+  static Future<void> showSecureStorageError(
     BuildContext context,
     Object error,
   ) {
@@ -167,7 +170,7 @@ class SolidLoginActions {
       alreadyLoggedIn = await isUserLoggedIn();
     } catch (e) {
       if (context.mounted) {
-        await _showSecureStorageError(context, e);
+        await showSecureStorageError(context, e);
       }
       return;
     }
@@ -178,7 +181,7 @@ class SolidLoginActions {
         cachedWebId = await getWebId();
       } catch (e) {
         if (context.mounted) {
-          await _showSecureStorageError(context, e);
+          await showSecureStorageError(context, e);
         }
         return;
       }
@@ -246,7 +249,7 @@ class SolidLoginActions {
       isLoggedIn = await isUserLoggedIn();
     } catch (e) {
       if (context.mounted) {
-        await _showSecureStorageError(context, e);
+        await showSecureStorageError(context, e);
       }
       return;
     }
