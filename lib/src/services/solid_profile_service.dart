@@ -331,14 +331,20 @@ class SolidProfileService {
     try {
       final displayNameUrl = await _displayNameUrl();
       if (await checkResourceStatus(displayNameUrl) == ResourceStatus.exist) {
-        final encrypted = await isFileEncrypted(displayNameUrl, pathType: PathType.absoluteUrl);
-        return encrypted ? SolidProfilePrivacy.private : SolidProfilePrivacy.public;
+        final encrypted = await isFileEncrypted(displayNameUrl,
+            pathType: PathType.absoluteUrl);
+        return encrypted
+            ? SolidProfilePrivacy.private
+            : SolidProfilePrivacy.public;
       }
 
       final avatarUrl = await _avatarUrl();
       if (await checkResourceStatus(avatarUrl) == ResourceStatus.exist) {
-        final encrypted = await isFileEncrypted(avatarUrl, pathType: PathType.absoluteUrl);
-        return encrypted ? SolidProfilePrivacy.private : SolidProfilePrivacy.public;
+        final encrypted =
+            await isFileEncrypted(avatarUrl, pathType: PathType.absoluteUrl);
+        return encrypted
+            ? SolidProfilePrivacy.private
+            : SolidProfilePrivacy.public;
       }
     } catch (e) {
       debugPrint('SolidProfileService._detectPrivacyFromPod: $e');
