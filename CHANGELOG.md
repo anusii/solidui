@@ -16,6 +16,8 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Sync profile visibility state across sessions and browser refreshes #301 [1.0.12 20260626 amogh]
++ Fix unhandled keyring lock exceptions in login and auto-login #350 [1.0.12 20260626 amogh]
 + REGISTER popup. Change PASSWD from profile [1.0.11 20260623 tonypioneer]
 + Add account and change password dialogs (CSS v7+) [1.0.10 20260617 anushkavidanage]
 + Support writing large files to external pod [1.0.9 20260618 tonypioneer]
