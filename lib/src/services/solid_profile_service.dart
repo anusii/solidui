@@ -130,8 +130,6 @@ class SolidProfileService {
 
   // Load.
 
-  /// Loads profile data from the POD into [solidProfileNotifier].
-
   Future<void> loadProfile() async {
     if (!await isUserLoggedIn()) return;
 
@@ -139,6 +137,14 @@ class SolidProfileService {
 
     try {
       await ensureProfileFolder();
+
+      // Check the actual encryption status on the POD to sync multi-session state
+      final detectedPrivacy = await _detectPrivacyFromPod();
+      if (detectedPrivacy != null) {
+        solidProfileNotifier.setPrivacy(detectedPrivacy);
+        await _persistPrivacyPreference(detectedPrivacy);
+      }
+
       await Future.wait([_loadAvatar(), _loadDisplayName()]);
     } catch (e) {
       debugPrint('SolidProfileService.loadProfile: $e');
@@ -319,6 +325,25 @@ class SolidProfileService {
     } catch (e) {
       debugPrint('SolidProfileService._persistPrivacyPreference: $e');
     }
+  }
+
+  Future<SolidProfilePrivacy?> _detectPrivacyFromPod() async {
+    try {
+      final displayNameUrl = await _displayNameUrl();
+      if (await checkResourceStatus(displayNameUrl) == ResourceStatus.exist) {
+        final encrypted = await isFileEncrypted(displayNameUrl, pathType: PathType.absoluteUrl);
+        return encrypted ? SolidProfilePrivacy.private : SolidProfilePrivacy.public;
+      }
+
+      final avatarUrl = await _avatarUrl();
+      if (await checkResourceStatus(avatarUrl) == ResourceStatus.exist) {
+        final encrypted = await isFileEncrypted(avatarUrl, pathType: PathType.absoluteUrl);
+        return encrypted ? SolidProfilePrivacy.private : SolidProfilePrivacy.public;
+      }
+    } catch (e) {
+      debugPrint('SolidProfileService._detectPrivacyFromPod: $e');
+    }
+    return null;
   }
 
   // Build the linked-data turtle for the display name. The user's WebID is
