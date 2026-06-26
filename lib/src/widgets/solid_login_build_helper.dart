@@ -32,6 +32,8 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
+
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/widgets/create_account_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_buttons.dart';
@@ -120,6 +122,65 @@ class SolidLoginBuildHelper {
         style: style,
         link: link,
         focusNode: focusNode,
+      ),
+    );
+  }
+
+  /// Builds the "Stay signed in" checkbox row.
+  ///
+  /// [onChanged] receives the new value when either the checkbox or its label
+  /// is tapped, leaving persistence and state updates to the caller.
+
+  static Widget buildStaySignedInCheckbox({
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required Color textColor,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        MarkdownTooltip(
+          message:
+              '**Stay signed in**\n\nWhen ticked, your login session will be '
+              'cached so you can skip the browser login next time. '
+              'Untick to require a fresh login on every launch.',
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: Checkbox(
+              value: value,
+              onChanged: (v) => onChanged(v ?? true),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () => onChanged(!value),
+          child: Text(
+            'Stay signed in',
+            style: TextStyle(color: textColor, fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the "Try another WebID" text button.
+
+  static Widget buildTryAnotherAccountButton({
+    required VoidCallback onPressed,
+    required Color textColor,
+  }) {
+    return TextButton(
+      onPressed: onPressed,
+      child: Text(
+        'Try another WebID',
+        style: TextStyle(
+          color: textColor.withValues(alpha: 0.7),
+          fontSize: 14,
+          decoration: TextDecoration.underline,
+        ),
       ),
     );
   }

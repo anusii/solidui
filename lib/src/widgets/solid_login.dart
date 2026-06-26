@@ -34,7 +34,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show
         cancelSolidAuthenticate,
@@ -576,53 +575,20 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     // "Stay signed in" checkbox.
 
-    final staySignedInCheckbox = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        MarkdownTooltip(
-          message:
-              '**Stay signed in**\n\nWhen ticked, your login session will be '
-              'cached so you can skip the browser login next time. '
-              'Untick to require a fresh login on every launch.',
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Checkbox(
-              value: _staySignedIn,
-              onChanged: (value) {
-                final newValue = value ?? true;
-                setState(() => _staySignedIn = newValue);
-                SolidLoginAuthHandler.setStaySignedIn(newValue);
-              },
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () {
-            final newValue = !_staySignedIn;
-            setState(() => _staySignedIn = newValue);
-            SolidLoginAuthHandler.setStaySignedIn(newValue);
-          },
-          child: Text(
-            'Stay signed in',
-            style: TextStyle(color: currentTheme.textColor, fontSize: 14),
-          ),
-        ),
-      ],
+    final staySignedInCheckbox =
+        SolidLoginBuildHelper.buildStaySignedInCheckbox(
+      value: _staySignedIn,
+      onChanged: (newValue) {
+        setState(() => _staySignedIn = newValue);
+        SolidLoginAuthHandler.setStaySignedIn(newValue);
+      },
+      textColor: currentTheme.textColor,
     );
 
-    final tryAnotherAccountButton = TextButton(
+    final tryAnotherAccountButton =
+        SolidLoginBuildHelper.buildTryAnotherAccountButton(
       onPressed: performTryAnotherAccount,
-      child: Text(
-        'Try another WebID',
-        style: TextStyle(
-          color: currentTheme.textColor.withValues(alpha: 0.7),
-          fontSize: 14,
-          decoration: TextDecoration.underline,
-        ),
-      ),
+      textColor: currentTheme.textColor,
     );
 
     // Build the login panel content.
