@@ -119,6 +119,8 @@ Future<bool> createAccountPopup(
 
   final outerContext = context;
 
+  BuildContext? dialogContext;
+
   // Tracks whether the account was actually created, so callers can react
   // (e.g. pre-fill the login form with the new email).
 
@@ -176,8 +178,9 @@ Future<bool> createAccountPopup(
       bgColor = Colors.red;
       duration = const Duration(seconds: 7);
     } finally {
-      if (popDialog && context.mounted) {
-        Navigator.pop(context);
+      final dialogCtx = dialogContext;
+      if (popDialog && dialogCtx != null && dialogCtx.mounted) {
+        Navigator.pop(dialogCtx);
       }
       if (outerContext.mounted) {
         showSnackBar(outerContext, msg, bgColor, duration: duration);
@@ -225,14 +228,17 @@ Future<bool> createAccountPopup(
   if (context.mounted) {
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        content: SingleChildScrollView(
-          child: createAccountForm,
-        ),
-        contentPadding: EdgeInsets.zero,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      builder: (builderContext) {
+        dialogContext = builderContext;
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: createAccountForm,
+          ),
+          contentPadding: EdgeInsets.zero,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        );
+      },
     );
   }
 
