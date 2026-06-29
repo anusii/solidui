@@ -16,10 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
-+ Sync profile visibility state across sessions and browser refreshes #301
-[1.0.14 20260626 amogh]
-+ Fix unhandled keyring lock exceptions in login and auto-login #350
-[1.0.13 20260626 amogh]
++ Bug fix black screen on login [1.0.16 20260629 tonypioneer]
 + Migrate TEMPLATE from solidpod to solidui [1.0.15 20260629 tonypioneer]
 + Sync profile visibility state across sessions and browser refreshes #301 [1.0.14 20260626 amogh]
 + Fix unhandled keyring lock exceptions in login and auto-login #350 [1.0.13 20260626 amogh]
