@@ -43,26 +43,17 @@ class App extends StatelessWidget {
 
         // The application folder created on the user's POD.
 
-        appDirectory: '{{projectName}}',
+        appDirectory: appPodDirectory,
 
-        // TODO Update the following Solid app registration details to point at
-        // your own deployment. They identify your app to the Solid server
-        // during login, and the clientId MUST resolve to a client profile
-        // document that lists these exact redirectUris (see the solid/ folder).
-        // See https://solidproject.org for more information.
-        //
-        // Note: the custom redirect scheme drops underscores from the project
-        // name ('{{orgName}}.{{schemeName}}'), because a URI scheme may not
-        // contain underscores. Every other identifier keeps the project name.
+        // Solid app registration details. Update these in lib/constants/app.dart
+        // to point at your own deployment; the clientId there must resolve to a
+        // client profile document listing exactly these redirect URIs (see the
+        // solid/ folder). See https://solidproject.org for more information.
 
-        link: 'https://github.com/example/{{projectName}}',
-        clientId:
-            'https://solidcommunity.au/apps/{{projectName}}/client-profile.jsonld',
-        redirectUris: [
-          'https://solidcommunity.au/apps/{{projectName}}/redirect.html',
-          '{{orgName}}.{{schemeName}}://redirect',
-          'http://localhost:4400/redirect',
-        ],
+        link: appLink,
+        clientId: appClientId,
+        redirectUris: appRedirectUris,
+        postLogoutRedirectUris: appPostLogoutRedirectUris,
         child: appScaffold,
       ),
     );
