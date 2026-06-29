@@ -20,6 +20,9 @@ The package is available from
 [1.0.14 20260626 amogh]
 + Fix unhandled keyring lock exceptions in login and auto-login #350
 [1.0.13 20260626 amogh]
++ Migrate TEMPLATE from solidpod to solidui [1.0.15 20260629 tonypioneer]
++ Sync profile visibility state across sessions and browser refreshes #301 [1.0.14 20260626 amogh]
++ Fix unhandled keyring lock exceptions in login and auto-login #350 [1.0.13 20260626 amogh]
 + Show animation while obtaining key [1.0.12 20260626 anushkavidanage]
 + REGISTER popup. Change PASSWD from profile [1.0.11 20260623 tonypioneer]
 + Add account and change password dialogs (CSS v7+)
