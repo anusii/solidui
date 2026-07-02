@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Updated oidc config for template [1.0.17 20260702 tonypioneer]
 + Bug fix black screen on login [1.0.16 20260629 tonypioneer]
 + Migrate TEMPLATE from solidpod to solidui [1.0.15 20260629 tonypioneer]
 + Sync profile visibility across sessions/refreshes #301 [1.0.14 20260626 amogh]

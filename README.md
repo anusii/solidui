@@ -948,25 +948,26 @@ SolidFile(
 
 ## Login Example
 
-`SolidLogin` is the full-page login widget. Wrap your home widget in it
-and it handles session restore, OIDC login, and POD initialisation
-automatically.
+`SolidLogin` is the full-page login widget. Wrap your home widget in
+it and it handles session restore, OIDC login, and POD initialisation
+automatically. Here we illustrate the configuration with the clientId
+hosted on github but could also be on your own server.
 
 ```dart
 @override
 Widget build(BuildContext context) {
   return MaterialApp(
-    title: 'My Pod',
+    title: 'My App',
     home: SolidLogin(
-      clientId: 'https://your-domain/client-profile.jsonld',
+      clientId: 'https://anusii.github.io/myapp/client-profile.jsonld',
       redirectUris: [
-        'https://your-domain/redirect.html', // web
-        'com.example.app://redirect',        // Android / iOS
+        'https://anusii.github.io/myapp/redirect.html', // web
+        'com.example.myapp://redirect',        // Android / iOS
         'http://localhost:4400/redirect',    // Windows / Linux / macOS
       ],
       postLogoutRedirectUris: [             // optional, defaults to redirectUris selection
-        'https://your-domain/redirect.html',
-        'com.example.app://redirect',
+        'https://anusii.githu.io/myapp/redirect.html',
+        'com.example.myapp://redirect',
         'http://localhost:4400/redirect',
       ],
       child: const Scaffold(body: MyHome()),
@@ -1696,7 +1697,7 @@ issues at [GitHub Issues](https://github.com/anusii/solidui/issues).
 The authors of the package will respond to issues as best we can.
 
 <!-- markdownlint-disable MD036 -->
-*Time-stamp: <Thursday 2026-06-04 13:02:15 +1000 Graham Williams>*
+*Time-stamp: <Tuesday 2026-06-30 07:46:40 +1000 Graham Williams>*
 <!-- markdownlint-enable MD036 -->
 
 <!-- markdownlint-disable MD053 -->

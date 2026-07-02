@@ -72,7 +72,7 @@ http://purl.org/dc/terms/
 https://solidcommunity.au/predicates/*
 https://solidproject.au/sii/
 
-# 20260107 gjw From openid in solid_auth.
+# 20260107 gjw From openid in solid_auth and solidui.
 
 https://api.login.yahoo.com/
 https://graph.facebook.com/
@@ -91,4 +91,4 @@ https://pub.dev/documentation/solidui/latest/solidui/SolidScaffold-class.html
 
 # 20260605 gjw Failing solid servers
 
-https://trinpod.eu/>
+https://trinpod.eu/
