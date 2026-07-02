@@ -25,11 +25,12 @@ flutter run
 A few values were filled in with placeholders when this project was generated.
 Update them for your own deployment:
 
-- **Solid app registration** in `lib/app.dart` — the `clientId`,
-  `redirectUris` and `link` passed to `SolidLogin`. These identify your app to
-  the Solid server during login. **The `clientId` URL must actually resolve to
-  a Client Identifier Document (a `client-profile.jsonld`) that lists these
-  exact `redirectUris`.** Until you publish that document (and list your
+- **Solid app registration** in `lib/constants/app.dart` — `appClientId`,
+  `appRedirectUris`, `appPostLogoutRedirectUris` and `appLink`, passed to
+  `SolidLogin` from `lib/app.dart`. These identify your app to the Solid server
+  during login. **The `appClientId` URL must actually resolve to a Client
+  Identifier Document (a `client-profile.jsonld`) that lists these exact
+  redirect URIs.** Until you publish that document (and list your
   `{{orgName}}.{{schemeName}}://redirect` scheme in it), the identity provider has
   no client to validate and the login page will not appear — this is the most
   common reason a freshly generated app cannot reach the login screen. See the

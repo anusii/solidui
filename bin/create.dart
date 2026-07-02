@@ -592,8 +592,8 @@ Next steps:
   cd $path${runFlutterCreate ? '' : '\n  flutter create --project-name <name> .   # generate platform folders\n  flutter pub get'}
   flutter run
 
-Then update the Solid app registration (clientId, redirectUris, link) in
-lib/app.dart and the constants in lib/constants/app.dart for your deployment.
+Then update the Solid app registration (appClientId, appRedirectUris, appLink)
+and the other constants in lib/constants/app.dart for your deployment.
 
 On macOS/iOS, enable signing once in Xcode (Signing & Capabilities -> Team)
 so the keychain-backed login can build. See the generated README for details.
