@@ -58,13 +58,13 @@ const clientIdVal =
     'https://anushkavidanage.github.io/solidui/example/client-profile.jsonld';
 
 const redirectUrisList = [
-  'http://localhost:4400/redirect',
+  'http://localhost:4400/redirect.html',
   'com.example.demopod://redirect',
   'https://anushkavidanage.github.io/solidui/example/redirect.html'
 ];
 
 const postLogoutRedirectUrisList = [
-  'http://localhost:4400/redirect',
+  'http://localhost:4400/redirect.html',
   'com.example.demopod://redirect',
   'https://anushkavidanage.github.io/solidui/example/redirect.html'
 ];
