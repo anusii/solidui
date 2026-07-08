@@ -4,7 +4,7 @@ The example app is currently a read-only/browse-only Solid Pod app generated fro
 
 This exercise adds a basic `Write to POD functionality` to the existing app in simplistic way. 
 
-"Title + Description → Save to POD" form: a new page with two text inputs and a save button that JSON-encodes the input and writes it as an encrypted file into the app's POD data directory, confirmed with a success snackbar.
+"Title + Description -> Save to POD" form: a new page with two text inputs and a save button that JSON-encodes the input and writes it as an encrypted file into the app's POD data directory, confirmed with a success snackbar.
 
 ## Dependencies
 
