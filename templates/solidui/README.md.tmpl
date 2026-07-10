@@ -49,9 +49,34 @@ Update them for your own deployment:
 > **Required before login works:** publish this app's Client Identifier
 > Document. The identity provider fetches your `clientId` URL to learn which
 > `redirect_uris` are allowed; if it is missing the login is cancelled after the
-> consent screen (`ASWebAuthenticationSession Code=1`). A ready-to-deploy
-> `client-profile.jsonld` and `redirect.html` were generated in the
-> [`solid/`](solid/) folder — see `solid/README.md` for where to publish them.
+> consent screen (`ASWebAuthenticationSession Code=1`). Two files were generated
+> for this: `client-profile.jsonld` in the project **root** and `redirect.html`
+> in the **`web/`** folder.
+
+### Where to publish the two files
+
+- **`client-profile.jsonld` → GitHub Pages (the `clientId`).** It lives in the
+  repository root so that, once you enable GitHub Pages for the repo (Settings →
+  Pages → Deploy from a branch → `main` / `/root`), it is served at
+  `https://<your-org>.github.io/{{projectName}}/client-profile.jsonld` and is
+  re-published automatically on every push. Set `appClientId` in
+  `lib/constants/app.dart` (and the document's own `client_id` field) to that
+  exact URL — the two must match, and the `.jsonld` must be publicly readable
+  (HTTP 200, no auth).
+- **`redirect.html` → your web host.** It sits in `web/`, so `flutter build web`
+  (and a `make web` deploy) publishes it alongside the app, e.g. at
+  `https://{{projectName}}.solidcommunity.au/redirect.html`. The web build reads
+  its redirect from `Uri.base.origin` at runtime, so the redirect is always
+  same-origin with wherever the app is served — the deployed host in production
+  and `http://localhost:4400` when you run
+  `flutter run -d chrome --web-port=4400`. Both origins must be listed in the
+  published `client-profile.jsonld`.
+
+Verify the document is reachable:
+
+```bash
+curl -I https://<your-org>.github.io/{{projectName}}/client-profile.jsonld   # expect 200
+```
 
 The OIDC redirect is pre-wired so that login works on every platform:
 
@@ -70,6 +95,9 @@ Capabilities**, or run `flutter run` with a configured Apple developer account.
 ## Project layout
 
 ```
+client-profile.jsonld  Solid-OIDC client document; publish via GitHub Pages
+                       from the repo root (this is your clientId — see Login
+                       setup).
 lib/
   main.dart            Application entry point and desktop window setup.
   app.dart             Root widget; wraps the app in SolidLogin.
@@ -78,8 +106,7 @@ lib/
   constants/app.dart   App-wide constants (title, upload and invite configs).
   screens/
     browse_files.dart  Whole-POD file browser (SolidFile at the root).
-solid/
-  client-profile.jsonld  Solid-OIDC client document to publish (see Login setup).
-  redirect.html          Web/post-logout redirect helper to publish alongside it.
-  README.md              Where and how to publish the two files above.
+web/
+  redirect.html        Web/post-logout redirect helper; published with the web
+                       build (see Login setup).
 ```
