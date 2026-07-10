@@ -56,8 +56,7 @@ demo:exampleData$fileName
 }
 
 /// URL of the Solid-OIDC client identifier document.
-const clientIdVal =
-    'https://anusii.github.io/soliduieg/client-profile.jsonld';
+const clientIdVal = 'https://anusii.github.io/soliduieg/client-profile.jsonld';
 
 /// Redirect URIs offered to the Solid-OIDC flow.
 List<String> get redirectUrisList {
