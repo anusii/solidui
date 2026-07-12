@@ -50,23 +50,23 @@ servers to get a POD if you don't have one on any Solid server.
 
 Open [MyPod app](https://mypod.solidcommunity.au/).
 
-![Get a POD](./images/20_mypod_register.png)
+![Get a POD](./images/20_mypod_register.jpg)
 
 In the Server input box, you can either enter the server’s URL, or you’d like
 to select one of the commonly used servers from the dropdown menu. Here, we 
 recommend using one of the ANU SII–managed servers.
 
-![Select a server](./images/20_select_a_server.png)
+![Select a server](./images/20_select_a_server.jpg)
 
 Next, click the **Register** button. An account creation form will then pop up.
 
-![Create_account_form](./images/20_create_account_form.png)
+![Create_account_form](./images/20_create_account_form.jpg)
 
 Enter your email address and password, give your POD a name here. Then 
 click Submit button. Your account and your POD will be created. Please note
 that the password must be at least 8 characters long.
 
-![Enter POD email and password](./images/20_enter_pod_email_and_password.png)
+![Enter POD email and password](./images/20_enter_pod_email_and_password.jpg)
 
 ## Login and set security key<a name="login-and-set-security-key"></a>
 
@@ -82,28 +82,28 @@ Open [MyPod app](https://mypod.solidcommunity.au/) and click `Login`.
 This may show you a Community Solid Server login pop up if you are not already
 logged in to your POD on the server.
 
-![POD login](./images/20_server_login_popup.png)
+![POD login](./images/20_server_login_popup.jpg)
 
 If you have recently logged in to your POD on this Solid servier, you will see
 a Community Solid Server authorisation pop up with the last credentials 
 which you've used on the Solid Community AU host. Select the POD you want to 
 log into, and then click **Yes**.
 
-![POD authorisation](./images/20_server_authorisation_popup.png)
+![POD authorisation](./images/20_server_authorisation_popup.jpg)
 
 This will take you to the initial Setup Wizard to finish setting up your POD.
 This shows the resources (files) being created in your POD on the Solid
 Community AU solid server, and ask you to set a security key which will be used
 to encrypt the notes on your POD.
 
-![MyPod setup wizard](./images/20_pod_wizard.png)
+![MyPod setup wizard](./images/20_pod_wizard.jpg)
 
 Enter a new password to use as your security key for this POD, then click 
 **Submit**.
 
 You are now set up and logged in the MyPod app.
 
-![MyPod app](./images/20_mypod_app.png)
+![MyPod app](./images/20_mypod_app.jpg)
 
 Repeat login to the MyPod app will typically remember your POD webID in the 
 Authorise window.
