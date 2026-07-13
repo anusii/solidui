@@ -77,7 +77,7 @@ for encryption. Your files are only decrypted in the app. Each time you
 subsequently log in, you will need to provide the security key after app 
 login to see your files.
 
-Open [MyPod app](https://mypod.solidcommunity.au/) and click `Login`.
+Open [MyPod app](https://mypod.solidcommunity.au/) and click **Login**.
 
 This may show you a Community Solid Server login pop up if you are not already
 logged in to your POD on the server.
