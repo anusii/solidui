@@ -1,102 +1,109 @@
-# Exercise 1: Get a POD and login to Notepod app
+# Exercise 1: Get a POD and login to MyPod app
 
 **Table of Contents**
 
-- [Exercise 1: Get a POD and login to Notepod app](#exercise-1-get-a-pod-and-login-to-notepod-app)
+- [Exercise 1: Get a POD and login to MyPod app](#exercise-1-get-a-pod-and-login-to-MyPod-app)
   - [Setup](#setup)
   - [Get a POD](#get-a-pod)
-  - [Login and set master encryption key](#login-and-set-master-encryption-key)
+  - [Login and set security key](#login-and-set-security-key)
 
-This exercise will show you how to create a POD on the solid server host https://solidcommunity.au/ and how to use the Notepod app to create and save notes to your POD.
+This exercise will show you how to create a POD on the solid server hosts 
+https://pods.d01.solidcommunity.au/ to https://pods.d04.solidcommunity.au/ 
+and how to use the MyPod app to create a POD.
 
 ## Setup<a name="setup"></a>
 
-**Option 1:** Open the Notepod app using the web app or download links for the binary for your OS:
+**Option 1:** Open the MyPod app using the web app or download links for the
+binary for your OS:
 
-- [Notepod web app](https://notepod.solidcommunity.au/)
+- [MyPod web app](https://mypod.solidcommunity.au/)
 
-Using Flutter framework, we can build apps for multiple platforms with a single codebase.
+Using Flutter framework, we can build apps for multiple platforms with a single
+codebase.
 
-Go to [Downloads](https://github.com/anusii/notepod/tree/main/installers) to get the Notepod app binaries for your platform:
+Go to [Downloads](https://solidcommunity.au/installers/) to get the MyPod app
+binaries for your platform:
 
-- notepod.dmg (Mac)
-- notepod.exe (Windows)
-- notepod.apk (Android)
-- notepod.tar.gz (Linux)
+- mypod-linux.zip (Linux)
+- mypod_amd64.deb (Linux)
+- mypod-macos.dmg (macOS)
+- mypod-macos.zip (macOS)
+- mypod-windows-inno.exe (Windows)
+- mypod-windows.zip (Windows)
 
-
-**Option 2:** If you already have `flutter` installed and setup to build to `chrome` or desired platform (Linux, MacOS, Windows, Android, iOS), you may build and run the Notepod app locally on your machine.
+**Option 2:** If you already have `flutter` installed and setup to build to
+`chrome` or desired platform (Linux, MacOS, Windows, Android, iOS), you may
+build and run the MyPod app locally on your machine.
 
 ```
 flutter devices
 flutter run -d [your device]
 ```
 
-**Option 3:** Follow the instructions in [Exercise 4 Getting Started - PODs app development with Flutter](Ex4_PODsAppDevGettingStarted.md) to install `flutter` and then run the app locally on your machine as in Option 2.
+## Get a POD<a name="get-a-pod"></a>
 
+The MyPod app requires you to have a POD hosted on any solid server, which is
+identified on the internet with a webID comprising the unique resource
+identifier (URI) of your POD. We have setup several solid servers for the 
+Solid AU Community for experimenting with Solid. You can use these solid 
+servers to get a POD if you don't have one on any Solid server.
 
-## Get a POD<a name="get_pod"></a>
+Open [MyPod app](https://mypod.solidcommunity.au/).
 
-The Notepod app requires you to have a POD hosted on any solid server, which is identified on the internet with a webID comprising the unique resource identifier (URI) of your POD. We have setup a solid server for the Solid AU Community for experimenting with Solid. You can use this solid server to get a POD if you don't have one on any Solid server.
+![Get a POD](./images/20_mypod_register.jpg)
 
+In the Server input box, you can either enter the server’s URL, or you’d like
+to select one of the commonly used servers from the dropdown menu. Here, we 
+recommend using one of the ANU SII–managed servers.
 
-Open [Notepod app](https://notepod.solidcommunity.au/) and click `Register`.
+![Select a server](./images/20_select_a_server.jpg)
 
-![Get a POD](../assets/images/notepod_register.png)
+Next, click the **Register** button. An account creation form will then pop up.
 
-This will take you to https://pods.solidcommunity.au, click `Sign up for an account`
+![Create_account_form](./images/20_create_account_form.jpg)
 
-Enter an email address, and the password you want to use to access your POD and click `Register`.
+Enter your email address and password, give your POD a name here. Then 
+click Submit button. Your account and your POD will be created. Please note
+that the password must be at least 8 characters long.
 
-![Enter POD email and password](../assets/images/server_create_account.png)
+![Enter POD email and password](./images/20_enter_pod_email_and_password.jpg)
 
-This will take you to an POD account view window, click `Create pod`.
+## Login and set security key<a name="login-and-set-security-key"></a>
 
-![POD account view](../assets/images/server_get_a_pod.png)
+The MyPod app stores your files in encrypted form. To do this, you must 
+create a password to use as the security key for encrypting your POD files.
+The first time you log into the MyPod app, you need to set the security key 
+for encryption. Your files are only decrypted in the app. Each time you
+subsequently log in, you will need to provide the security key after app 
+login to see your files.
 
-In the `Name` field, enter a name for your POD, eg the username of your email address.
+Open [MyPod app](https://mypod.solidcommunity.au/) and click `Login`.
 
-If you already have a Solid webID, you can link your webID to your new POD on Solid Community AU, by selecting `Use an external webID`.
+This may show you a Community Solid Server login pop up if you are not already
+logged in to your POD on the server.
 
-Click `Create POD` to start creating a POD on the host https://solidcommunity.au.
+![POD login](./images/20_server_login_popup.jpg)
 
-If you don't yet have a Solid webID, select `Use the webID in POD and register it to your account`.
+If you have recently logged in to your POD on this Solid servier, you will see
+a Community Solid Server authorisation pop up with the last credentials 
+which you've used on the Solid Community AU host. Select the POD you want to 
+log into, and then click **Yes**.
 
-Confirm by clicking `Create POD`.
+![POD authorisation](./images/20_server_authorisation_popup.jpg)
 
-![Choose POD name and webID](../assets/images/server_choose_pod_name.png)
+This will take you to the initial Setup Wizard to finish setting up your POD.
+This shows the resources (files) being created in your POD on the Solid
+Community AU solid server, and ask you to set a security key which will be used
+to encrypt the notes on your POD.
 
-You should see a window, with the URL of your POD and your webID.
+![MyPod setup wizard](./images/20_pod_wizard.jpg)
 
-Note: to look up your webID at anytime, login to https://pods.solidcommunity.au/
+Enter a new password to use as your security key for this POD, then click 
+**Submit**.
 
+You are now set up and logged in the MyPod app.
 
+![MyPod app](./images/20_mypod_app.jpg)
 
-## Login and set master encryption key<a name="set_encrypt"></a>
-
-The Notepod app stores your files in encrypted form. To do this you must create a password to use as the master key for encrypting your POD files.
-The first time you login in to the Notepod app, you need to set the master key for encryption. Your files are only decrypted in the app. Each time you subsequently login, you will need to provide the master key after app login to see your files.
-
-Open [Notepod app](https://notepod.solidcommunity.au/) and click `Login`.
-
-This may show you a Community Solid Server login pop up if you are not already logged in to your POD on https://pods.solidcommunity.au.
-
-![POD login](../assets/images/server_login_popup.png)
-
-If you have recently logged in to your POD on this Solid servier, you will see a  Community Solid Server authorization pop up with the last credentials which you've used on the Solid Community AU host.
-
-Click `Authorize` to login to your POD in the Notepod app.
-
-![POD authorization](../assets/images/server_pod_auth_popup.png)
-
-This will take you to the initial Setup Wizard to finish setting up your POD. This shows the resources (files) being created in your POD on the Solid Community AU solid server, and ask you to set an master encryption key which will be used to encrypt the notes on your POD.
-
-![Notepod setup wizard](../assets/images/pod_wizard.png)
-
-Enter a new password to use as your master encryption key for this POD.
-
-Click the confirm checkbox and click `Submit`.
-
-You are now setup and logged in the Notepod app.
-
-Repeat login to the Notepod app will typically remember your pod webID in the Authorize window.
+Repeat login to the MyPod app will typically remember your POD webID in the 
+Authorise window.
