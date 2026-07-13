@@ -37,7 +37,7 @@ build and run the MyPod app locally on your machine.
 
 ```
 flutter devices
-flutter run -d [your device]
+flutter run -d [your platform]
 ```
 
 ## Get a POD<a name="get-a-pod"></a>
