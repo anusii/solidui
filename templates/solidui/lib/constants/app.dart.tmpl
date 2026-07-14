@@ -5,6 +5,8 @@
 
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:solidui/solidui.dart'
     show SolidFileUploadConfig, SolidInviteOthersConfig;
 
@@ -21,32 +23,47 @@ const String appTitle = '{{appTitle}}';
 /// own infrastructure.
 ///
 /// [appClientId] MUST resolve to a publicly hosted client profile document
-/// (the template in the `solid/` folder) whose `redirect_uris` and
-/// `post_logout_redirect_uris` list exactly the URIs below. If they do not
-/// match, the identity provider will reject the login. See the `solid/README`
-/// and https://solidproject.org for more information.
+/// (the `client-profile.jsonld` generated in the project root) whose
+/// `redirect_uris` and `post_logout_redirect_uris` list exactly the URIs
+/// resolved below. If they do not match, the identity provider will reject the
+/// login. The recommended host is GitHub Pages served from the repository root
+/// (so a push auto-updates it) — replace `your-org` with your GitHub user or
+/// organisation and enable Pages for the repo. See the README and
+/// https://solidproject.org for more information.
 ///
 /// Note: the custom redirect scheme drops underscores from the project name
 /// ('{{orgName}}.{{schemeName}}'), because a URI scheme may not contain
 /// underscores. Every other identifier keeps the full project name.
 
 const String appClientId =
-    'https://solidcommunity.au/apps/{{projectName}}/client-profile.jsonld';
+    'https://your-org.github.io/{{projectName}}/client-profile.jsonld';
 
-/// One redirect URI per platform; SolidUI selects the right one at runtime
-/// based on the current platform. Keep this list in step with the
-/// `redirect_uris` in the hosted client profile document.
+/// One redirect URI per platform; SolidUI's `pickRedirectUri` selects the right
+/// one at runtime. Keep this list in step with the `redirect_uris` in the
+/// hosted client profile document.
+///
+/// On web the chosen redirect MUST be same-origin as wherever the app is
+/// served, because `redirect.html` hands the auth response back through a
+/// same-origin `BroadcastChannel`; any origin mismatch leaves login hanging on
+/// the loading spinner. `pickRedirectUri` does NOT match on origin — it just
+/// takes the first `https://` entry — so we derive the web entry from
+/// `Uri.base.origin` at runtime instead of hard-coding it. That yields the
+/// deployed https host in production, and `http://localhost:4400/redirect.html`
+/// under `flutter run -d chrome --web-port=4400`. Off the web the list is
+/// static: the custom scheme serves Android/iOS/macOS and the loopback entry
+/// serves Windows/Linux.
 
-const List<String> appRedirectUris = [
-  'https://solidcommunity.au/apps/{{projectName}}/redirect.html',
-  '{{orgName}}.{{schemeName}}://redirect',
-  'http://localhost:4400/redirect',
-];
+List<String> get appRedirectUris => kIsWeb
+    ? ['${Uri.base.origin}/redirect.html']
+    : const [
+        '{{orgName}}.{{schemeName}}://redirect',
+        'http://localhost:4400/redirect.html',
+      ];
 
 /// Where the identity provider returns the user after logging out. By default
 /// we reuse the login redirect URIs, mirroring the hosted client profile.
 
-const List<String> appPostLogoutRedirectUris = appRedirectUris;
+List<String> get appPostLogoutRedirectUris => appRedirectUris;
 
 /// The application folder created on the user's POD to store {{appName}} data.
 

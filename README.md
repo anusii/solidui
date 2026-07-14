@@ -271,14 +271,15 @@ The generated app starts at a `SolidLogin` screen and, once signed in, shows a
 ### Enabling login (Solid-OIDC client registration)
 
 Before login will work you must publish a Client Identifier Document for the
-app. The generator writes a ready-to-deploy copy of it, together with the web
-redirect helper, into the generated project's `solid/` folder:
+app. The generator writes two files, in the two places they are actually
+served from:
 
-- `solid/client-profile.jsonld` — the Solid-OIDC Client Identifier Document. Its
-  `redirect_uris` are generated to match, byte for byte, the `redirectUris`
-  passed to `SolidLogin` in `lib/app.dart`.
-- `solid/redirect.html` — the web and post-logout redirect helper used by the
-  `oidc` package.
+- `client-profile.jsonld` — in the project **root**. This is the Solid-OIDC
+  Client Identifier Document; its `redirect_uris` list the redirect URIs the
+  app uses. It lives at the root so that GitHub Pages can serve it (see below).
+- `web/redirect.html` — in the **`web/`** folder. This is the web and
+  post-logout redirect helper used by the `oidc` package, published together
+  with the Flutter web build.
 
 Two points are worth understanding:
 
@@ -294,35 +295,48 @@ Two points are worth understanding:
   If they have not appeared, it is because login has not completed — that is a
   symptom of the missing client profile, not the cause.
 
-To enable login, publish both files at the location your `clientId` points to.
-If you maintain the Solid server — for example the Australian Solid Community
-(`solidcommunity.au`) — deploy them alongside the other apps exactly as
-`filepod` does:
+#### Recommended hosting: GitHub Pages + `make web`
 
-```console
-https://solidcommunity.au/apps/my_pod_app/client-profile.jsonld
-https://solidcommunity.au/apps/my_pod_app/redirect.html
-```
+Host the two files where they are auto-published on a push:
 
-Then confirm the document is reachable (a public `200`, requiring no
-authentication):
+1. **`client-profile.jsonld` on GitHub Pages (the `clientId`).** Because it sits
+   in the repository root, enabling GitHub Pages for the repo (Settings → Pages
+   → Deploy from a branch → `main` / `/root`) serves it at
+   `https://<your-org>.github.io/<app>/client-profile.jsonld` and re-publishes it
+   automatically on every push. Set `appClientId` in `lib/constants/app.dart`
+   **and** the document's own `client_id` field to that exact URL — the two must
+   match.
+2. **`redirect.html` with the web build.** It sits in `web/`, so
+   `flutter build web` (and a `make web` deploy, which pushes it to
+   `solidcommunity.au:/var/www/html/<app>/redirect.html`) serves it alongside
+   the app at `https://<app>.solidcommunity.au/redirect.html`.
+
+The generated `appRedirectUris` derives its **web** entry from
+`Uri.base.origin` at runtime, so the redirect is always same-origin with
+wherever the app is served — the deployed host in production and
+`http://localhost:4400` under `flutter run -d chrome --web-port=4400`. This
+matters because `redirect.html` hands the auth response back through a
+same-origin `BroadcastChannel`; a cross-origin redirect leaves web login hanging
+on the loading spinner. Both origins must appear in the published
+`client-profile.jsonld`.
+
+Confirm the document is reachable (a public `200`, requiring no authentication):
 
 ```bash
-curl -I https://solidcommunity.au/apps/my_pod_app/client-profile.jsonld
+curl -I https://<your-org>.github.io/<app>/client-profile.jsonld
 ```
 
-Once it returns `200`, run `flutter run` and the login redirect will complete
-(`filepod`'s own document returns `200`, which is why it can sign in).
-Otherwise, host the two files at any public URL you control and update the
-`clientId` — and the matching `redirect.html` entry in `redirectUris` — in
-`lib/app.dart` accordingly. Note that only the custom redirect **scheme**
+Once it returns `200`, run `flutter run` and the login redirect will complete.
+You may of course host the client profile at any other public URL you control;
+if you do, update `appClientId` (and the document's `client_id`) to match. Note
+that only the custom redirect **scheme**
 (`<org>.<name-without-underscores>://redirect`, e.g. `com.example.mypodapp`)
 drops the underscores from the project name, because a URI scheme may not
 contain them; every other identifier keeps the project name as-is.
 
-After generating, also review the remaining placeholders — the `clientId`,
-`redirectUris` and `link` in `lib/app.dart`, and the constants in
-`lib/constants/app.dart` — and update them for your own deployment.
+After generating, also review the remaining placeholders — the `appClientId`,
+`appRedirectUris` and `appLink` in `lib/constants/app.dart` — and update them for
+your own deployment.
 
 A demonstrator example application (DemoPod) is available in the
 [example](example/) folder of this repository. DemoPod showcases the

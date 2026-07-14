@@ -44,7 +44,7 @@ class App extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const SolidLogin(
+      home: SolidLogin(
         // Images generated using Bing Image Creator from Designer, powered by
         // DALL-E3.
 

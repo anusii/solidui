@@ -25,6 +25,7 @@
 
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 const String appTitle = 'DemoPod - Solid Pod Demonstrator';
@@ -54,17 +55,28 @@ demo:exampleData$fileName
 ''';
 }
 
-const clientIdVal =
-    'https://anushkavidanage.github.io/solidui/example/client-profile.jsonld';
+/// URL of the Solid-OIDC client identifier document.
+const clientIdVal = 'https://anusii.github.io/soliduieg/client-profile.jsonld';
 
-const redirectUrisList = [
-  'http://localhost:4400/redirect',
-  'com.example.demopod://redirect',
-  'https://anushkavidanage.github.io/solidui/example/redirect.html'
-];
+/// Redirect URIs offered to the Solid-OIDC flow.
+List<String> get redirectUrisList {
+  if (kIsWeb) {
+    return ['${Uri.base.origin}/redirect.html'];
+  }
+  return const [
+    'com.example.soliduieg://redirect',
+    'http://localhost:4400/redirect.html',
+  ];
+}
 
-const postLogoutRedirectUrisList = [
-  'http://localhost:4400/redirect',
-  'com.example.demopod://redirect',
-  'https://anushkavidanage.github.io/solidui/example/redirect.html'
-];
+/// Post-logout redirect URIs, derived the same origin-aware way as
+/// [redirectUrisList].
+List<String> get postLogoutRedirectUrisList {
+  if (kIsWeb) {
+    return ['${Uri.base.origin}/redirect.html'];
+  }
+  return const [
+    'com.example.soliduieg://redirect',
+    'http://localhost:4400/redirect.html',
+  ];
+}
