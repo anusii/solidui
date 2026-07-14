@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Updates to oidc template/example [1.0.19 20260714 tonypioneer]
 + Add a load test to the example [1.0.18 20260702 tonypioneer]
 + Updated oidc config for template [1.0.17 20260702 tonypioneer]
 + Bug fix black screen on login [1.0.16 20260629 tonypioneer]
