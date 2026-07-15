@@ -587,7 +587,8 @@ class SolidBackupService {
       } on Object catch (e) {
         skipped[entry.path] = e.toString();
         debugPrint(
-            '[SolidBackupService] failed to restore "${entry.path}": $e');
+          '[SolidBackupService] failed to restore "${entry.path}": $e',
+        );
       }
     }
 
