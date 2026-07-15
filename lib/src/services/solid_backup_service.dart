@@ -32,12 +32,12 @@ import 'dart:convert';
 import 'dart:math' show Random;
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show debugPrint;
+
 import 'package:archive/archive.dart' show GZipEncoder, GZipDecoder;
 import 'package:crypto/crypto.dart' show Hmac, sha256;
 import 'package:encrypter_plus/encrypter_plus.dart'
     show AES, AESMode, Encrypted, Encrypter, IV, Key;
-import 'package:flutter/foundation.dart' show debugPrint;
-
 import 'package:solidpod/solidpod.dart'
     show
         SecurityKeyVerificationException,
@@ -586,7 +586,8 @@ class SolidBackupService {
         restoredCount++;
       } on Object catch (e) {
         skipped[entry.path] = e.toString();
-        debugPrint('[SolidBackupService] failed to restore "${entry.path}": $e');
+        debugPrint(
+            '[SolidBackupService] failed to restore "${entry.path}": $e');
       }
     }
 

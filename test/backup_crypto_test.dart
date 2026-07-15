@@ -147,8 +147,9 @@ void main() {
       ],
     });
 
-    final cipherText =
-        Encrypter(AES(key, mode: AESMode.cbc)).encrypt(plaintext, iv: iv).base64;
+    final cipherText = Encrypter(AES(key, mode: AESMode.cbc))
+        .encrypt(plaintext, iv: iv)
+        .base64;
     final recovered = Encrypter(AES(key, mode: AESMode.cbc))
         .decrypt(Encrypted.fromBase64(cipherText), iv: iv);
 
@@ -175,8 +176,9 @@ void main() {
     );
     const plaintext = 'sensitive backup payload';
 
-    final cipherText =
-        Encrypter(AES(right, mode: AESMode.cbc)).encrypt(plaintext, iv: iv).base64;
+    final cipherText = Encrypter(AES(right, mode: AESMode.cbc))
+        .encrypt(plaintext, iv: iv)
+        .base64;
 
     // A wrong key either throws (padding failure) or returns garbage; either
     // way it must not reproduce the plaintext.

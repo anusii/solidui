@@ -254,9 +254,8 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
         currentKey: keys['currentKey']!,
       );
 
-      final skippedNote = result.skipped.isEmpty
-          ? ''
-          : ' (${result.skipped.length} skipped)';
+      final skippedNote =
+          result.skipped.isEmpty ? '' : ' (${result.skipped.length} skipped)';
       _setImportMessage(
         'Restored ${result.restoredCount} '
         'file${result.restoredCount == 1 ? '' : 's'}$skippedNote.',
@@ -455,9 +454,8 @@ class _MessageBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = isError
-        ? colorScheme.errorContainer
-        : colorScheme.secondaryContainer;
+    final background =
+        isError ? colorScheme.errorContainer : colorScheme.secondaryContainer;
     final foreground = isError
         ? colorScheme.onErrorContainer
         : colorScheme.onSecondaryContainer;
