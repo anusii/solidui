@@ -112,8 +112,9 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
 
     final keys = await _promptForKeys(
       title: 'Export Backup',
-      message: 'Enter your current security key. The backup will be encrypted '
-          'with this key, and you will need it again when restoring.',
+      message: 'Please verify your current security key. The backup will be '
+          'encrypted with this key, and you will need it again when '
+          'restoring.',
       fields: const [
         (key: 'securityKey', label: 'Security Key'),
       ],

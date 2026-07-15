@@ -44,6 +44,7 @@ import 'package:solidui/src/widgets/solid_feedback_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others.dart';
 import 'package:solidui/src/widgets/solid_menu_preferences_dialog.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
+import 'package:solidui/src/widgets/solid_theme.dart';
 
 /// A button that shows an About dialogue when pressed.
 
