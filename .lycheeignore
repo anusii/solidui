@@ -89,7 +89,7 @@ https://host/
 https://pods.au/me/app/data
 https://pub.dev/documentation/solidui/latest/solidui/SolidScaffold-class.html
 https://anusii.github.io/soliduieg/client-profile.jsonld
-scheme://$host:$port
+^scheme://\$host:\$port$
 
 # 20260605 gjw Failing solid servers
 
