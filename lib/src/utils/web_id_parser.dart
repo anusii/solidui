@@ -75,7 +75,8 @@ class WebIdParts {
 
   String get serverUri {
     final hasCustomPort = port != 0 && port != 80 && port != 443;
-    return hasCustomPort ? '$scheme://$host:$port' : '$scheme://$host';
+    final schemeUri = 'scheme://$host' ':$port';
+    return hasCustomPort ? schemeUri : '$scheme://$host';
   }
 
   /// Host and username joined with a slash for compact display, for example

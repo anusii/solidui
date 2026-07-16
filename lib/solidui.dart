@@ -104,6 +104,9 @@ export 'src/widgets/change_key_dialog.dart';
 export 'src/widgets/change_password_dialog.dart';
 export 'src/widgets/create_account_dialog.dart';
 
+export 'src/services/solid_backup_service.dart';
+export 'src/widgets/solid_backup_dialog.dart';
+
 export 'src/utils/snack_bar.dart';
 
 export 'src/widgets/solid_file.dart';

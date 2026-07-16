@@ -40,6 +40,7 @@ import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/widgets/change_password_dialog.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
+import 'package:solidui/src/widgets/solid_backup_dialog.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 import 'package:solidui/src/widgets/solid_profile_avatar.dart';
@@ -275,6 +276,9 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
       case 'change_password':
         _handleChangePassword();
         break;
+      case 'backup':
+        SolidBackupDialog.show(context);
+        break;
       case 'logout':
         if (widget.onLogout != null) {
           widget.onLogout!(context);
@@ -389,6 +393,32 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                           Icon(Icons.lock_reset, size: 20),
                           SizedBox(width: 12),
                           Text('Change POD Password'),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              // Backup — only meaningful while signed in. Opens a dialog to
+              // export the app's data folder as a single encrypted, compressed
+              // file, or to restore such a backup (from this POD or another).
+
+              if (!_statusLoaded || _isLoggedIn) {
+                items.add(const PopupMenuDivider());
+                items.add(
+                  const PopupMenuItem<String>(
+                    value: 'backup',
+                    child: MarkdownTooltip(
+                      message: '**Backup**\n\n'
+                          'Export all of this app\'s data in your POD to a '
+                          'single encrypted, compressed backup file — or '
+                          'restore a backup created here or on another POD.',
+                      child: Row(
+                        children: [
+                          Icon(Icons.backup_outlined, size: 20),
+                          SizedBox(width: 12),
+                          Text('Backup'),
                         ],
                       ),
                     ),

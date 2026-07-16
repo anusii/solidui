@@ -55,6 +55,14 @@ class SolidTheme {
 
   static const Color secondaryTextColor = Colors.black54;
 
+  /// Maximum width allowed for any pop up dialog (e.g. [AlertDialog],
+  /// [Dialog], [AboutDialog]) across SolidUI applications, in logical
+  /// pixels. Applied via [ThemeData.dialogTheme] so it covers dialogs
+  /// throughout the app without each call site needing to set it
+  /// individually.
+
+  static const double maxDialogWidth = 500.0;
+
   /// Creates a light theme with optional customisation.
 
   static ThemeData lightTheme({Color? primaryColor, ColorScheme? colorScheme}) {
@@ -90,6 +98,9 @@ class SolidTheme {
             vertical: defaultPadding,
           ),
         ),
+      ),
+      dialogTheme: const DialogThemeData(
+        constraints: BoxConstraints(maxWidth: maxDialogWidth),
       ),
     );
   }
@@ -129,6 +140,9 @@ class SolidTheme {
             vertical: defaultPadding,
           ),
         ),
+      ),
+      dialogTheme: const DialogThemeData(
+        constraints: BoxConstraints(maxWidth: maxDialogWidth),
       ),
     );
   }

@@ -35,6 +35,7 @@ import 'package:solidpod/solidpod.dart'
 
 import 'package:solidui/src/widgets/solid_security_key_ui_helpers.dart';
 import 'package:solidui/src/widgets/solid_security_key_utils.dart';
+import 'package:solidui/src/widgets/solid_theme.dart';
 
 /// Dialogs for viewing security keys.
 
@@ -162,7 +163,7 @@ class SecurityKeyViewDialogs {
           ),
           DataCell(
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 220),
               child: Text(
                 entry.value[1] as String,
                 overflow: TextOverflow.ellipsis,
@@ -195,7 +196,8 @@ class SecurityKeyViewDialogs {
             ),
           ),
           content: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
+            constraints:
+                const BoxConstraints(maxWidth: SolidTheme.maxDialogWidth),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -213,9 +215,10 @@ class SecurityKeyViewDialogs {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Center(
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
                     child: DataTable(
-                      columnSpacing: 30.0,
+                      columnSpacing: 20.0,
                       columns: [
                         DataColumn(
                           label: Text(
