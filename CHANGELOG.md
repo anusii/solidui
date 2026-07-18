@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Cahce profile so immediate load on app startup [1.0.21 20260718 gjw]
 + Add a BACKUP option to SolidScaffold [1.0.20 20260717 tonypioneer]
 + Updates to oidc template/example [1.0.19 20260714 tonypioneer]
 + Add a load test to the example [1.0.18 20260702 tonypioneer]

@@ -28,16 +28,17 @@
 
 library;
 
-import 'dart:convert' show base64Decode, base64Encode;
+import 'dart:async' show unawaited;
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show debugPrint;
 
-import 'package:rdflib/rdflib.dart' show Literal, Namespace, URIRef;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/services/solid_profile_cache.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
+import 'package:solidui/src/services/solid_profile_turtle.dart';
 
 /// Maximum allowed upload size for profile pictures (2 MB).
 
@@ -135,17 +136,28 @@ class SolidProfileService {
 
     solidProfileNotifier.isLoading = true;
 
+    // 20260718 gjw Show the last-seen avatar and display name immediately
+    // from the local cache, before any Pod round trips, so the stock
+    // placeholder is only ever visible on a genuine first launch. The
+    // Pod load below then refreshes the notifier (and the cache) with
+    // the authoritative data.
+
+    await SolidProfileCache.instance.prime(solidProfileNotifier);
+
     try {
       await ensureProfileFolder();
 
-      // Check the actual encryption status on the POD to sync multi-session state
-      final detectedPrivacy = await _detectPrivacyFromPod();
-      if (detectedPrivacy != null) {
-        solidProfileNotifier.setPrivacy(detectedPrivacy);
-        await _persistPrivacyPreference(detectedPrivacy);
-      }
+      // 20260718 gjw Run the privacy detection concurrently with the
+      // avatar and display name loads rather than before them. readPod
+      // detects encryption per file, so the loads do not depend on the
+      // privacy state, which only governs subsequent writes. This takes
+      // the detection's round trips off the avatar's critical path.
 
-      await Future.wait([_loadAvatar(), _loadDisplayName()]);
+      await Future.wait([
+        _syncPrivacyFromPod(),
+        _loadAvatar(),
+        _loadDisplayName(),
+      ]);
     } catch (e) {
       debugPrint('SolidProfileService.loadProfile: $e');
     } finally {
@@ -153,14 +165,33 @@ class SolidProfileService {
     }
   }
 
+  // Check the actual encryption status on the POD to sync multi-session
+  // state, updating the notifier and the persisted preference.
+
+  Future<void> _syncPrivacyFromPod() async {
+    final detectedPrivacy = await _detectPrivacyFromPod();
+    if (detectedPrivacy != null) {
+      solidProfileNotifier.setPrivacy(detectedPrivacy);
+      await _persistPrivacyPreference(detectedPrivacy);
+    }
+  }
+
   Future<void> _loadAvatar() async {
     final url = await _avatarUrl();
-    if (await checkResourceStatus(url) != ResourceStatus.exist) return;
+    if (await checkResourceStatus(url) != ResourceStatus.exist) {
+      // 20260718 gjw The avatar was removed on the Pod (e.g. from another
+      // device), so drop any cached copy the prime step may have shown.
+
+      solidProfileNotifier.setAvatar(null);
+      await SolidProfileCache.instance.writeAvatar(null);
+      return;
+    }
 
     try {
       final ttl = await readPod(url, pathType: PathType.absoluteUrl);
-      final bytes = _extractAvatarBytes(ttl);
+      final bytes = extractAvatarBytes(ttl);
       solidProfileNotifier.setAvatar(bytes);
+      await SolidProfileCache.instance.writeAvatar(bytes);
     } catch (e) {
       debugPrint('SolidProfileService._loadAvatar: $e');
     }
@@ -168,12 +199,19 @@ class SolidProfileService {
 
   Future<void> _loadDisplayName() async {
     final url = await _displayNameUrl();
-    if (await checkResourceStatus(url) != ResourceStatus.exist) return;
+    if (await checkResourceStatus(url) != ResourceStatus.exist) {
+      solidProfileNotifier.setDisplayName(null);
+      await SolidProfileCache.instance.writeDisplayName(null);
+      return;
+    }
 
     try {
       final ttl = await readPod(url, pathType: PathType.absoluteUrl);
-      final name = _extractDisplayName(ttl);
-      if (name != null) solidProfileNotifier.setDisplayName(name);
+      final name = extractDisplayName(ttl);
+      if (name != null) {
+        solidProfileNotifier.setDisplayName(name);
+        await SolidProfileCache.instance.writeDisplayName(name);
+      }
     } catch (e) {
       debugPrint('SolidProfileService._loadDisplayName: $e');
     }
@@ -187,7 +225,7 @@ class SolidProfileService {
   Future<void> saveAvatar(Uint8List pngBytes) async {
     await ensureProfileFolder();
     final url = await _avatarUrl();
-    final ttl = await _buildAvatarTtl(pngBytes);
+    final ttl = buildAvatarTtl(await getWebId() ?? '', pngBytes);
 
     final exists = await checkResourceStatus(url) == ResourceStatus.exist;
     await writePod(
@@ -200,6 +238,7 @@ class SolidProfileService {
     );
 
     solidProfileNotifier.setAvatar(pngBytes);
+    await SolidProfileCache.instance.writeAvatar(pngBytes);
   }
 
   // Delete avatar.
@@ -217,6 +256,7 @@ class SolidProfileService {
       }
     }
     solidProfileNotifier.setAvatar(null);
+    await SolidProfileCache.instance.writeAvatar(null);
   }
 
   // Save display name.
@@ -226,7 +266,7 @@ class SolidProfileService {
   Future<void> saveDisplayName(String name) async {
     await ensureProfileFolder();
     final url = await _displayNameUrl();
-    final ttl = await _buildDisplayNameTtl(name);
+    final ttl = buildDisplayNameTtl(await getWebId() ?? '', name);
 
     final exists = await checkResourceStatus(url) == ResourceStatus.exist;
     await writePod(
@@ -239,6 +279,7 @@ class SolidProfileService {
     );
 
     solidProfileNotifier.setDisplayName(name);
+    await SolidProfileCache.instance.writeDisplayName(name);
   }
 
   // Privacy preference.
@@ -276,11 +317,18 @@ class SolidProfileService {
 
   // Clear local state.
 
-  /// Resets cached state (call on logout).
+  /// Resets cached state (call on logout). Also removes the locally
+  /// cached avatar and display name so profile data is not left on the
+  /// device for a logged-out user.
 
   void clearCache() {
     _initialised = false;
     solidProfileNotifier.clear();
+
+    // 20260718 gjw Fire-and-forget: the local wipe needs no ordering
+    // guarantees and clearCache() is called from sync contexts.
+
+    unawaited(SolidProfileCache.instance.clear());
   }
 
   // Helpers.
@@ -352,121 +400,5 @@ class SolidProfileService {
       debugPrint('SolidProfileService._detectPrivacyFromPod: $e');
     }
     return null;
-  }
-
-  // Build the linked-data turtle for the display name. The user's WebID is
-  // used as the subject so the triple is meaningful when read independently
-  // by other agents and queries. We emit both `foaf:name` (the most widely
-  // understood "name" predicate) and `vcard:fn` (the VCard "formatted name")
-  // so different consumers can pick whichever they recognise.
-
-  Future<String> _buildDisplayNameTtl(String name) async {
-    final webId = await getWebId() ?? '';
-    final subject = URIRef(webId.isEmpty ? '#me' : webId);
-    final triples = <URIRef, Map<URIRef, dynamic>>{
-      subject: {
-        FoafPredicate.name.uriRef: Literal(name),
-        VcardPredicate.fn.uriRef: Literal(name),
-      },
-    };
-
-    // rdflib auto-binds the FOAF prefix (it lives in its standardPrefixes
-    // table) so passing it again throws "foaf: already exists in prefixed
-    // namespaces". We only need to register prefixes outside that set.
-
-    return tripleMapToTurtle(
-      triples,
-      bindNamespaces: {
-        'vcard': Namespace(ns: SolidConstants.namespaces.vcard),
-      },
-    );
-  }
-
-  // Build the linked-data turtle for the avatar. The image is embedded as a
-  // standard `data:` URI on `vcard:hasPhoto`, anchored on the user's WebID,
-  // so it is interpretable by any vcard-aware reader. The whole file is
-  // wrapped through writePod() which handles encryption transparently.
-
-  Future<String> _buildAvatarTtl(Uint8List pngBytes) async {
-    final webId = await getWebId() ?? '';
-    final subject = URIRef(webId.isEmpty ? '#me' : webId);
-    final dataUri = 'data:image/png;base64,${base64Encode(pngBytes)}';
-    final triples = <URIRef, Map<URIRef, dynamic>>{
-      subject: {
-        VcardPredicate.hasPhoto.uriRef: URIRef(dataUri),
-      },
-    };
-    return tripleMapToTurtle(
-      triples,
-      bindNamespaces: {
-        'vcard': Namespace(ns: SolidConstants.namespaces.vcard),
-      },
-    );
-  }
-
-  // Find the first display-name literal in the (decrypted) turtle. Tries
-  // foaf:name then vcard:fn.
-
-  String? _extractDisplayName(String ttl) {
-    Map<String, Map<String, dynamic>> map;
-    try {
-      map = turtleToTripleMap(ttl);
-    } catch (_) {
-      return null;
-    }
-    for (final pred in [
-      FoafPredicate.name.value,
-      VcardPredicate.fn.value,
-    ]) {
-      for (final entry in map.values) {
-        final value = entry[pred];
-        if (value == null) continue;
-        if (value is String && value.trim().isNotEmpty) return value;
-        if (value is Iterable && value.isNotEmpty) {
-          final first = value.first;
-          if (first is String && first.trim().isNotEmpty) return first;
-        }
-      }
-    }
-    return null;
-  }
-
-  // Locate the vcard:hasPhoto data URI in the (decrypted) turtle and decode
-  // its base64 payload back to PNG bytes.
-
-  Uint8List? _extractAvatarBytes(String ttl) {
-    Map<String, Map<String, dynamic>> map;
-    try {
-      map = turtleToTripleMap(ttl);
-    } catch (_) {
-      return null;
-    }
-
-    String? findPhotoUri() {
-      for (final entry in map.values) {
-        final v = entry[VcardPredicate.hasPhoto.value];
-        if (v is String && v.isNotEmpty) return v;
-        if (v is Iterable && v.isNotEmpty && v.first is String) {
-          return v.first as String;
-        }
-      }
-      return null;
-    }
-
-    final photo = findPhotoUri();
-    if (photo == null) return null;
-
-    // Expecting a `data:image/<type>;base64,<payload>` URI.
-
-    const marker = ';base64,';
-    final idx = photo.indexOf(marker);
-    if (!photo.startsWith('data:') || idx < 0) return null;
-
-    try {
-      return base64Decode(photo.substring(idx + marker.length));
-    } catch (e) {
-      debugPrint('SolidProfileService._extractAvatarBytes: $e');
-      return null;
-    }
   }
 }
