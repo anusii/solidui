@@ -82,21 +82,49 @@ class SolidWebIdService {
   /// literal value, or `null` when none is present.
 
   String? findPendingRegistrationToken(String turtle) {
+    final values = _valuesOf(turtle, _oidcIssuerRegistrationTokenPredicate);
+    return values.isEmpty ? null : values.first;
+  }
+
+  /// Returns every `solid:oidcIssuer` already registered in [turtle] (as
+  /// previously fetched by [fetchWebIdTurtle]), normalised (trailing slash
+  /// stripped) for comparison against a candidate Pod URL.
+
+  List<String> currentOidcIssuers(String turtle) =>
+      _valuesOf(turtle, _oidcIssuerPredicate).map(_normalizeUrl).toList();
+
+  // Collects every literal/URI value of [predicate] on any subject in the
+  // (already-fetched) [turtle].
+
+  List<String> _valuesOf(String turtle, String predicate) {
     Map<String, Map<String, dynamic>> map;
     try {
       map = turtleToTripleMap(turtle);
     } catch (_) {
-      return null;
+      return const [];
     }
+    final values = <String>[];
     for (final entry in map.values) {
-      final value = entry[_oidcIssuerRegistrationTokenPredicate];
-      if (value is String && value.trim().isNotEmpty) return value;
-      if (value is Iterable && value.isNotEmpty) {
-        final first = value.first;
-        if (first is String && first.trim().isNotEmpty) return first;
+      final value = entry[predicate];
+      if (value is String && value.trim().isNotEmpty) {
+        values.add(value);
+      } else if (value is Iterable) {
+        for (final item in value) {
+          if (item is String && item.trim().isNotEmpty) values.add(item);
+        }
       }
     }
-    return null;
+    return values;
+  }
+
+  // Strips a trailing slash and surrounding whitespace so Pod URLs compare
+  // equal regardless of how they were entered/stored.
+
+  String _normalizeUrl(String url) {
+    final trimmed = url.trim();
+    return trimmed.endsWith('/')
+        ? trimmed.substring(0, trimmed.length - 1)
+        : trimmed;
   }
 
   /// Adds a `solid:oidcIssuerRegistrationToken` triple carrying [token] to
@@ -117,9 +145,7 @@ class SolidWebIdService {
 
   Future<void> completeLink(String podIssuerUrl) async {
     final (:webId, :docUrl) = await _current();
-    final issuerUrl = podIssuerUrl.endsWith('/')
-        ? podIssuerUrl.substring(0, podIssuerUrl.length - 1)
-        : podIssuerUrl;
+    final issuerUrl = _normalizeUrl(podIssuerUrl);
     final query = 'DELETE {<$webId> <$_oidcIssuerRegistrationTokenPredicate>'
         ' ?o} WHERE {<$webId> <$_oidcIssuerRegistrationTokenPredicate> ?o};'
         ' INSERT DATA {<$webId> <$_oidcIssuerPredicate> <$issuerUrl>};';

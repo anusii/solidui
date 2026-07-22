@@ -136,6 +136,23 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
     });
 
     try {
+      // Re-fetch immediately before writing so a Pod added since the dialog
+      // opened is still caught.
+
+      final turtle = await SolidWebIdService.instance.fetchWebIdTurtle();
+      final existingIssuers =
+          SolidWebIdService.instance.currentOidcIssuers(turtle);
+      final normalizedPodUrl = podUrl.endsWith('/')
+          ? podUrl.substring(0, podUrl.length - 1)
+          : podUrl;
+      if (existingIssuers.contains(normalizedPodUrl)) {
+        _setMessage(
+          '"$podUrl" is already linked as an OIDC issuer on your WebID.',
+          error: true,
+        );
+        return;
+      }
+
       await SolidWebIdService.instance.addRegistrationToken(token);
       setState(() {
         _podUrl = podUrl;
