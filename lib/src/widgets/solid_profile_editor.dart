@@ -255,12 +255,20 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     final theme = Theme.of(context);
     final hasAvatar = _pendingAvatar != null && _pendingAvatar!.isNotEmpty;
 
+    // Scale the dialog with the window instead of a fixed width — the raw
+    // WebID turtle content in SolidWebIdSection is much easier to read with
+    // more horizontal room on larger windows, while narrow/mobile windows
+    // still get a dialog sized to fit comfortably.
+
+    final windowSize = MediaQuery.of(context).size;
+    final dialogWidth = (windowSize.width * 0.9).clamp(320.0, 640.0);
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: 400,
-          maxHeight: MediaQuery.of(context).size.height * 0.9,
+          maxWidth: dialogWidth,
+          maxHeight: windowSize.height * 0.9,
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
