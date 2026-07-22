@@ -97,6 +97,9 @@ export 'src/widgets/solid_owner_avatar.dart';
 export 'src/widgets/solid_profile_avatar.dart';
 export 'src/widgets/solid_profile_crop_dialog.dart';
 export 'src/widgets/solid_profile_editor.dart';
+export 'src/widgets/solid_webid_section.dart';
+export 'src/widgets/solid_link_pod_dialog.dart';
+export 'src/services/solid_webid_service.dart';
 
 export 'src/widgets/secret_text_field.dart';
 export 'src/widgets/security_key_ui.dart';
