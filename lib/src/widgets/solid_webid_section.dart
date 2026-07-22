@@ -30,6 +30,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show getWebId;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/services/solid_webid_service.dart';
 import 'package:solidui/src/widgets/solid_link_pod_dialog.dart';
@@ -86,6 +87,17 @@ class _SolidWebIdSectionState extends State<SolidWebIdSection> {
     if (mounted) await _load();
   }
 
+  // Opens the WebID in the default browser, mirroring solid_status_bar.dart.
+
+  Future<void> _launchWebId() async {
+    final webId = _webId;
+    if (webId == null) return;
+    final uri = Uri.parse(webId);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -117,12 +129,17 @@ class _SolidWebIdSectionState extends State<SolidWebIdSection> {
           ),
           if (_webId != null) ...[
             const SizedBox(height: 4),
-            Text(
-              _webId!,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: SelectableText(
+                _webId!,
+                maxLines: 2,
+                onTap: _launchWebId,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
           ],
           const SizedBox(height: 8),
