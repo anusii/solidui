@@ -160,7 +160,7 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
       });
       _setMessage(
         'Verification token added. Now go back to "$podUrl" and click '
-        '"Link WebID" again there to verify. Once verified, click '
+        '"Link WebID to account" again there to verify. Once verified, click '
         '"Finish Linking" below.',
       );
     } on Object catch (e) {
