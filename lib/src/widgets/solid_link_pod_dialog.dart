@@ -90,6 +90,13 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
   _LinkStage _stage = _LinkStage.addToken;
   String? _podUrl;
 
+  // True once _handleAddToken has detected that the entered Pod URL is
+  // already registered as a solid:oidcIssuer — the primary action then
+  // switches to removing that issuer triple before adding the token, so the
+  // Pod can be relinked from scratch.
+
+  bool _issuerAlreadyLinked = false;
+
   @override
   void initState() {
     super.initState();
@@ -146,8 +153,12 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
           ? podUrl.substring(0, podUrl.length - 1)
           : podUrl;
       if (existingIssuers.contains(normalizedPodUrl)) {
+        setState(() => _issuerAlreadyLinked = true);
         _setMessage(
-          '"$podUrl" is already linked as an OIDC issuer on your WebID.',
+          '"$podUrl" is already linked as an OIDC issuer on your WebID. If '
+          'you need to relink this Pod (e.g. its account was recreated), '
+          'click "Remove Issuer & Add Token" below to remove the existing '
+          'link and start over.',
           error: true,
         );
         return;
@@ -165,6 +176,46 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
       );
     } on Object catch (e) {
       _setMessage('Failed to add the verification token: $e', error: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  // Stage 1 (relink path): the Pod is already registered as an issuer —
+  // remove that triple and add the registration token in one PATCH, so the
+  // Pod can be re-verified from scratch.
+
+  Future<void> _handleRemoveIssuerAndAddToken() async {
+    final valid = _formKey.currentState?.saveAndValidate() ?? false;
+    if (!valid) return;
+
+    final values = _formKey.currentState!.value;
+    final podUrl = values[_podUrlField].toString().trim();
+    final token = values[_tokenField].toString().trim();
+
+    setState(() {
+      _busy = true;
+      _message = null;
+    });
+
+    try {
+      await SolidWebIdService.instance.removeIssuerAndAddToken(podUrl, token);
+      setState(() {
+        _podUrl = podUrl;
+        _stage = _LinkStage.finish;
+        _issuerAlreadyLinked = false;
+      });
+      _setMessage(
+        'Removed the existing issuer link and added a new verification '
+        'token. Now go back to "$podUrl" and click "Link WebID to account" '
+        'again there to verify. Once verified, click "Finish Linking" '
+        'below.',
+      );
+    } on Object catch (e) {
+      _setMessage(
+        'Failed to remove the existing issuer link: $e',
+        error: true,
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -259,6 +310,14 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
                           hintText: 'https://pods.example.org',
                           border: OutlineInputBorder(),
                         ),
+                        // A stale "already linked" warning (and its Remove
+                        // Issuer action) no longer applies once the URL
+                        // changes.
+                        onChanged: (_) {
+                          if (_issuerAlreadyLinked) {
+                            setState(() => _issuerAlreadyLinked = false);
+                          }
+                        },
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                             errorText: 'Please enter the Pod server URL.',
@@ -301,10 +360,16 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
             onPressed: _busy
                 ? null
                 : (_stage == _LinkStage.addToken
-                    ? _handleAddToken
+                    ? (_issuerAlreadyLinked
+                        ? _handleRemoveIssuerAndAddToken
+                        : _handleAddToken)
                     : _handleFinishLinking),
             child: Text(
-              _stage == _LinkStage.addToken ? 'Add Token' : 'Finish Linking',
+              _stage == _LinkStage.addToken
+                  ? (_issuerAlreadyLinked
+                      ? 'Remove Issuer & Add Token'
+                      : 'Add Token')
+                  : 'Finish Linking',
             ),
           ),
       ],

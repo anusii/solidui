@@ -139,6 +139,25 @@ class SolidWebIdService {
     await updateFileByQuery(docUrl, query);
   }
 
+  /// Removes the `solid:oidcIssuer` triple pointing at [podIssuerUrl] and
+  /// adds a new `solid:oidcIssuerRegistrationToken` triple carrying [token],
+  /// in a single PATCH. Used to relink a Pod that is already registered as
+  /// an issuer — e.g. after the account on that Pod server was recreated and
+  /// needs to be linked again from scratch.
+
+  Future<void> removeIssuerAndAddToken(
+    String podIssuerUrl,
+    String token,
+  ) async {
+    final (:webId, :docUrl) = await _current();
+    final issuerUrl = _normalizeUrl(podIssuerUrl);
+    final escaped = _escapeLiteral(token);
+    final query = 'DELETE DATA {<$webId> <$_oidcIssuerPredicate>'
+        ' <$issuerUrl>}; INSERT DATA {<$webId>'
+        ' <$_oidcIssuerRegistrationTokenPredicate> "$escaped"};';
+    await updateFileByQuery(docUrl, query);
+  }
+
   /// Removes any `solid:oidcIssuerRegistrationToken` triple and adds a
   /// `solid:oidcIssuer` triple pointing at [podIssuerUrl], completing a Pod
   /// link once the other Pod server has verified the token.
