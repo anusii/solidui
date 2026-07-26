@@ -16,7 +16,8 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
-+ Cahce profile so immediate load on app startup [1.0.21 20260718 gjw]
++ Support webid editing to link a another Pod [1.0.22 20260726 jesscmoore]
++ Cache profile so immediate load on app startup [1.0.21 20260718 gjw]
 + Add a BACKUP option to SolidScaffold [1.0.20 20260717 tonypioneer]
 + Updates to oidc template/example [1.0.19 20260714 tonypioneer]
 + Add a load test to the example [1.0.18 20260702 tonypioneer]
@@ -67,14 +68,14 @@ The package is available from
 + Update SolidScaffold login/logout/profile defaults [0.3.35 20260501 gjw]
 + Bug fix Clear profile cache on logout [0.3.34 20260501 tonypioneer]
 + Bug fix App blanks on login CANCEL [0.3.33 20260501 tonypioneer]
-+ Prefill with webID on auth key timeout relogin [0.3.32 20260501 tonypioneer]
++ Pre-fill with webID on auth key timeout re-login [0.3.32 20260501 tonypioneer]
 + Add dropdown server list for SolidLogin [0.3.31 20260501 gjw]
 + Add is_desktop() util [0.3.30 20260430 gjw]
 + Do not word wrap ABOUT text [0.3.29 20260429 gjw]
 + Sort permission history recent first [0.3.28 20260429 jesscmoore]
 + Fix demo and sharing when resource not exist [0.3.27 20260426 jesscmoore]
 + Pod structure change => different security key prompt [0.3.26 20260429 tonypioneer]
-+ Pop down SECURITY KEY after changng the key [0.3.25 20260429 tonypioneer]
++ Pop down SECURITY KEY after changing the key [0.3.25 20260429 tonypioneer]
 + Improve logout message [0.3.24 20260424 tonypioneer]
 + onLogout callback for memory clearance [0.3.23 20260424 tonypioneer]
 + Support multi sharing [0.3.22 20260423 jesscmoore]
