@@ -87,11 +87,11 @@ class SolidWebIdService {
   }
 
   /// Returns every `solid:oidcIssuer` already registered in [turtle] (as
-  /// previously fetched by [fetchWebIdTurtle]), normalised (trailing slash
-  /// stripped) for comparison against a candidate Pod URL.
+  /// previously fetched by [fetchWebIdTurtle]), normalised to its origin for
+  /// comparison against a candidate Pod URL.
 
   List<String> currentOidcIssuers(String turtle) =>
-      _valuesOf(turtle, _oidcIssuerPredicate).map(_normalizeUrl).toList();
+      _valuesOf(turtle, _oidcIssuerPredicate).map(normalizePodUrl).toList();
 
   // Collects every literal/URI value of [predicate] on any subject in the
   // (already-fetched) [turtle].
@@ -117,11 +117,23 @@ class SolidWebIdService {
     return values;
   }
 
-  // Strips a trailing slash and surrounding whitespace so Pod URLs compare
-  // equal regardless of how they were entered/stored.
+  /// Normalises a Pod server URL to its origin (scheme + host + port),
+  /// discarding any path, query, fragment, and trailing slash. This is what
+  /// `solid:oidcIssuer` should always identify — the OIDC issuer, not a
+  /// particular Pod resource — so two URLs for the same server (e.g. entered
+  /// with vs. without a trailing slash, or with an accidentally-included Pod
+  /// path) always normalise to the same value for comparison and storage.
 
-  String _normalizeUrl(String url) {
+  String normalizePodUrl(String url) {
     final trimmed = url.trim();
+    final uri = Uri.tryParse(trimmed);
+    if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
+      try {
+        return uri.origin;
+      } on Object {
+        // Falls through to the trailing-slash fallback below.
+      }
+    }
     return trimmed.endsWith('/')
         ? trimmed.substring(0, trimmed.length - 1)
         : trimmed;
@@ -139,10 +151,13 @@ class SolidWebIdService {
     await updateFileByQuery(docUrl, query);
   }
 
-  /// Removes the `solid:oidcIssuer` triple pointing at [podIssuerUrl] and
-  /// adds a new `solid:oidcIssuerRegistrationToken` triple carrying [token],
-  /// in a single PATCH. Used to relink a Pod that is already registered as
-  /// an issuer — e.g. after the account on that Pod server was recreated and
+  /// Removes every existing `solid:oidcIssuer` triple whose origin matches
+  /// [podIssuerUrl] — not just an exact string match, so this also cleans up
+  /// any earlier duplicate/malformed variants for the same Pod server (e.g.
+  /// a stray path or a mix of trailing-slash forms) — and adds a new
+  /// `solid:oidcIssuerRegistrationToken` triple carrying [token], in a
+  /// single PATCH. Used to relink a Pod that is already registered as an
+  /// issuer — e.g. after the account on that Pod server was recreated and
   /// needs to be linked again from scratch.
 
   Future<void> removeIssuerAndAddToken(
@@ -150,11 +165,20 @@ class SolidWebIdService {
     String token,
   ) async {
     final (:webId, :docUrl) = await _current();
-    final issuerUrl = _normalizeUrl(podIssuerUrl);
+    final targetOrigin = normalizePodUrl(podIssuerUrl);
+
+    final turtle = await fetchWebIdTurtle();
+    final toRemove = _valuesOf(turtle, _oidcIssuerPredicate)
+        .where((raw) => normalizePodUrl(raw) == targetOrigin)
+        .toSet();
+
     final escaped = _escapeLiteral(token);
-    final query = 'DELETE DATA {<$webId> <$_oidcIssuerPredicate>'
-        ' <$issuerUrl>}; INSERT DATA {<$webId>'
-        ' <$_oidcIssuerRegistrationTokenPredicate> "$escaped"};';
+    final deleteClause = toRemove.isEmpty
+        ? ''
+        : 'DELETE DATA {${toRemove.map((raw) => '<$webId> <$_oidcIssuerPredicate> <$raw>').join('. ')}.}; ';
+    final query = '$deleteClause'
+        'INSERT DATA {<$webId> <$_oidcIssuerRegistrationTokenPredicate>'
+        ' "$escaped"};';
     await updateFileByQuery(docUrl, query);
   }
 
@@ -164,7 +188,7 @@ class SolidWebIdService {
 
   Future<void> completeLink(String podIssuerUrl) async {
     final (:webId, :docUrl) = await _current();
-    final issuerUrl = _normalizeUrl(podIssuerUrl);
+    final issuerUrl = normalizePodUrl(podIssuerUrl);
     final query = 'DELETE {<$webId> <$_oidcIssuerRegistrationTokenPredicate>'
         ' ?o} WHERE {<$webId> <$_oidcIssuerRegistrationTokenPredicate> ?o};'
         ' INSERT DATA {<$webId> <$_oidcIssuerPredicate> <$issuerUrl>};';

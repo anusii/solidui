@@ -149,9 +149,8 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
       final turtle = await SolidWebIdService.instance.fetchWebIdTurtle();
       final existingIssuers =
           SolidWebIdService.instance.currentOidcIssuers(turtle);
-      final normalizedPodUrl = podUrl.endsWith('/')
-          ? podUrl.substring(0, podUrl.length - 1)
-          : podUrl;
+      final normalizedPodUrl =
+          SolidWebIdService.instance.normalizePodUrl(podUrl);
       if (existingIssuers.contains(normalizedPodUrl)) {
         setState(() => _issuerAlreadyLinked = true);
         _setMessage(
