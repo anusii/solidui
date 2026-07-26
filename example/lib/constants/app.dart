@@ -1,6 +1,6 @@
 /// Constants used throughout the app.
 ///
-// Time-stamp: <Wednesday 2024-05-15 10:07:05 +1000 Graham Williams>
+// Time-stamp: <Friday 2026-07-24 11:17:22 +1000 Graham Williams>
 ///
 /// Copyright (C) 2024, Software Innovation Institute, ANU.
 ///
@@ -56,7 +56,8 @@ demo:exampleData$fileName
 }
 
 /// URL of the Solid-OIDC client identifier document.
-const clientIdVal = 'https://anusii.github.io/soliduieg/client-profile.jsonld';
+const clientIdVal =
+    'https://anusii.github.io/solidui/example/client-profile.jsonld';
 
 /// Redirect URIs offered to the Solid-OIDC flow.
 List<String> get redirectUrisList {
