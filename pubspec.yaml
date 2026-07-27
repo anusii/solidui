@@ -1,6 +1,6 @@
 name: solidui
 description: 'A UI library for building Solid applications with Flutter.'
-version: 1.0.21
+version: 1.0.22
 homepage: https://github.com/anusii/solidui
 
 # Scaffold a new Solid Pod file-browser app (a pod browser, with navigation
