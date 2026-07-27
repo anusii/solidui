@@ -32,6 +32,8 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidpod/solidpod.dart' show RecipientType;
+
 import 'package:solidui/src/utils/solid_alert.dart';
 import 'package:solidui/src/widgets/grant_permission_form.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
@@ -108,6 +110,13 @@ class ShareResourceButton extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Callback called when permissions are granted successfully, with the
+  /// [RecipientType] and resource names that were just granted. See
+  /// [GrantPermissionForm.onRecipientTypeGranted].
+
+  final void Function(RecipientType recipientType, List<String> resourceNames)?
+      onRecipientTypeGranted;
+
   /// Optional human-readable name for the resource, used in notification
   /// messages sent to recipients upon successful permission granting.
 
@@ -138,6 +147,7 @@ class ShareResourceButton extends StatefulWidget {
     required this.isFile,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.onRecipientTypeGranted,
     this.resourceDisplayName,
     this.buttonColor,
     this.inviteConfig,
@@ -225,6 +235,7 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
                 dataFilesMap: widget.dataFilesMap,
                 updatePermissionGrantedFunction: _updatePermissionGrantedStatus,
                 onPermissionGranted: widget.onPermissionGranted,
+                onRecipientTypeGranted: widget.onRecipientTypeGranted,
                 resourceDisplayName: widget.resourceDisplayName,
                 inviteConfig: widget.inviteConfig,
               );

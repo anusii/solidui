@@ -89,6 +89,7 @@ class GrantPermissionUi extends StatefulWidget {
     this.buttonColor,
     this.customAppBar,
     this.onPermissionGranted,
+    this.onRecipientTypeGranted,
     this.onNavigateBack,
     this.resourceDisplayName,
     this.shareButtonColor,
@@ -190,6 +191,13 @@ class GrantPermissionUi extends StatefulWidget {
   /// Callback function called when permissions are granted successfully.
 
   final VoidCallback? onPermissionGranted;
+
+  /// Callback called when permissions are granted successfully, with the
+  /// [RecipientType] and resource names that were just granted. See
+  /// [GrantPermissionForm.onRecipientTypeGranted].
+
+  final void Function(RecipientType recipientType, List<String> resourceNames)?
+      onRecipientTypeGranted;
 
   /// Callback function called when navigating back from the screen.
 
