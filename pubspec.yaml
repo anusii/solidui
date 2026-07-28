@@ -62,7 +62,7 @@ dev_dependencies:
 dependency_overrides:
   solidpod:
     git:
-      https://github.com/anusii/solidpod.git
+      url: https://github.com/anusii/solidpod.git
       ref: jess/694_revert_public
 
 flutter:
