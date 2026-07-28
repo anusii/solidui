@@ -59,6 +59,12 @@ dev_dependencies:
     sdk: flutter
   window_manager: ^0.5.1
 
+dependency_overrides:
+  solidpod:
+    git:
+      https://github.com/anusii/solidpod.git
+      ref: jess/694_revert_public
+
 flutter:
   uses-material-design: true
   config:
