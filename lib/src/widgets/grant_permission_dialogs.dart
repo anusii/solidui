@@ -262,6 +262,87 @@ Future<bool> confirmPublicSharingDecryption(
   return confirmed ?? false;
 }
 
+/// Confirm with the user before an individual/group grant revokes an
+/// existing Public/Authenticated User class grant and re-encrypts the
+/// resource (see `grantPermission`'s `revokePublicAccessOnSpecificGrant`).
+///
+/// [existingClasses] is whichever of [RecipientType.public]/`.authUser`
+/// currently have a grant on the resource (one, the other, or both) —
+/// used to word the "public"/"auth user" and "publicly"/"to all
+/// authenticated users" phrases correctly.
+
+Future<bool> confirmRevokeSharedAccessForSpecificGrant(
+  BuildContext context,
+  Set<RecipientType> existingClasses,
+  RecipientType newRecipientType,
+  String recipientLabel,
+) async {
+  final accessLabel = [
+    if (existingClasses.contains(RecipientType.public)) 'public',
+    if (existingClasses.contains(RecipientType.authUser)) 'signed-in user',
+  ].join('/');
+  final audience = [
+    if (existingClasses.contains(RecipientType.public)) 'publicly',
+    if (existingClasses.contains(RecipientType.authUser))
+      'to all signed-in users',
+  ].join(' and ');
+  final recipientKind =
+      newRecipientType == RecipientType.individual ? 'individual' : 'group';
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(
+        'Revoke $accessLabel access and share privately to $recipientLabel?',
+      ),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: alertMaxWidthForCharsPerLine(defaultAlertMaxCharsPerLine),
+        ),
+        child: Text(
+          'This file is currently shared $audience. The $recipientKind you '
+          'wish to grant access to currently already has access. '
+          'Do you want to remove $accessLabel access and '
+          'just share privately to $recipientLabel?',
+        ),
+      ),
+      actions: [
+        MarkdownTooltip(
+          message: '''
+
+          **Cancel**
+
+          Close this dialog without changing the file. Your file remains
+          decrypted and shared $audience.
+
+          ''',
+          child: TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+        ),
+        MarkdownTooltip(
+          message: '''
+
+          **Share Privately**
+
+          Encrypt this file in your POD, share privately, and revoke access to public and signed-in users.
+
+          ''',
+          child: TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: ActionColors.warning,
+            ),
+            child: const Text('Share Privately'),
+          ),
+        ),
+      ],
+    ),
+  );
+  return confirmed ?? false;
+}
+
 /// Priority order used when several WebIDs in the group list fail. We
 /// surface a single dialog and prefer the most actionable failure mode.
 
