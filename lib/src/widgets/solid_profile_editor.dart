@@ -33,11 +33,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:solidpod/solidpod.dart' show isUserLoggedIn;
 
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/services/solid_profile_service.dart';
 import 'package:solidui/src/widgets/solid_profile_avatar.dart';
 import 'package:solidui/src/widgets/solid_profile_crop_dialog.dart';
+import 'package:solidui/src/widgets/solid_webid_section.dart';
 
 /// A dialog that lets the user upload/change/delete a profile picture and
 /// set a display name. Changes are persisted to the user's Solid POD.
@@ -65,6 +67,7 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
   bool _avatarRemoved = false;
   bool _isSaving = false;
   late SolidProfilePrivacy _pendingPrivacy;
+  bool _loggedIn = false;
 
   @override
   void initState() {
@@ -74,6 +77,13 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     );
     _pendingAvatar = solidProfileNotifier.avatarBytes;
     _pendingPrivacy = solidProfileNotifier.privacy;
+
+    // The WebID section reads/writes the user's own Pod, so it only makes
+    // sense to show it while a session is active.
+
+    isUserLoggedIn().then((loggedIn) {
+      if (mounted) setState(() => _loggedIn = loggedIn);
+    });
   }
 
   @override
@@ -245,11 +255,22 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     final theme = Theme.of(context);
     final hasAvatar = _pendingAvatar != null && _pendingAvatar!.isNotEmpty;
 
+    // Scale the dialog with the window instead of a fixed width — the raw
+    // WebID turtle content in SolidWebIdSection is much easier to read with
+    // more horizontal room on larger windows, while narrow/mobile windows
+    // still get a dialog sized to fit comfortably.
+
+    final windowSize = MediaQuery.of(context).size;
+    final dialogWidth = (windowSize.width * 0.9).clamp(320.0, 640.0);
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Padding(
+        constraints: BoxConstraints(
+          maxWidth: dialogWidth,
+          maxHeight: windowSize.height * 0.9,
+        ),
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -335,6 +356,16 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
               // they want their display name and avatar to be discoverable.
 
               _buildPrivacySelector(theme),
+
+              if (_loggedIn) ...[
+                const SizedBox(height: 16),
+
+                // WebID viewer and Pod-linking entry point. Only shown while
+                // logged in since it reads/writes the user's own WebID
+                // document on their Pod.
+
+                const SolidWebIdSection(),
+              ],
 
               const SizedBox(height: 24),
 

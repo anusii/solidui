@@ -280,7 +280,7 @@ class SolidScaffold extends StatefulWidget {
   /// Whether to enable the POD-backed profile feature (avatar + display name).
   /// When true, the profile avatar and display name are shown in both the
   /// AppBar (right side) and the navigation drawer header. The avatar
-  /// hosts a popup menu with Settings (which opens the profile editor)
+  /// hosts a popup menu with Profile Settings (which opens the profile editor)
   /// and Logout/Login, so the standalone AppBar Logout/Share buttons are
   /// suppressed in this mode. When false, the Logout button is rendered
   /// as the second-to-last AppBar action — immediately to the left of

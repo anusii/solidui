@@ -366,9 +366,47 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       return;
     }
 
-    // Session restored — navigate directly to the child widget.
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => widget.child),
+    // 20260728 gjw Session restored. Previously we navigated straight to
+    // the child widget here, which skipped the remote POD structure
+    // verification that both the LOGIN and CONTINUE paths perform. If the
+    // app's folder had been removed on the server (e.g. moved aside as a
+    // backup), the app would proceed into a broken environment and prompt
+    // for a security key that can no longer be verified against the
+    // (missing) keyset. Route through the same CONTINUE flow instead so
+    // the structure is verified and, when incomplete, the user is signed
+    // out with a message to log in again (which re-runs the setup wizard
+    // to re-initialise the POD).
+
+    // The default structure lists are populated asynchronously by
+    // _initPackageInfo() and may not be ready yet in this post-frame
+    // callback; performContinue() skips verification when the folder list
+    // is empty, so ensure they are populated before the check.
+
+    if (defaultFolders.isEmpty) {
+      await setAppDirName(widget.appDirectory);
+      final folders = await generateDefaultFolders();
+      final files = await generateDefaultFiles();
+      final customFolders = generateCustomFolders(
+        widget.customFolderPathList,
+      );
+      if (!mounted) return;
+      setState(() {
+        defaultFolders = folders + customFolders;
+        defaultFiles = files;
+      });
+    }
+
+    if (!mounted) return;
+    setState(() => _checkingAutoLogin = false);
+
+    await SolidLoginActions.performContinue(
+      context: context,
+      childWidget: widget.child,
+      defaultFolders: defaultFolders,
+      defaultFiles: defaultFiles,
+      updateDialogCanceledState: updateState,
+      showSnackbar: _showSnackbar,
+      staySignedIn: _staySignedIn,
     );
   }
 

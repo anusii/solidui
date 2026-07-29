@@ -33,10 +33,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:solidpod/solidpod.dart'
     show
+        checkResourceStatus,
         getEncKeyPath,
+        getFileUrl,
         getWebId,
         isUserLoggedIn,
         KeyManager,
+        ResourceStatus,
         SecurityKeyVerificationException;
 
 import 'package:solidui/src/constants/ui.dart' show SecurityStrings;
@@ -135,6 +138,49 @@ Future<void> getKeyFromUserIfRequired(
   if (await KeyManager.hasSecurityKey()) {
     return;
   } else {
+    // 20260728 gjw Before prompting, confirm the POD actually holds a
+    // keyset to verify against. If the app's encryption key file is
+    // missing on the server (e.g. the app folder was removed or moved
+    // aside), no key the user enters can ever verify, so prompting would
+    // trap them in an "Incorrect Security Key" loop. Direct them to
+    // re-run the setup instead. If the existence check itself fails
+    // (e.g. offline), fall through to the normal prompt rather than
+    // blocking the user.
+
+    try {
+      final encKeyUrl = await getFileUrl(await getEncKeyPath());
+      final status = await checkResourceStatus(encKeyUrl);
+      if (status != ResourceStatus.exist) {
+        debugPrint(
+          'getKeyFromUserIfRequired: no keyset found on the server '
+          '($encKeyUrl: $status) — skipping the security key prompt.',
+        );
+        if (context.mounted) {
+          await showDialog<void>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('POD Not Initialised'),
+              content: const Text(
+                'Your POD does not appear to be initialised for this app '
+                '— its encryption keys were not found on the server.\n\n'
+                'Please log out and log in again to run the setup and '
+                're-initialise your POD.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+    } on Object catch (e) {
+      debugPrint('getKeyFromUserIfRequired: keyset check failed: $e');
+    }
+
     // Get the webId to display in the security key prompt.
 
     final webId = await getWebId();
