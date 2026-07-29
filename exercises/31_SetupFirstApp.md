@@ -32,7 +32,7 @@ cd my_pod_app/
 flutter create .
 ```
 
-This will initialise your porject to all platforms. After the initialisation, you need to pull all the updates from the imported packages. To do that run the following command.
+This will initialise your project to all platforms. After the initialisation, you need to pull all the updates from the imported packages. To do that run the following command.
 
 ```bash
 flutter pub get

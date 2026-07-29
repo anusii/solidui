@@ -16,7 +16,9 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
-+ Add sharing permission recipientType callback [1.0.23 20260728 jesscmoore]
++ Add sharing permission recipientType callback [1.0.25 20260728 jesscmoore]
++ Support webid editing to link a another Pod [1.0.24 20260726 jesscmoore]
++ Bug fix auto-login when no domain folder on server [1.0.23 20260729 gjw]
 + Add webid to profile [1.0.22 20260726 jesscmoore]
 + Cache profile so immediate load on app startup [1.0.21 20260718 gjw]
 + Add a BACKUP option to SolidScaffold [1.0.20 20260717 tonypioneer]

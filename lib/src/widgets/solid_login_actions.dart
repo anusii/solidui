@@ -288,8 +288,8 @@ class SolidLoginActions {
           if (!context.mounted) return;
 
           showSnackbar(
-            'Your POD directory structure is incomplete or has been '
-            'removed. Please log in again to re-initialise your POD.',
+            'Your POD directory structure is not initialised or is incomplete. '
+            'Please log in to initialise your POD.',
             duration: const Duration(seconds: 5),
           );
 
