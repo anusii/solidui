@@ -415,14 +415,14 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                 const PopupMenuItem<String>(
                   value: 'settings',
                   child: MarkdownTooltip(
-                    message: '**Settings**\n\n'
-                        'Manage your profile — display name, avatar, and '
+                    message: '**Profile Settings**\n\n'
+                        'Manage your profile — display name, avatar, webid, and '
                         'privacy controls.',
                     child: Row(
                       children: [
                         Icon(Icons.settings_outlined, size: 20),
                         SizedBox(width: 12),
-                        Text('Settings'),
+                        Text('Profile Settings'),
                       ],
                     ),
                   ),
