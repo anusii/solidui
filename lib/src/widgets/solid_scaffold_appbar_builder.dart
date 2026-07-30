@@ -34,7 +34,6 @@ import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show NotLoggedInException, getWebId, isUserLoggedIn;
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
