@@ -226,7 +226,6 @@ class _ProfileMenuChip extends StatefulWidget {
 class _ProfileMenuChipState extends State<_ProfileMenuChip> {
   bool _isLoggedIn = false;
   bool _statusLoaded = false;
-  String? _webId;
 
   @override
   void initState() {
@@ -247,7 +246,6 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
           setState(() {
             _isLoggedIn = false;
             _statusLoaded = true;
-            _webId = null;
           });
         }
         return;
@@ -257,7 +255,6 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
         setState(() {
           _isLoggedIn = loggedIn;
           _statusLoaded = true;
-          _webId = webId;
         });
       }
     } catch (e) {
@@ -266,7 +263,6 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
         setState(() {
           _isLoggedIn = false;
           _statusLoaded = true;
-          _webId = null;
         });
       }
     }
