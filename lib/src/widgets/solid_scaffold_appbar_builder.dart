@@ -34,7 +34,6 @@ import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show NotLoggedInException, getWebId, isUserLoggedIn;
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
@@ -227,7 +226,6 @@ class _ProfileMenuChip extends StatefulWidget {
 class _ProfileMenuChipState extends State<_ProfileMenuChip> {
   bool _isLoggedIn = false;
   bool _statusLoaded = false;
-  String? _webId;
 
   @override
   void initState() {
@@ -248,7 +246,6 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
           setState(() {
             _isLoggedIn = false;
             _statusLoaded = true;
-            _webId = null;
           });
         }
         return;
@@ -258,7 +255,6 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
         setState(() {
           _isLoggedIn = loggedIn;
           _statusLoaded = true;
-          _webId = webId;
         });
       }
     } catch (e) {
@@ -267,21 +263,8 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
         setState(() {
           _isLoggedIn = false;
           _statusLoaded = true;
-          _webId = null;
         });
       }
-    }
-  }
-
-  /// Opens the user's WebID profile in the default browser, mirroring
-  /// solid_status_bar.dart's `_launchUrl`.
-
-  Future<void> _launchWebId() async {
-    final webId = _webId;
-    if (webId == null) return;
-    final uri = Uri.parse(webId);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
     }
   }
 
@@ -365,48 +348,6 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
             onSelected: _handleSelection,
             itemBuilder: (menuContext) {
               final items = <PopupMenuEntry<String>>[];
-
-              // WebID — always visible identity header when signed in, so
-              // the user's WebID is discoverable/copyable regardless of
-              // screen width (unlike the drawer/status-bar surfaces, which
-              // are shown one-or-the-other depending on window size).
-              // `enabled: false` stops the item's own tap-to-select
-              // behaviour from swallowing the SelectableText's gestures.
-
-              if (_isLoggedIn && _webId != null && _webId!.isNotEmpty) {
-                items.add(
-                  PopupMenuItem<String>(
-                    enabled: false,
-                    child: MarkdownTooltip(
-                      message: '**WebId**\n\n$_webId - this is the Solid '
-                          'server of your webid identifier. You can tap '
-                          'here to open your webid profile in a web '
-                          'browser.',
-                      child: SizedBox(
-                        width: 280,
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.badge_outlined, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: SelectableText(
-                                  'Webid: $_webId!',
-                                  maxLines: 2,
-                                  onTap: _launchWebId,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-                items.add(const PopupMenuDivider());
-              }
 
               // Settings — always available; opens the profile editor
               // dialog hosting display name, avatar and privacy.

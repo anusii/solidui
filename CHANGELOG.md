@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Remove redundant webid in menu [1.0.25 20260730 jesscmoore]
 + Dismiss snackbars with buttons [1.0.24 20260731 gjw]
 + Bug fix autologin when no domain folder on server [1.0.23 20260729 gjw]
 + Add webid to profile [1.0.22 20260726 jesscmoore]
