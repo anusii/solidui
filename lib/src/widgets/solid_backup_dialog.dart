@@ -32,6 +32,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemNavigator;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -39,7 +40,7 @@ import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show SecurityKeyVerificationException, isUserLoggedIn;
-import 'package:universal_io/io.dart' show File;
+import 'package:universal_io/io.dart' show File, Platform, exit;
 
 import 'package:solidui/src/services/solid_backup_service.dart';
 import 'package:solidui/src/widgets/secret_text_field.dart';
@@ -50,6 +51,8 @@ import 'package:solidui/src/widgets/secret_text_field.dart';
 ///     it as a single compressed, encrypted backup file on this device.
 ///   * **Import** — restore a previously exported backup (from this POD or
 ///     another), re-encrypting the data with this POD's current security key.
+///     The user is warned beforehand, and afterwards the app is closed, so
+///     that reopening it reloads the restored data in full.
 ///
 /// The dialog mirrors the layout and wording of the TodoPod Backup feature but
 /// works at the level of the whole app data folder rather than a single model.
@@ -189,6 +192,16 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
       return;
     }
 
+    // Warn about the restart before the user picks a file or types any keys.
+    // The app keeps the data it loaded at start-up in memory, so it must be
+    // restarted once the restore has finished.
+
+    if (!mounted) return;
+    if (!await _confirmRestore()) {
+      _setImportMessage('Import cancelled.');
+      return;
+    }
+
     setState(() {
       _busy = true;
       _importMessage = null;
@@ -238,7 +251,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
             'file${header.fileCount == 1 ? '' : 's'}. Enter the original '
             'security key it was created with, and the current security key '
             'for this POD. Restoring overwrites the contents of this app\'s '
-            'data folder.',
+            'data folder, after which the app closes and you open it again.',
         fields: const [
           (key: 'originalKey', label: 'Original Security Key'),
           (key: 'currentKey', label: 'Current Security Key'),
@@ -257,11 +270,17 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
 
       final skippedNote =
           result.skipped.isEmpty ? '' : ' (${result.skipped.length} skipped)';
-      _setImportMessage(
-        'Restored ${result.restoredCount} '
-        'file${result.restoredCount == 1 ? '' : 's'}$skippedNote.',
-        error: result.skipped.isNotEmpty,
-      );
+      final summary = 'Restored ${result.restoredCount} '
+          'file${result.restoredCount == 1 ? '' : 's'}$skippedNote.';
+      _setImportMessage(summary, error: result.skipped.isNotEmpty);
+
+      // The POD now holds the restored data, but this app is still running
+      // with whatever it loaded beforehand. Insist on a restart so that the
+      // data is reloaded in full and nothing stale is written back.
+
+      if (!mounted) return;
+      await _showRestartRequiredDialog(summary);
+      if (mounted) Navigator.of(context).pop();
     } on BackupAppMismatchException catch (e) {
       _setImportMessage(
         'This backup was created by a different application '
@@ -277,6 +296,126 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  // Restart prompts.
+
+  // Ask the user to acknowledge, before anything is written, that the app has
+  // to be started again once the restore has finished. Returns true to go
+  // ahead.
+
+  Future<bool> _confirmRestore() async {
+    final proceed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_outlined),
+            SizedBox(width: 12),
+            Expanded(child: Text('Restart Required')),
+          ],
+        ),
+        content: const SizedBox(
+          width: 420,
+          child: Text(
+            'Restoring a backup replaces the contents of this app\'s data '
+            'folder on your POD.\n\n'
+            'The app has to start again as soon as the restore has finished, '
+            'so that it reloads all of the restored data. Carrying on without '
+            'it would write your changes on top of the restored data and may '
+            'leave it inconsistent, so '
+            '${kIsWeb ? 'you will need to reload the page yourself' : 'the app will close and you will need to open it again yourself'} '
+            'once the restore is done.\n\n'
+            'Do you want to continue?',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+    return proceed ?? false;
+  }
+
+  // Tell the user that the restore is done and the app has to be started
+  // again, and close it for them. The dialog offers the single action, and
+  // cannot be dismissed by tapping outside it or by the system back gesture,
+  // so the app is never left running on top of freshly restored data.
+  //
+  // An app cannot reliably start itself again, so the user is told plainly to
+  // open it again by hand once it has closed.
+
+  Future<void> _showRestartRequiredDialog(String summary) => showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: AlertDialog(
+            title: const Row(
+              children: [
+                Icon(kIsWeb ? Icons.refresh : Icons.exit_to_app),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(kIsWeb ? 'Reload Required' : 'Close and Reopen'),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 420,
+              child: Text(
+                '$summary\n\n'
+                'The restored data is now on your POD, but the app is still '
+                'showing the data it loaded before the restore. It has to '
+                'start again before you carry on, or the data you have just '
+                'restored may be overwritten.\n\n'
+                '${kIsWeb ? 'Please reload this page now to see the restored '
+                    'data.' : 'The app will close now. Please open it again '
+                    'manually to see the restored data.'}',
+              ),
+            ),
+            actions: [
+              FilledButton.icon(
+                icon: const Icon(kIsWeb ? Icons.refresh : Icons.exit_to_app),
+                label: const Text(kIsWeb ? 'OK' : 'Close App'),
+                onPressed: () {
+                  // Close the dialogs first. If the platform declines to close
+                  // the app, the user is at least left with it usable and the
+                  // banner still explaining that a restart is needed.
+
+                  Navigator.of(dialogContext).pop();
+                  _closeApp();
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+
+  // Close the app as firmly as the platform allows.
+  //
+  // On desktop the process is ended outright. That is deliberate: the data
+  // underneath the app has just been replaced, and nothing the app still holds
+  // in memory should get the chance to be written back. On Android the system
+  // is asked to close the app, which finishes the activity in the ordinary
+  // way; Apple does not let an iOS app close itself, so there this is
+  // best-effort. A browser tab cannot close itself either, so on the web
+  // nothing happens here and the dialog asks the user to reload the page.
+
+  void _closeApp() {
+    if (kIsWeb) return;
+
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      exit(0);
+    }
+
+    SystemNavigator.pop();
   }
 
   // Key prompt.
@@ -296,24 +435,33 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
       builder: (dialogContext) {
         return AlertDialog(
           title: Text(title),
-          content: SingleChildScrollView(
-            child: FormBuilder(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(message),
-                  const Gap(16),
-                  for (final field in fields) ...[
-                    SecretTextField(
-                      fieldKey: field.key,
-                      fieldLabel: field.label,
-                      validateFunc: (value) =>
-                          value.isEmpty ? 'Please enter ${field.label}.' : null,
-                    ),
-                    const Gap(8),
+
+          // Cap the key fields at a readable width. Without this the dialog
+          // grows with the window and the fields end up far wider than any
+          // security key needs.
+
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: SingleChildScrollView(
+              child: FormBuilder(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(message),
+                    const Gap(16),
+                    for (final field in fields) ...[
+                      SecretTextField(
+                        fieldKey: field.key,
+                        fieldLabel: field.label,
+                        validateFunc: (value) => value.isEmpty
+                            ? 'Please enter ${field.label}.'
+                            : null,
+                      ),
+                      const Gap(8),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -409,7 +557,9 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
                     'Restore a backup created by this application. The backup '
                     'is decrypted with its original security key and '
                     're-encrypted with this POD\'s current security key, '
-                    'overwriting the data folder\'s contents.',
+                    'overwriting the data folder\'s contents.\n\n'
+                    'The app closes once the restore has finished, and you '
+                    'then open it again manually.',
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.upload),
                   label: const Text('Import Backup'),
