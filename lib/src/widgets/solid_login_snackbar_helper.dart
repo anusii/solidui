@@ -28,6 +28,8 @@
 
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/models/snackbar_config.dart';
@@ -52,7 +54,9 @@ class SolidLoginSnackbarHelper {
             ? currentTheme.backgroundColor.withValues(alpha: 0.9)
             : currentTheme.backgroundColor.withValues(alpha: 0.7));
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    final effectiveDuration = duration ?? snackbarConfig.duration;
+
+    final controller = ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
@@ -63,7 +67,7 @@ class SolidLoginSnackbarHelper {
             fontWeight: FontWeight.w500,
           ),
         ),
-        duration: duration ?? snackbarConfig.duration,
+        duration: effectiveDuration,
         behavior: SnackBarBehavior.floating,
         backgroundColor: backgroundColor,
         shape: RoundedRectangleBorder(
@@ -81,5 +85,15 @@ class SolidLoginSnackbarHelper {
             : null,
       ),
     );
+
+    // Flutter keeps a SnackBar that has an action on screen indefinitely when
+    // accessible navigation is active, ignoring the duration. Close it
+    // explicitly so it always disappears, while still offering the OK action.
+
+    var alreadyClosed = false;
+    controller.closed.then((_) => alreadyClosed = true);
+    Timer(effectiveDuration, () {
+      if (!alreadyClosed) controller.close();
+    });
   }
 }
