@@ -307,7 +307,7 @@ class SolidLoginAuthHandler {
         if (context.mounted) {
           showSnackbar(
             'Please complete the login process in your browser...',
-            duration: const Duration(seconds: 5),
+            duration: const Duration(seconds: 15),
           );
         }
       });
