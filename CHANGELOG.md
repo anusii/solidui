@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Better messaging on backup restore [1.0.26 20260805 tonypioneer]
 + Remove redundant webid in menu [1.0.25 20260730 jesscmoore]
 + Dismiss snackbars with buttons [1.0.24 20260731 gjw]
 + Bug fix autologin when no domain folder on server [1.0.23 20260729 gjw]
