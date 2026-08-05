@@ -382,19 +382,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // callback; performContinue() skips verification when the folder list
     // is empty, so ensure they are populated before the check.
 
-    if (defaultFolders.isEmpty) {
-      await setAppDirName(widget.appDirectory);
-      final folders = await generateDefaultFolders();
-      final files = await generateDefaultFiles();
-      final customFolders = generateCustomFolders(
-        widget.customFolderPathList,
-      );
-      if (!mounted) return;
-      setState(() {
-        defaultFolders = folders + customFolders;
-        defaultFiles = files;
-      });
-    }
+    if (defaultFolders.isEmpty) await _loadDefaultStructure();
 
     if (!mounted) return;
     setState(() => _checkingAutoLogin = false);
@@ -446,13 +434,22 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   void _onThemeChanged() => mounted ? setState(() {}) : null;
   bool get isDarkMode => SolidLoginThemeHelper.isDarkMode(context);
 
+  /// The colours in force, chosen by the current light or dark mode.
+
+  SolidLoginThemeMode get _currentTheme =>
+      isDarkMode ? widget.themeConfig.darkTheme : widget.themeConfig.lightTheme;
+
   Future<void> _initTheme() async {
     await solidThemeNotifier.initialize();
     if (mounted) setState(() {});
   }
 
-  Future<void> _initPackageInfo() async {
-    if (!mounted) return;
+  /// Populate the default folder and file lists for the app's data folder.
+  ///
+  /// Shared by [_initPackageInfo] and the auto-login check, which needs the
+  /// lists in place before it can verify the POD structure.
+
+  Future<void> _loadDefaultStructure() async {
     await setAppDirName(widget.appDirectory);
     final folders = await generateDefaultFolders();
     final files = await generateDefaultFiles();
@@ -462,6 +459,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       defaultFolders = folders + customFolders;
       defaultFiles = files;
     });
+  }
+
+  Future<void> _initPackageInfo() async {
+    if (!mounted) return;
+    await _loadDefaultStructure();
     final appInfo = await getAppNameVersion();
     if (!mounted) return;
     setState(() {
@@ -493,14 +495,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     Duration? duration,
     bool showAction = true,
   }) {
-    final currentTheme = isDarkMode
-        ? widget.themeConfig.darkTheme
-        : widget.themeConfig.lightTheme;
     SolidLoginSnackbarHelper.showSnackbar(
       context,
       message: message,
       isDarkMode: isDarkMode,
-      currentTheme: currentTheme,
+      currentTheme: _currentTheme,
       snackbarConfig: widget.snackbarConfig,
       duration: duration,
       showAction: showAction,
@@ -517,12 +516,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     if (!_assetsResolved || _checkingAutoLogin) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-
-    // Use the internal state for theme instead of system brightness.
-
-    final currentTheme = isDarkMode
-        ? widget.themeConfig.darkTheme
-        : widget.themeConfig.lightTheme;
 
     // Use resolved image with fallback support.
 
@@ -620,13 +613,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         setState(() => _staySignedIn = newValue);
         SolidLoginAuthHandler.setStaySignedIn(newValue);
       },
-      textColor: currentTheme.textColor,
+      textColor: _currentTheme.textColor,
     );
 
     final tryAnotherAccountButton =
         SolidLoginBuildHelper.buildTryAnotherAccountButton(
       onPressed: performTryAnotherAccount,
-      textColor: currentTheme.textColor,
+      textColor: _currentTheme.textColor,
     );
 
     // Build the login panel content.
@@ -649,7 +642,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
         if (widget.infoButtonStyle.visible) infoButton,
       ],
       isRequired: widget.required,
-      currentTheme: currentTheme,
+      currentTheme: _currentTheme,
       serverInputFocusNode: _serverInputFocusNode,
       onServerSubmitted: performLogin,
       staySignedInCheckbox: staySignedInCheckbox,
@@ -665,7 +658,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     final loginPanel = SolidLoginPanel.buildCompletePanel(
       context: context,
       panelDecor: loginPanelDecor,
-      currentTheme: currentTheme,
+      currentTheme: _currentTheme,
     );
 
     return SolidLoginBuildHelper.buildScaffold(
