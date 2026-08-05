@@ -320,11 +320,8 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
           child: Text(
             'Restoring a backup replaces the contents of this app\'s data '
             'folder on your POD.\n\n'
-            'The app has to start again as soon as the restore has finished, '
-            'so that it reloads all of the restored data. Carrying on without '
-            'it would write your changes on top of the restored data and may '
-            'leave it inconsistent, so '
-            '${kIsWeb ? 'you will need to reload the page yourself' : 'the app will close and you will need to open it again yourself'} '
+            '${kIsWeb ? 'You will need to reload the page yourself' : 'The '
+                'app will close and you will need to open it again yourself'} '
             'once the restore is done.\n\n'
             'Do you want to continue?',
           ),
@@ -371,13 +368,9 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
               width: 420,
               child: Text(
                 '$summary\n\n'
-                'The restored data is now on your POD, but the app is still '
-                'showing the data it loaded before the restore. It has to '
-                'start again before you carry on, or the data you have just '
-                'restored may be overwritten.\n\n'
                 '${kIsWeb ? 'Please reload this page now to see the restored '
                     'data.' : 'The app will close now. Please open it again '
-                    'manually to see the restored data.'}',
+                    'manually to load the restored data.'}',
               ),
             ),
             actions: [
