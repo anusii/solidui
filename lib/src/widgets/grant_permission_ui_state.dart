@@ -464,6 +464,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                       isFile: getIsFile(),
                       dataFilesMap: widget.dataFilesMap,
                       onPermissionGranted: widget.onPermissionGranted,
+                      onRecipientTypeGranted: widget.onRecipientTypeGranted,
                       resourceDisplayName: widget.resourceDisplayName,
                       buttonColor:
                           widget.shareButtonColor ?? widget.buttonColor,

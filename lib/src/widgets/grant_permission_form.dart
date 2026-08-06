@@ -134,6 +134,15 @@ class GrantPermissionForm extends StatefulWidget {
 
   final VoidCallback? onPermissionGranted;
 
+  /// Callback called when permissions are granted successfully, with the
+  /// [RecipientType] and resource names that were just granted. Fires
+  /// alongside [onPermissionGranted] — added so callers can distinguish a
+  /// public/authenticated-user grant from an individual/group grant, which
+  /// the plain [onPermissionGranted] cannot do.
+
+  final void Function(RecipientType recipientType, List<String> resourceNames)?
+      onRecipientTypeGranted;
+
   /// Optional human-readable name for the resource, used in notification
   /// messages sent to recipients upon successful permission granting.
 
@@ -159,6 +168,7 @@ class GrantPermissionForm extends StatefulWidget {
     required this.updatePermissionGrantedFunction,
     this.dataFilesMap = const {},
     this.onPermissionGranted,
+    this.onRecipientTypeGranted,
     this.resourceDisplayName,
     this.inviteConfig,
   });
@@ -635,6 +645,10 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
 
               // Trigger the onPermissionGranted callback if provided
               widget.onPermissionGranted?.call();
+              widget.onRecipientTypeGranted?.call(
+                selectedRecipientType,
+                widget.resourceNames,
+              );
             } else if (result == SolidFunctionCallStatus.fail) {
               if (!context.mounted) return;
               await showGrantPermissionErrorDialog(
