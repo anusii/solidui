@@ -85,9 +85,8 @@ String initialStructureMsg(String appName, String serverName) {
   // empty [serverName] values do not leave a dangling "server ." in the
   // output.
 
-  final serverClause = serverName.trim().isEmpty
-      ? ''
-      : ' on the Solid server $serverName';
+  final serverClause =
+      serverName.trim().isEmpty ? '' : ' on the Solid server $serverName';
   return 'This is the first time you are using $appName to connect to your '
       'Personal Online Datastore (POD)$serverClause. '
       'A security key is required to encrypt and protect your data stored '

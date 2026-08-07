@@ -166,7 +166,7 @@ class _FileExplorerScreenState extends State<FileExplorerScreen> {
     return Scaffold(
       appBar: defaltAppBar(),
       body: // One scrollable list
-      Column(
+          Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -222,9 +222,8 @@ class _FileExplorerScreenState extends State<FileExplorerScreen> {
                             section.isFolder
                                 ? Icons.folder
                                 : Icons.insert_drive_file,
-                            color: section.isFolder
-                                ? Colors.amber
-                                : Colors.blue,
+                            color:
+                                section.isFolder ? Colors.amber : Colors.blue,
                           ),
                           trailing: (!section.isFolder && widget.isEditable)
                               ? IconButton(
@@ -238,8 +237,8 @@ class _FileExplorerScreenState extends State<FileExplorerScreen> {
 
                                     final TextEditingController editController =
                                         TextEditingController(
-                                          text: fileContent,
-                                        );
+                                      text: fileContent,
+                                    );
 
                                     if (!context.mounted) return;
                                     await showDialog<String>(

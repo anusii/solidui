@@ -88,13 +88,11 @@ class SecurityKeyUI extends StatefulWidget {
   /// For a dialog with multiple inputs, provide multiple fields.
 
   final List<
-    ({
-      String fieldKey,
-      String fieldLabel,
-      String? Function(String?) validateFunc,
-    })
-  >
-  inputFields;
+      ({
+        String fieldKey,
+        String fieldLabel,
+        String? Function(String?) validateFunc,
+      })> inputFields;
 
   /// Key of the form for data retrieval.
 

@@ -175,8 +175,7 @@ class SolidAppBarOverflowHandler {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.inviteOthers);
     if (forceOverflow) return isInOverflow;
     return isInOverflow;
@@ -196,8 +195,7 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.logout);
 
     if (forceOverflow) return isInOverflow;
@@ -218,8 +216,7 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.themeToggle);
 
     if (forceOverflow) return isInOverflow;
@@ -240,8 +237,7 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.about);
 
     if (forceOverflow) return isInOverflow;

@@ -170,8 +170,7 @@ Signing into {appName} will set up your data vault so that you can {appDescripti
     String? resolvedAppDescription,
   }) {
     final template = messageTemplate ?? defaultMessageTemplate;
-    final description =
-        resolvedAppDescription ??
+    final description = resolvedAppDescription ??
         appDescription ??
         'see and share data with you using your own data vault';
     return template

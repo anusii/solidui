@@ -144,8 +144,7 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
           );
           final permList =
               widget.permDataMap[widget.receiverWebId][permStr] as List;
-          final isPublicClass =
-              recipientType == RecipientType.public ||
+          final isPublicClass = recipientType == RecipientType.public ||
               recipientType == RecipientType.authUser;
 
           showDialog(

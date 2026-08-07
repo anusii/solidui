@@ -608,19 +608,19 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     final staySignedInCheckbox =
         SolidLoginBuildHelper.buildStaySignedInCheckbox(
-          value: _staySignedIn,
-          onChanged: (newValue) {
-            setState(() => _staySignedIn = newValue);
-            SolidLoginAuthHandler.setStaySignedIn(newValue);
-          },
-          textColor: _currentTheme.textColor,
-        );
+      value: _staySignedIn,
+      onChanged: (newValue) {
+        setState(() => _staySignedIn = newValue);
+        SolidLoginAuthHandler.setStaySignedIn(newValue);
+      },
+      textColor: _currentTheme.textColor,
+    );
 
     final tryAnotherAccountButton =
         SolidLoginBuildHelper.buildTryAnotherAccountButton(
-          onPressed: performTryAnotherAccount,
-          textColor: _currentTheme.textColor,
-        );
+      onPressed: performTryAnotherAccount,
+      textColor: _currentTheme.textColor,
+    );
 
     // Build the login panel content.
 

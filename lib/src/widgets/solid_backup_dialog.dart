@@ -65,9 +65,9 @@ class SolidBackupDialog extends StatefulWidget {
   /// Show the backup dialog.
 
   static Future<void> show(BuildContext context) => showDialog<void>(
-    context: context,
-    builder: (_) => const SolidBackupDialog(),
-  );
+        context: context,
+        builder: (_) => const SolidBackupDialog(),
+      );
 
   @override
   State<SolidBackupDialog> createState() => _SolidBackupDialogState();
@@ -115,8 +115,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
 
     final keys = await _promptForKeys(
       title: 'Export Backup',
-      message:
-          'Please verify your current security key. The backup will be '
+      message: 'Please verify your current security key. The backup will be '
           'encrypted with this key, and you will need it again when '
           'restoring.',
       fields: const [(key: 'securityKey', label: 'Security Key')],
@@ -246,8 +245,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
       if (!mounted) return;
       final keys = await _promptForKeys(
         title: 'Import Backup',
-        message:
-            'This backup holds ${header.fileCount} '
+        message: 'This backup holds ${header.fileCount} '
             'file${header.fileCount == 1 ? '' : 's'}. Enter the original '
             'security key it was created with, and the current security key '
             'for this POD. Restoring overwrites the contents of this app\'s '
@@ -268,11 +266,9 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
         currentKey: keys['currentKey']!,
       );
 
-      final skippedNote = result.skipped.isEmpty
-          ? ''
-          : ' (${result.skipped.length} skipped)';
-      final summary =
-          'Restored ${result.restoredCount} '
+      final skippedNote =
+          result.skipped.isEmpty ? '' : ' (${result.skipped.length} skipped)';
+      final summary = 'Restored ${result.restoredCount} '
           'file${result.restoredCount == 1 ? '' : 's'}$skippedNote.';
       _setImportMessage(summary, error: result.skipped.isNotEmpty);
 
@@ -323,7 +319,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
             'Restoring a backup replaces the contents of this app\'s data '
             'folder on your POD.\n\n'
             '${kIsWeb ? 'You will need to reload the page yourself' : 'The '
-                      'app will close and you will need to open it again yourself'} '
+                'app will close and you will need to open it again yourself'} '
             'once the restore is done.\n\n'
             'Do you want to continue?',
           ),
@@ -352,46 +348,46 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
   // open it again by hand once it has closed.
 
   Future<void> _showRestartRequiredDialog(String summary) => showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) => PopScope(
-      canPop: false,
-      child: AlertDialog(
-        title: const Row(
-          children: [
-            Icon(kIsWeb ? Icons.refresh : Icons.exit_to_app),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(kIsWeb ? 'Reload Required' : 'Close and Reopen'),
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: AlertDialog(
+            title: const Row(
+              children: [
+                Icon(kIsWeb ? Icons.refresh : Icons.exit_to_app),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(kIsWeb ? 'Reload Required' : 'Close and Reopen'),
+                ),
+              ],
             ),
-          ],
-        ),
-        content: SizedBox(
-          width: 420,
-          child: Text(
-            '$summary\n\n'
-            '${kIsWeb ? 'Please reload this page now to see the restored '
-                      'data.' : 'The app will close now. Please open it again '
-                      'manually to load the restored data.'}',
-          ),
-        ),
-        actions: [
-          FilledButton.icon(
-            icon: const Icon(kIsWeb ? Icons.refresh : Icons.exit_to_app),
-            label: const Text(kIsWeb ? 'OK' : 'Close App'),
-            onPressed: () {
-              // Close the dialogs first. If the platform declines to close
-              // the app, the user is at least left with it usable and the
-              // banner still explaining that a restart is needed.
+            content: SizedBox(
+              width: 420,
+              child: Text(
+                '$summary\n\n'
+                '${kIsWeb ? 'Please reload this page now to see the restored '
+                    'data.' : 'The app will close now. Please open it again '
+                    'manually to load the restored data.'}',
+              ),
+            ),
+            actions: [
+              FilledButton.icon(
+                icon: const Icon(kIsWeb ? Icons.refresh : Icons.exit_to_app),
+                label: const Text(kIsWeb ? 'OK' : 'Close App'),
+                onPressed: () {
+                  // Close the dialogs first. If the platform declines to close
+                  // the app, the user is at least left with it usable and the
+                  // banner still explaining that a restart is needed.
 
-              Navigator.of(dialogContext).pop();
-              _closeApp();
-            },
+                  Navigator.of(dialogContext).pop();
+                  _closeApp();
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 
   // Close the app as firmly as the platform allows.
   //
@@ -522,8 +518,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
                 const Gap(12),
               ],
               MarkdownTooltip(
-                message:
-                    '**Export Backup**\n\n'
+                message: '**Export Backup**\n\n'
                     'Save all files in this app\'s data folder to a single, '
                     'compressed and encrypted backup file on this device.',
                 child: FilledButton.icon(
@@ -546,8 +541,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
                 const Gap(12),
               ],
               MarkdownTooltip(
-                message:
-                    '**Import Backup**\n\n'
+                message: '**Import Backup**\n\n'
                     'Restore a backup created by this application. The backup '
                     'is decrypted with its original security key and '
                     're-encrypted with this POD\'s current security key, '
@@ -597,9 +591,8 @@ class _MessageBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = isError
-        ? colorScheme.errorContainer
-        : colorScheme.secondaryContainer;
+    final background =
+        isError ? colorScheme.errorContainer : colorScheme.secondaryContainer;
     final foreground = isError
         ? colorScheme.onErrorContainer
         : colorScheme.onSecondaryContainer;

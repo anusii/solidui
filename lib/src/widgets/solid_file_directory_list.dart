@@ -56,7 +56,7 @@ class DirectoryList extends StatelessWidget {
   /// Callback to add or remove a batch of item keys in one operation.
 
   final void Function(List<String> keys, {required bool selected})
-  onBatchSetSelection;
+      onBatchSetSelection;
 
   const DirectoryList({
     super.key,
@@ -77,9 +77,8 @@ class DirectoryList extends StatelessWidget {
     // Compute the selection state for the select-all checkbox.
 
     final allKeys = directories.map((d) => 'dir:$d').toList();
-    final selectedCount = allKeys
-        .where((k) => selectedItems.contains(k))
-        .length;
+    final selectedCount =
+        allKeys.where((k) => selectedItems.contains(k)).length;
     final allSelected = selectedCount == directories.length;
     final noneSelected = selectedCount == 0;
 
@@ -98,8 +97,8 @@ class DirectoryList extends StatelessWidget {
                   value: allSelected
                       ? true
                       : noneSelected
-                      ? false
-                      : null,
+                          ? false
+                          : null,
                   tristate: true,
                   onChanged: (_) {
                     if (allSelected) {

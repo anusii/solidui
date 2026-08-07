@@ -129,7 +129,7 @@ class SolidFileBrowser extends StatefulWidget {
   /// Null disables the toolbar button.
 
   final Function(String currentPath, Set<String> selectedItems)?
-  onDownloadItems;
+      onDownloadItems;
 
   /// Callback for renaming the selected item from the toolbar.
   /// Receives the current path and the selected item key.
@@ -477,9 +477,9 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   onPrint: _handleToolbarPrint,
                   onRename: widget.onRenameItem != null
                       ? () => widget.onRenameItem!(
-                          currentPath,
-                          _selectedItems.first,
-                        )
+                            currentPath,
+                            _selectedItems.first,
+                          )
                       : null,
                   onDelete: _handleToolbarDelete,
                   currentSortOption: _currentSortOption,

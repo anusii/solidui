@@ -59,7 +59,7 @@ class FileList extends StatelessWidget {
   /// Callback to add or remove a batch of item keys in one operation.
 
   final void Function(List<String> keys, {required bool selected})
-  onBatchSetSelection;
+      onBatchSetSelection;
 
   const FileList({
     super.key,
@@ -80,9 +80,8 @@ class FileList extends StatelessWidget {
     // Compute the selection state for the select-all checkbox.
 
     final allKeys = files.map((f) => 'file:${f.name}').toList();
-    final selectedCount = allKeys
-        .where((k) => selectedItems.contains(k))
-        .length;
+    final selectedCount =
+        allKeys.where((k) => selectedItems.contains(k)).length;
     final allSelected = selectedCount == files.length;
     final noneSelected = selectedCount == 0;
 
@@ -101,8 +100,8 @@ class FileList extends StatelessWidget {
                   value: allSelected
                       ? true
                       : noneSelected
-                      ? false
-                      : null,
+                          ? false
+                          : null,
                   tristate: true,
                   onChanged: (_) {
                     if (allSelected) {

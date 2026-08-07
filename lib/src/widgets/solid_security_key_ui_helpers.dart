@@ -53,16 +53,13 @@ class SecurityKeyUIHelpers {
     bool isDestructive = false,
   }) {
     return ElevatedButton.styleFrom(
-      backgroundColor: isDestructive
-          ? theme.colorScheme.error
-          : theme.colorScheme.surface,
-      foregroundColor: isDestructive
-          ? theme.colorScheme.onError
-          : theme.colorScheme.primary,
+      backgroundColor:
+          isDestructive ? theme.colorScheme.error : theme.colorScheme.surface,
+      foregroundColor:
+          isDestructive ? theme.colorScheme.onError : theme.colorScheme.primary,
       side: BorderSide(
-        color: isDestructive
-            ? theme.colorScheme.error
-            : theme.colorScheme.primary,
+        color:
+            isDestructive ? theme.colorScheme.error : theme.colorScheme.primary,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

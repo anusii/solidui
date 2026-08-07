@@ -47,9 +47,9 @@ class SolidScaffoldSecurityKeyHelper {
     required SolidSecurityKeyService? securityKeyService,
     required void Function(bool) onStatusChanged,
     required bool Function() isMounted,
-  }) : _securityKeyService = securityKeyService,
-       _onStatusChanged = onStatusChanged,
-       _isMounted = isMounted;
+  })  : _securityKeyService = securityKeyService,
+        _onStatusChanged = onStatusChanged,
+        _isMounted = isMounted;
 
   Future<void> updateStatusFromService(
     void Function(bool)? externalCallback,
@@ -59,9 +59,9 @@ class SolidScaffoldSecurityKeyHelper {
     try {
       final isKeySaved =
           await SolidScaffoldInitHelpers.updateSecurityKeyStatusFromService(
-            _securityKeyService,
-            externalCallback,
-          );
+        _securityKeyService,
+        externalCallback,
+      );
       if (_isMounted()) _onStatusChanged(isKeySaved);
     } finally {
       _isUpdating = false;
@@ -74,14 +74,14 @@ class SolidScaffoldSecurityKeyHelper {
     try {
       final hasKeyInMemory =
           await SolidScaffoldInitHelpers.loadSecurityKeyStatus(
-            _securityKeyService,
-            (hasKey) {
-              if (_isMounted()) {
-                _onStatusChanged(hasKey);
-                externalCallback?.call(hasKey);
-              }
-            },
-          );
+        _securityKeyService,
+        (hasKey) {
+          if (_isMounted()) {
+            _onStatusChanged(hasKey);
+            externalCallback?.call(hasKey);
+          }
+        },
+      );
       if (_isMounted()) _onStatusChanged(hasKeyInMemory);
       return hasKeyInMemory;
     } catch (e) {

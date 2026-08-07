@@ -129,8 +129,7 @@ Uint8List decodeContentBytes(String content) {
 
 /// Noto Sans Regular – used for page headers in printed documents.
 
-const String notoSansFontUrl =
-    'https://'
+const String notoSansFontUrl = 'https://'
     'fonts.gstatic.com/s/notosans/v36/'
     'o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d41P6zHtY.ttf';
 
@@ -140,8 +139,7 @@ const String notoSansFontName = 'NotoSans-Regular';
 
 /// Noto Sans Mono Regular – used for body text in printed documents.
 
-const String notoSansMonoFontUrl =
-    'https://'
+const String notoSansMonoFontUrl = 'https://'
     'fonts.gstatic.com/s/notosansmono/v30/'
     'BngrUXNETWXI6LwhGYvaxZikqZqK6fBq6kPvUce2oAZcdthSBUsYck4-_FNJ49rXVEQQL8Y.ttf';
 

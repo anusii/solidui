@@ -58,9 +58,8 @@ class SolidPreferencesSerialization {
     List<SolidAppBarActionItem> defaultActions,
   ) {
     final id = json['id'] as String;
-    final defaultAction = defaultActions
-        .where((action) => action.id == id)
-        .firstOrNull;
+    final defaultAction =
+        defaultActions.where((action) => action.id == id).firstOrNull;
 
     if (defaultAction == null) {
       return null;

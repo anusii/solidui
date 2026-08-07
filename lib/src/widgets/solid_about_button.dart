@@ -123,8 +123,7 @@ class _SolidAboutButtonState extends State<SolidAboutButton> {
     final applicationName =
         widget.config.applicationName ?? _packageName ?? 'Application';
 
-    final applicationVersion =
-        widget.config.applicationVersion ??
+    final applicationVersion = widget.config.applicationVersion ??
         (_version != null && _buildNumber != null
             ? '$_version+$_buildNumber'
             : _version) ??
@@ -221,8 +220,7 @@ class SolidAbout {
     final applicationName =
         config.applicationName ?? packageName ?? 'Application';
 
-    final applicationVersion =
-        config.applicationVersion ??
+    final applicationVersion = config.applicationVersion ??
         (version != null && buildNumber != null
             ? '$version+$buildNumber'
             : version) ??
@@ -448,8 +446,7 @@ class SolidAbout {
     actionButtons.add(
       Builder(
         builder: (dialogContext) => MarkdownTooltip(
-          message:
-              feedback?.effectiveTooltip ??
+          message: feedback?.effectiveTooltip ??
               const SolidFeedbackConfig(enabled: false).effectiveTooltip,
           child: TextButton.icon(
             icon: Icon(feedback?.effectiveIcon ?? Icons.feedback_outlined),
@@ -489,15 +486,14 @@ class SolidAbout {
       builder: (ctx) => Theme(
         data: Theme.of(ctx).copyWith(
           dialogTheme: Theme.of(ctx).dialogTheme.copyWith(
-            constraints: const BoxConstraints(maxWidth: 600),
-          ),
+                constraints: const BoxConstraints(maxWidth: 600),
+              ),
         ),
         child: AboutDialog(
           applicationName: applicationName,
           applicationVersion: applicationVersion,
           applicationIcon: config.applicationIcon,
-          applicationLegalese:
-              config.applicationLegalese ??
+          applicationLegalese: config.applicationLegalese ??
               '© ${DateTime.now().year} $applicationName\n\n',
           children: children,
         ),

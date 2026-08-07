@@ -64,8 +64,7 @@ Future<bool> createAccountPopup(
   Widget child, {
   required String serverUrl,
 }) async {
-  final message =
-      'Create a new account on $serverUrl.\n'
+  final message = 'Create a new account on $serverUrl.\n'
       'Enter an email address, a password, and the name for your new Pod.';
   const emailStr = 'account_email';
   const passwordStr = 'new_password';
@@ -170,8 +169,7 @@ Future<bool> createAccountPopup(
       duration = const Duration(seconds: 7);
       popDialog = false;
     } on CssAccountApiNotSupportedException {
-      msg =
-          'This Solid server does not support account creation'
+      msg = 'This Solid server does not support account creation'
           ' from within an app.';
       bgColor = Colors.red;
       duration = const Duration(seconds: 7);

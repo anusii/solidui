@@ -79,8 +79,7 @@ class SolidScaffoldHelpers {
     String versionToDisplay,
   ) {
     return MarkdownTooltip(
-      message:
-          config.versionConfig!.tooltip ??
+      message: config.versionConfig!.tooltip ??
           'Version: $versionToDisplay\n\n'
               'Tap to view changelog if available.',
       child: VersionWidget(
@@ -88,8 +87,7 @@ class SolidScaffoldHelpers {
         changelogUrl: config.versionConfig!.changelogUrl,
         showVersion: config.versionConfig!.showVersion,
         showDate: config.versionConfig!.showDate,
-        userTextStyle:
-            config.versionConfig!.appBarTextStyle ??
+        userTextStyle: config.versionConfig!.appBarTextStyle ??
             config.versionConfig!.userTextStyle,
         showUpdateButton: config.versionConfig!.showUpdateButton,
         downloadUrl: config.versionConfig!.downloadUrl,
@@ -104,11 +102,12 @@ class SolidScaffoldHelpers {
     SolidThemeToggleConfig themeConfig,
     ThemeMode currentThemeMode,
     VoidCallback? themeToggleCallback,
-  ) => SolidThemeToggleHelpers.buildThemeToggleButton(
-    themeConfig,
-    currentThemeMode,
-    themeToggleCallback,
-  );
+  ) =>
+      SolidThemeToggleHelpers.buildThemeToggleButton(
+        themeConfig,
+        currentThemeMode,
+        themeToggleCallback,
+      );
 
   /// Builds the system mode icon with an 'A' badge.
 
@@ -128,18 +127,19 @@ class SolidScaffoldHelpers {
     bool isLoggedIn = true,
     bool hasInviteOthersInOverflow = false,
     SolidInviteOthersConfig? inviteConfig,
-  }) => SolidOverflowMenuHelpers.buildOverflowMenuItems(
-    config,
-    themeToggle,
-    currentThemeMode,
-    aboutConfig,
-    hasThemeToggleInOverflow,
-    hasAboutInOverflow,
-    hasLogoutInOverflow: hasLogoutInOverflow,
-    isLoggedIn: isLoggedIn,
-    hasInviteOthersInOverflow: hasInviteOthersInOverflow,
-    inviteConfig: inviteConfig,
-  );
+  }) =>
+      SolidOverflowMenuHelpers.buildOverflowMenuItems(
+        config,
+        themeToggle,
+        currentThemeMode,
+        aboutConfig,
+        hasThemeToggleInOverflow,
+        hasAboutInOverflow,
+        hasLogoutInOverflow: hasLogoutInOverflow,
+        isLoggedIn: isLoggedIn,
+        hasInviteOthersInOverflow: hasInviteOthersInOverflow,
+        inviteConfig: inviteConfig,
+      );
 
   /// Builds overflow icon buttons for wider screens.
 
@@ -241,11 +241,12 @@ class SolidScaffoldHelpers {
     bool usesInternalManagement,
     SolidThemeNotifier solidThemeNotifier,
     SolidThemeToggleConfig? themeToggle,
-  ) => SolidThemeToggleHelpers.getCurrentThemeMode(
-    usesInternalManagement,
-    solidThemeNotifier,
-    themeToggle,
-  );
+  ) =>
+      SolidThemeToggleHelpers.getCurrentThemeMode(
+        usesInternalManagement,
+        solidThemeNotifier,
+        themeToggle,
+      );
 
   /// Gets theme toggle callback.
 
@@ -253,11 +254,12 @@ class SolidScaffoldHelpers {
     bool usesInternalManagement,
     SolidThemeNotifier solidThemeNotifier,
     SolidThemeToggleConfig? themeToggle,
-  ) => SolidThemeToggleHelpers.getThemeToggleCallback(
-    usesInternalManagement,
-    solidThemeNotifier,
-    themeToggle,
-  );
+  ) =>
+      SolidThemeToggleHelpers.getThemeToggleCallback(
+        usesInternalManagement,
+        solidThemeNotifier,
+        themeToggle,
+      );
 
   /// Checks if uses internal management.
 

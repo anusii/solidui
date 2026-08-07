@@ -252,9 +252,9 @@ class SolidOverflowMenuHelpers {
     SolidAppBarConfig config,
   ) {
     final item = config.overflowItems.cast<SolidOverflowMenuItem?>().firstWhere(
-      (item) => item?.id == actionItem.id,
-      orElse: () => null,
-    );
+          (item) => item?.id == actionItem.id,
+          orElse: () => null,
+        );
     if (item != null) {
       items.add(
         PopupMenuItem<String>(

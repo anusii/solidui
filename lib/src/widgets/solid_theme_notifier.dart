@@ -162,16 +162,16 @@ class SolidThemeNotifier extends ChangeNotifier {
   // ── Serialisation helpers ─────────────────────────────────────────────────
 
   static String _themeModeToString(ThemeMode mode) => switch (mode) {
-    ThemeMode.light => 'light',
-    ThemeMode.dark => 'dark',
-    ThemeMode.system => 'system',
-  };
+        ThemeMode.light => 'light',
+        ThemeMode.dark => 'dark',
+        ThemeMode.system => 'system',
+      };
 
   static ThemeMode _themeModeFromString(String? value) => switch (value) {
-    'light' => ThemeMode.light,
-    'dark' => ThemeMode.dark,
-    _ => ThemeMode.system, // default for null or unrecognised values
-  };
+        'light' => ThemeMode.light,
+        'dark' => ThemeMode.dark,
+        _ => ThemeMode.system, // default for null or unrecognised values
+      };
 }
 
 /// Global instance of the theme notifier.

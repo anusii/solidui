@@ -49,8 +49,7 @@ class SolidLoginSnackbarHelper {
     Duration? duration,
     bool showAction = true,
   }) {
-    final backgroundColor =
-        snackbarConfig.backgroundColor ??
+    final backgroundColor = snackbarConfig.backgroundColor ??
         (isDarkMode
             ? currentTheme.backgroundColor.withValues(alpha: 0.9)
             : currentTheme.backgroundColor.withValues(alpha: 0.7));

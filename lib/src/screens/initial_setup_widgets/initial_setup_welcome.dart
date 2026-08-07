@@ -124,8 +124,7 @@ SizedBox initialSetupWelcome(
                 Icon(
                   Icons.person_outline,
                   size: 18,
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
+                  color: Theme.of(context).textTheme.bodyMedium?.color ??
                       Colors.grey[700],
                 ),
                 const SizedBox(width: 6),
@@ -134,8 +133,7 @@ SizedBox initialSetupWelcome(
                     webId,
                     style: TextStyle(
                       fontSize: 14,
-                      color:
-                          Theme.of(context).textTheme.bodyMedium?.color ??
+                      color: Theme.of(context).textTheme.bodyMedium?.color ??
                           Colors.grey[700],
                     ),
                   ),

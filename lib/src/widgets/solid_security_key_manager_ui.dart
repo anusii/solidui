@@ -177,8 +177,7 @@ class SolidSecurityKeyManagerUI {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final appName = snapshot.data?.name;
-            final title =
-                configTitle ??
+            final title = configTitle ??
                 'Security Key Management - '
                     '${appName!.isNotEmpty ? appName[0].toUpperCase() + appName.substring(1) : ""}';
             return contentBuilder(title);

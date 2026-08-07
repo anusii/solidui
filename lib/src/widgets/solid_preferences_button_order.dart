@@ -92,10 +92,10 @@ class SolidPreferencesButtonOrderSection extends StatelessWidget {
             Text(
               overflowEnabled
                   ? 'Drag to reorder buttons. Use the eye icon to toggle '
-                        'visibility, and the menu icon to move to overflow on '
-                        'narrow screens:'
+                      'visibility, and the menu icon to move to overflow on '
+                      'narrow screens:'
                   : 'Drag to reorder buttons. Use the eye icon to toggle '
-                        'visibility:',
+                      'visibility:',
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),

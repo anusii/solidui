@@ -77,11 +77,11 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   /// and [_showFullPath].
 
   String _displayName(String name) => PathUtils.resourceDisplayName(
-    name,
-    showFullPath: _showFullPath,
-    showTitle: _showTitle,
-    titleData: widget.titleData,
-  );
+        name,
+        showFullPath: _showFullPath,
+        showTitle: _showTitle,
+        titleData: widget.titleData,
+      );
 
   /// Loads permission details data from the ACL on the POD server.
   ///
@@ -158,8 +158,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     // user must pick one from the dropdown first.
     _selectedResourceName =
         (widget.resourceNames != null && widget.resourceNames!.length > 1)
-        ? null
-        : displayResource;
+            ? null
+            : displayResource;
     if (displayResource != null) {
       getACLPerm = loadACLData(
         displayResource,
@@ -269,35 +269,36 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
     bool embedded = false,
     VoidCallback? onBack,
     required bool Function() getIsFile,
-  }) => PermissionPage(
-    resourceNames: widget.resourceNames,
-    initialSelectedResourceName: _selectedResourceName,
-    initialData: (
-      permDataMap: permDataMap,
-      permDataFile: permDataFile,
-      ownerWebId: _ownerWebId,
-      granterWebId: _granterWebId,
-      permHistoryList: permHistoryList,
-      noPermissionHistory: _noPermissionHistory,
-    ),
-    isFile: getIsFile(),
-    isExternalRes: widget.isExternalRes,
-    showFullPath: _showFullPath,
-    showTitle: _showTitle,
-    titleData: widget.titleData,
-    backgroundColor: widget.backgroundColor,
-    loadPermissions:
-        (name, {isFile = true, isExternalRes = false, silent = false}) =>
+  }) =>
+      PermissionPage(
+        resourceNames: widget.resourceNames,
+        initialSelectedResourceName: _selectedResourceName,
+        initialData: (
+          permDataMap: permDataMap,
+          permDataFile: permDataFile,
+          ownerWebId: _ownerWebId,
+          granterWebId: _granterWebId,
+          permHistoryList: permHistoryList,
+          noPermissionHistory: _noPermissionHistory,
+        ),
+        isFile: getIsFile(),
+        isExternalRes: widget.isExternalRes,
+        showFullPath: _showFullPath,
+        showTitle: _showTitle,
+        titleData: widget.titleData,
+        backgroundColor: widget.backgroundColor,
+        loadPermissions: (name,
+                {isFile = true, isExternalRes = false, silent = false}) =>
             _loadPermissionData(
-              name,
-              isFile: isFile,
-              isExternalRes: isExternalRes,
-              silent: silent,
-            ),
-    updatePermissionsFunction: _updatePermissions,
-    embedded: embedded,
-    onBack: onBack,
-  );
+          name,
+          isFile: isFile,
+          isExternalRes: isExternalRes,
+          silent: silent,
+        ),
+        updatePermissionsFunction: _updatePermissions,
+        embedded: embedded,
+        onBack: onBack,
+      );
 
   Widget _buildPermPage(
     BuildContext context, [
@@ -321,8 +322,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
 
     final PreferredSizeWidget? appBar;
     if (widget.showAppBar) {
-      appBar =
-          widget.customAppBar ??
+      appBar = widget.customAppBar ??
           defaultAppBar(
             context,
             widget.title,

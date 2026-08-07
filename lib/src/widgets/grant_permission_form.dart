@@ -141,7 +141,7 @@ class GrantPermissionForm extends StatefulWidget {
   /// the plain [onPermissionGranted] cannot do.
 
   final void Function(RecipientType recipientType, List<String> resourceNames)?
-  onRecipientTypeGranted;
+      onRecipientTypeGranted;
 
   /// Optional human-readable name for the resource, used in notification
   /// messages sent to recipients upon successful permission granting.
@@ -292,18 +292,18 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// Drop any individual WebID text typed by the user. Invoked by the
   /// Clear button on the individual WebID input widget.
   void clearIndWebIdInput() => setState(() {
-    finalWebIdList = [];
-    _pendingIndWebId = '';
-  });
+        finalWebIdList = [];
+        _pendingIndWebId = '';
+      });
 
   /// Drop any group text typed by the user. Invoked by the Clear button
   /// on the group WebID input widget.
   void clearGroupWebIdInput() => setState(() {
-    finalWebIdList = [];
-    selectedGroupName = '';
-    _pendingGroupName = '';
-    _pendingGroupWebIds = '';
-  });
+        finalWebIdList = [];
+        selectedGroupName = '';
+        _pendingGroupName = '';
+        _pendingGroupWebIds = '';
+      });
 
   /// Validate the individual WebID typed by the user and, when valid,
   /// populate [finalWebIdList]. Returns true when the value is acceptable
@@ -332,8 +332,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     final result = await validateWebId(webId);
     if (!mounted) return false;
     if (!result.isValid) {
-      final msg =
-          webIdCheckMessage(result, webId: webId) ??
+      final msg = webIdCheckMessage(result, webId: webId) ??
           'This WebID does not exist. Please enter the correct WebID.';
       await _alert(msg);
       return false;
@@ -387,8 +386,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     if (failures.isNotEmpty) {
       // Surface the most informative failure to the user.
       final (failedWebId, failedResult) = pickGroupFailureToReport(failures);
-      final msg =
-          webIdCheckMessage(failedResult, webId: failedWebId) ??
+      final msg = webIdCheckMessage(failedResult, webId: failedWebId) ??
           'At least one of the Web IDs you entered is not valid';
       await _alert(msg);
       return false;
@@ -404,46 +402,46 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
   /// Update checked status of access mode boxes to show
   /// selected access modes.
   void updateCheckbox(bool newValue, AccessMode accessMode) => setState(() {
-    switch (accessMode) {
-      case AccessMode.read:
-        readChecked = newValue;
-      case AccessMode.write:
-        writeChecked = newValue;
-      case AccessMode.control:
-        controlChecked = newValue;
-      case AccessMode.append:
-        appendChecked = newValue;
-    }
-    if (newValue) {
-      selectedPermList.add(accessMode.mode);
-    } else {
-      selectedPermList.remove(accessMode.mode);
-    }
-  });
+        switch (accessMode) {
+          case AccessMode.read:
+            readChecked = newValue;
+          case AccessMode.write:
+            writeChecked = newValue;
+          case AccessMode.control:
+            controlChecked = newValue;
+          case AccessMode.append:
+            appendChecked = newValue;
+        }
+        if (newValue) {
+          selectedPermList.add(accessMode.mode);
+        } else {
+          selectedPermList.remove(accessMode.mode);
+        }
+      });
 
   /// Define button click actions for each recipient type button
 
   /// Set recipients to public
   void _setRecipientsToPublic() => setState(() {
-    selectedRecipientType = RecipientType.public;
-    finalWebIdList = [publicAgent.value];
-  });
+        selectedRecipientType = RecipientType.public;
+        finalWebIdList = [publicAgent.value];
+      });
 
   /// Set recipients to authorised users
   void _setRecipientsToAuthUsers() => setState(() {
-    selectedRecipientType = RecipientType.authUser;
-    finalWebIdList = [authenticatedAgent.value];
-  });
+        selectedRecipientType = RecipientType.authUser;
+        finalWebIdList = [authenticatedAgent.value];
+      });
 
   /// Select individual recipient
   void _setRecipientsToIndividual() => setState(() {
-    selectedRecipientType = RecipientType.individual;
-  });
+        selectedRecipientType = RecipientType.individual;
+      });
 
   /// Select a group of recipients
   void _setRecipientsToGroup() => setState(() {
-    selectedRecipientType = RecipientType.group;
-  });
+        selectedRecipientType = RecipientType.group;
+      });
 
   @override
   Widget build(BuildContext context) {

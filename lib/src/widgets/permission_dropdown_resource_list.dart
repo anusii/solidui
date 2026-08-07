@@ -60,9 +60,9 @@ class PermissionDropdownResourceList extends StatelessWidget {
     this.showTitle = false,
     this.titleData,
   }) : assert(
-         !showTitle || titleData != null,
-         'titleData must not be null when showTitle is true',
-       );
+          !showTitle || titleData != null,
+          'titleData must not be null when showTitle is true',
+        );
 
   final List<String> resourceNames;
   final String? selectedResourceName;
@@ -73,11 +73,11 @@ class PermissionDropdownResourceList extends StatelessWidget {
   final Future<void> Function(String name) onSelected;
 
   String _displayName(String name) => PathUtils.resourceDisplayName(
-    name,
-    showFullPath: showFullPath,
-    showTitle: showTitle,
-    titleData: titleData,
-  );
+        name,
+        showFullPath: showFullPath,
+        showTitle: showTitle,
+        titleData: titleData,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -95,11 +95,9 @@ class PermissionDropdownResourceList extends StatelessWidget {
             isFile ? 'Select File' : 'Select Folder',
             style: const TextStyle(fontSize: 14),
           ),
-          hintText: isFile
-              ? 'Pick file from the list'
-              : 'Pick folder from the list',
-          textStyle:
-              Theme.of(
+          hintText:
+              isFile ? 'Pick file from the list' : 'Pick folder from the list',
+          textStyle: Theme.of(
                 context,
               ).dropdownMenuTheme.textStyle?.copyWith(fontSize: 12) ??
               const TextStyle(fontSize: 12),
@@ -124,22 +122,20 @@ class PermissionDropdownResourceList extends StatelessWidget {
             return DropdownMenuEntry(
               value: name,
               label: _displayName(name),
-              trailingIcon: isSelected
-                  ? Icon(Icons.check, color: textColor)
-                  : null,
+              trailingIcon:
+                  isSelected ? Icon(Icons.check, color: textColor) : null,
               style: ButtonStyle(
                 textStyle: WidgetStatePropertyAll(
                   Theme.of(context).dropdownMenuTheme.textStyle?.copyWith(
-                        fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ) ??
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ) ??
                       TextStyle(
                         fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                 ),
                 // Only set foregroundColor when textColor is non-null.

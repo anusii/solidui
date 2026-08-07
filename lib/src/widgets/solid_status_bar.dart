@@ -70,8 +70,7 @@ class SolidStatusBar extends StatelessWidget {
   bool _shouldShowStatusBar(double screenWidth) {
     if (config.showOnNarrowScreens) return true;
 
-    final threshold =
-        config.narrowScreenThreshold ??
+    final threshold = config.narrowScreenThreshold ??
         NavigationConstants.narrowScreenThreshold;
 
     return screenWidth > threshold;
@@ -110,8 +109,7 @@ class SolidStatusBar extends StatelessWidget {
     TextStyle? style,
   }) {
     final theme = Theme.of(context);
-    final defaultStyle =
-        theme.textTheme.bodySmall?.copyWith(
+    final defaultStyle = theme.textTheme.bodySmall?.copyWith(
           color: theme.colorScheme.primary,
           fontSize: 13,
         ) ??
@@ -166,8 +164,7 @@ class SolidStatusBar extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap:
-              loginStatus.onTap ??
+          onTap: loginStatus.onTap ??
               () => SolidAuthHandler.instance.handleAuthAction(context),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -280,8 +277,7 @@ class SolidStatusBar extends StatelessWidget {
       barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (BuildContext context) => SolidSecurityKeyManager(
         config: SolidSecurityKeyManagerConfig(
-          appWidget:
-              config.appWidget ??
+          appWidget: config.appWidget ??
               const SizedBox(), // Provide default empty widget
           title: config.title ?? 'Security Key Management',
         ),
@@ -423,20 +419,21 @@ class SolidStatusBar extends StatelessWidget {
     required ColorScheme cs,
     required double height,
     required Widget child,
-  }) => Container(
-    height: height,
-    padding: config.padding,
-    decoration: BoxDecoration(
-      color: config.backgroundColor ?? cs.surface,
-      border: Border(
-        top: BorderSide(
-          color: cs.outlineVariant.withValues(alpha: 0.3),
-          width: 1,
+  }) =>
+      Container(
+        height: height,
+        padding: config.padding,
+        decoration: BoxDecoration(
+          color: config.backgroundColor ?? cs.surface,
+          border: Border(
+            top: BorderSide(
+              color: cs.outlineVariant.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
         ),
-      ),
-    ),
-    child: child,
-  );
+        child: child,
+      );
 
   /// Interleaves a list of widgets with subtle separator dots.
 

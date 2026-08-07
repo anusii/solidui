@@ -79,7 +79,7 @@ class SolidSecurityKeyManagerDialogs {
     TextEditingController confirmKeyController,
     Future<void> Function() onKeyChanged,
     Future<bool> Function(String key, String confirmKey)
-    handleSubmissionFunction,
+        handleSubmissionFunction,
   ) async {
     return showDialog(
       context: context,

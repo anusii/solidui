@@ -208,9 +208,8 @@ class PathBar extends StatelessWidget {
                               context,
                               icon: Icons.arrow_forward,
                               label: 'Forward',
-                              onPressed: canGoForward
-                                  ? onNavigateForward
-                                  : null,
+                              onPressed:
+                                  canGoForward ? onNavigateForward : null,
                             ),
                             _buildNavButton(
                               context,
@@ -450,9 +449,8 @@ class PathBar extends StatelessWidget {
         ? Theme.of(context).colorScheme.error
         : Theme.of(context).colorScheme.primary;
 
-    final tooltip = tooltipMessage != null
-        ? '**$label**\n\n$tooltipMessage'
-        : '**$label**';
+    final tooltip =
+        tooltipMessage != null ? '**$label**\n\n$tooltipMessage' : '**$label**';
 
     return MarkdownTooltip(
       message: tooltip,

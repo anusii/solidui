@@ -147,7 +147,7 @@ class SolidNavBar extends StatelessWidget {
                     color: isSelected
                         ? cs.primary
                         : (tab.color ??
-                              cs.onSurfaceVariant.withValues(alpha: 0.7)),
+                            cs.onSurfaceVariant.withValues(alpha: 0.7)),
                   );
 
                   // Wrap with tooltip if available.

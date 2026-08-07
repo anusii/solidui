@@ -147,31 +147,31 @@ class SolidFileUploadCallbacks {
   /// default behavior.
 
   const SolidFileUploadCallbacks.defaults()
-    : onUpload = _defaultCallback,
-      onImportCsv = _defaultCallback,
-      onExportCsv = _defaultCallback,
-      onImportSuccess = null,
-      onImportProfile = _defaultCallback,
-      onExportProfile = _defaultCallback,
-      onVisualiseJson = _defaultCallback,
-      onSelectLocalJson = _defaultCallback,
-      onPreviewFile = _defaultCallback,
-      onConvertToJson = _defaultCallback;
+      : onUpload = _defaultCallback,
+        onImportCsv = _defaultCallback,
+        onExportCsv = _defaultCallback,
+        onImportSuccess = null,
+        onImportProfile = _defaultCallback,
+        onExportProfile = _defaultCallback,
+        onVisualiseJson = _defaultCallback,
+        onSelectLocalJson = _defaultCallback,
+        onPreviewFile = _defaultCallback,
+        onConvertToJson = _defaultCallback;
 
   /// Creates a default instance with disabled callbacks (null values).
   /// This will make all upload features appear disabled/greyed out.
 
   const SolidFileUploadCallbacks.disabled()
-    : onUpload = null,
-      onImportCsv = null,
-      onExportCsv = null,
-      onImportSuccess = null,
-      onImportProfile = null,
-      onExportProfile = null,
-      onVisualiseJson = null,
-      onSelectLocalJson = null,
-      onPreviewFile = null,
-      onConvertToJson = null;
+      : onUpload = null,
+        onImportCsv = null,
+        onExportCsv = null,
+        onImportSuccess = null,
+        onImportProfile = null,
+        onExportProfile = null,
+        onVisualiseJson = null,
+        onSelectLocalJson = null,
+        onPreviewFile = null,
+        onConvertToJson = null;
 
   /// Default no-operation callback that does nothing when invoked.
 

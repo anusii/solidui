@@ -110,8 +110,7 @@ class LoadingDialogController {
           controller._dialogContext = dialogContext;
           return AlertDialog(
             title: title != null ? Text(title) : null,
-            content:
-                child ??
+            content: child ??
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

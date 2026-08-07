@@ -83,8 +83,7 @@ class ResourceDisplayModeControl extends StatelessWidget {
 
   Widget _buildRadioGroup(BuildContext context) {
     const modes = ['File Url', 'Filename', 'File Title'];
-    final activeColor =
-        Theme.of(
+    final activeColor = Theme.of(
           context,
         ).switchTheme.thumbColor?.resolve({WidgetState.selected}) ??
         ActionColors.success;
@@ -136,8 +135,7 @@ class ResourceDisplayModeControl extends StatelessWidget {
         ),
         Switch(
           value: showFullPath,
-          activeThumbColor:
-              Theme.of(
+          activeThumbColor: Theme.of(
                 context,
               ).switchTheme.thumbColor?.resolve({WidgetState.selected}) ??
               ActionColors.success,

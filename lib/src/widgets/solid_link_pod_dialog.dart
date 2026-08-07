@@ -66,9 +66,9 @@ class SolidLinkPodDialog extends StatefulWidget {
   /// Opens the dialog.
 
   static Future<void> show(BuildContext context) => showDialog<void>(
-    context: context,
-    builder: (_) => const SolidLinkPodDialog(),
-  );
+        context: context,
+        builder: (_) => const SolidLinkPodDialog(),
+      );
 
   @override
   State<SolidLinkPodDialog> createState() => _SolidLinkPodDialogState();
@@ -280,13 +280,13 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
                       Text(
                         _stage == _LinkStage.addToken
                             ? 'Enter the Pod server you want to link and the '
-                                  'verification token it gave you. This adds a '
-                                  'temporary triple to your WebID proving you '
-                                  'own it.'
+                                'verification token it gave you. This adds a '
+                                'temporary triple to your WebID proving you '
+                                'own it.'
                             : 'Enter the Pod server you are linking (if not '
-                                  'already filled in). This removes the '
-                                  'temporary verification token and registers '
-                                  'the Pod server as a login issuer on your WebID.',
+                                'already filled in). This removes the '
+                                'temporary verification token and registers '
+                                'the Pod server as a login issuer on your WebID.',
                         style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                       const Gap(16),
@@ -357,15 +357,15 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
             onPressed: _busy
                 ? null
                 : (_stage == _LinkStage.addToken
-                      ? (_issuerAlreadyLinked
-                            ? _handleRemoveIssuerAndAddToken
-                            : _handleAddToken)
-                      : _handleFinishLinking),
+                    ? (_issuerAlreadyLinked
+                        ? _handleRemoveIssuerAndAddToken
+                        : _handleAddToken)
+                    : _handleFinishLinking),
             child: Text(
               _stage == _LinkStage.addToken
                   ? (_issuerAlreadyLinked
-                        ? 'Remove Issuer & Add Token'
-                        : 'Add Token')
+                      ? 'Remove Issuer & Add Token'
+                      : 'Add Token')
                   : 'Finish Linking',
             ),
           ),
@@ -390,9 +390,8 @@ class _MessageBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = isError
-        ? colorScheme.errorContainer
-        : colorScheme.secondaryContainer;
+    final background =
+        isError ? colorScheme.errorContainer : colorScheme.secondaryContainer;
     final foreground = isError
         ? colorScheme.onErrorContainer
         : colorScheme.onSecondaryContainer;

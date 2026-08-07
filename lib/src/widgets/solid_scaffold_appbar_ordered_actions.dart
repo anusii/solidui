@@ -147,15 +147,13 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.themeToggle,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         config.defaultOverflowActionIds.contains(
           SolidAppBarActionIds.themeToggle,
         );
     final order = actionConfig?.order ?? 0;
 
-    final shouldShow =
-        isVisible &&
+    final shouldShow = isVisible &&
         (!isVeryNarrowScreen || !isInOverflow) &&
         SolidAppBarVisibilityHelper.shouldShowThemeToggle(
           themeToggle,
@@ -189,8 +187,7 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.notifications,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         config.defaultOverflowActionIds.contains(
           SolidAppBarActionIds.notifications,
         );
@@ -219,13 +216,11 @@ class SolidAppBarOrderedActionsBuilder {
       final actionId = action.id ?? 'action_$i';
       final actionConfig = SolidAppBarActionsManager.getActionConfig(actionId);
       final isVisible = actionConfig?.isVisible ?? true;
-      final isInOverflow =
-          actionConfig?.showInOverflow ??
+      final isInOverflow = actionConfig?.showInOverflow ??
           config.defaultOverflowActionIds.contains(actionId);
       final order = actionConfig?.order ?? (100 + i);
 
-      final shouldShow =
-          isVisible &&
+      final shouldShow = isVisible &&
           (!isVeryNarrowScreen || !isInOverflow) &&
           SolidAppBarVisibilityHelper.shouldShowAction(
             action,
@@ -300,8 +295,7 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.logout,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         config.defaultOverflowActionIds.contains(SolidAppBarActionIds.logout);
 
     // Default order keeps the auth button as the second-to-last
@@ -383,8 +377,7 @@ class SolidAppBarOrderedActionsBuilder {
       SolidAppBarActionIds.about,
     );
     final isVisible = actionConfig?.isVisible ?? true;
-    final isInOverflow =
-        actionConfig?.showInOverflow ??
+    final isInOverflow = actionConfig?.showInOverflow ??
         config.defaultOverflowActionIds.contains(SolidAppBarActionIds.about);
     final order = actionConfig?.order ?? 999999;
 

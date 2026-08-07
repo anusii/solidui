@@ -196,7 +196,7 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
 
     final cached =
         SolidOwnerProfileService.instance.cachedProfile(ownerWebId) ??
-        _remoteProfile;
+            _remoteProfile;
     return _buildContent(
       context,
       avatarBytes: cached?.avatarBytes,

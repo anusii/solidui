@@ -185,10 +185,7 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
                     FormBuilderValidators.required(),
                     (val) {
                       if (val !=
-                          widget
-                              .formKey
-                              .currentState!
-                              .fields[securityKeyStr]
+                          widget.formKey.currentState!.fields[securityKeyStr]
                               ?.value) {
                         return 'Security keys do not match';
                       }

@@ -122,8 +122,8 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
   Future<void> _loadLocalState() async {
     final prefs = await SharedPreferences.getInstance();
     _readIds = (prefs.getStringList(solidReadNotificationsKey) ?? []).toSet();
-    _deletedIds = (prefs.getStringList(_solidDeletedNotificationsKey) ?? [])
-        .toSet();
+    _deletedIds =
+        (prefs.getStringList(_solidDeletedNotificationsKey) ?? []).toSet();
   }
 
   Future<void> _markAsRead(String id) async {
@@ -174,9 +174,8 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
 
       // Filter out anything the user has deleted locally.
 
-      final filtered = byId.values
-          .where((n) => !_deletedIds.contains(n.id))
-          .toList();
+      final filtered =
+          byId.values.where((n) => !_deletedIds.contains(n.id)).toList();
 
       setState(() {
         _notifications = filtered;

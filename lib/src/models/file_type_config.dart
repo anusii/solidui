@@ -39,8 +39,8 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 /// specific [FileTypeConfig] instances. Return `null` to fall through to the
 /// default generic behaviour.
 
-typedef FileTypeResolver =
-    FileTypeConfig? Function(String normalisedPath, String? basePath);
+typedef FileTypeResolver = FileTypeConfig? Function(
+    String normalisedPath, String? basePath);
 
 /// Configuration for different file types.
 
@@ -115,15 +115,12 @@ class FileTypeConfig {
 
     // Generic fallback — derive a friendly display name from the path.
 
-    String effectiveBasePath = basePath != null
-        ? PathUtils.normalise(basePath)
-        : '';
+    String effectiveBasePath =
+        basePath != null ? PathUtils.normalise(basePath) : '';
 
     if (effectiveBasePath.isEmpty) {
-      final segments = normalisedPath
-          .split('/')
-          .where((s) => s.isNotEmpty)
-          .toList();
+      final segments =
+          normalisedPath.split('/').where((s) => s.isNotEmpty).toList();
 
       // Construct a reasonable base path — typically the first 2 segments
       // for most cases.

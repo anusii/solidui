@@ -95,8 +95,7 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
   bool get _hasChanges {
     final nameChanged =
         _nameController.text.trim() != (solidProfileNotifier.displayName ?? '');
-    final avatarChanged =
-        _avatarRemoved ||
+    final avatarChanged = _avatarRemoved ||
         !identical(_pendingAvatar, solidProfileNotifier.avatarBytes);
     final privacyChanged = _pendingPrivacy != solidProfileNotifier.privacy;
     return nameChanged || avatarChanged || privacyChanged;
@@ -371,9 +370,8 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _isSaving
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed:
+                        _isSaving ? null : () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
                   const SizedBox(width: 8),

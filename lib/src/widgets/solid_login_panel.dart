@@ -84,9 +84,8 @@ class SolidLoginPanel {
               controller: webIdController,
               themeMode: currentTheme,
               focusNode: serverInputFocusNode,
-              onFieldSubmitted: onServerSubmitted != null
-                  ? (_) => onServerSubmitted()
-                  : null,
+              onFieldSubmitted:
+                  onServerSubmitted != null ? (_) => onServerSubmitted() : null,
             ),
           ),
           const SizedBox(height: 20.0),
@@ -174,8 +173,8 @@ class SolidLoginPanel {
   }) {
     final loginPanelInset =
         (isVeryNarrowLoginScreen(context) || !isNarrowLoginScreen(context))
-        ? 0.05
-        : 0.25;
+            ? 0.05
+            : 0.25;
 
     return Container(
       margin: EdgeInsets.symmetric(

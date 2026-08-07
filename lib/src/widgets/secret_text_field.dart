@@ -120,9 +120,8 @@ class _SecretTextFieldState extends State<SecretTextField> {
       // shows while typing: TextInputType.visiblePassword disables the input
       // method's character preview without affecting obscureText behaviour.
       // Plain-text fields use the standard text keyboard.
-      keyboardType: widget.obscure
-          ? TextInputType.visiblePassword
-          : TextInputType.text,
+      keyboardType:
+          widget.obscure ? TextInputType.visiblePassword : TextInputType.text,
       enableSuggestions: false,
       autocorrect: false,
       decoration: InputDecoration(

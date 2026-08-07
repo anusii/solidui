@@ -72,7 +72,7 @@ class FileBrowserContent extends StatelessWidget {
   /// Callback to add or remove a batch of item keys in one operation.
 
   final void Function(List<String> keys, {required bool selected})
-  onBatchSetSelection;
+      onBatchSetSelection;
 
   const FileBrowserContent({
     super.key,

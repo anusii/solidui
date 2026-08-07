@@ -297,57 +297,57 @@ class SolidOwnerColourPair {
 
 const List<SolidOwnerColourPair> accessibleOwnerColourPalette =
     <SolidOwnerColourPair>[
-      // Deep navy blue.
-      SolidOwnerColourPair(
-        background: Color(0xFF1F4E79),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Burnt orange / rust.
-      SolidOwnerColourPair(
-        background: Color(0xFFB35900),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Forest green.
-      SolidOwnerColourPair(
-        background: Color(0xFF2E7D32),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Royal purple.
-      SolidOwnerColourPair(
-        background: Color(0xFF6A1B9A),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Raspberry / dark pink.
-      SolidOwnerColourPair(
-        background: Color(0xFFC2185B),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Deep teal.
-      SolidOwnerColourPair(
-        background: Color(0xFF00695C),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Chocolate brown.
-      SolidOwnerColourPair(
-        background: Color(0xFF5D4037),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Blue-grey slate.
-      SolidOwnerColourPair(
-        background: Color(0xFF455A64),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Magenta.
-      SolidOwnerColourPair(
-        background: Color(0xFFAD1457),
-        foreground: Color(0xFFFFFFFF),
-      ),
-      // Cerulean blue.
-      SolidOwnerColourPair(
-        background: Color(0xFF01579B),
-        foreground: Color(0xFFFFFFFF),
-      ),
-    ];
+  // Deep navy blue.
+  SolidOwnerColourPair(
+    background: Color(0xFF1F4E79),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Burnt orange / rust.
+  SolidOwnerColourPair(
+    background: Color(0xFFB35900),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Forest green.
+  SolidOwnerColourPair(
+    background: Color(0xFF2E7D32),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Royal purple.
+  SolidOwnerColourPair(
+    background: Color(0xFF6A1B9A),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Raspberry / dark pink.
+  SolidOwnerColourPair(
+    background: Color(0xFFC2185B),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Deep teal.
+  SolidOwnerColourPair(
+    background: Color(0xFF00695C),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Chocolate brown.
+  SolidOwnerColourPair(
+    background: Color(0xFF5D4037),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Blue-grey slate.
+  SolidOwnerColourPair(
+    background: Color(0xFF455A64),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Magenta.
+  SolidOwnerColourPair(
+    background: Color(0xFFAD1457),
+    foreground: Color(0xFFFFFFFF),
+  ),
+  // Cerulean blue.
+  SolidOwnerColourPair(
+    background: Color(0xFF01579B),
+    foreground: Color(0xFFFFFFFF),
+  ),
+];
 
 /// Returns a stable accent colour pair for [webId] drawn from
 /// [accessibleOwnerColourPalette].

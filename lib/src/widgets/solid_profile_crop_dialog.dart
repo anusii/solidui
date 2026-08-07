@@ -146,9 +146,8 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _isCropping
-                        ? null
-                        : () => Navigator.of(context).pop(),
+                    onPressed:
+                        _isCropping ? null : () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
                   const SizedBox(width: 8),
@@ -191,9 +190,8 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
   /// Captures the RepaintBoundary, clips to a circle, and encodes as PNG.
 
   Future<Uint8List> _captureCircularPng() async {
-    final boundary =
-        _repaintKey.currentContext!.findRenderObject()!
-            as RenderRepaintBoundary;
+    final boundary = _repaintKey.currentContext!.findRenderObject()!
+        as RenderRepaintBoundary;
 
     // Capture at sufficient resolution.
     final pixelRatio = _cropOutputSize / boundary.size.width;

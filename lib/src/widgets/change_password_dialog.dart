@@ -76,8 +76,7 @@ Future<bool> changePasswordPopup(BuildContext context, Widget child) async {
     );
   }
 
-  const message =
-      'Please enter your account email address, the current'
+  const message = 'Please enter your account email address, the current'
       ' password, the new password, and repeat the new password.';
   const emailStr = 'account_email';
   const currentPasswordStr = 'current_password';
@@ -177,8 +176,7 @@ Future<bool> changePasswordPopup(BuildContext context, Widget child) async {
       duration = const Duration(seconds: 7);
       popDialog = false;
     } on CssAccountApiNotSupportedException {
-      msg =
-          'This Solid server does not support changing the password'
+      msg = 'This Solid server does not support changing the password'
           ' from within an app.';
       bgColor = Colors.red;
       duration = const Duration(seconds: 7);

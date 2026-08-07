@@ -284,9 +284,8 @@ extension BrowserNavigation on SolidFileBrowserState {
               _homePath,
             );
             if (relativePath.isNotEmpty) {
-              final segments = relativePath
-                  .split('/')
-                  .where((s) => s.isNotEmpty);
+              final segments =
+                  relativePath.split('/').where((s) => s.isNotEmpty);
               var currentBuildPath = _homePath;
               for (final segment in segments) {
                 currentBuildPath = PathUtils.combine(currentBuildPath, segment);

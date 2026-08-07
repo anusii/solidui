@@ -147,8 +147,7 @@ class SolidThemeToggleConfig {
     ThemeMode themeMode, [
     SolidThemeModeConfig? modeConfig,
   ]) {
-    final enabledModes =
-        modeConfig?.enabledModes ??
+    final enabledModes = modeConfig?.enabledModes ??
         [ThemeMode.system, ThemeMode.light, ThemeMode.dark];
     final smartToggle = modeConfig?.smartToggle ?? true;
 

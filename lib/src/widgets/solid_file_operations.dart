@@ -55,8 +55,7 @@ class SolidFileOperations {
     Future<SolidFunctionCallStatus> Function(
       String uploadPath,
       String fileContent,
-    )
-    uploadFunction,
+    ) uploadFunction,
   ) async {
     if (fileState.uploadFile == null) return fileState;
 
@@ -145,8 +144,7 @@ class SolidFileOperations {
 
       String? outputFile = await FilePicker.saveFile(
         dialogTitle: 'Save file as:',
-        fileName:
-            fileState.cleanFileName ??
+        fileName: fileState.cleanFileName ??
             fileState.remoteFileName?.replaceAll('.enc.ttl', ''),
       );
 

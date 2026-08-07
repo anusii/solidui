@@ -221,8 +221,7 @@ class BackupAppMismatchException implements Exception {
   final String currentAppId;
 
   @override
-  String toString() =>
-      'BackupAppMismatchException: backup was created by '
+  String toString() => 'BackupAppMismatchException: backup was created by '
       '"$backupAppId" but this application is "$currentAppId"';
 }
 
@@ -253,20 +252,20 @@ class _BackupEntry {
   });
 
   factory _BackupEntry.fromJson(Map<String, dynamic> json) => _BackupEntry(
-    path: json['path'] as String,
-    content: json['content'] as String,
-    encrypted: json['encrypted'] as bool? ?? true,
-  );
+        path: json['path'] as String,
+        content: json['content'] as String,
+        encrypted: json['encrypted'] as bool? ?? true,
+      );
 
   final String path;
   final String content;
   final bool encrypted;
 
   Map<String, dynamic> toJson() => {
-    'path': path,
-    'content': content,
-    'encrypted': encrypted,
-  };
+        'path': path,
+        'content': content,
+        'encrypted': encrypted,
+      };
 }
 
 // Service.

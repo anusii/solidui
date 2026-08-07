@@ -115,7 +115,7 @@ class ShareResourceButton extends StatefulWidget {
   /// [GrantPermissionForm.onRecipientTypeGranted].
 
   final void Function(RecipientType recipientType, List<String> resourceNames)?
-  onRecipientTypeGranted;
+      onRecipientTypeGranted;
 
   /// Optional human-readable name for the resource, used in notification
   /// messages sent to recipients upon successful permission granting.
@@ -206,10 +206,10 @@ class _ShareResourceButtonState extends State<ShareResourceButton> {
       // theme elevated button colour, or the elevated button default.
       style: widget.buttonColor != null
           ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
-              backgroundColor: WidgetStateProperty.all<Color>(
-                widget.buttonColor!,
-              ),
-            )
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  widget.buttonColor!,
+                ),
+              )
           : Theme.of(context).elevatedButtonTheme.style,
       onPressed: () async {
         // Resolve resource name: use first of resourceNames if set,

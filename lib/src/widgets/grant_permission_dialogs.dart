@@ -176,13 +176,12 @@ Future<bool> confirmPublicSharingDecryption(
       : 'Share this file with all signed-in users?';
   final audienceSummary = isPublic
       ? 'Anyone on the internet — including people without a Data Vault — '
-            'will be able to read this file simply by opening its URL in a '
-            'web browser.'
+          'will be able to read this file simply by opening its URL in a '
+          'web browser.'
       : 'Every person who is signed in to a Data Vault will be able to '
-            'read this file by opening its URL while logged in.';
-  final actionLabel = isPublic
-      ? 'Share Publicly'
-      : 'Share with Signed-In Users';
+          'read this file by opening its URL while logged in.';
+  final actionLabel =
+      isPublic ? 'Share Publicly' : 'Share with Signed-In Users';
 
   final confirmed = await showDialog<bool>(
     context: context,

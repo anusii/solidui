@@ -69,8 +69,8 @@ class SolidPreferencesNotifier extends ChangeNotifier {
   /// Creates a new SolidPreferencesNotifier with optional initial configuration.
 
   SolidPreferencesNotifier([SolidPreferencesConfig? initialConfig])
-    : _config = initialConfig ?? const SolidPreferencesConfig(),
-      _defaultAppBarActions = initialConfig?.appBarActions ?? const [];
+      : _config = initialConfig ?? const SolidPreferencesConfig(),
+        _defaultAppBarActions = initialConfig?.appBarActions ?? const [];
 
   /// Sets the default AppBar actions.
   /// These are used to look up icon definitions when loading from storage.
@@ -239,9 +239,9 @@ class SolidPreferencesNotifier extends ChangeNotifier {
       if (restoredActions.isNotEmpty) {
         final mergedActions =
             SolidPreferencesSerialization.mergeRestoredActions(
-              restoredActions,
-              actions,
-            );
+          restoredActions,
+          actions,
+        );
         _config = _config.copyWith(appBarActions: mergedActions);
         _saveAppBarActions();
         notifyListeners();
