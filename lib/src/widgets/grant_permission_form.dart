@@ -49,6 +49,7 @@ import 'package:solidui/solidui.dart'
         successMsg,
         updatePermissionMsg;
 import 'package:solidui/src/utils/solid_alert.dart';
+import 'package:solidui/src/utils/web_id_parser.dart' show WebIdParts;
 import 'package:solidui/src/utils/webid_message.dart' show webIdCheckMessage;
 import 'package:solidui/src/widgets/grant_permission_dialogs.dart';
 import 'package:solidui/src/widgets/grant_permission_helpers_ui.dart';
@@ -556,6 +557,50 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
               return;
             }
             if (!context.mounted) return;
+
+            // Granting to a specific individual/group revokes any existing
+            // Public/Authenticated User grant and re-encrypts the resource
+            // (see `grantPermission`'s `revokePublicAccessOnSpecificGrant`).
+            // Confirm with the user before doing so, mirroring the warning
+            // above for the reverse direction.
+            if (selectedRecipientType == RecipientType.individual ||
+                selectedRecipientType == RecipientType.group) {
+              final existingClassPerms = <RecipientType, List<String>>{};
+              for (final name in widget.resourceNames) {
+                existingClassPerms.addAll(
+                  await getUserClassPermissions(
+                    fileName: name,
+                    isFile: widget.isFile,
+                    isExternalRes: widget.isExternalRes,
+                  ),
+                );
+              }
+              if (!context.mounted) return;
+              if (existingClassPerms.isNotEmpty) {
+                final recipientLabel =
+                    selectedRecipientType == RecipientType.individual
+                        ? (finalWebIdList.isNotEmpty
+                            ? (WebIdParts.tryParse(
+                                  finalWebIdList.first.toString(),
+                                )?.username ??
+                                finalWebIdList.first.toString())
+                            : 'this recipient')
+                        : selectedGroupName;
+                final proceed = await confirmRevokeSharedAccessForSpecificGrant(
+                  context,
+                  existingClassPerms.keys.toSet(),
+                  selectedRecipientType,
+                  recipientLabel,
+                );
+                if (!context.mounted) return;
+                if (!proceed) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Action cancelled')),
+                  );
+                  return;
+                }
+              }
+            }
 
             // Capture the ScaffoldMessenger now, while the dialog and its host
             // page are still mounted, so the success feedback can be shown

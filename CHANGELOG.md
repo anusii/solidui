@@ -16,9 +16,9 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
-+ Better messaging on backup restore [1.0.30 20260805 tonypioneer]
-+ Dismiss snackbars with buttons [1.0.29 20260731 gjw]
-+ Remove redundant webid in menu [1.0.28 20260730 jesscmoore]
++ Confirm switch public to private sharing [1.0.30 20260728 jesscmoore]
++ Better messaging on backup restore [1.0.29 20260805 tonypioneer]
++ Dismiss snack bars with buttons [1.0.28 20260731 gjw]
 + Remove redundant webid menu item [1.0.27 20260730 jesscmoore]
 + Bug fix auto-login when no domain folder on server [1.0.26 20260729 gjw]
 + Add sharing permission recipientType callback [1.0.25 20260728 jesscmoore]
