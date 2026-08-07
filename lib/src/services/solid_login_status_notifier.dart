@@ -66,8 +66,9 @@ class SolidLoginStatusNotifier extends ChangeNotifier {
     try {
       final fetched = await getWebId();
       final loggedIn = await isUserLoggedIn();
-      final resolved =
-          (loggedIn && fetched != null && fetched.isNotEmpty) ? fetched : null;
+      final resolved = (loggedIn && fetched != null && fetched.isNotEmpty)
+          ? fetched
+          : null;
 
       if (resolved != _webId) {
         _webId = resolved;

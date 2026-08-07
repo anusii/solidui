@@ -74,12 +74,7 @@ const Set<String> textPrintableExtensions = {
 
 /// Image-based extensions.
 
-const Set<String> imagePrintableExtensions = {
-  '.jpg',
-  '.jpeg',
-  '.png',
-  '.gif',
-};
+const Set<String> imagePrintableExtensions = {'.jpg', '.jpeg', '.png', '.gif'};
 
 // Printable file type queries.
 
@@ -134,7 +129,8 @@ Uint8List decodeContentBytes(String content) {
 
 /// Noto Sans Regular – used for page headers in printed documents.
 
-const String notoSansFontUrl = 'https://'
+const String notoSansFontUrl =
+    'https://'
     'fonts.gstatic.com/s/notosans/v36/'
     'o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d41P6zHtY.ttf';
 
@@ -144,7 +140,8 @@ const String notoSansFontName = 'NotoSans-Regular';
 
 /// Noto Sans Mono Regular – used for body text in printed documents.
 
-const String notoSansMonoFontUrl = 'https://'
+const String notoSansMonoFontUrl =
+    'https://'
     'fonts.gstatic.com/s/notosansmono/v30/'
     'BngrUXNETWXI6LwhGYvaxZikqZqK6fBq6kPvUce2oAZcdthSBUsYck4-_FNJ49rXVEQQL8Y.ttf';
 
@@ -305,9 +302,8 @@ Future<Uint8List> generateImagePdf(ImagePdfParams p) async {
   doc.addPage(
     pw.Page(
       pageFormat: format,
-      build: (pw.Context ctx) => pw.Center(
-        child: pw.Image(image, fit: pw.BoxFit.contain),
-      ),
+      build: (pw.Context ctx) =>
+          pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
     ),
   );
 
@@ -325,10 +321,7 @@ class SolidFilePrintOperations {
   /// repeated network requests.
 
   static Future<Uint8List> _loadFontBytes(String name, String url) {
-    return PdfBaseCache.defaultCache.resolve(
-      name: name,
-      uri: Uri.parse(url),
-    );
+    return PdfBaseCache.defaultCache.resolve(name: name, uri: Uri.parse(url));
   }
 
   /// Downloads both header and content font bytes in parallel.
@@ -539,9 +532,7 @@ class SolidFilePrintOperations {
   ///
   /// Returns `true` if the user chooses to proceed, `false` otherwise.
 
-  static Future<bool> _showCrossAppPrintWarning(
-    BuildContext context,
-  ) async {
+  static Future<bool> _showCrossAppPrintWarning(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,

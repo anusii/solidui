@@ -192,10 +192,7 @@ class SolidScaffoldLayoutBuilder {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        statusBarWidget,
-        menuBar,
-      ],
+      children: [statusBarWidget, menuBar],
     );
   }
 

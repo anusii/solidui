@@ -180,9 +180,7 @@ Future<bool> changeKeyPopup(BuildContext context, Widget child) async {
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          content: SingleChildScrollView(
-            child: changeKeyForm,
-          ),
+          content: SingleChildScrollView(child: changeKeyForm),
           contentPadding: EdgeInsets.zero,
           backgroundColor: Colors.transparent,
           elevation: 0,

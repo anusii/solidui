@@ -43,11 +43,7 @@ import 'package:solidui/src/utils/web_id_parser.dart';
 class LogoutDialog extends StatefulWidget {
   /// Constructor.
 
-  const LogoutDialog({
-    required this.child,
-    this.onLogoutSuccess,
-    super.key,
-  });
+  const LogoutDialog({required this.child, this.onLogoutSuccess, super.key});
 
   /// The child widget after logging out.
 
@@ -65,11 +61,7 @@ class LogoutDialog extends StatefulWidget {
 }
 
 class _LogoutDialogState extends State<LogoutDialog> {
-  Widget _build(
-    BuildContext context,
-    String title,
-    WebIdParts? webIdParts,
-  ) {
+  Widget _build(BuildContext context, String title, WebIdParts? webIdParts) {
     final contentText = webIdParts != null && webIdParts.username.isNotEmpty
         ? 'Logout ${webIdParts.username} from ${webIdParts.host}?'
         : 'Logout from the remote Solid Server for $title?';
@@ -130,7 +122,8 @@ class _LogoutDialogState extends State<LogoutDialog> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<
-        ({({String name, String version}) app, String? webId})>(
+      ({({String name, String version}) app, String? webId})
+    >(
       future: () async {
         final app = await getAppNameVersion();
         final webId = await getWebId();
@@ -167,9 +160,7 @@ Future<void> logoutPopup(
 }) async {
   await showDialog(
     context: context,
-    builder: (context) => LogoutDialog(
-      onLogoutSuccess: onLogoutSuccess,
-      child: child,
-    ),
+    builder: (context) =>
+        LogoutDialog(onLogoutSuccess: onLogoutSuccess, child: child),
   );
 }

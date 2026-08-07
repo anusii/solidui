@@ -59,8 +59,9 @@ String? webIdCheckMessage(WebIdCheckResult result, {String webId = ''}) {
 
     case WebIdCheckStatus.unreachable:
       if (result.host.isEmpty) {
-        final details =
-            result.error != null ? '\n\nDetails: ${result.error}' : '';
+        final details = result.error != null
+            ? '\n\nDetails: ${result.error}'
+            : '';
         return 'Unable to reach the WebID server. '
             'Please check the URL and your network connection.$details';
       }

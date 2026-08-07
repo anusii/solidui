@@ -76,10 +76,7 @@ class SecurityThemeTextStyles {
   /// Returns the body text style based on the current theme.
 
   static TextStyle body(BuildContext context) {
-    return TextStyle(
-      fontSize: 15,
-      color: SecurityThemeColors.text(context),
-    );
+    return TextStyle(fontSize: 15, color: SecurityThemeColors.text(context));
   }
 
   /// Returns the WebID style based on the current theme.
@@ -103,18 +100,12 @@ class SecurityThemeTextStyles {
 
   /// Returns the button text style.
 
-  static const button = TextStyle(
-    fontSize: 14,
-    color: Colors.white,
-  );
+  static const button = TextStyle(fontSize: 14, color: Colors.white);
 
   /// Returns the cancel button style based on the current theme.
 
   static TextStyle cancelButton(BuildContext context) {
-    return TextStyle(
-      fontSize: 14,
-      color: SecurityThemeColors.text(context),
-    );
+    return TextStyle(fontSize: 14, color: SecurityThemeColors.text(context));
   }
 }
 
@@ -123,10 +114,7 @@ class SecurityThemeTextStyles {
 class RecipientTextStyle {
   /// Style for the label.
 
-  static const label = TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.w500,
-  );
+  static const label = TextStyle(fontSize: 15, fontWeight: FontWeight.w500);
 
   /// Style for the WebID display.
 

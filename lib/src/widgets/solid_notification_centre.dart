@@ -122,18 +122,15 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
   Future<void> _loadLocalState() async {
     final prefs = await SharedPreferences.getInstance();
     _readIds = (prefs.getStringList(solidReadNotificationsKey) ?? []).toSet();
-    _deletedIds =
-        (prefs.getStringList(_solidDeletedNotificationsKey) ?? []).toSet();
+    _deletedIds = (prefs.getStringList(_solidDeletedNotificationsKey) ?? [])
+        .toSet();
   }
 
   Future<void> _markAsRead(String id) async {
     if (_readIds.contains(id)) return;
     _readIds.add(id);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      solidReadNotificationsKey,
-      _readIds.toList(),
-    );
+    await prefs.setStringList(solidReadNotificationsKey, _readIds.toList());
     if (mounted) setState(() {});
   }
 
@@ -177,8 +174,9 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
 
       // Filter out anything the user has deleted locally.
 
-      final filtered =
-          byId.values.where((n) => !_deletedIds.contains(n.id)).toList();
+      final filtered = byId.values
+          .where((n) => !_deletedIds.contains(n.id))
+          .toList();
 
       setState(() {
         _notifications = filtered;
@@ -204,15 +202,15 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
         sorted.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       case _SortMode.senderAsc:
         sorted.sort(
-          (a, b) => extractName(a.senderWebId).toLowerCase().compareTo(
-                extractName(b.senderWebId).toLowerCase(),
-              ),
+          (a, b) => extractName(
+            a.senderWebId,
+          ).toLowerCase().compareTo(extractName(b.senderWebId).toLowerCase()),
         );
       case _SortMode.senderDesc:
         sorted.sort(
-          (a, b) => extractName(b.senderWebId).toLowerCase().compareTo(
-                extractName(a.senderWebId).toLowerCase(),
-              ),
+          (a, b) => extractName(
+            b.senderWebId,
+          ).toLowerCase().compareTo(extractName(a.senderWebId).toLowerCase()),
         );
     }
     return sorted;

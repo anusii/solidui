@@ -99,41 +99,25 @@ extension BrowserNavigation on SolidFileBrowserState {
   void _applySorting() {
     switch (_currentSortOption) {
       case FileSortOption.nameAscending:
-        directories.sort(
-          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
-        );
+        directories.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
         files.sort(
           (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
         );
       case FileSortOption.nameDescending:
-        directories.sort(
-          (a, b) => b.toLowerCase().compareTo(a.toLowerCase()),
-        );
+        directories.sort((a, b) => b.toLowerCase().compareTo(a.toLowerCase()));
         files.sort(
           (a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()),
         );
       case FileSortOption.dateModifiedAscending:
-        directories.sort(
-          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
-        );
-        files.sort(
-          (a, b) => a.dateModified.compareTo(b.dateModified),
-        );
+        directories.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+        files.sort((a, b) => a.dateModified.compareTo(b.dateModified));
       case FileSortOption.dateModifiedDescending:
-        directories.sort(
-          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
-        );
-        files.sort(
-          (a, b) => b.dateModified.compareTo(a.dateModified),
-        );
+        directories.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+        files.sort((a, b) => b.dateModified.compareTo(a.dateModified));
       case FileSortOption.typeAscending:
-        directories.sort(
-          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
-        );
+        directories.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
         files.sort((a, b) {
-          final cmp = _fileExtension(a.name).compareTo(
-            _fileExtension(b.name),
-          );
+          final cmp = _fileExtension(a.name).compareTo(_fileExtension(b.name));
           // Fall back to name order when extensions match.
 
           return cmp != 0
@@ -141,13 +125,9 @@ extension BrowserNavigation on SolidFileBrowserState {
               : a.name.toLowerCase().compareTo(b.name.toLowerCase());
         });
       case FileSortOption.typeDescending:
-        directories.sort(
-          (a, b) => a.toLowerCase().compareTo(b.toLowerCase()),
-        );
+        directories.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
         files.sort((a, b) {
-          final cmp = _fileExtension(b.name).compareTo(
-            _fileExtension(a.name),
-          );
+          final cmp = _fileExtension(b.name).compareTo(_fileExtension(a.name));
           return cmp != 0
               ? cmp
               : a.name.toLowerCase().compareTo(b.name.toLowerCase());
@@ -269,15 +249,10 @@ extension BrowserNavigation on SolidFileBrowserState {
   /// Updates the UI incrementally as each count becomes available, rather
   /// than blocking the initial render on N REST calls.
 
-  Future<void> _loadDirectoryCountsInBackground(
-    List<String> dirs,
-  ) async {
+  Future<void> _loadDirectoryCountsInBackground(List<String> dirs) async {
     final requestPath = currentPath;
 
-    final counts = await FileOperations.getDirectoryCounts(
-      requestPath,
-      dirs,
-    );
+    final counts = await FileOperations.getDirectoryCounts(requestPath, dirs);
 
     if (!mounted) return;
 
@@ -304,11 +279,14 @@ extension BrowserNavigation on SolidFileBrowserState {
         if (pathHistory.isEmpty || pathHistory.last != normalisedPath) {
           if (_homePath.isEmpty || normalisedPath.startsWith('$_homePath/')) {
             pathHistory = [_homePath];
-            final relativePath =
-                PathUtils.relativeTo(normalisedPath, _homePath);
+            final relativePath = PathUtils.relativeTo(
+              normalisedPath,
+              _homePath,
+            );
             if (relativePath.isNotEmpty) {
-              final segments =
-                  relativePath.split('/').where((s) => s.isNotEmpty);
+              final segments = relativePath
+                  .split('/')
+                  .where((s) => s.isNotEmpty);
               var currentBuildPath = _homePath;
               for (final segment in segments) {
                 currentBuildPath = PathUtils.combine(currentBuildPath, segment);

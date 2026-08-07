@@ -98,8 +98,10 @@ class SolidFileUploadOperations {
       // platform does not honour the [allowedExtensions] filter.
 
       if (hasRestriction) {
-        final ext =
-            path.extension(file.path!).toLowerCase().replaceFirst('.', '');
+        final ext = path
+            .extension(file.path!)
+            .toLowerCase()
+            .replaceFirst('.', '');
         if (!sanitisedExtensions.contains(ext)) {
           if (context.mounted) {
             final allowed = sanitisedExtensions.join(', ');

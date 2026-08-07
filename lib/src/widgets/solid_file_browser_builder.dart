@@ -58,11 +58,13 @@ class SolidFileBrowserBuilder {
       initialPath: initialPath,
       folderNameOverrides: folderNameOverrides,
       onUpload: uploadCallbacks?.onUpload,
-      onFileSelected: onFileSelected ??
+      onFileSelected:
+          onFileSelected ??
           (fileName, filePath) {
             debugPrint('File selected: $fileName at $filePath');
           },
-      onFileDownload: onFileDownload ??
+      onFileDownload:
+          onFileDownload ??
           (fileName, filePath) {
             SolidFileOperations.downloadFile(
               browserKey.currentContext!,
@@ -70,7 +72,8 @@ class SolidFileBrowserBuilder {
               filePath,
             );
           },
-      onFileDelete: onFileDelete ??
+      onFileDelete:
+          onFileDelete ??
           (fileName, filePath) {
             // filePath is already relative to the Pod root
             // (e.g., 'myapp/data/subfolder').
@@ -91,9 +94,9 @@ class SolidFileBrowserBuilder {
               uploadCallbacks!.onImportCsv!();
             }
           : onImportCsv ??
-              (String fileName, String filePath) {
-                debugPrint('Import CSV: $fileName at $filePath');
-              },
+                (String fileName, String filePath) {
+                  debugPrint('Import CSV: $fileName at $filePath');
+                },
       onDirectoryChanged: onDirectoryChanged,
     );
   }

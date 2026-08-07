@@ -55,12 +55,14 @@ class SolidNavDrawerHeader {
     VoidCallback? onUserNameTap,
   }) {
     final bool willShowVersion = user.versionConfig != null;
-    final double bottomPadding =
-        willShowVersion ? 8.0 : NavigationConstants.userHeaderBottomPadding;
+    final double bottomPadding = willShowVersion
+        ? 8.0
+        : NavigationConstants.userHeaderBottomPadding;
 
     return Container(
       padding: EdgeInsets.only(
-        top: NavigationConstants.userHeaderTopPadding +
+        top:
+            NavigationConstants.userHeaderTopPadding +
             MediaQuery.paddingOf(context).top,
         bottom: bottomPadding,
       ),
@@ -211,8 +213,8 @@ class SolidNavDrawerHeader {
   ) {
     final versionString =
         (versionConfig.version != null && versionConfig.version!.isNotEmpty)
-            ? versionConfig.version!
-            : getVersionToDisplay();
+        ? versionConfig.version!
+        : getVersionToDisplay();
 
     return VersionWidget(
       version: versionString,

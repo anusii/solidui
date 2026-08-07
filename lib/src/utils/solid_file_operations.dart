@@ -51,13 +51,12 @@ class SolidFileOperations {
     String fileName,
     String filePath, {
     PathType pathType = PathType.relativeToPod,
-  }) =>
-      SolidFileDownloadOperations.downloadFile(
-        context,
-        fileName,
-        filePath,
-        pathType: pathType,
-      );
+  }) => SolidFileDownloadOperations.downloadFile(
+    context,
+    fileName,
+    filePath,
+    pathType: pathType,
+  );
 
   /// Delete a file from the POD.
   ///
@@ -70,14 +69,13 @@ class SolidFileOperations {
     String filePath, {
     VoidCallback? onSuccess,
     PathType pathType = PathType.relativeToPod,
-  }) =>
-      SolidFileDeleteOperations.deletePodFile(
-        context,
-        fileName,
-        filePath,
-        onSuccess: onSuccess,
-        pathType: pathType,
-      );
+  }) => SolidFileDeleteOperations.deletePodFile(
+    context,
+    fileName,
+    filePath,
+    onSuccess: onSuccess,
+    pathType: pathType,
+  );
 
   /// Delete a mixed batch of files and/or directories from the POD.
 
@@ -87,14 +85,13 @@ class SolidFileOperations {
     List<String> fileNames = const [],
     List<String> directoryNames = const [],
     VoidCallback? onSuccess,
-  }) =>
-      SolidFileDeleteOperations.deleteMultipleItems(
-        context,
-        currentPath: currentPath,
-        fileNames: fileNames,
-        directoryNames: directoryNames,
-        onSuccess: onSuccess,
-      );
+  }) => SolidFileDeleteOperations.deleteMultipleItems(
+    context,
+    currentPath: currentPath,
+    fileNames: fileNames,
+    directoryNames: directoryNames,
+    onSuccess: onSuccess,
+  );
 
   /// Download a mixed batch of files and/or directories as a zip archive.
 
@@ -104,14 +101,13 @@ class SolidFileOperations {
     List<String> fileNames = const [],
     List<String> directoryNames = const [],
     required String zipFileName,
-  }) =>
-      SolidFileDownloadOperations.downloadMultipleItems(
-        context,
-        currentPath: currentPath,
-        fileNames: fileNames,
-        directoryNames: directoryNames,
-        zipFileName: zipFileName,
-      );
+  }) => SolidFileDownloadOperations.downloadMultipleItems(
+    context,
+    currentPath: currentPath,
+    fileNames: fileNames,
+    directoryNames: directoryNames,
+    zipFileName: zipFileName,
+  );
 
   /// Upload a file to the POD.
   ///
@@ -129,12 +125,11 @@ class SolidFileOperations {
     VoidCallback? onSuccess,
     List<String>? allowedExtensions,
     PathType pathType = PathType.relativeToPod,
-  }) =>
-      SolidFileUploadOperations.uploadFile(
-        context,
-        currentPath,
-        onSuccess: onSuccess,
-        allowedExtensions: allowedExtensions,
-        pathType: pathType,
-      );
+  }) => SolidFileUploadOperations.uploadFile(
+    context,
+    currentPath,
+    onSuccess: onSuccess,
+    allowedExtensions: allowedExtensions,
+    pathType: pathType,
+  );
 }

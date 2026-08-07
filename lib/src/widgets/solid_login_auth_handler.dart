@@ -149,7 +149,7 @@ class SolidLoginAuthHandler {
     required BuildContext context,
     required List<dynamic> resCheckList,
     required Function(String message, {Duration? duration, bool showAction})
-        showSnackbar,
+    showSnackbar,
   }) async {
     final isUpdate = await isPodUpdateMode(resCheckList);
     final appName = await _currentAppName();
@@ -175,7 +175,7 @@ class SolidLoginAuthHandler {
     required dynamic originalLoginWidget,
     required Widget childWidget,
     required Function(String message, {Duration? duration, bool showAction})
-        showSnackbar,
+    showSnackbar,
     bool staySignedIn = true,
   }) async {
     final resCheckList = await initialStructureTest(
@@ -257,19 +257,19 @@ class SolidLoginAuthHandler {
     required ValueGetter<bool> isDialogCanceled,
     required VoidCallback updateDialogCanceledState,
     required Function(String message, {Duration? duration, bool showAction})
-        showSnackbar,
+    showSnackbar,
     final List<String> postLogoutRedirectUris = const [],
     bool staySignedIn = true,
   }) async {
     // Method to show busy animation requiring BuildContext.
 
     void showBusyAnimation() => showAnimationDialog(
-          context,
-          7,
-          'Logging in...',
-          false,
-          updateDialogCanceledState,
-        );
+      context,
+      7,
+      'Logging in...',
+      false,
+      updateDialogCanceledState,
+    );
 
     if (isDialogCanceled()) return false;
 
@@ -307,7 +307,7 @@ class SolidLoginAuthHandler {
         if (context.mounted) {
           showSnackbar(
             'Please complete the login process in your browser...',
-            duration: const Duration(seconds: 5),
+            duration: const Duration(seconds: 15),
           );
         }
       });

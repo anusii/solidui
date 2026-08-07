@@ -122,8 +122,9 @@ class _SolidWebIdSectionState extends State<SolidWebIdSection> {
               const SizedBox(width: 8),
               Text(
                 'Your WebID',
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -155,10 +156,7 @@ class _SolidWebIdSectionState extends State<SolidWebIdSection> {
               ),
             )
           else if (_error != null)
-            Text(
-              _error!,
-              style: TextStyle(color: theme.colorScheme.error),
-            )
+            Text(_error!, style: TextStyle(color: theme.colorScheme.error))
           else
             Container(
               width: double.infinity,

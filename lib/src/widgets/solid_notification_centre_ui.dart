@@ -106,8 +106,9 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
           const Spacer(),
           Text(
             'Per page:',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(width: 6),
           DropdownButton<int>(
@@ -209,10 +210,7 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            Icon(
-              isRead ? Icons.info_outline : Icons.info,
-              size: 28,
-            ),
+            Icon(isRead ? Icons.info_outline : Icons.info, size: 28),
             if (!isRead)
               Positioned(
                 right: -3,
@@ -227,11 +225,7 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
                 ),
               ),
             if (priorityIcon(priority) != null)
-              Positioned(
-                right: -6,
-                bottom: -4,
-                child: priorityIcon(priority)!,
-              ),
+              Positioned(right: -6, bottom: -4, child: priorityIcon(priority)!),
           ],
         ),
       ),
@@ -245,8 +239,10 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
     final totalPages = _totalPages;
     final totalItems = _sortedNotifications.length;
     final rangeStart = _currentPage * _itemsPerPage + 1;
-    final rangeEnd =
-        (rangeStart + _itemsPerPage - 1).clamp(rangeStart, totalItems);
+    final rangeEnd = (rangeStart + _itemsPerPage - 1).clamp(
+      rangeStart,
+      totalItems,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -255,8 +251,9 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
         children: [
           Text(
             '$rangeStart–$rangeEnd of $totalItems',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           Row(
             mainAxisSize: MainAxisSize.min,

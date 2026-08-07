@@ -49,7 +49,8 @@ PreferredSizeWidget defaultAppBar(
     leading: IconButton(
       icon: Icon(
         Icons.arrow_back,
-        color: ThemeData.estimateBrightnessForColor(backgroundColor) ==
+        color:
+            ThemeData.estimateBrightnessForColor(backgroundColor) ==
                 Brightness.dark
             ? Colors.white
             : Colors.black87,

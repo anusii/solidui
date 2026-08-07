@@ -134,11 +134,7 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
     return MarkdownTooltip(
       message: 'Revoke all access to this recipient',
       child: IconButton(
-        icon: const Icon(
-          Icons.delete,
-          size: 24.0,
-          color: ActionColors.delete,
-        ),
+        icon: const Icon(Icons.delete, size: 24.0, color: ActionColors.delete),
         onPressed: () {
           // Derive recipient metadata once so we can adapt the
           // confirmation message to the recipient class.
@@ -148,7 +144,8 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
           );
           final permList =
               widget.permDataMap[widget.receiverWebId][permStr] as List;
-          final isPublicClass = recipientType == RecipientType.public ||
+          final isPublicClass =
+              recipientType == RecipientType.public ||
               recipientType == RecipientType.authUser;
 
           showDialog(

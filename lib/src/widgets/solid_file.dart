@@ -176,24 +176,24 @@ class SolidFile extends StatefulWidget {
     this.browserKey,
     this.fileTypeResolver,
     this.folderNameOverrides,
-  })  : currentPath = state.currentPath,
-        friendlyFolderName = state.friendlyFolderName,
-        showBackButton = config.showBackButton,
-        backButtonText = config.backButtonText,
-        forceWideScreen = config.forceWideScreen,
-        browserHeight = config.browserHeight,
-        onBackPressed = callbacks.onBackPressed,
-        onFileSelected = callbacks.onFileSelected,
-        onFileDownload = callbacks.onFileDownload,
-        onFileDelete = callbacks.onFileDelete,
-        onDirectoryChanged = callbacks.onDirectoryChanged,
-        onClosePreview = callbacks.onClosePreview,
-        onImportCsv = callbacks.onImportCsv,
-        showUpload = state.uploadConfig != null,
-        uploadConfig = state.uploadConfig,
-        uploadCallbacks = callbacks.uploadCallbacks,
-        uploadState = state.uploadState,
-        autoConfig = false; // Legacy mode does not use auto-config.
+  }) : currentPath = state.currentPath,
+       friendlyFolderName = state.friendlyFolderName,
+       showBackButton = config.showBackButton,
+       backButtonText = config.backButtonText,
+       forceWideScreen = config.forceWideScreen,
+       browserHeight = config.browserHeight,
+       onBackPressed = callbacks.onBackPressed,
+       onFileSelected = callbacks.onFileSelected,
+       onFileDownload = callbacks.onFileDownload,
+       onFileDelete = callbacks.onFileDelete,
+       onDirectoryChanged = callbacks.onDirectoryChanged,
+       onClosePreview = callbacks.onClosePreview,
+       onImportCsv = callbacks.onImportCsv,
+       showUpload = state.uploadConfig != null,
+       uploadConfig = state.uploadConfig,
+       uploadCallbacks = callbacks.uploadCallbacks,
+       uploadState = state.uploadState,
+       autoConfig = false; // Legacy mode does not use auto-config.
 
   /// Default path constant representing the POD root.
 
@@ -242,9 +242,7 @@ class _SolidFileState extends State<SolidFile> {
       } catch (e) {
         // Fall back to POD root if getDataDirPath fails.
 
-        debugPrint(
-          'Failed to get app data path, falling back to POD root: $e',
-        );
+        debugPrint('Failed to get app data path, falling back to POD root: $e');
         _resolvedBasePath = SolidFile.podRoot;
       }
     }
@@ -345,13 +343,13 @@ class _SolidFileState extends State<SolidFile> {
 
     final SolidFileUploadConfig? effectiveUploadConfig =
         SolidFileHelpers.getEffectiveUploadConfig(
-      _currentPath,
-      _effectiveBasePath,
-      widget.autoConfig,
-      widget.showUpload,
-      widget.uploadConfig,
-      widget.fileTypeResolver,
-    );
+          _currentPath,
+          _effectiveBasePath,
+          widget.autoConfig,
+          widget.showUpload,
+          widget.uploadConfig,
+          widget.fileTypeResolver,
+        );
     final SolidFileUploadCallbacks effectiveUploadCallbacks =
         _getEffectiveUploadCallbacks(effectiveUploadConfig);
 
@@ -368,23 +366,27 @@ class _SolidFileState extends State<SolidFile> {
                   child: isWideScreen
                       ? SolidFileLayoutBuilder.buildWideScreenLayout(
                           browserHeight: browserHeight,
-                          fileBrowser:
-                              _buildFileBrowser(effectiveUploadCallbacks),
+                          fileBrowser: _buildFileBrowser(
+                            effectiveUploadCallbacks,
+                          ),
                           showUpload: widget.showUpload,
                           uploadConfig: effectiveUploadConfig,
                           uploadCallbacks: effectiveUploadCallbacks,
-                          uploadState: widget.uploadState ??
+                          uploadState:
+                              widget.uploadState ??
                               const SolidFileUploadState(),
                           onClosePreview: widget.onClosePreview,
                         )
                       : SolidFileLayoutBuilder.buildNarrowScreenLayout(
                           browserHeight: browserHeight,
-                          fileBrowser:
-                              _buildFileBrowser(effectiveUploadCallbacks),
+                          fileBrowser: _buildFileBrowser(
+                            effectiveUploadCallbacks,
+                          ),
                           showUpload: widget.showUpload,
                           uploadConfig: effectiveUploadConfig,
                           uploadCallbacks: effectiveUploadCallbacks,
-                          uploadState: widget.uploadState ??
+                          uploadState:
+                              widget.uploadState ??
                               const SolidFileUploadState(),
                           onClosePreview: widget.onClosePreview,
                         ),

@@ -96,18 +96,18 @@ class GrantPermissionUi extends StatefulWidget {
     this.titleData,
     this.inviteConfig,
     super.key,
-  })  : assert(
-          // Requires ownerWebId if resource
-          // is an externally owned.
-          isExternalRes == false || ownerWebId != null,
-          'ownerWebId must be provided if isExternalRes == true',
-        ),
-        assert(
-          (showAppBar == true && customAppBar != null) ||
-              (showAppBar == true && child != null) ||
-              showAppBar == false,
-          'Either customAppBar, or child and onNavigateBack function, must be provided if showAppBar is selected',
-        );
+  }) : assert(
+         // Requires ownerWebId if resource
+         // is an externally owned.
+         isExternalRes == false || ownerWebId != null,
+         'ownerWebId must be provided if isExternalRes == true',
+       ),
+       assert(
+         (showAppBar == true && customAppBar != null) ||
+             (showAppBar == true && child != null) ||
+             showAppBar == false,
+         'Either customAppBar, or child and onNavigateBack function, must be provided if showAppBar is selected',
+       );
 
   /// The child widget to return to when back button is pressed and/or when
   /// page is reloaded after a permission is granted or revoked.
@@ -197,7 +197,7 @@ class GrantPermissionUi extends StatefulWidget {
   /// [GrantPermissionForm.onRecipientTypeGranted].
 
   final void Function(RecipientType recipientType, List<String> resourceNames)?
-      onRecipientTypeGranted;
+  onRecipientTypeGranted;
 
   /// Callback function called when navigating back from the screen.
 

@@ -272,7 +272,8 @@ class SolidAuthHandler {
         appTitle: _cachedTitle ?? _config?.appTitle ?? 'Solid App',
         appDirectory:
             _cachedAppDirectory ?? _config?.appDirectory ?? 'solid_app',
-        defaultServerUrl: _cachedWebId ??
+        defaultServerUrl:
+            _cachedWebId ??
             _config?.defaultServerUrl ??
             SolidConfig.defaultServerUrl,
         appImage: _cachedImage ?? _config?.appImage,

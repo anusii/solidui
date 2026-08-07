@@ -70,7 +70,8 @@ class SolidTheme {
 
     return ThemeData(
       useMaterial3: true,
-      colorScheme: colorScheme ??
+      colorScheme:
+          colorScheme ??
           ColorScheme.fromSeed(
             seedColor: seedColor,
             brightness: Brightness.light,
@@ -112,7 +113,8 @@ class SolidTheme {
 
     return ThemeData(
       useMaterial3: true,
-      colorScheme: colorScheme ??
+      colorScheme:
+          colorScheme ??
           ColorScheme.fromSeed(
             seedColor: seedColor,
             brightness: Brightness.dark,

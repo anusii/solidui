@@ -187,8 +187,9 @@ extension _BrowserActions on SolidFileBrowserState {
         // Purge deleted directory paths from navigation history so the
         // Back / Forward buttons cannot navigate into removed folders.
 
-        final deletedPaths =
-            dirNames.map((n) => PathUtils.combine(currentPath, n)).toList();
+        final deletedPaths = dirNames
+            .map((n) => PathUtils.combine(currentPath, n))
+            .toList();
         _purgeDeletedPathsFromHistory(deletedPaths);
 
         _selectedItems.removeAll(items);
@@ -211,9 +212,7 @@ extension _BrowserActions on SolidFileBrowserState {
     // path or is a descendant of one (i.e. starts with "deletedPath/").
 
     bool isDeleted(String entry) {
-      return deletedPaths.any(
-        (dp) => entry == dp || entry.startsWith('$dp/'),
-      );
+      return deletedPaths.any((dp) => entry == dp || entry.startsWith('$dp/'));
     }
 
     // Remember the current entry so we can re-locate the index afterwards.

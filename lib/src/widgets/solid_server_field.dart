@@ -215,10 +215,7 @@ class _SolidServerFieldState extends State<SolidServerField> {
                     dense: true,
                     title: Text(
                       filtered[i],
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: theme.textColor,
-                      ),
+                      style: TextStyle(fontSize: 13, color: theme.textColor),
                     ),
                     onTap: () => _selectServer(filtered[i]),
                   ),

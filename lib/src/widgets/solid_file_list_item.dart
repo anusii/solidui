@@ -99,7 +99,6 @@ class FileListItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Selection checkbox.
-
                   SizedBox(
                     width: 24,
                     height: 24,
@@ -113,7 +112,6 @@ class FileListItem extends StatelessWidget {
                   const SizedBox(width: 8),
 
                   // Show file icon only if width permits.
-
                   if (constraints.maxWidth > 40)
                     Icon(
                       Icons.insert_drive_file,
@@ -122,19 +120,16 @@ class FileListItem extends StatelessWidget {
                     ),
 
                   // Responsive spacing after icon.
-
                   if (constraints.maxWidth > 40)
                     SizedBox(width: constraints.maxWidth < 100 ? 4 : 12),
 
                   // File information column.
-
                   Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // File name with overflow protection.
-
                         Text(
                           file.name,
                           style: TextStyle(
@@ -145,7 +140,6 @@ class FileListItem extends StatelessWidget {
                         ),
 
                         // Show modification date if width permits.
-
                         if (constraints.maxWidth > 150)
                           Text(
                             'Modified: ${file.dateModified.toString().split('.')[0]}',

@@ -134,7 +134,8 @@ class SolidFileDeleteOperations {
         onSuccess?.call();
       } catch (e) {
         if (context.mounted) {
-          final message = e.toString().contains('404') ||
+          final message =
+              e.toString().contains('404') ||
                   e.toString().contains('NotFoundHttpError')
               ? 'File not found or already deleted'
               : 'Delete failed: ${e.toString()}';
@@ -196,8 +197,8 @@ class SolidFileDeleteOperations {
     final isSingle = totalCount == 1;
     final singleName = isSingle
         ? (fileNames.isNotEmpty
-            ? fileNames.first
-            : '${directoryNames.first} (folder)')
+              ? fileNames.first
+              : '${directoryNames.first} (folder)')
         : '';
     final subject = isSingle ? '"$singleName"' : '$totalCount items';
 
@@ -277,9 +278,7 @@ class SolidFileDeleteOperations {
             children: [
               LinearProgressIndicator(value: progress),
               const SizedBox(height: 12),
-              Text(
-                '${(progress * totalCount).round()} / $totalCount',
-              ),
+              Text('${(progress * totalCount).round()} / $totalCount'),
             ],
           );
         },
@@ -314,9 +313,7 @@ class SolidFileDeleteOperations {
       } else if (result.succeeded.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Failed to delete: ${result.failed.keys.join(", ")}',
-            ),
+            content: Text('Failed to delete: ${result.failed.keys.join(", ")}'),
             backgroundColor: ActionColors.error,
             duration: const Duration(seconds: 5),
           ),

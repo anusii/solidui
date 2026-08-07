@@ -157,8 +157,10 @@ class SecurityKeyViewDialogs {
           DataCell(
             Text(
               entry.key as String,
-              style:
-                  TextStyle(fontSize: 12, color: theme.colorScheme.onSurface),
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ),
           DataCell(
@@ -185,8 +187,9 @@ class SecurityKeyViewDialogs {
         final dialogTheme = Theme.of(dialogContext);
         return AlertDialog(
           backgroundColor: dialogTheme.colorScheme.surface,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           title: Text(
             title,
             style: TextStyle(
@@ -196,8 +199,9 @@ class SecurityKeyViewDialogs {
             ),
           ),
           content: ConstrainedBox(
-            constraints:
-                const BoxConstraints(maxWidth: SolidTheme.maxDialogWidth),
+            constraints: const BoxConstraints(
+              maxWidth: SolidTheme.maxDialogWidth,
+            ),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

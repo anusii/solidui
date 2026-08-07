@@ -96,7 +96,8 @@ class SolidScaffoldAppBarBuilder {
     );
 
     final layoutWidth = constraints.maxWidth;
-    final isNarrowScreen = hideNavRail ||
+    final isNarrowScreen =
+        hideNavRail ||
         SolidScaffoldHelpers.isNarrowScreen(
           constraints,
           narrowThreshold: narrowScreenThreshold,
@@ -109,10 +110,7 @@ class SolidScaffoldAppBarBuilder {
         layoutWidth >= config.veryNarrowScreenThreshold &&
         shouldShowVersion) {
       actions.add(
-        SolidScaffoldHelpers.buildVersionWidget(
-          config,
-          versionToDisplay,
-        ),
+        SolidScaffoldHelpers.buildVersionWidget(config, versionToDisplay),
       );
       actions.add(const Gap(8));
     }
@@ -179,18 +177,18 @@ class SolidScaffoldAppBarBuilder {
           fontSize: 18,
           color: config.backgroundColor != null
               ? ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
-                      Brightness.dark
-                  ? Colors.white
-                  : Colors.black87
+                        Brightness.dark
+                    ? Colors.white
+                    : Colors.black87
               : null,
         ),
       ),
       backgroundColor: config.backgroundColor,
       foregroundColor: config.backgroundColor != null
           ? ThemeData.estimateBrightnessForColor(config.backgroundColor!) ==
-                  Brightness.dark
-              ? Colors.white
-              : Colors.black87
+                    Brightness.dark
+                ? Colors.white
+                : Colors.black87
           : null,
       elevation: 0,
       scrolledUnderElevation: 0.5,
@@ -356,7 +354,8 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                 const PopupMenuItem<String>(
                   value: 'settings',
                   child: MarkdownTooltip(
-                    message: '**Profile Settings**\n\n'
+                    message:
+                        '**Profile Settings**\n\n'
                         'Manage your profile — display name, avatar, webid, and '
                         'privacy controls.',
                     child: Row(
@@ -381,7 +380,8 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                   const PopupMenuItem<String>(
                     value: 'change_password',
                     child: MarkdownTooltip(
-                      message: '**Change POD Password**\n\n'
+                      message:
+                          '**Change POD Password**\n\n'
                           'Change the password of your POD account.\n\n'
                           '**Important:** this password is shared across '
                           '**all** applications that use this POD. Changing it '
@@ -410,7 +410,8 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                   const PopupMenuItem<String>(
                     value: 'backup',
                     child: MarkdownTooltip(
-                      message: '**Backup**\n\n'
+                      message:
+                          '**Backup**\n\n'
                           'Export all of this app\'s data in your POD to a '
                           'single encrypted, compressed backup file — or '
                           'restore a backup created here or on another POD.',
@@ -438,7 +439,8 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                     const PopupMenuItem<String>(
                       value: 'logout',
                       child: MarkdownTooltip(
-                        message: '**Logout**\n\n'
+                        message:
+                            '**Logout**\n\n'
                             'Sign out of your current POD session on this '
                             'device.',
                         child: Row(
@@ -458,7 +460,8 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                   const PopupMenuItem<String>(
                     value: 'login',
                     child: MarkdownTooltip(
-                      message: '**Login**\n\n'
+                      message:
+                          '**Login**\n\n'
                           'Sign in to your POD to access your data.',
                       child: Row(
                         children: [

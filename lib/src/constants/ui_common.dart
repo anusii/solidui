@@ -54,8 +54,10 @@ class ListIconSize {
 
 /// Icon shape decoration for list items.
 
-ShapeDecoration listIconShape =
-    const ShapeDecoration(color: Colors.grey, shape: CircleBorder());
+ShapeDecoration listIconShape = const ShapeDecoration(
+  color: Colors.grey,
+  shape: CircleBorder(),
+);
 
 /// Normal height for data loading screens.
 
@@ -124,14 +126,13 @@ Widget makeSubHeading(
   bool bold = true,
   bool addColor = true,
   bool addPadding = true,
-}) =>
-    buildHeading(
-      text: text,
-      fontSize: SubHeadingStyle.fontsize,
-      fontWeight: (bold) ? SubHeadingStyle.fontweight : FontWeight.normal,
-      color: (addColor) ? SubHeadingStyle.fontcolor : Colors.black,
-      padding: (addPadding) ? SubHeadingStyle.padding : 0,
-    );
+}) => buildHeading(
+  text: text,
+  fontSize: SubHeadingStyle.fontsize,
+  fontWeight: (bold) ? SubHeadingStyle.fontweight : FontWeight.normal,
+  color: (addColor) ? SubHeadingStyle.fontcolor : Colors.black,
+  padding: (addPadding) ? SubHeadingStyle.padding : 0,
+);
 
 /// Make a heading using HeadingStyle as default.
 ///
@@ -146,11 +147,10 @@ Widget makeHeading(
   bool bold = true,
   bool addColor = true,
   bool addPadding = true,
-}) =>
-    buildHeading(
-      text: text,
-      fontSize: HeadingStyle.fontsize,
-      fontWeight: (bold) ? HeadingStyle.fontweight : FontWeight.normal,
-      color: (addColor) ? HeadingStyle.fontcolor : Colors.black,
-      padding: (addPadding) ? HeadingStyle.padding : 0,
-    );
+}) => buildHeading(
+  text: text,
+  fontSize: HeadingStyle.fontsize,
+  fontWeight: (bold) ? HeadingStyle.fontweight : FontWeight.normal,
+  color: (addColor) ? HeadingStyle.fontcolor : Colors.black,
+  padding: (addPadding) ? HeadingStyle.padding : 0,
+);

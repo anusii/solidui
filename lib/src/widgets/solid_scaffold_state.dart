@@ -152,8 +152,8 @@ class SolidScaffoldState extends State<SolidScaffold> {
   }
 
   void _onSecurityKeyChanged() => _securityKeyHelper?.updateStatusFromService(
-        widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
-      );
+    widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
+  );
 
   Future<void> refreshSecurityKeyStatus() async =>
       await _securityKeyHelper?.refresh(

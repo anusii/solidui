@@ -160,7 +160,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
         final name = packageInfo.appName;
         _appName = name.isNotEmpty
             ? name[0].toUpperCase() +
-                name.substring(1).replaceAll(RegExp(r'pod$'), 'Pod')
+                  name.substring(1).replaceAll(RegExp(r'pod$'), 'Pod')
             : 'the App';
       });
     }
@@ -232,28 +232,29 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
       baseUrl = '${items.getRange(0, items.length - 2).join('/')}/';
     }
 
-    final extractedParts = combinedLinks
-        .map((url) {
-          // Check if the URL starts with the base URL and has additional parts.
+    final extractedParts =
+        combinedLinks
+            .map((url) {
+              // Check if the URL starts with the base URL and has additional parts.
 
-          if (url.startsWith(baseUrl) && url.length > baseUrl.length) {
-            // Extract everything after the base URL without splitting into segments.
+              if (url.startsWith(baseUrl) && url.length > baseUrl.length) {
+                // Extract everything after the base URL without splitting into segments.
 
-            return url.substring(baseUrl.length);
-          }
+                return url.substring(baseUrl.length);
+              }
 
-          // Return null for URLs that don't match the criteria.
+              // Return null for URLs that don't match the criteria.
 
-          return null;
-        })
-        // Remove nulls.
-        .where((item) => item != null)
-        // Remove duplicates.
-        .toSet()
-        // Convert to list.
-        .toList()
-      // Sort alphabetically.
-      ..sort();
+              return null;
+            })
+            // Remove nulls.
+            .where((item) => item != null)
+            // Remove duplicates.
+            .toSet()
+            // Convert to list.
+            .toList()
+          // Sort alphabetically.
+          ..sort();
 
     final resFileNames = (widget.resNeedToCreate['fileNames'] as List)
         .map((item) => item.toString())
@@ -286,7 +287,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                 // Show the scrollbar thumb even when the user is not
                 // hovering the list, so that additional unseen content
                 // is discoverable at a glance.
-
                 child: Scrollbar(
                   controller: _scrollController,
                   thumbVisibility: true,

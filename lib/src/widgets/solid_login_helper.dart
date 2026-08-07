@@ -355,33 +355,32 @@ MarkdownTooltip getSolidServerTooltip(
   SolidLoginThemeMode themeMode, {
   FocusNode? focusNode,
   ValueChanged<String>? onFieldSubmitted,
-}) =>
-    MarkdownTooltip(
-      message: defaultServerTooltip,
-      child: TextFormField(
-        controller: webIdController,
-        focusNode: focusNode,
-        textInputAction: TextInputAction.go,
-        onFieldSubmitted: onFieldSubmitted,
-        style: TextStyle(color: themeMode.textColor, fontSize: 16),
-        decoration: InputDecoration(
-          border: const UnderlineInputBorder(),
-          labelText: 'Solid Server',
-          labelStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
-          floatingLabelStyle: TextStyle(color: themeMode.textColor),
-          hintText: 'Solid server URL (or WebID)',
-          hintStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: themeMode.inputBorderColor),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: themeMode.inputBorderColor, width: 2),
-          ),
-        ),
+}) => MarkdownTooltip(
+  message: defaultServerTooltip,
+  child: TextFormField(
+    controller: webIdController,
+    focusNode: focusNode,
+    textInputAction: TextInputAction.go,
+    onFieldSubmitted: onFieldSubmitted,
+    style: TextStyle(color: themeMode.textColor, fontSize: 16),
+    decoration: InputDecoration(
+      border: const UnderlineInputBorder(),
+      labelText: 'Solid Server',
+      labelStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
+      floatingLabelStyle: TextStyle(color: themeMode.textColor),
+      hintText: 'Solid server URL (or WebID)',
+      hintStyle: TextStyle(color: themeMode.hintColor, fontSize: 16),
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: themeMode.inputBorderColor),
       ),
-    );
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: themeMode.inputBorderColor, width: 2),
+      ),
+    ),
+  ),
+);
 
 /// Return a [Widget] for the theme toggle button with adaptive toggle logic.
 /// Uses MediaQuery for real-time system brightness detection.

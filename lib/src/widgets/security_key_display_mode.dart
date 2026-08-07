@@ -32,10 +32,8 @@ library;
 
 enum SecurityKeyDisplayMode {
   /// Display as a fullscreen prompt with a scaffold.
-
   fullscreen,
 
   /// Display as an embedded dialog component.
-
-  dialog
+  dialog,
 }

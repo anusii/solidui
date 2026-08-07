@@ -95,7 +95,8 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
   bool get _hasChanges {
     final nameChanged =
         _nameController.text.trim() != (solidProfileNotifier.displayName ?? '');
-    final avatarChanged = _avatarRemoved ||
+    final avatarChanged =
+        _avatarRemoved ||
         !identical(_pendingAvatar, solidProfileNotifier.avatarBytes);
     final privacyChanged = _pendingPrivacy != solidProfileNotifier.privacy;
     return nameChanged || avatarChanged || privacyChanged;
@@ -118,9 +119,7 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     if (bytes.length > maxProfilePictureBytes) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Image must be smaller than 2 MB'),
-          ),
+          const SnackBar(content: Text('Image must be smaller than 2 MB')),
         );
       }
       return;
@@ -176,9 +175,9 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
     } catch (e) {
       debugPrint('Profile save error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save profile: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save profile: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -212,8 +211,9 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
               const SizedBox(width: 8),
               Text(
                 'Profile visibility',
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -277,13 +277,13 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
             children: [
               Text(
                 'Edit Profile',
-                style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 24),
 
               // Avatar preview with action buttons.
-
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -333,7 +333,6 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
               const SizedBox(height: 20),
 
               // Display name input.
-
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(
@@ -354,7 +353,6 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
               // so apps that already encrypt user data keep the profile
               // private as well. Users may opt in to a public profile if
               // they want their display name and avatar to be discoverable.
-
               _buildPrivacySelector(theme),
 
               if (_loggedIn) ...[
@@ -363,20 +361,19 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
                 // WebID viewer and Pod-linking entry point. Only shown while
                 // logged in since it reads/writes the user's own WebID
                 // document on their Pod.
-
                 const SolidWebIdSection(),
               ],
 
               const SizedBox(height: 24),
 
               // Action buttons.
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed:
-                        _isSaving ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isSaving
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
                   const SizedBox(width: 8),

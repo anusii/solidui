@@ -40,11 +40,8 @@ import 'package:solidui/src/constants/ui_colors.dart' show ActionColors;
 /// Signature for the snack-bar reporter used to surface notification
 /// delivery outcomes back to the caller's UI.
 
-typedef NotifySnackBar = void Function(
-  String message,
-  Color backgroundColor, {
-  Duration duration,
-});
+typedef NotifySnackBar =
+    void Function(String message, Color backgroundColor, {Duration duration});
 
 /// Build a resilient [NotifySnackBar] bound to [messenger].
 ///
@@ -56,16 +53,17 @@ typedef NotifySnackBar = void Function(
 /// and retried once on the next frame rather than ever letting it crash the
 /// app.
 
-NotifySnackBar makeResilientSnackBar(ScaffoldMessengerState messenger) => (
+NotifySnackBar makeResilientSnackBar(ScaffoldMessengerState messenger) =>
+    (
       String message,
       Color backgroundColor, {
       Duration duration = const Duration(seconds: 4),
     }) {
       SnackBar build() => SnackBar(
-            content: Text(message),
-            backgroundColor: backgroundColor,
-            duration: duration,
-          );
+        content: Text(message),
+        backgroundColor: backgroundColor,
+        duration: duration,
+      );
       try {
         messenger.showSnackBar(build());
       } on Object catch (_) {
@@ -136,9 +134,7 @@ Future<void> notifyShareRecipients({
         '[GrantPermissionForm] '
         'Failed to send notification to $recipientWebId: $e',
       );
-      otherFailures.add(
-        (recipient: recipientWebId as String, error: '$e'),
-      );
+      otherFailures.add((recipient: recipientWebId as String, error: '$e'));
     }
   }
 
@@ -153,8 +149,9 @@ Future<void> notifyShareRecipients({
     );
   }
   if (otherFailures.isNotEmpty) {
-    final summary =
-        otherFailures.map((f) => '${f.recipient} (${f.error})').join('; ');
+    final summary = otherFailures
+        .map((f) => '${f.recipient} (${f.error})')
+        .join('; ');
     showSnack(
       'Permission granted, but notification delivery failed: $summary',
       ActionColors.warning,

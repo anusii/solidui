@@ -39,7 +39,7 @@ class SetKeyDialog extends StatefulWidget {
   final TextEditingController confirmKeyController;
   final Future<void> Function() onKeyChanged;
   final Future<bool> Function(String key, String confirmKey)
-      handleSubmissionFunction;
+  handleSubmissionFunction;
 
   const SetKeyDialog({
     super.key,
@@ -191,22 +191,23 @@ class _SetKeyDialogState extends State<SetKeyDialog> {
             if (!_isLoading) ...[
               TextField(
                 controller: widget.keyController,
-                decoration: SecurityKeyUIHelpers.getInputDecoration(
-                  'Enter Security Key',
-                  ThemeData(),
-                ).copyWith(
-                  errorText: _keyErrorText,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureKey ? Icons.visibility : Icons.visibility_off,
+                decoration:
+                    SecurityKeyUIHelpers.getInputDecoration(
+                      'Enter Security Key',
+                      ThemeData(),
+                    ).copyWith(
+                      errorText: _keyErrorText,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureKey ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureKey = !_obscureKey;
+                          });
+                        },
+                      ),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureKey = !_obscureKey;
-                      });
-                    },
-                  ),
-                ),
                 obscureText: _obscureKey,
                 keyboardType: TextInputType.visiblePassword,
                 enableSuggestions: false,
@@ -215,24 +216,25 @@ class _SetKeyDialogState extends State<SetKeyDialog> {
               const SizedBox(height: 16),
               TextField(
                 controller: widget.confirmKeyController,
-                decoration: SecurityKeyUIHelpers.getInputDecoration(
-                  'Confirm Security Key',
-                  ThemeData(),
-                ).copyWith(
-                  errorText: _confirmKeyErrorText,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureConfirmKey
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                decoration:
+                    SecurityKeyUIHelpers.getInputDecoration(
+                      'Confirm Security Key',
+                      ThemeData(),
+                    ).copyWith(
+                      errorText: _confirmKeyErrorText,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureConfirmKey
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureConfirmKey = !_obscureConfirmKey;
+                          });
+                        },
+                      ),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureConfirmKey = !_obscureConfirmKey;
-                      });
-                    },
-                  ),
-                ),
                 obscureText: _obscureConfirmKey,
                 keyboardType: TextInputType.visiblePassword,
                 enableSuggestions: false,

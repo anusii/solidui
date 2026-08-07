@@ -122,9 +122,11 @@ class _SolidThemeAppState extends State<SolidThemeApp>
     if (!_isInitialized) {
       return MaterialApp(
         title: widget.title,
-        theme: widget.theme ??
+        theme:
+            widget.theme ??
             (widget.themeConfig?.lightTheme ?? SolidTheme.lightTheme()),
-        darkTheme: widget.darkTheme ??
+        darkTheme:
+            widget.darkTheme ??
             (widget.themeConfig?.darkTheme ?? SolidTheme.darkTheme()),
         themeMode: ThemeMode.system, // Use system theme as fallback
         debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
@@ -137,9 +139,11 @@ class _SolidThemeAppState extends State<SolidThemeApp>
       builder: (context, _) {
         return MaterialApp(
           title: widget.title,
-          theme: widget.theme ??
+          theme:
+              widget.theme ??
               (widget.themeConfig?.lightTheme ?? SolidTheme.lightTheme()),
-          darkTheme: widget.darkTheme ??
+          darkTheme:
+              widget.darkTheme ??
               (widget.themeConfig?.darkTheme ?? SolidTheme.darkTheme()),
           themeMode: solidThemeNotifier.themeMode,
           debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,

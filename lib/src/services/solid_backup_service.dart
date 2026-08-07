@@ -221,7 +221,8 @@ class BackupAppMismatchException implements Exception {
   final String currentAppId;
 
   @override
-  String toString() => 'BackupAppMismatchException: backup was created by '
+  String toString() =>
+      'BackupAppMismatchException: backup was created by '
       '"$backupAppId" but this application is "$currentAppId"';
 }
 
@@ -252,20 +253,20 @@ class _BackupEntry {
   });
 
   factory _BackupEntry.fromJson(Map<String, dynamic> json) => _BackupEntry(
-        path: json['path'] as String,
-        content: json['content'] as String,
-        encrypted: json['encrypted'] as bool? ?? true,
-      );
+    path: json['path'] as String,
+    content: json['content'] as String,
+    encrypted: json['encrypted'] as bool? ?? true,
+  );
 
   final String path;
   final String content;
   final bool encrypted;
 
   Map<String, dynamic> toJson() => {
-        'path': path,
-        'content': content,
-        'encrypted': encrypted,
-      };
+    'path': path,
+    'content': content,
+    'encrypted': encrypted,
+  };
 }
 
 // Service.
@@ -359,9 +360,9 @@ class SolidBackupService {
     final salt = _randomBytes(_saltLength);
     final iv = IV(_randomBytes(_ivLength));
     final aesKey = Key(_deriveKey(securityKey, salt, _kdfInfoAesKey));
-    final payloadBase64 = Encrypter(AES(aesKey, mode: AESMode.cbc))
-        .encrypt(bundleJson, iv: iv)
-        .base64;
+    final payloadBase64 = Encrypter(
+      AES(aesKey, mode: AESMode.cbc),
+    ).encrypt(bundleJson, iv: iv).base64;
 
     final createdAt = (now ?? DateTime.now()).toUtc();
 
@@ -377,10 +378,7 @@ class SolidBackupService {
         'iterations': _kdfIterations,
         'salt': base64.encode(salt),
       },
-      'cipher': {
-        'algorithm': 'AES-256-CBC',
-        'iv': iv.base64,
-      },
+      'cipher': {'algorithm': 'AES-256-CBC', 'iv': iv.base64},
       'keyFingerprint': _fingerprint(securityKey, salt),
       'payload': payloadBase64,
     };
@@ -529,8 +527,9 @@ class SolidBackupService {
 
     String bundleJson;
     try {
-      bundleJson = Encrypter(AES(aesKey, mode: AESMode.cbc))
-          .decrypt(Encrypted.fromBase64(header.payloadBase64), iv: iv);
+      bundleJson = Encrypter(
+        AES(aesKey, mode: AESMode.cbc),
+      ).decrypt(Encrypted.fromBase64(header.payloadBase64), iv: iv);
     } on Object catch (e) {
       throw InvalidBackupFileException(
         'Failed to decrypt the backup payload ($e).',

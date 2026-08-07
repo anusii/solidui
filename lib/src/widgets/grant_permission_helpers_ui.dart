@@ -73,7 +73,8 @@ const updatePermissionMsg =
     'Please login first to update file access permission';
 const podNotInitMsg =
     'The owner of one or more WebIds you entered have not initialised their PODs yet! They need to login and setup their POD first.';
-const noAclMsg = 'Resource does not have a corresponding ACL file.\n'
+const noAclMsg =
+    'Resource does not have a corresponding ACL file.\n'
     'If the ACL is inherited, provide parent directory as the resource name!';
 const successMsg = 'File access permissions granted successfully!';
 const failureMsg =
@@ -126,10 +127,7 @@ const ownerRecipientTypes = [
 const granterRecipientTypes = [RecipientType.individual, RecipientType.group];
 
 /// Get title of sharing page.
-String makeSharingTitleStr({
-  List<String>? resourceNames,
-  bool isFile = false,
-}) {
+String makeSharingTitleStr({List<String>? resourceNames, bool isFile = false}) {
   if (resourceNames != null && resourceNames.length > 1) {
     return isFile ? 'Sharing multiple files' : 'Sharing multiple folders';
   } else if (resourceNames != null) {
@@ -146,12 +144,11 @@ List<Widget> getPermissionCheckBoxes(
   List<AccessMode> accessModes, {
   required Map<AccessMode, bool> modeSwitches,
   required Function onUpdate,
-}) =>
-    [
-      for (final mode in AccessMode.getAllModes())
-        if (accessModes.contains(mode))
-          permissionCheckbox(mode, modeSwitches[mode]!, onUpdate),
-    ];
+}) => [
+  for (final mode in AccessMode.getAllModes())
+    if (accessModes.contains(mode))
+      permissionCheckbox(mode, modeSwitches[mode]!, onUpdate),
+];
 
 /// Build a resource form widget with a text field and a file/directory toggle.
 
@@ -159,47 +156,46 @@ Widget getResourceForm({
   required TextEditingController formController,
   required bool isFile,
   required void Function(bool) onResourceTypeChange,
-}) =>
-    Padding(
-      padding: SharingPageLayout.inputPadding,
-      child: Column(
+}) => Padding(
+  padding: SharingPageLayout.inputPadding,
+  child: Column(
+    children: [
+      TextFormField(
+        controller: formController,
+        decoration: const InputDecoration(
+          hintText:
+              'Data file path (inside your data folder, Eg: personal/about.ttl)',
+        ),
+        validator: (value) =>
+            (value == null || value.isEmpty) ? 'Empty field' : null,
+      ),
+      const SizedBox(height: 10),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          TextFormField(
-            controller: formController,
-            decoration: const InputDecoration(
-              hintText:
-                  'Data file path (inside your data folder, Eg: personal/about.ttl)',
-            ),
-            validator: (value) =>
-                (value == null || value.isEmpty) ? 'Empty field' : null,
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Text(
-                    'Is a File?',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(isFile ? 'Yes' : 'No'),
-                ],
+              const Text(
+                'Is a File?',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              Builder(
-                builder: (context) => Switch(
-                  value: isFile,
-                  activeThumbColor:
-                      Theme.of(context).switchTheme.thumbColor?.resolve(
-                            {WidgetState.selected},
-                          ) ??
-                          ActionColors.success,
-                  onChanged: onResourceTypeChange,
-                ),
-              ),
+              Text(isFile ? 'Yes' : 'No'),
             ],
+          ),
+          Builder(
+            builder: (context) => Switch(
+              value: isFile,
+              activeThumbColor:
+                  Theme.of(
+                    context,
+                  ).switchTheme.thumbColor?.resolve({WidgetState.selected}) ??
+                  ActionColors.success,
+              onChanged: onResourceTypeChange,
+            ),
           ),
         ],
       ),
-    );
+    ],
+  ),
+);

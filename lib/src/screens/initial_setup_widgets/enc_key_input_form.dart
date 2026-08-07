@@ -106,7 +106,6 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
                 // When retyping is not required this is the last field in
                 // the form, so pressing Enter should submit rather than
                 // move focus to a non-existent retype field.
-
                 textInputAction: widget.requireRetype
                     ? TextInputAction.next
                     : TextInputAction.done,
@@ -186,7 +185,10 @@ class _EncKeyInputFormState extends State<EncKeyInputForm> {
                     FormBuilderValidators.required(),
                     (val) {
                       if (val !=
-                          widget.formKey.currentState!.fields[securityKeyStr]
+                          widget
+                              .formKey
+                              .currentState!
+                              .fields[securityKeyStr]
                               ?.value) {
                         return 'Security keys do not match';
                       }

@@ -90,12 +90,13 @@ class SolidScaffoldBuildHelper {
       endDrawer: endDrawer,
       backgroundColor: backgroundColor ?? theme.colorScheme.surface,
       floatingActionButton: fab,
-      floatingActionButtonLocation: (!isCompatibilityMode &&
+      floatingActionButtonLocation:
+          (!isCompatibilityMode &&
               resolveAppBar(context, isCompatibilityMode) == null &&
               !isWideScreen)
           ? const SolidNavButtonStartTopLocation()
           : (floatingActionButtonLocation ??
-              FloatingActionButtonLocation.endFloat),
+                FloatingActionButtonLocation.endFloat),
       floatingActionButtonAnimator: floatingActionButtonAnimator,
       body: bodyContent,
       bottomNavigationBar: bottomNavigationBar,
@@ -141,36 +142,36 @@ class SolidScaffoldBuildHelper {
       floatingActionButton: config.floatingActionButton,
       resolveAppBar: (context, isCompatibilityMode) =>
           SolidScaffoldHelpers.resolveAppBar(
-        context,
-        config.appBar,
-        config.scaffoldAppBar,
-        isCompatibilityMode,
-        config.menu,
-        (context) => SolidScaffoldHelpers.buildAppBarFromConfig(
-          context,
-          config.appBar,
-          config.themeToggle,
-          SolidScaffoldHelpers.getCurrentThemeMode(
-            getUsesInternalManagement(),
-            solidThemeNotifier,
-            config.themeToggle,
+            context,
+            config.appBar,
+            config.scaffoldAppBar,
+            isCompatibilityMode,
+            config.menu,
+            (context) => SolidScaffoldHelpers.buildAppBarFromConfig(
+              context,
+              config.appBar,
+              config.themeToggle,
+              SolidScaffoldHelpers.getCurrentThemeMode(
+                getUsesInternalManagement(),
+                solidThemeNotifier,
+                config.themeToggle,
+              ),
+              SolidScaffoldHelpers.getThemeToggleCallback(
+                getUsesInternalManagement(),
+                solidThemeNotifier,
+                config.themeToggle,
+              ),
+              config.aboutConfig ?? const SolidAboutConfig(),
+              config.narrowScreenThreshold,
+              shouldShowVersion,
+              getVersionToDisplay,
+              hideNavRail: config.hideNavRail,
+              showLogout: config.onLogout != null,
+              showLogin: config.showLogin,
+              onLogout: config.onLogout,
+              constraints: constraints,
+            ),
           ),
-          SolidScaffoldHelpers.getThemeToggleCallback(
-            getUsesInternalManagement(),
-            solidThemeNotifier,
-            config.themeToggle,
-          ),
-          config.aboutConfig ?? const SolidAboutConfig(),
-          config.narrowScreenThreshold,
-          shouldShowVersion,
-          getVersionToDisplay,
-          hideNavRail: config.hideNavRail,
-          showLogout: config.onLogout != null,
-          showLogin: config.showLogin,
-          onLogout: config.onLogout,
-          constraints: constraints,
-        ),
-      ),
       buildDrawer: () {
         if (isWideScreen || config.menu == null) return null;
 
@@ -210,11 +211,11 @@ class SolidScaffoldBuildHelper {
       bottomNavigationBar: isCompatibilityMode
           ? config.bottomNavigationBar
           : (config.hideNavRail
-              ? null
-              : SolidScaffoldLayoutBuilder.buildStatusBar(
-                  config.statusBar,
-                  isKeySaved,
-                )),
+                ? null
+                : SolidScaffoldLayoutBuilder.buildStatusBar(
+                    config.statusBar,
+                    isKeySaved,
+                  )),
       bottomSheet: config.bottomSheet,
       persistentFooterButtons: config.persistentFooterButtons,
       resizeToAvoidBottomInset: config.resizeToAvoidBottomInset,

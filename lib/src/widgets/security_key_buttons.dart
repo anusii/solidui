@@ -92,9 +92,7 @@ class SecurityKeyButtons extends StatelessWidget {
 
     final cancelButton = TextButton(
       onPressed: isSubmitting ? null : onCancel,
-      style: TextButton.styleFrom(
-        padding: SecurityLayout.buttonPadding,
-      ),
+      style: TextButton.styleFrom(padding: SecurityLayout.buttonPadding),
       child: Text(
         SecurityStrings.cancel,
         style: SecurityThemeTextStyles.cancelButton(context),
@@ -103,11 +101,7 @@ class SecurityKeyButtons extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        cancelButton,
-        SecurityLayout.horizontalGap,
-        submitButton,
-      ],
+      children: [cancelButton, SecurityLayout.horizontalGap, submitButton],
     );
   }
 }

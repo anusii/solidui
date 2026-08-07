@@ -73,8 +73,9 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
   void showNotificationDetail(PodNotification notification) {
     _markAsRead(notification.id);
 
-    final dateTime =
-        DateTime.fromMillisecondsSinceEpoch(notification.timestamp);
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(
+      notification.timestamp,
+    );
     final structured = _parseStructuredContent(notification.content);
 
     final fileTitle =
@@ -140,10 +141,7 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
           actions: [
             TextButton.icon(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
-              label: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
+              label: const Text('Delete', style: TextStyle(color: Colors.red)),
               onPressed: () {
                 Navigator.pop(ctx);
                 confirmAndDelete(notification);
@@ -256,11 +254,7 @@ extension _NotificationCentreHelpers on _SolidNotificationCentreState {
             shape: BoxShape.circle,
           ),
           padding: const EdgeInsets.all(1),
-          child: const Icon(
-            Icons.arrow_downward,
-            color: Colors.blue,
-            size: 20,
-          ),
+          child: const Icon(Icons.arrow_downward, color: Colors.blue, size: 20),
         );
       default:
         return null;

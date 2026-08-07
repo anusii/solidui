@@ -171,41 +171,41 @@ class SolidScaffoldWidgetBuilder {
       floatingActionButton: widget.floatingActionButton,
       resolveAppBar: (context, isCompatibilityMode) =>
           SolidScaffoldHelpers.resolveAppBar(
-        context,
-        widget.appBar,
-        widget.scaffoldAppBar,
-        isCompatibilityMode,
-        widget.menu,
-        (context) => SolidScaffoldHelpers.buildAppBarFromConfig(
-          context,
-          widget.appBar,
-          widget.themeToggle,
-          SolidScaffoldHelpers.getCurrentThemeMode(
-            getUsesInternalManagement(),
-            solidThemeNotifier,
-            widget.themeToggle,
+            context,
+            widget.appBar,
+            widget.scaffoldAppBar,
+            isCompatibilityMode,
+            widget.menu,
+            (context) => SolidScaffoldHelpers.buildAppBarFromConfig(
+              context,
+              widget.appBar,
+              widget.themeToggle,
+              SolidScaffoldHelpers.getCurrentThemeMode(
+                getUsesInternalManagement(),
+                solidThemeNotifier,
+                widget.themeToggle,
+              ),
+              SolidScaffoldHelpers.getThemeToggleCallback(
+                getUsesInternalManagement(),
+                solidThemeNotifier,
+                widget.themeToggle,
+              ),
+              _resolveAboutConfig(widget),
+              widget.narrowScreenThreshold,
+              shouldShowVersion,
+              getVersionToDisplay,
+              hideNavRail: widget.hideNavRail,
+              showLogout: widget.showLogout,
+              showLogin: widget.showLogin,
+              showNotifications: widget.showNotifications,
+              onLogout: effectiveLogout,
+              onLogin: effectiveLogin,
+              constraints: constraints,
+              enableProfileOverride: widget.enableProfile,
+              inviteConfig: widget.inviteConfig,
+              enableOverflowMenu: widget.enableOverflowMenu,
+            ),
           ),
-          SolidScaffoldHelpers.getThemeToggleCallback(
-            getUsesInternalManagement(),
-            solidThemeNotifier,
-            widget.themeToggle,
-          ),
-          _resolveAboutConfig(widget),
-          widget.narrowScreenThreshold,
-          shouldShowVersion,
-          getVersionToDisplay,
-          hideNavRail: widget.hideNavRail,
-          showLogout: widget.showLogout,
-          showLogin: widget.showLogin,
-          showNotifications: widget.showNotifications,
-          onLogout: effectiveLogout,
-          onLogin: effectiveLogin,
-          constraints: constraints,
-          enableProfileOverride: widget.enableProfile,
-          inviteConfig: widget.inviteConfig,
-          enableOverflowMenu: widget.enableOverflowMenu,
-        ),
-      ),
       buildDrawer: () {
         if (isWideScreen || widget.menu == null) return null;
 
@@ -234,16 +234,16 @@ class SolidScaffoldWidgetBuilder {
       bottomNavigationBar: isCompatibilityMode
           ? widget.bottomNavigationBar
           : (widget.hideNavRail
-              ? null
-              : SolidScaffoldLayoutBuilder.buildBottomBarArea(
-                  useMenuInBottomBar: useMenuInBottomBar,
-                  tabs: navTabs,
-                  selectedIndex: currentSelectedIndex,
-                  onTabSelected: onMenuSelected,
-                  onShowAlert: widget.onShowAlert,
-                  statusBar: widget.statusBar,
-                  isKeySaved: isKeySaved,
-                )),
+                ? null
+                : SolidScaffoldLayoutBuilder.buildBottomBarArea(
+                    useMenuInBottomBar: useMenuInBottomBar,
+                    tabs: navTabs,
+                    selectedIndex: currentSelectedIndex,
+                    onTabSelected: onMenuSelected,
+                    onShowAlert: widget.onShowAlert,
+                    statusBar: widget.statusBar,
+                    isKeySaved: isKeySaved,
+                  )),
       bottomSheet: widget.bottomSheet,
       persistentFooterButtons: widget.persistentFooterButtons,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,

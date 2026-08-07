@@ -52,9 +52,9 @@ class GrantPermissionResourceList extends StatefulWidget {
     this.showTitle = false,
     this.titleData,
   }) : assert(
-          !showTitle || titleData != null,
-          'titleData must not be null when showTitle is true',
-        );
+         !showTitle || titleData != null,
+         'titleData must not be null when showTitle is true',
+       );
 
   final List<String> resourceNames;
   final bool showFullPath;
@@ -77,11 +77,11 @@ class _GrantPermissionResourceListState
   }
 
   String _displayName(String name) => PathUtils.resourceDisplayName(
-        name,
-        showFullPath: widget.showFullPath,
-        showTitle: widget.showTitle,
-        titleData: widget.titleData,
-      );
+    name,
+    showFullPath: widget.showFullPath,
+    showTitle: widget.showTitle,
+    titleData: widget.titleData,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -106,10 +106,9 @@ class _GrantPermissionResourceListState
                     padding: const EdgeInsets.fromLTRB(0, 2, 1, 2),
                     child: Text(
                       _displayName(name),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontSize: 12),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(fontSize: 12),
                     ),
                   ),
                 ),

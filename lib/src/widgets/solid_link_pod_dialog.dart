@@ -40,13 +40,11 @@ import 'package:solidui/src/utils/snack_bar.dart';
 enum _LinkStage {
   /// Collect the target Pod's server URL and registration token, then add
   /// the `solid:oidcIssuerRegistrationToken` proof-of-ownership triple.
-
   addToken,
 
   /// A registration token is already present on the WebID (just added, or
   /// found on reopen) — collect/confirm the Pod URL and finish the link by
   /// removing the token and adding the `solid:oidcIssuer` triple.
-
   finish,
 }
 
@@ -68,9 +66,9 @@ class SolidLinkPodDialog extends StatefulWidget {
   /// Opens the dialog.
 
   static Future<void> show(BuildContext context) => showDialog<void>(
-        context: context,
-        builder: (_) => const SolidLinkPodDialog(),
-      );
+    context: context,
+    builder: (_) => const SolidLinkPodDialog(),
+  );
 
   @override
   State<SolidLinkPodDialog> createState() => _SolidLinkPodDialogState();
@@ -106,8 +104,9 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
   Future<void> _detectStage() async {
     try {
       final turtle = await SolidWebIdService.instance.fetchWebIdTurtle();
-      final pending =
-          SolidWebIdService.instance.findPendingRegistrationToken(turtle);
+      final pending = SolidWebIdService.instance.findPendingRegistrationToken(
+        turtle,
+      );
       if (mounted && pending != null) {
         setState(() => _stage = _LinkStage.finish);
       }
@@ -147,10 +146,12 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
       // opened is still caught.
 
       final turtle = await SolidWebIdService.instance.fetchWebIdTurtle();
-      final existingIssuers =
-          SolidWebIdService.instance.currentOidcIssuers(turtle);
-      final normalizedPodUrl =
-          SolidWebIdService.instance.normalizePodUrl(podUrl);
+      final existingIssuers = SolidWebIdService.instance.currentOidcIssuers(
+        turtle,
+      );
+      final normalizedPodUrl = SolidWebIdService.instance.normalizePodUrl(
+        podUrl,
+      );
       if (existingIssuers.contains(normalizedPodUrl)) {
         setState(() => _issuerAlreadyLinked = true);
         _setMessage(
@@ -211,10 +212,7 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
         'below.',
       );
     } on Object catch (e) {
-      _setMessage(
-        'Failed to remove the existing issuer link: $e',
-        error: true,
-      );
+      _setMessage('Failed to remove the existing issuer link: $e', error: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -282,13 +280,13 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
                       Text(
                         _stage == _LinkStage.addToken
                             ? 'Enter the Pod server you want to link and the '
-                                'verification token it gave you. This adds a '
-                                'temporary triple to your WebID proving you '
-                                'own it.'
+                                  'verification token it gave you. This adds a '
+                                  'temporary triple to your WebID proving you '
+                                  'own it.'
                             : 'Enter the Pod server you are linking (if not '
-                                'already filled in). This removes the '
-                                'temporary verification token and registers '
-                                'the Pod server as a login issuer on your WebID.',
+                                  'already filled in). This removes the '
+                                  'temporary verification token and registers '
+                                  'the Pod server as a login issuer on your WebID.',
                         style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                       const Gap(16),
@@ -359,15 +357,15 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
             onPressed: _busy
                 ? null
                 : (_stage == _LinkStage.addToken
-                    ? (_issuerAlreadyLinked
-                        ? _handleRemoveIssuerAndAddToken
-                        : _handleAddToken)
-                    : _handleFinishLinking),
+                      ? (_issuerAlreadyLinked
+                            ? _handleRemoveIssuerAndAddToken
+                            : _handleAddToken)
+                      : _handleFinishLinking),
             child: Text(
               _stage == _LinkStage.addToken
                   ? (_issuerAlreadyLinked
-                      ? 'Remove Issuer & Add Token'
-                      : 'Add Token')
+                        ? 'Remove Issuer & Add Token'
+                        : 'Add Token')
                   : 'Finish Linking',
             ),
           ),
@@ -392,8 +390,9 @@ class _MessageBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background =
-        isError ? colorScheme.errorContainer : colorScheme.secondaryContainer;
+    final background = isError
+        ? colorScheme.errorContainer
+        : colorScheme.secondaryContainer;
     final foreground = isError
         ? colorScheme.onErrorContainer
         : colorScheme.onSecondaryContainer;
@@ -415,10 +414,7 @@ class _MessageBanner extends StatelessWidget {
           ),
           const Gap(8),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: foreground),
-            ),
+            child: Text(message, style: TextStyle(color: foreground)),
           ),
         ],
       ),

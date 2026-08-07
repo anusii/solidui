@@ -53,11 +53,8 @@ import 'package:solidui/src/widgets/solid_login_helper.dart';
 
 /// Signature for the snackbar helper used by login actions.
 
-typedef LoginSnackbar = void Function(
-  String message, {
-  Duration? duration,
-  bool showAction,
-});
+typedef LoginSnackbar =
+    void Function(String message, {Duration? duration, bool showAction});
 
 /// Static action helpers for the SolidLogin widget.
 ///
@@ -94,19 +91,19 @@ class SolidLoginActions {
           child: Text(
             isKeyringLocked
                 ? 'Your system keyring is locked, so saved login '
-                    'credentials cannot be read.\n\n'
-                    'On Linux, unlock the GNOME keyring and try again:\n\n'
-                    '  • Install the keyring tools:\n'
-                    '      sudo apt install gnome-keyring seahorse\n\n'
-                    '  • Open Seahorse (Passwords and Keys), then\n'
-                    '    File → New → Password Keyring, name it "Login",\n'
-                    '    and set a blank password (or your login password).\n\n'
-                    'After that the keyring unlocks automatically when you '
-                    'log in, and the app can store and read your '
-                    'credentials.'
+                      'credentials cannot be read.\n\n'
+                      'On Linux, unlock the GNOME keyring and try again:\n\n'
+                      '  • Install the keyring tools:\n'
+                      '      sudo apt install gnome-keyring seahorse\n\n'
+                      '  • Open Seahorse (Passwords and Keys), then\n'
+                      '    File → New → Password Keyring, name it "Login",\n'
+                      '    and set a blank password (or your login password).\n\n'
+                      'After that the keyring unlocks automatically when you '
+                      'log in, and the app can store and read your '
+                      'credentials.'
                 : 'The app could not read or write the system secure '
-                    'storage, so login cannot continue.\n\n'
-                    'Details:\n$msg',
+                      'storage, so login cannot continue.\n\n'
+                      'Details:\n$msg',
             style: const TextStyle(fontSize: 13, height: 1.5),
           ),
         ),

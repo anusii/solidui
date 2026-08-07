@@ -60,9 +60,7 @@ class SolidLoginBuildHelper {
           final serverUrl = webIdController.text.trim().isNotEmpty
               ? webIdController.text.trim()
               : SolidConfig.defaultServerUrl;
-          unawaited(
-            createAccountPopup(context, child, serverUrl: serverUrl),
-          );
+          unawaited(createAccountPopup(context, child, serverUrl: serverUrl));
         },
         focusNode: focusNode,
       ),

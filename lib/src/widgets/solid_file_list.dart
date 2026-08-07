@@ -59,7 +59,7 @@ class FileList extends StatelessWidget {
   /// Callback to add or remove a batch of item keys in one operation.
 
   final void Function(List<String> keys, {required bool selected})
-      onBatchSetSelection;
+  onBatchSetSelection;
 
   const FileList({
     super.key,
@@ -80,8 +80,9 @@ class FileList extends StatelessWidget {
     // Compute the selection state for the select-all checkbox.
 
     final allKeys = files.map((f) => 'file:${f.name}').toList();
-    final selectedCount =
-        allKeys.where((k) => selectedItems.contains(k)).length;
+    final selectedCount = allKeys
+        .where((k) => selectedItems.contains(k))
+        .length;
     final allSelected = selectedCount == files.length;
     final noneSelected = selectedCount == 0;
 
@@ -89,7 +90,6 @@ class FileList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section header with a select-all checkbox.
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
@@ -101,8 +101,8 @@ class FileList extends StatelessWidget {
                   value: allSelected
                       ? true
                       : noneSelected
-                          ? false
-                          : null,
+                      ? false
+                      : null,
                   tristate: true,
                   onChanged: (_) {
                     if (allSelected) {
@@ -129,20 +129,17 @@ class FileList extends StatelessWidget {
         ),
 
         // List of file items with selection support.
+        ...files.map((file) {
+          final itemKey = 'file:${file.name}';
 
-        ...files.map(
-          (file) {
-            final itemKey = 'file:${file.name}';
-
-            return FileListItem(
-              file: file,
-              currentPath: currentPath,
-              isSelected: selectedItems.contains(itemKey),
-              onFileSelected: onFileSelected,
-              onToggleSelect: () => onToggleSelection(itemKey),
-            );
-          },
-        ),
+          return FileListItem(
+            file: file,
+            currentPath: currentPath,
+            isSelected: selectedItems.contains(itemKey),
+            onFileSelected: onFileSelected,
+            onToggleSelect: () => onToggleSelection(itemKey),
+          );
+        }),
       ],
     );
   }

@@ -47,12 +47,13 @@ typedef PermissionLoadResult = ({
 
 /// Callback type for loading permission data for a resource.
 
-typedef LoadPermissionsCallback = Future<PermissionLoadResult?> Function(
-  String name, {
-  bool isFile,
-  bool isExternalRes,
-  bool silent,
-});
+typedef LoadPermissionsCallback =
+    Future<PermissionLoadResult?> Function(
+      String name, {
+      bool isFile,
+      bool isExternalRes,
+      bool silent,
+    });
 
 /// A page that displays the [ViewPermission] for a set of resources.
 ///
@@ -194,50 +195,50 @@ class _PermissionPageState extends State<PermissionPage> {
   }
 
   Widget _buildViewPermission(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(10),
-        child: LayoutBuilder(
-          builder: (context, constraints) => ViewPermission(
-            resourceNames: widget.resourceNames,
-            permDataFile: _permDataFile,
-            selectedResourceName: _selectedResourceName,
-            noPermissionHistory: _noPermissionHistory,
-            isFile: widget.isFile,
-            isExternalRes: widget.isExternalRes,
-            showFullPath: _showFullPath,
-            showTitle: _showTitle,
-            titleData: widget.titleData,
-            showCurrentPermOnly: _showCurrentPermOnly,
-            permDataMap: _permDataMap,
-            ownerWebId: _ownerWebId,
-            granterWebId: _granterWebId,
-            permHistoryList: _permHistoryList,
-            constraints: constraints,
-            updatePermissionsFunction: (
+    padding: const EdgeInsets.all(10),
+    child: LayoutBuilder(
+      builder: (context, constraints) => ViewPermission(
+        resourceNames: widget.resourceNames,
+        permDataFile: _permDataFile,
+        selectedResourceName: _selectedResourceName,
+        noPermissionHistory: _noPermissionHistory,
+        isFile: widget.isFile,
+        isExternalRes: widget.isExternalRes,
+        showFullPath: _showFullPath,
+        showTitle: _showTitle,
+        titleData: widget.titleData,
+        showCurrentPermOnly: _showCurrentPermOnly,
+        permDataMap: _permDataMap,
+        ownerWebId: _ownerWebId,
+        granterWebId: _granterWebId,
+        permHistoryList: _permHistoryList,
+        constraints: constraints,
+        updatePermissionsFunction:
+            (
               name, {
               isFile = true,
               isExternalRes = false,
               silent = false,
-            }) async =>
-                _loadPermissions(name, silent: silent),
-            onSelectedResource: (name) async => _loadPermissions(name),
-            onShowCurrentPermOnlyChanged: (value) {
-              setState(() {
-                _showCurrentPermOnly = value;
-                if (!value) {
-                  _permHistoryList = _unFilteredPermHistoryList;
-                  _searchCurrPermKeyword = '';
-                }
-              });
-            },
-            onSearchHistPermissions: _searchHistPermissions,
-            onSearchCurrPermissions: (keyword) =>
-                setState(() => _searchCurrPermKeyword = keyword),
-            searchCurrPermKeyword: _searchCurrPermKeyword,
-            onShowFullPathChanged: (v) => setState(() => _showFullPath = v),
-            onShowTitleChanged: (v) => setState(() => _showTitle = v),
-          ),
-        ),
-      );
+            }) async => _loadPermissions(name, silent: silent),
+        onSelectedResource: (name) async => _loadPermissions(name),
+        onShowCurrentPermOnlyChanged: (value) {
+          setState(() {
+            _showCurrentPermOnly = value;
+            if (!value) {
+              _permHistoryList = _unFilteredPermHistoryList;
+              _searchCurrPermKeyword = '';
+            }
+          });
+        },
+        onSearchHistPermissions: _searchHistPermissions,
+        onSearchCurrPermissions: (keyword) =>
+            setState(() => _searchCurrPermKeyword = keyword),
+        searchCurrPermKeyword: _searchCurrPermKeyword,
+        onShowFullPathChanged: (v) => setState(() => _showFullPath = v),
+        onShowTitleChanged: (v) => setState(() => _showTitle = v),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {

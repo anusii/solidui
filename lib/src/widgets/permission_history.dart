@@ -126,8 +126,9 @@ class _PermissionHistoryState extends State<PermissionHistory> {
     // Derive whether window is narrow
     isNarrow = WindowSize().isNarrowWindow(widget.constraints);
     // Calculate the aspect radio for grid cards
-    cardAspectRatio =
-        ListItemSize().calculateCardAspectRatio(widget.constraints);
+    cardAspectRatio = ListItemSize().calculateCardAspectRatio(
+      widget.constraints,
+    );
 
     return Expanded(
       child: GridView.builder(
@@ -169,19 +170,19 @@ class _PermissionHistoryState extends State<PermissionHistory> {
                       ),
                     ),
                   ),
-                  // Permission item title
 
+                  // Permission item title
                   title: Text(
                     _permHistory[index].permissionType == 'grant'
                         ? '${_permHistory[index].dateTime}: '
-                            '${_permHistory[index].recipientName} '
-                            '${_permHistory[index].permissionTypeLabel} '
-                            '${_permHistory[index].permissionList} '
-                            'access'
+                              '${_permHistory[index].recipientName} '
+                              '${_permHistory[index].permissionTypeLabel} '
+                              '${_permHistory[index].permissionList} '
+                              'access'
                         : '${_permHistory[index].dateTime}: '
-                            '${_permHistory[index].permissionList} '
-                            'access ${_permHistory[index].permissionTypeLabel} to '
-                            '${_permHistory[index].recipientName}',
+                              '${_permHistory[index].permissionList} '
+                              'access ${_permHistory[index].permissionTypeLabel} to '
+                              '${_permHistory[index].recipientName}',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

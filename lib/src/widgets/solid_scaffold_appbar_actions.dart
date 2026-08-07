@@ -80,7 +80,8 @@ class SolidAppBarActionsManager {
 
     final existingActions = solidPreferencesNotifier.appBarActions;
     final needsInit = existingActions.isEmpty;
-    final needsMerge = !needsInit &&
+    final needsMerge =
+        !needsInit &&
         _hasMissingButtons(
           existingActions,
           config,
@@ -257,8 +258,9 @@ class SolidAppBarActionsManager {
     // setState() during the build phase, since initializeIfNeeded is
     // invoked from within buildAppBar.
 
-    final actionsToSet =
-        needsMerge ? _mergeActions(existingActions, actions) : actions;
+    final actionsToSet = needsMerge
+        ? _mergeActions(existingActions, actions)
+        : actions;
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       solidPreferencesNotifier.setAppBarActions(actionsToSet);

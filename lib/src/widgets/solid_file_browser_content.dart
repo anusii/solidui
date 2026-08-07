@@ -72,7 +72,7 @@ class FileBrowserContent extends StatelessWidget {
   /// Callback to add or remove a batch of item keys in one operation.
 
   final void Function(List<String> keys, {required bool selected})
-      onBatchSetSelection;
+  onBatchSetSelection;
 
   const FileBrowserContent({
     super.key,
@@ -115,7 +115,6 @@ class FileBrowserContent extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               children: [
                 // Directory list with selection support.
-
                 DirectoryList(
                   directories: directories,
                   directoryCounts: directoryCounts,
@@ -126,12 +125,10 @@ class FileBrowserContent extends StatelessWidget {
                 ),
 
                 // Add visual separator if both directories and files exist.
-
                 if (directories.isNotEmpty && files.isNotEmpty)
                   Divider(height: 24, color: Theme.of(context).dividerColor),
 
                 // File list with selection support.
-
                 FileList(
                   files: files,
                   currentPath: currentPath,

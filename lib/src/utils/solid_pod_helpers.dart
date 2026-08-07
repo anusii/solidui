@@ -216,8 +216,9 @@ Future<void> getKeyFromUserIfRequired(
         } on SecurityKeyVerificationException {
           // Wrong key: show an inline error and keep the prompt open.
 
-          formKey.currentState?.fields[inputKey]
-              ?.invalidate('Incorrect Security Key');
+          formKey.currentState?.fields[inputKey]?.invalidate(
+            'Incorrect Security Key',
+          );
           return;
         }
         debugPrint('Security key saved');

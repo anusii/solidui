@@ -175,7 +175,8 @@ class SolidAppBarOverflowHandler {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
-    final isInOverflow = actionConfig?.showInOverflow ??
+    final isInOverflow =
+        actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.inviteOthers);
     if (forceOverflow) return isInOverflow;
     return isInOverflow;
@@ -195,7 +196,8 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow = actionConfig?.showInOverflow ??
+    final isInOverflow =
+        actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.logout);
 
     if (forceOverflow) return isInOverflow;
@@ -216,7 +218,8 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow = actionConfig?.showInOverflow ??
+    final isInOverflow =
+        actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.themeToggle);
 
     if (forceOverflow) return isInOverflow;
@@ -237,7 +240,8 @@ class SolidAppBarOverflowHandler {
     final isVisible = actionConfig?.isVisible ?? true;
     if (!isVisible) return false;
 
-    final isInOverflow = actionConfig?.showInOverflow ??
+    final isInOverflow =
+        actionConfig?.showInOverflow ??
         defaultOverflowActionIds.contains(SolidAppBarActionIds.about);
 
     if (forceOverflow) return isInOverflow;
@@ -387,9 +391,7 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
     } else if (id == SolidAppBarActionIds.notifications) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => const SolidNotificationCentre(),
-        ),
+        MaterialPageRoute(builder: (_) => const SolidNotificationCentre()),
       );
     } else if (id == 'login') {
       // User tapped login whilst logged out.

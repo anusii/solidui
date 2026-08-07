@@ -88,9 +88,7 @@ class _IndWebIdInputScreenState extends State<IndWebIdInputScreen> {
   }
 
   // Load Individual WebId Text Input
-  Widget _loadIndWebIdTextInput([
-    List<String> uniqRecipWebIdList = const [],
-  ]) {
+  Widget _loadIndWebIdTextInput([List<String> uniqRecipWebIdList = const []]) {
     return IndWebIdTextInput(
       uniqRecipWebIdList: uniqRecipWebIdList,
       onTextChanged: widget.onTextChanged,

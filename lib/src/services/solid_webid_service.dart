@@ -146,7 +146,8 @@ class SolidWebIdService {
   Future<void> addRegistrationToken(String token) async {
     final (:webId, :docUrl) = await _current();
     final escaped = _escapeLiteral(token);
-    final query = 'INSERT DATA '
+    final query =
+        'INSERT DATA '
         '{<$webId> <$_oidcIssuerRegistrationTokenPredicate> "$escaped"};';
     await updateFileByQuery(docUrl, query);
   }
@@ -168,15 +169,17 @@ class SolidWebIdService {
     final targetOrigin = normalizePodUrl(podIssuerUrl);
 
     final turtle = await fetchWebIdTurtle();
-    final toRemove = _valuesOf(turtle, _oidcIssuerPredicate)
-        .where((raw) => normalizePodUrl(raw) == targetOrigin)
-        .toSet();
+    final toRemove = _valuesOf(
+      turtle,
+      _oidcIssuerPredicate,
+    ).where((raw) => normalizePodUrl(raw) == targetOrigin).toSet();
 
     final escaped = _escapeLiteral(token);
     final deleteClause = toRemove.isEmpty
         ? ''
         : 'DELETE DATA {${toRemove.map((raw) => '<$webId> <$_oidcIssuerPredicate> <$raw>').join('. ')}.}; ';
-    final query = '$deleteClause'
+    final query =
+        '$deleteClause'
         'INSERT DATA {<$webId> <$_oidcIssuerRegistrationTokenPredicate>'
         ' "$escaped"};';
     await updateFileByQuery(docUrl, query);
@@ -189,7 +192,8 @@ class SolidWebIdService {
   Future<void> completeLink(String podIssuerUrl) async {
     final (:webId, :docUrl) = await _current();
     final issuerUrl = normalizePodUrl(podIssuerUrl);
-    final query = 'DELETE {<$webId> <$_oidcIssuerRegistrationTokenPredicate>'
+    final query =
+        'DELETE {<$webId> <$_oidcIssuerRegistrationTokenPredicate>'
         ' ?o} WHERE {<$webId> <$_oidcIssuerRegistrationTokenPredicate> ?o};'
         ' INSERT DATA {<$webId> <$_oidcIssuerPredicate> <$issuerUrl>};';
     await updateFileByQuery(docUrl, query);

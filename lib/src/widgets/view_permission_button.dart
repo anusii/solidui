@@ -53,8 +53,8 @@ class ViewPermissionButton extends StatelessWidget {
       icon: const Icon(Icons.visibility),
       style: buttonColor != null
           ? Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                backgroundColor: WidgetStateProperty.all<Color>(buttonColor!),
-              )
+              backgroundColor: WidgetStateProperty.all<Color>(buttonColor!),
+            )
           : Theme.of(context).elevatedButtonTheme.style,
       onPressed: onPressed,
       label: const Text('View Permissions'),

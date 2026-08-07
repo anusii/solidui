@@ -169,7 +169,8 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
     final cs = theme.colorScheme;
 
     return Drawer(
-      shape: widget.drawerShape ??
+      shape:
+          widget.drawerShape ??
           const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(16),
@@ -300,11 +301,11 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
       color: isKeySaved ? cs.tertiary : cs.error,
       tooltip: isKeySaved
           ? '**Security Key Cached**\n\n'
-              'Your encryption key is saved locally. '
-              'Tap to view, change, or forget the key.'
+                'Your encryption key is saved locally. '
+                'Tap to view, change, or forget the key.'
           : '**No Security Key**\n\n'
-              'No encryption key is cached. '
-              'Tap to set up a key for encrypting data on your Solid Pod.',
+                'No encryption key is cached. '
+                'Tap to set up a key for encrypting data on your Solid Pod.',
       onTap: () {
         Navigator.of(context).pop();
         if (status.onTap != null) {
@@ -327,11 +328,11 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
       color: _isLoggedIn ? cs.tertiary : cs.error,
       tooltip: _isLoggedIn
           ? '**Logged In**\n\n'
-              'You are authenticated with your Solid Pod. '
-              'Tap to manage your session.'
+                'You are authenticated with your Solid Pod. '
+                'Tap to manage your session.'
           : '**Not Logged In**\n\n'
-              'You are not connected to a Solid Pod. '
-              'Tap to log in and access your data.',
+                'You are not connected to a Solid Pod. '
+                'Tap to log in and access your data.',
       onTap: () {
         Navigator.of(context).pop();
         widget.onUserNameTap!(context);
