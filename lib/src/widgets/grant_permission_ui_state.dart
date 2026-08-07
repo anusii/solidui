@@ -287,8 +287,12 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
         showTitle: _showTitle,
         titleData: widget.titleData,
         backgroundColor: widget.backgroundColor,
-        loadPermissions: (name,
-                {isFile = true, isExternalRes = false, silent = false}) =>
+        loadPermissions: (
+          name, {
+          isFile = true,
+          isExternalRes = false,
+          silent = false,
+        }) =>
             _loadPermissionData(
           name,
           isFile: isFile,

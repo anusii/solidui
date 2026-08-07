@@ -40,8 +40,11 @@ import 'package:solidui/src/constants/ui_colors.dart' show ActionColors;
 /// Signature for the snack-bar reporter used to surface notification
 /// delivery outcomes back to the caller's UI.
 
-typedef NotifySnackBar = void Function(String message, Color backgroundColor,
-    {Duration duration});
+typedef NotifySnackBar = void Function(
+  String message,
+  Color backgroundColor, {
+  Duration duration,
+});
 
 /// Build a resilient [NotifySnackBar] bound to [messenger].
 ///

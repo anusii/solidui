@@ -40,7 +40,9 @@ import 'package:solidui/src/widgets/solid_file_upload_config.dart';
 /// default generic behaviour.
 
 typedef FileTypeResolver = FileTypeConfig? Function(
-    String normalisedPath, String? basePath);
+  String normalisedPath,
+  String? basePath,
+);
 
 /// Configuration for different file types.
 
