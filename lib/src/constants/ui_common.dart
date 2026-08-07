@@ -54,8 +54,10 @@ class ListIconSize {
 
 /// Icon shape decoration for list items.
 
-ShapeDecoration listIconShape =
-    const ShapeDecoration(color: Colors.grey, shape: CircleBorder());
+ShapeDecoration listIconShape = const ShapeDecoration(
+  color: Colors.grey,
+  shape: CircleBorder(),
+);
 
 /// Normal height for data loading screens.
 

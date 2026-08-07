@@ -249,9 +249,7 @@ Future<bool> confirmPublicSharingDecryption(
           ''',
           child: TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: ActionColors.warning,
-            ),
+            style: TextButton.styleFrom(foregroundColor: ActionColors.warning),
             child: Text(actionLabel),
           ),
         ),

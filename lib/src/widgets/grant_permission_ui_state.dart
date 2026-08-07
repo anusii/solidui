@@ -166,8 +166,9 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
         isFile: widget.isFile,
         isExternalRes: widget.isExternalRes,
       );
-      getPermHistoryList =
-          sharedResourcesHistory(resourceName: displayResource);
+      getPermHistoryList = sharedResourcesHistory(
+        resourceName: displayResource,
+      );
     }
   }
 
@@ -382,10 +383,9 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                   alignment: Alignment.centerLeft,
                   child: Text(
                     _displayName(resolvedResourceName),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontSize: 12),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(fontSize: 12),
                   ),
                 ),
                 smallGapV,
@@ -445,9 +445,8 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (ctx) => _buildPermissionPage(
-                              getIsFile: getIsFile,
-                            ),
+                            builder: (ctx) =>
+                                _buildPermissionPage(getIsFile: getIsFile),
                           ),
                         );
                       },
@@ -491,10 +490,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
   Widget build(BuildContext context) => (widget.resourceNames == null)
       ? _buildPermPage(context)
       : FutureBuilder(
-          future: Future.wait([
-            getACLPerm,
-            getPermHistoryList,
-          ]),
+          future: Future.wait([getACLPerm, getPermHistoryList]),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Scaffold(body: loadingScreen(normalLoadingScreenHeight));

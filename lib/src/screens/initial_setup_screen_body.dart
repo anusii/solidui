@@ -286,7 +286,6 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
                 // Show the scrollbar thumb even when the user is not
                 // hovering the list, so that additional unseen content
                 // is discoverable at a glance.
-
                 child: Scrollbar(
                   controller: _scrollController,
                   thumbVisibility: true,

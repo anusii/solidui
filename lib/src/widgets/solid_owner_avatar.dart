@@ -156,8 +156,9 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
     }
 
     try {
-      final profile =
-          await SolidOwnerProfileService.instance.fetchProfile(ownerWebId);
+      final profile = await SolidOwnerProfileService.instance.fetchProfile(
+        ownerWebId,
+      );
       if (!mounted || widget.webId != ownerWebId) return;
       setState(() => _remoteProfile = profile);
     } catch (_) {
@@ -246,10 +247,7 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: accent?.background ?? theme.colorScheme.primaryContainer,
-        image: DecorationImage(
-          image: MemoryImage(bytes),
-          fit: BoxFit.cover,
-        ),
+        image: DecorationImage(image: MemoryImage(bytes), fit: BoxFit.cover),
       ),
     );
   }
@@ -267,10 +265,7 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
       width: widget.size,
       height: widget.size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: background,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: background),
       child: Text(
         initials,
         style: TextStyle(
@@ -295,10 +290,7 @@ class _SolidOwnerAvatarState extends State<SolidOwnerAvatar> {
       width: widget.size,
       height: widget.size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: background,
-      ),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: background),
       child: Icon(
         widget.placeholderIcon,
         size: widget.size * 0.55,

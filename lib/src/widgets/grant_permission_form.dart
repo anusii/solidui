@@ -540,9 +540,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             // table.
 
             if (selectedPermList.isEmpty) {
-              await _alert(
-                'Please select one or more file access permissions',
-              );
+              await _alert('Please select one or more file access permissions');
               return;
             }
 
@@ -607,8 +605,9 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             // Capture the ScaffoldMessenger now, while the dialog and its host
             // page are still mounted, so the success feedback can be shown
             // after this dialog is popped.
-            final showSnack =
-                makeResilientSnackBar(ScaffoldMessenger.of(context));
+            final showSnack = makeResilientSnackBar(
+              ScaffoldMessenger.of(context),
+            );
 
             // Grant permission for each resource sequentially. When
             // resourceNames is provided all resources share the same

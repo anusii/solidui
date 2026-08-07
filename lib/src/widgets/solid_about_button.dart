@@ -405,10 +405,7 @@ class SolidAbout {
               label: const Text('Invite'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                InviteOthersDialog.show(
-                  context,
-                  config: config.inviteConfig!,
-                );
+                InviteOthersDialog.show(context, config: config.inviteConfig!);
               },
             ),
           ),
@@ -476,11 +473,7 @@ class SolidAbout {
       children.add(
         Align(
           alignment: Alignment.centerLeft,
-          child: Wrap(
-            spacing: 4,
-            runSpacing: 4,
-            children: actionButtons,
-          ),
+          child: Wrap(spacing: 4, runSpacing: 4, children: actionButtons),
         ),
       );
     }

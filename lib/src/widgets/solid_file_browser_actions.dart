@@ -211,9 +211,7 @@ extension _BrowserActions on SolidFileBrowserState {
     // path or is a descendant of one (i.e. starts with "deletedPath/").
 
     bool isDeleted(String entry) {
-      return deletedPaths.any(
-        (dp) => entry == dp || entry.startsWith('$dp/'),
-      );
+      return deletedPaths.any((dp) => entry == dp || entry.startsWith('$dp/'));
     }
 
     // Remember the current entry so we can re-locate the index afterwards.

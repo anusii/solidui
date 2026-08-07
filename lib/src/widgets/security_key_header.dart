@@ -64,14 +64,9 @@ class SecurityKeyHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title heading.
-
-          Text(
-            title,
-            style: SecurityThemeTextStyles.heading(context),
-          ),
+          Text(title, style: SecurityThemeTextStyles.heading(context)),
 
           // Green divider under heading.
-
           Container(
             height: SecurityLayout.dividerHeight,
             color: SecurityThemeColors.accent(context),
@@ -79,14 +74,12 @@ class SecurityKeyHeader extends StatelessWidget {
           ),
 
           // "Currently logged in as:" label.
-
           Text(
             SecurityStrings.webIdLabel,
             style: SecurityThemeTextStyles.label(context),
           ),
 
           // WebID on separate line.
-
           Padding(
             padding: SecurityLayout.webIdPadding,
             child: Text(
@@ -99,11 +92,7 @@ class SecurityKeyHeader extends StatelessWidget {
           ),
 
           // Instructions text.
-
-          Text(
-            message,
-            style: SecurityThemeTextStyles.body(context),
-          ),
+          Text(message, style: SecurityThemeTextStyles.body(context)),
         ],
       ),
     );

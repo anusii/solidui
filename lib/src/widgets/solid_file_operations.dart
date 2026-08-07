@@ -95,8 +95,10 @@ class SolidFileOperations {
       final normalisedCurrentPath = fileState.currentPath != null
           ? PathUtils.normalise(fileState.currentPath!)
           : '';
-      final subPath =
-          PathUtils.relativeTo(normalisedCurrentPath, normalisedBasePath);
+      final subPath = PathUtils.relativeTo(
+        normalisedCurrentPath,
+        normalisedBasePath,
+      );
       final uploadPath = subPath.isEmpty
           ? remoteFileName
           : PathUtils.combine(subPath, remoteFileName);
@@ -156,8 +158,10 @@ class SolidFileOperations {
       final normalisedCurrentPath = fileState.currentPath != null
           ? PathUtils.normalise(fileState.currentPath!)
           : normalisedBasePath;
-      final relativePath =
-          PathUtils.combine(normalisedCurrentPath, fileState.remoteFileName!);
+      final relativePath = PathUtils.combine(
+        normalisedCurrentPath,
+        fileState.remoteFileName!,
+      );
 
       await promptForKeyFunction();
 
@@ -207,8 +211,10 @@ class SolidFileOperations {
       final normalisedCurrentPath = fileState.currentPath != null
           ? PathUtils.normalise(fileState.currentPath!)
           : normalisedBasePath;
-      final filePath =
-          PathUtils.combine(normalisedCurrentPath, fileState.remoteFileName!);
+      final filePath = PathUtils.combine(
+        normalisedCurrentPath,
+        fileState.remoteFileName!,
+      );
 
       // Delete the file (this also handles the ACL file automatically).
 

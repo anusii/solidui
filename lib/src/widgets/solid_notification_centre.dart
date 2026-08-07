@@ -130,10 +130,7 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
     if (_readIds.contains(id)) return;
     _readIds.add(id);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      solidReadNotificationsKey,
-      _readIds.toList(),
-    );
+    await prefs.setStringList(solidReadNotificationsKey, _readIds.toList());
     if (mounted) setState(() {});
   }
 
@@ -204,15 +201,15 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
         sorted.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       case _SortMode.senderAsc:
         sorted.sort(
-          (a, b) => extractName(a.senderWebId).toLowerCase().compareTo(
-                extractName(b.senderWebId).toLowerCase(),
-              ),
+          (a, b) => extractName(
+            a.senderWebId,
+          ).toLowerCase().compareTo(extractName(b.senderWebId).toLowerCase()),
         );
       case _SortMode.senderDesc:
         sorted.sort(
-          (a, b) => extractName(b.senderWebId).toLowerCase().compareTo(
-                extractName(a.senderWebId).toLowerCase(),
-              ),
+          (a, b) => extractName(
+            b.senderWebId,
+          ).toLowerCase().compareTo(extractName(a.senderWebId).toLowerCase()),
         );
     }
     return sorted;

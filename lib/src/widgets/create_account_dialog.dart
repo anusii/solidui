@@ -231,9 +231,7 @@ Future<bool> createAccountPopup(
       builder: (builderContext) {
         dialogContext = builderContext;
         return AlertDialog(
-          content: SingleChildScrollView(
-            child: createAccountForm,
-          ),
+          content: SingleChildScrollView(child: createAccountForm),
           contentPadding: EdgeInsets.zero,
           backgroundColor: Colors.transparent,
           elevation: 0,

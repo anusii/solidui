@@ -62,9 +62,7 @@ String buildDisplayNameTtl(String webId, String name) {
 
   return tripleMapToTurtle(
     triples,
-    bindNamespaces: {
-      'vcard': Namespace(ns: SolidConstants.namespaces.vcard),
-    },
+    bindNamespaces: {'vcard': Namespace(ns: SolidConstants.namespaces.vcard)},
   );
 }
 
@@ -77,15 +75,11 @@ String buildAvatarTtl(String webId, Uint8List pngBytes) {
   final subject = URIRef(webId.isEmpty ? '#me' : webId);
   final dataUri = 'data:image/png;base64,${base64Encode(pngBytes)}';
   final triples = <URIRef, Map<URIRef, dynamic>>{
-    subject: {
-      VcardPredicate.hasPhoto.uriRef: URIRef(dataUri),
-    },
+    subject: {VcardPredicate.hasPhoto.uriRef: URIRef(dataUri)},
   };
   return tripleMapToTurtle(
     triples,
-    bindNamespaces: {
-      'vcard': Namespace(ns: SolidConstants.namespaces.vcard),
-    },
+    bindNamespaces: {'vcard': Namespace(ns: SolidConstants.namespaces.vcard)},
   );
 }
 
@@ -99,10 +93,7 @@ String? extractDisplayName(String ttl) {
   } catch (_) {
     return null;
   }
-  for (final pred in [
-    FoafPredicate.name.value,
-    VcardPredicate.fn.value,
-  ]) {
+  for (final pred in [FoafPredicate.name.value, VcardPredicate.fn.value]) {
     for (final entry in map.values) {
       final value = entry[pred];
       if (value == null) continue;

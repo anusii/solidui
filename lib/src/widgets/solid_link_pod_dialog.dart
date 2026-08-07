@@ -40,13 +40,11 @@ import 'package:solidui/src/utils/snack_bar.dart';
 enum _LinkStage {
   /// Collect the target Pod's server URL and registration token, then add
   /// the `solid:oidcIssuerRegistrationToken` proof-of-ownership triple.
-
   addToken,
 
   /// A registration token is already present on the WebID (just added, or
   /// found on reopen) — collect/confirm the Pod URL and finish the link by
   /// removing the token and adding the `solid:oidcIssuer` triple.
-
   finish,
 }
 
@@ -106,8 +104,9 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
   Future<void> _detectStage() async {
     try {
       final turtle = await SolidWebIdService.instance.fetchWebIdTurtle();
-      final pending =
-          SolidWebIdService.instance.findPendingRegistrationToken(turtle);
+      final pending = SolidWebIdService.instance.findPendingRegistrationToken(
+        turtle,
+      );
       if (mounted && pending != null) {
         setState(() => _stage = _LinkStage.finish);
       }
@@ -147,10 +146,12 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
       // opened is still caught.
 
       final turtle = await SolidWebIdService.instance.fetchWebIdTurtle();
-      final existingIssuers =
-          SolidWebIdService.instance.currentOidcIssuers(turtle);
-      final normalizedPodUrl =
-          SolidWebIdService.instance.normalizePodUrl(podUrl);
+      final existingIssuers = SolidWebIdService.instance.currentOidcIssuers(
+        turtle,
+      );
+      final normalizedPodUrl = SolidWebIdService.instance.normalizePodUrl(
+        podUrl,
+      );
       if (existingIssuers.contains(normalizedPodUrl)) {
         setState(() => _issuerAlreadyLinked = true);
         _setMessage(
@@ -211,10 +212,7 @@ class _SolidLinkPodDialogState extends State<SolidLinkPodDialog> {
         'below.',
       );
     } on Object catch (e) {
-      _setMessage(
-        'Failed to remove the existing issuer link: $e',
-        error: true,
-      );
+      _setMessage('Failed to remove the existing issuer link: $e', error: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -415,10 +413,7 @@ class _MessageBanner extends StatelessWidget {
           ),
           const Gap(8),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: foreground),
-            ),
+            child: Text(message, style: TextStyle(color: foreground)),
           ),
         ],
       ),

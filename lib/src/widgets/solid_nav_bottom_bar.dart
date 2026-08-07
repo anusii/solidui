@@ -111,10 +111,7 @@ class SolidNavBottomBar extends StatelessWidget {
             icon = MarkdownTooltip(message: tooltipMessage, child: icon);
           }
 
-          return NavigationDestination(
-            icon: icon,
-            label: tab.title,
-          );
+          return NavigationDestination(icon: icon, label: tab.title);
         }).toList(),
       ),
     );

@@ -126,10 +126,7 @@ const ownerRecipientTypes = [
 const granterRecipientTypes = [RecipientType.individual, RecipientType.group];
 
 /// Get title of sharing page.
-String makeSharingTitleStr({
-  List<String>? resourceNames,
-  bool isFile = false,
-}) {
+String makeSharingTitleStr({List<String>? resourceNames, bool isFile = false}) {
   if (resourceNames != null && resourceNames.length > 1) {
     return isFile ? 'Sharing multiple files' : 'Sharing multiple folders';
   } else if (resourceNames != null) {
@@ -190,11 +187,13 @@ Widget getResourceForm({
               Builder(
                 builder: (context) => Switch(
                   value: isFile,
-                  activeThumbColor:
-                      Theme.of(context).switchTheme.thumbColor?.resolve(
-                            {WidgetState.selected},
-                          ) ??
-                          ActionColors.success,
+                  activeThumbColor: Theme.of(
+                        context,
+                      )
+                          .switchTheme
+                          .thumbColor
+                          ?.resolve({WidgetState.selected}) ??
+                      ActionColors.success,
                   onChanged: onResourceTypeChange,
                 ),
               ),

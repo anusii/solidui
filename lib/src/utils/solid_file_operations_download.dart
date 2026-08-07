@@ -52,9 +52,7 @@ class SolidFileDownloadOperations {
   /// Returns `true` if the user chooses to proceed with the download.
   /// Returns `false` if the user cancels.
 
-  static Future<bool> _showCrossAppDownloadWarning(
-    BuildContext context,
-  ) async {
+  static Future<bool> _showCrossAppDownloadWarning(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -194,10 +192,7 @@ class SolidFileDownloadOperations {
 
         // Read file content from POD using the requested path type.
 
-        final fileContent = await readPod(
-          targetPath,
-          pathType: pathType,
-        );
+        final fileContent = await readPod(targetPath, pathType: pathType);
 
         if (!context.mounted) return;
 
@@ -351,8 +346,10 @@ class SolidFileDownloadOperations {
               children: [
                 LinearProgressIndicator(value: progress),
                 const SizedBox(height: 12),
-                Text('Reading files… '
-                    '${(progress * 100).round()}%'),
+                Text(
+                  'Reading files… '
+                  '${(progress * 100).round()}%',
+                ),
               ],
             );
           },

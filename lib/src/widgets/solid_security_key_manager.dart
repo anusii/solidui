@@ -243,10 +243,11 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
 
   Future<void> _showKeyFileNotFoundDialog(BuildContext context) async {
     await SecurityKeyUIHelpers.showErrorDialog(
-        context,
-        'Security Key File Not Found',
-        'The security key file could not be found on your POD. '
-            'Please contact your administrator.');
+      context,
+      'Security Key File Not Found',
+      'The security key file could not be found on your POD. '
+          'Please contact your administrator.',
+    );
   }
 
   Widget _buildDialogContent(BuildContext context, String title) {

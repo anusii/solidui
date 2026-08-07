@@ -86,7 +86,6 @@ class DirectoryList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section header with a select-all checkbox.
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
@@ -126,7 +125,6 @@ class DirectoryList extends StatelessWidget {
         ),
 
         // List of directory items with selection checkboxes.
-
         ...directories.map((dir) {
           final itemKey = 'dir:$dir';
           final isSelected = selectedItems.contains(itemKey);
@@ -136,7 +134,6 @@ class DirectoryList extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Selection checkbox.
-
                 SizedBox(
                   width: 24,
                   height: 24,
@@ -150,7 +147,6 @@ class DirectoryList extends StatelessWidget {
                 const SizedBox(width: 8),
 
                 // Folder icon.
-
                 Icon(
                   Icons.folder,
                   color: Theme.of(context).colorScheme.primary,
@@ -160,7 +156,6 @@ class DirectoryList extends StatelessWidget {
             title: Row(
               children: [
                 // Directory name with overflow protection.
-
                 Expanded(
                   child: Text(
                     dir,
@@ -174,7 +169,6 @@ class DirectoryList extends StatelessWidget {
 
                 // Item count badge. Shows a compact loading indicator while
                 // counts are being fetched in the background.
-
                 if (directoryCounts.containsKey(dir))
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -213,9 +207,7 @@ class DirectoryList extends StatelessWidget {
             ),
             onTap: () => onDirectorySelected(dir),
             tileColor: isSelected
-                ? Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.08)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
                 : Theme.of(context).cardColor,
             selectedTileColor: Theme.of(
               context,

@@ -106,10 +106,9 @@ class _GrantPermissionResourceListState
                     padding: const EdgeInsets.fromLTRB(0, 2, 1, 2),
                     child: Text(
                       _displayName(name),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontSize: 12),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(fontSize: 12),
                     ),
                   ),
                 ),

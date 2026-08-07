@@ -185,7 +185,6 @@ class PathBar extends StatelessWidget {
             // Toolbar row with navigation buttons (left) and action
             // buttons (right). Uses LayoutBuilder to ensure proper spacing
             // on wide screens whilst remaining scrollable on narrow ones.
-
             LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
@@ -196,7 +195,6 @@ class PathBar extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // Left side: Navigation buttons.
-
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -229,7 +227,6 @@ class PathBar extends StatelessWidget {
                         ),
 
                         // Right side: Action buttons.
-
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -287,18 +284,14 @@ class PathBar extends StatelessWidget {
                             ),
 
                             // Vertical divider before View menu.
-
                             Container(
                               height: 24,
                               width: 1,
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                              ),
+                              margin: const EdgeInsets.symmetric(horizontal: 6),
                               color: Theme.of(context).dividerColor,
                             ),
 
                             // View / Sort dropdown menu.
-
                             _buildViewDropdown(context),
                           ],
                         ),
@@ -312,11 +305,9 @@ class PathBar extends StatelessWidget {
             const SizedBox(height: 8),
 
             // Path info row with friendly name, counts, and refresh.
-
             Row(
               children: [
                 // Friendly folder name.
-
                 Expanded(
                   child: Text(
                     friendlyFolderName,
@@ -330,7 +321,6 @@ class PathBar extends StatelessWidget {
 
                 // Show selection count when items are selected, otherwise
                 // show directory and file counts.
-
                 if (selectedCount > 0)
                   Padding(
                     padding: const EdgeInsets.only(right: 12),
@@ -365,7 +355,6 @@ class PathBar extends StatelessWidget {
                 const SizedBox(width: 12),
 
                 // Refresh button.
-
                 MarkdownTooltip(
                   message: '**Refresh**',
                   child: IconButton(
@@ -396,7 +385,6 @@ class PathBar extends StatelessWidget {
             const SizedBox(height: 4),
 
             // Full current path with horizontal scrolling.
-
             SizedBox(
               height: 20,
               child: SingleChildScrollView(

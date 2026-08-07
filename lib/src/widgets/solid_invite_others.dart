@@ -77,10 +77,7 @@ class InviteOthers extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
     );
 
-    return MarkdownTooltip(
-      message: config.effectiveTooltip,
-      child: iconButton,
-    );
+    return MarkdownTooltip(message: config.effectiveTooltip, child: iconButton);
   }
 }
 

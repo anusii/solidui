@@ -105,17 +105,12 @@ SizedBox initialSetupWelcome(
           // Render the welcome title across three lines so the purpose of
           // the wizard (setup vs update, and for which app) is immediately
           // obvious to a first-time user.
-
           Text(
             initialStructureTitleLine1,
             textAlign: TextAlign.center,
             style: titleStyle,
           ),
-          Text(
-            line2,
-            textAlign: TextAlign.center,
-            style: titleStyle,
-          ),
+          Text(line2, textAlign: TextAlign.center, style: titleStyle),
           Text(
             initialStructureTitleLine3(appName),
             textAlign: TextAlign.center,

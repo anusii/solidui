@@ -86,10 +86,7 @@ class SolidProfileAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         color: theme.colorScheme.primaryContainer,
         image: hasImage
-            ? DecorationImage(
-                image: MemoryImage(bytes),
-                fit: BoxFit.cover,
-              )
+            ? DecorationImage(image: MemoryImage(bytes), fit: BoxFit.cover)
             : null,
       ),
       child: hasImage
@@ -130,10 +127,7 @@ class SolidProfileAvatar extends StatelessWidget {
     }
 
     if (onTap != null) {
-      return GestureDetector(
-        onTap: onTap,
-        child: avatar,
-      );
+      return GestureDetector(onTap: onTap, child: avatar);
     }
     return avatar;
   }

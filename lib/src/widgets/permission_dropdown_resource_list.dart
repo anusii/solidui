@@ -97,10 +97,9 @@ class PermissionDropdownResourceList extends StatelessWidget {
           ),
           hintText:
               isFile ? 'Pick file from the list' : 'Pick folder from the list',
-          textStyle: Theme.of(context)
-                  .dropdownMenuTheme
-                  .textStyle
-                  ?.copyWith(fontSize: 12) ??
+          textStyle: Theme.of(
+                context,
+              ).dropdownMenuTheme.textStyle?.copyWith(fontSize: 12) ??
               const TextStyle(fontSize: 12),
           // Setting edge insets to zero also helped with
           // left-right edge alignment
@@ -109,58 +108,54 @@ class PermissionDropdownResourceList extends StatelessWidget {
           ),
           menuStyle: MenuStyle(
             backgroundColor: WidgetStateProperty.all(
-              Theme.of(context)
-                      .dropdownMenuTheme
-                      .menuStyle
-                      ?.backgroundColor
-                      ?.resolve({}) ??
+              Theme.of(
+                    context,
+                  ).dropdownMenuTheme.menuStyle?.backgroundColor?.resolve({}) ??
                   DropdownColors.accent,
             ),
           ),
-          dropdownMenuEntries: resourceNames.map(
-            (name) {
-              final isSelected = name == selectedResourceName;
-              final textColor =
-                  Theme.of(context).dropdownMenuTheme.textStyle?.color;
-              return DropdownMenuEntry(
-                value: name,
-                label: _displayName(name),
-                trailingIcon:
-                    isSelected ? Icon(Icons.check, color: textColor) : null,
-                style: ButtonStyle(
-                  textStyle: WidgetStatePropertyAll(
-                    Theme.of(context).dropdownMenuTheme.textStyle?.copyWith(
-                              fontSize: 12,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ) ??
-                        TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                  ),
-                  // Only set foregroundColor when textColor is non-null.
-                  // Passing WidgetStatePropertyAll(null) creates a non-null
-                  // WidgetStateProperty that resolves to null, which causes
-                  // Flutter's _buildButtons to throw when it resolves the
-                  // focused colour and applies a non-nullable `!` assertion.
-                  foregroundColor: textColor != null
-                      ? WidgetStatePropertyAll(textColor)
-                      : null,
-                  backgroundColor: WidgetStatePropertyAll(
-                    isSelected
-                        ? Theme.of(context)
-                            .colorScheme
-                            .primaryContainer
-                            .withValues(alpha: 0.4)
-                        : null,
-                  ),
+          dropdownMenuEntries: resourceNames.map((name) {
+            final isSelected = name == selectedResourceName;
+            final textColor = Theme.of(
+              context,
+            ).dropdownMenuTheme.textStyle?.color;
+            return DropdownMenuEntry(
+              value: name,
+              label: _displayName(name),
+              trailingIcon:
+                  isSelected ? Icon(Icons.check, color: textColor) : null,
+              style: ButtonStyle(
+                textStyle: WidgetStatePropertyAll(
+                  Theme.of(context).dropdownMenuTheme.textStyle?.copyWith(
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ) ??
+                      TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
                 ),
-              );
-            },
-          ).toList(),
+                // Only set foregroundColor when textColor is non-null.
+                // Passing WidgetStatePropertyAll(null) creates a non-null
+                // WidgetStateProperty that resolves to null, which causes
+                // Flutter's _buildButtons to throw when it resolves the
+                // focused colour and applies a non-nullable `!` assertion.
+                foregroundColor: textColor != null
+                    ? WidgetStatePropertyAll(textColor)
+                    : null,
+                backgroundColor: WidgetStatePropertyAll(
+                  isSelected
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.4)
+                      : null,
+                ),
+              ),
+            );
+          }).toList(),
           onSelected: (name) async {
             if (name != null && name != selectedResourceName) {
               await onSelected(name);
@@ -173,10 +168,9 @@ class PermissionDropdownResourceList extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               _displayName(selectedResourceName!),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontSize: 12),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontSize: 12),
             ),
           ),
         smallGapV,

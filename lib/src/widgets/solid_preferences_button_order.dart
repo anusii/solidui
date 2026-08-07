@@ -263,7 +263,6 @@ class _SolidPreferencesButtonItemState
             // Overflow toggle. Hidden entirely when the scaffold disables the
             // overflow menu, so users cannot route buttons to a menu that
             // will never be rendered.
-
             if (overflowEnabled)
               MarkdownTooltip(
                 message: action.showInOverflow

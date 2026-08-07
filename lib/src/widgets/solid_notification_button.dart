@@ -141,9 +141,7 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton>
       onPressed: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const SolidNotificationCentre(),
-          ),
+          MaterialPageRoute(builder: (_) => const SolidNotificationCentre()),
         );
         await _refreshUnreadCount();
         _restartTimer();

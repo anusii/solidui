@@ -235,9 +235,7 @@ Future<bool> changePasswordPopup(BuildContext context, Widget child) async {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        content: SingleChildScrollView(
-          child: changePasswordForm,
-        ),
+        content: SingleChildScrollView(child: changePasswordForm),
         contentPadding: EdgeInsets.zero,
         backgroundColor: Colors.transparent,
         elevation: 0,

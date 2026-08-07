@@ -258,9 +258,9 @@ class ViewPermission extends StatelessWidget {
                       Switch(
                         value: showCurrentPermOnly,
                         activeThumbColor:
-                            Theme.of(context).switchTheme.thumbColor?.resolve(
-                                  {WidgetState.selected},
-                                ) ??
+                            Theme.of(context).switchTheme.thumbColor?.resolve({
+                                  WidgetState.selected,
+                                }) ??
                                 ActionColors.success,
                         onChanged: onShowCurrentPermOnlyChanged,
                       ),

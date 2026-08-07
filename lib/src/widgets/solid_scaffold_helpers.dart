@@ -153,10 +153,7 @@ class SolidScaffoldHelpers {
     double? narrowThreshold,
   }) {
     if (narrowThreshold != null) {
-      return WindowSize.isNarrow(
-        constraints,
-        narrowThreshold: narrowThreshold,
-      );
+      return WindowSize.isNarrow(constraints, narrowThreshold: narrowThreshold);
     }
     return WindowSize.isNarrow(constraints);
   }

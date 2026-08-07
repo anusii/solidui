@@ -387,9 +387,7 @@ class _DynamicOverflowMenuState extends State<_DynamicOverflowMenu> {
     } else if (id == SolidAppBarActionIds.notifications) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => const SolidNotificationCentre(),
-        ),
+        MaterialPageRoute(builder: (_) => const SolidNotificationCentre()),
       );
     } else if (id == 'login') {
       // User tapped login whilst logged out.

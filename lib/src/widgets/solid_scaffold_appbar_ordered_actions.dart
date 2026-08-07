@@ -296,9 +296,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     final isInOverflow = actionConfig?.showInOverflow ??
-        config.defaultOverflowActionIds.contains(
-          SolidAppBarActionIds.logout,
-        );
+        config.defaultOverflowActionIds.contains(SolidAppBarActionIds.logout);
 
     // Default order keeps the auth button as the second-to-last
     // AppBar action — i.e. immediately to the left of About — when
@@ -380,9 +378,7 @@ class SolidAppBarOrderedActionsBuilder {
     );
     final isVisible = actionConfig?.isVisible ?? true;
     final isInOverflow = actionConfig?.showInOverflow ??
-        config.defaultOverflowActionIds.contains(
-          SolidAppBarActionIds.about,
-        );
+        config.defaultOverflowActionIds.contains(SolidAppBarActionIds.about);
     final order = actionConfig?.order ?? 999999;
 
     if (isVisible && (!isVeryNarrowScreen || !isInOverflow)) {

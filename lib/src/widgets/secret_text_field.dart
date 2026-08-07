@@ -101,7 +101,6 @@ class _SecretTextFieldState extends State<SecretTextField> {
             }),
 
             // Does not participate in focus traversal (ignore TAB key).
-
             focusNode: FocusNode(skipTraversal: true),
           )
         : null;
@@ -121,7 +120,6 @@ class _SecretTextFieldState extends State<SecretTextField> {
       // shows while typing: TextInputType.visiblePassword disables the input
       // method's character preview without affecting obscureText behaviour.
       // Plain-text fields use the standard text keyboard.
-
       keyboardType:
           widget.obscure ? TextInputType.visiblePassword : TextInputType.text,
       enableSuggestions: false,

@@ -136,9 +136,7 @@ Future<void> notifyShareRecipients({
         '[GrantPermissionForm] '
         'Failed to send notification to $recipientWebId: $e',
       );
-      otherFailures.add(
-        (recipient: recipientWebId as String, error: '$e'),
-      );
+      otherFailures.add((recipient: recipientWebId as String, error: '$e'));
     }
   }
 

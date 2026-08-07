@@ -275,9 +275,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         final appDataPath = await getDataDirPath();
         _homePath = PathUtils.normalise(appDataPath);
       } catch (e) {
-        debugPrint(
-          'Failed to get app data path, falling back to POD root: $e',
-        );
+        debugPrint('Failed to get app data path, falling back to POD root: $e');
         _homePath = '';
       }
     }
@@ -475,7 +473,6 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
                   // onFileDownload and onFileDelete are required callbacks.
                   // They use per-file callbacks unless batch overrides are
                   // provided via onDownloadItems / onDeleteItems.
-
                   onDownload: _handleToolbarDownload,
                   onPrint: _handleToolbarPrint,
                   onRename: widget.onRenameItem != null

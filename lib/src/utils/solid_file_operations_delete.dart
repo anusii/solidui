@@ -277,9 +277,7 @@ class SolidFileDeleteOperations {
             children: [
               LinearProgressIndicator(value: progress),
               const SizedBox(height: 12),
-              Text(
-                '${(progress * totalCount).round()} / $totalCount',
-              ),
+              Text('${(progress * totalCount).round()} / $totalCount'),
             ],
           );
         },
@@ -314,9 +312,7 @@ class SolidFileDeleteOperations {
       } else if (result.succeeded.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Failed to delete: ${result.failed.keys.join(", ")}',
-            ),
+            content: Text('Failed to delete: ${result.failed.keys.join(", ")}'),
             backgroundColor: ActionColors.error,
             duration: const Duration(seconds: 5),
           ),

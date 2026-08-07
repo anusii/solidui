@@ -121,11 +121,7 @@ class SolidSecurityKeyManagerUI {
                       children: [
                         if (isKeyCached) ...[
                           if (showViewKeyButton) ...[
-                            _btn(
-                              'Show Security Key',
-                              onShowKey,
-                              _btnStyle(t),
-                            ),
+                            _btn('Show Security Key', onShowKey, _btnStyle(t)),
                             _gap,
                           ],
                           _btn(
@@ -140,11 +136,7 @@ class SolidSecurityKeyManagerUI {
                             _btnStyle(t, isError: true),
                           ),
                         ] else ...[
-                          _btn(
-                            'Cache Security Key',
-                            onCacheKey,
-                            _btnStyle(t),
-                          ),
+                          _btn('Cache Security Key', onCacheKey, _btnStyle(t)),
                         ],
                         _gap,
                         _btn(
@@ -176,8 +168,10 @@ class SolidSecurityKeyManagerUI {
   ) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding:
-          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 24.0,
+      ),
       child: FutureBuilder<({String name, String? webId})>(
         future: _getInfo(),
         builder: (context, snapshot) {

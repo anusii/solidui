@@ -168,9 +168,10 @@ class SolidWebIdService {
     final targetOrigin = normalizePodUrl(podIssuerUrl);
 
     final turtle = await fetchWebIdTurtle();
-    final toRemove = _valuesOf(turtle, _oidcIssuerPredicate)
-        .where((raw) => normalizePodUrl(raw) == targetOrigin)
-        .toSet();
+    final toRemove = _valuesOf(
+      turtle,
+      _oidcIssuerPredicate,
+    ).where((raw) => normalizePodUrl(raw) == targetOrigin).toSet();
 
     final escaped = _escapeLiteral(token);
     final deleteClause = toRemove.isEmpty

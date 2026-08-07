@@ -50,10 +50,7 @@ class SolidProfileCropDialog extends StatefulWidget {
 
   /// Shows the dialog and returns cropped PNG bytes, or null if cancelled.
 
-  static Future<Uint8List?> show(
-    BuildContext context,
-    Uint8List imageBytes,
-  ) {
+  static Future<Uint8List?> show(BuildContext context, Uint8List imageBytes) {
     return showDialog<Uint8List>(
       context: context,
       barrierDismissible: false,
@@ -92,8 +89,9 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
             children: [
               Text(
                 'Crop Profile Picture',
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -127,8 +125,9 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
                       child: CustomPaint(
                         size: const Size(cropAreaSize, cropAreaSize),
                         painter: _CircleOverlayPainter(
-                          overlayColour:
-                              theme.colorScheme.scrim.withValues(alpha: 0.55),
+                          overlayColour: theme.colorScheme.scrim.withValues(
+                            alpha: 0.55,
+                          ),
                         ),
                       ),
                     ),
@@ -180,9 +179,9 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
     } catch (e) {
       debugPrint('Crop failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to crop image')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to crop image')));
         setState(() => _isCropping = false);
       }
     }
@@ -218,10 +217,13 @@ class _SolidProfileCropDialogState extends State<SolidProfileCropDialog> {
     );
 
     final picture = recorder.endRecording();
-    final circularImage =
-        await picture.toImage(_cropOutputSize, _cropOutputSize);
-    final byteData =
-        await circularImage.toByteData(format: ui.ImageByteFormat.png);
+    final circularImage = await picture.toImage(
+      _cropOutputSize,
+      _cropOutputSize,
+    );
+    final byteData = await circularImage.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
 
     rawImage.dispose();
     circularImage.dispose();
@@ -248,8 +250,11 @@ class _CircleOverlayPainter extends CustomPainter {
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
     final circlePath = Path()
       ..addOval(Rect.fromCircle(center: centre, radius: radius));
-    final overlayPath =
-        Path.combine(PathOperation.difference, outerPath, circlePath);
+    final overlayPath = Path.combine(
+      PathOperation.difference,
+      outerPath,
+      circlePath,
+    );
 
     canvas.drawPath(overlayPath, paint);
 

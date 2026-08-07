@@ -213,10 +213,7 @@ class SolidOwnerProfileService {
     } catch (_) {
       return null;
     }
-    for (final pred in [
-      FoafPredicate.name.value,
-      VcardPredicate.fn.value,
-    ]) {
+    for (final pred in [FoafPredicate.name.value, VcardPredicate.fn.value]) {
       for (final entry in map.values) {
         final value = entry[pred];
         if (value == null) continue;

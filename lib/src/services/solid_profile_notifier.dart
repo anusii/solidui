@@ -40,11 +40,9 @@ import 'package:flutter/foundation.dart';
 
 enum SolidProfilePrivacy {
   /// Encrypted at rest, owner-only ACL.
-
   private,
 
   /// Plaintext, publicly readable.
-
   public,
 }
 

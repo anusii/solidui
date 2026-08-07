@@ -89,7 +89,6 @@ class FileList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section header with a select-all checkbox.
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
@@ -129,20 +128,17 @@ class FileList extends StatelessWidget {
         ),
 
         // List of file items with selection support.
+        ...files.map((file) {
+          final itemKey = 'file:${file.name}';
 
-        ...files.map(
-          (file) {
-            final itemKey = 'file:${file.name}';
-
-            return FileListItem(
-              file: file,
-              currentPath: currentPath,
-              isSelected: selectedItems.contains(itemKey),
-              onFileSelected: onFileSelected,
-              onToggleSelect: () => onToggleSelection(itemKey),
-            );
-          },
-        ),
+          return FileListItem(
+            file: file,
+            currentPath: currentPath,
+            isSelected: selectedItems.contains(itemKey),
+            onFileSelected: onFileSelected,
+            onToggleSelect: () => onToggleSelection(itemKey),
+          );
+        }),
       ],
     );
   }

@@ -242,9 +242,7 @@ class _SolidFileState extends State<SolidFile> {
       } catch (e) {
         // Fall back to POD root if getDataDirPath fails.
 
-        debugPrint(
-          'Failed to get app data path, falling back to POD root: $e',
-        );
+        debugPrint('Failed to get app data path, falling back to POD root: $e');
         _resolvedBasePath = SolidFile.podRoot;
       }
     }
@@ -368,8 +366,9 @@ class _SolidFileState extends State<SolidFile> {
                   child: isWideScreen
                       ? SolidFileLayoutBuilder.buildWideScreenLayout(
                           browserHeight: browserHeight,
-                          fileBrowser:
-                              _buildFileBrowser(effectiveUploadCallbacks),
+                          fileBrowser: _buildFileBrowser(
+                            effectiveUploadCallbacks,
+                          ),
                           showUpload: widget.showUpload,
                           uploadConfig: effectiveUploadConfig,
                           uploadCallbacks: effectiveUploadCallbacks,
@@ -379,8 +378,9 @@ class _SolidFileState extends State<SolidFile> {
                         )
                       : SolidFileLayoutBuilder.buildNarrowScreenLayout(
                           browserHeight: browserHeight,
-                          fileBrowser:
-                              _buildFileBrowser(effectiveUploadCallbacks),
+                          fileBrowser: _buildFileBrowser(
+                            effectiveUploadCallbacks,
+                          ),
                           showUpload: widget.showUpload,
                           uploadConfig: effectiveUploadConfig,
                           uploadCallbacks: effectiveUploadCallbacks,

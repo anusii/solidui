@@ -1,0 +1,529 @@
+#!/usr/bin/env python3
+"""Register an app service index account Pod on a Community Solid Server (CSS v7+)
+and create exper/data/experience_index.ttl with an ACL granting `read` and
+`append` to authenticated users.
+
+Mirrors the exact CSS account-registration flow this app's own `solidpod`
+dependency uses (see `css_account_api.dart` in the `solidpod` package) and
+the exact LDP mechanics `solidpod` uses to create containers/resources (see
+`rest_api.dart`'s `createResource`/`createDir`) — in particular:
+
+  - Containers are created by POSTing to the *parent* container with a
+    `Slug` header (the new name) and a `Link: ...BasicContainer` header,
+    NOT by PUTting to the container's own URL.
+  - Files are created/replaced with a plain PUT to their own URL.
+  - CSS requires DPoP-bound OAuth2 tokens for every authenticated request,
+    including to its own `.account/` JSON API once you have an account
+    token, and to the regular Pod resource server once you have an access
+    token from the token endpoint.
+
+Since this is a one-off script (not a logged-in browser session), tokens are
+obtained via CSS's account-scoped Client Credentials API rather than
+interactive Solid-OIDC login: mint a client_id/client_secret pair tied to
+the new account's WebID, then use the OAuth2 `client_credentials` grant
+against the server's token endpoint. The minted credentials are saved to
+disk at the end (see --output) since they're needed again for any future
+automated write to this account's Pod (e.g. appending to the index file) —
+treat that file as a secret.
+
+Usage:
+    pip install requests pyjwt cryptography
+    python3 register_index_account.py \\
+        --server https://privateinsights.au \\
+        --email exper-index@privateinsights.au \\
+        --pod-name exper-index
+    # Password is prompted for securely if --password is not given.
+
+The resulting ACL (standard WAC vocabulary, matching every ACL this app's
+own sharing feature writes) is:
+
+    @prefix acl: <http://www.w3.org/ns/auth/acl#>.
+
+    <#owner>
+        a acl:Authorization;
+        acl:accessTo <experience_index.ttl>;
+        acl:agent <WEBID>;
+        acl:mode acl:Read, acl:Write, acl:Control.
+
+    <#authUsers>
+        a acl:Authorization;
+        acl:accessTo <experience_index.ttl>;
+        acl:agentClass acl:AuthenticatedAgent;
+        acl:mode acl:Read, acl:Append.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import getpass
+import hashlib
+import json
+import sys
+import time
+import uuid
+from pathlib import Path
+from urllib.parse import urljoin
+
+import jwt
+import requests
+from cryptography.hazmat.primitives.asymmetric import ec
+
+FILE_NAME = "experience_index.ttl"
+CONTAINER_PATH = "exper/data/"  # relative to the Pod root
+
+# Anchored to the script's own directory (not the current working directory)
+# so the credentials always land in the same place regardless of whether
+# this is run as `python3 support/register_index_account.py` from the repo
+# root or as `python3 register_index_account.py` from inside `support/`.
+DEFAULT_OUTPUT = Path(__file__).resolve().parent / \
+    "index_account_credentials.json"
+
+
+class RegistrationError(Exception):
+    """Raised for any unrecoverable step, with a message meant to be shown
+    directly to the person running the script."""
+
+
+# ── DPoP (RFC 9449) ─────────────────────────────────────────────────────────
+
+
+class DPoPKey:
+    """One EC keypair reused for every DPoP proof in this script run — the
+    DPoP spec requires the *same* key back the token request and every
+    subsequent resource request made with the token it returns."""
+
+    def __init__(self) -> None:
+        self._private_key = ec.generate_private_key(ec.SECP256R1())
+        numbers = self._private_key.public_key().public_numbers()
+        self._jwk = {
+            "kty": "EC",
+            "crv": "P-256",
+            "x": _b64url_uint(numbers.x),
+            "y": _b64url_uint(numbers.y),
+        }
+
+    def proof(self, method: str, url: str, access_token: str | None = None) -> str:
+        """Builds a fresh DPoP proof JWT for one HTTP request. `access_token`
+        must be supplied once you're authenticating resource requests (adds
+        the required `ath` claim); omit it for the token-endpoint request
+        itself, before any access token exists."""
+        payload = {
+            "jti": str(uuid.uuid4()),
+            "htm": method,
+            "htu": url.split("?", 1)[0],
+            "iat": int(time.time()),
+        }
+        if access_token is not None:
+            digest = hashlib.sha256(access_token.encode()).digest()
+            payload["ath"] = _b64url_bytes(digest)
+        headers = {"typ": "dpop+jwt", "jwk": self._jwk}
+        return jwt.encode(payload, self._private_key, algorithm="ES256", headers=headers)
+
+
+def _b64url_uint(n: int, length: int = 32) -> str:
+    return _b64url_bytes(n.to_bytes(length, "big"))
+
+
+def _b64url_bytes(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
+
+
+# ── CSS account API (mirrors css_account_api.dart) ──────────────────────────
+
+
+def _account_index(server: str, account_token: str | None = None) -> dict:
+    headers = {"Accept": "application/json"}
+    if account_token:
+        headers["Authorization"] = f"CSS-Account-Token {account_token}"
+    url = urljoin(server.rstrip("/") + "/", ".account/")
+    resp = requests.get(url, headers=headers)
+    if resp.status_code != 200:
+        raise RegistrationError(
+            f"Could not reach the CSS account API at {url} "
+            f"(HTTP {resp.status_code}). Is this a Community Solid Server "
+            "v7+? Response body:\n" + resp.text
+        )
+    try:
+        return resp.json()
+    except ValueError as e:
+        raise RegistrationError(
+            f"Account API at {url} did not return JSON: {e}") from e
+
+
+def _control(index_body: dict, *path: str) -> str:
+    node = index_body.get("controls", {})
+    for key in path:
+        node = node.get(key) if isinstance(node, dict) else None
+        if node is None:
+            raise RegistrationError(
+                f"The account API's controls are missing "
+                f"'{'.'.join(path)}' — this CSS instance may expose a "
+                "different API shape than the one this script targets. "
+                f"Full controls object for reference:\n"
+                f"{json.dumps(index_body.get('controls', {}), indent=2)}"
+            )
+    return node
+
+
+def _login(server: str, email: str, password: str) -> str:
+    """Logs into an *existing* CSS account to obtain a fresh account token —
+    used when a previous run of this script already registered the email
+    (e.g. a retry after a later step failed partway through)."""
+    index = _account_index(server)
+    login_url = _control(index, "password", "login")
+    resp = requests.post(
+        login_url,
+        headers={"Accept": "application/json",
+                 "Content-Type": "application/json"},
+        json={"email": email, "password": password},
+    )
+    if resp.status_code in (400, 401):
+        raise RegistrationError(
+            f"'{email}' is already registered on {server}, but the given "
+            "password doesn't match it. Pass the correct --password for "
+            "the existing account, or use a different --email."
+        )
+    if resp.status_code != 200:
+        raise RegistrationError(
+            f"Login to the existing account failed (HTTP {resp.status_code}):\n{resp.text}"
+        )
+    account_token = resp.json().get("authorization")
+    if not account_token:
+        raise RegistrationError("Login did not return an authorization token.")
+    return account_token
+
+
+def create_account(server: str, email: str, password: str, pod_name: str) -> tuple[str, str, str]:
+    """Returns (account_token, pod_url, web_id).
+
+    Safe to re-run after a partial failure: if the email is already
+    registered (a previous run got that far before a later step failed),
+    logs into the existing account instead of failing; if the Pod already
+    exists, reuses it instead of failing.
+    """
+    index = _account_index(server)
+    create_url = _control(index, "account", "create")
+
+    resp = requests.post(
+        create_url,
+        headers={"Accept": "application/json",
+                 "Content-Type": "application/json"},
+        json={},
+    )
+    if not (200 <= resp.status_code < 300):
+        raise RegistrationError(
+            f"Account creation failed (HTTP {resp.status_code}):\n{resp.text}"
+        )
+    account_token = resp.json().get("authorization")
+    if not account_token:
+        raise RegistrationError(
+            "Account creation did not return an authorization token.")
+
+    authed_index = _account_index(server, account_token)
+    password_create_url = _control(authed_index, "password", "create")
+    pod_create_url = _control(authed_index, "account", "pod")
+
+    auth_headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"CSS-Account-Token {account_token}",
+    }
+
+    resp = requests.post(
+        password_create_url,
+        headers=auth_headers,
+        json={"email": email, "password": password},
+    )
+    if resp.status_code in (400, 409):
+        print(
+            f"  '{email}' is already registered — logging in instead "
+            "(looks like a retry after an earlier failed run)"
+        )
+        account_token = _login(server, email, password)
+        authed_index = _account_index(server, account_token)
+        pod_create_url = _control(authed_index, "account", "pod")
+        auth_headers["Authorization"] = f"CSS-Account-Token {account_token}"
+    elif not (200 <= resp.status_code < 300):
+        raise RegistrationError(
+            f"Failed to register the email/password login "
+            f"(HTTP {resp.status_code}):\n{resp.text}"
+        )
+
+    resp = requests.post(
+        pod_create_url, headers=auth_headers, json={"name": pod_name})
+    conventional_pod_url = f"{server.rstrip('/')}/{pod_name}/"
+
+    if resp.status_code in (400, 409):
+        print(f"  Pod '{pod_name}' already exists — reusing it")
+        pod_url = conventional_pod_url
+    elif not (200 <= resp.status_code < 300):
+        raise RegistrationError(
+            f"Failed to create Pod '{pod_name}' (HTTP {resp.status_code}):\n{resp.text}"
+        )
+    else:
+        body = resp.json()
+        print(f"  Pod-creation response: {json.dumps(body, indent=2)}")
+        pod_url = body.get("url") or body.get("pod") or body.get("resource")
+        if not pod_url:
+            print(
+                "  (no recognised URL field in the response above — "
+                "falling back to the conventional Pod URL)"
+            )
+            pod_url = conventional_pod_url
+
+    if not pod_url.endswith("/"):
+        pod_url += "/"
+
+    web_id = urljoin(pod_url, "profile/card#me")
+    return account_token, pod_url, web_id
+
+
+def mint_client_credentials(server: str, account_token: str, web_id: str, label: str) -> tuple[str, str]:
+    """Returns (client_id, client_secret)."""
+    index = _account_index(server, account_token)
+    credentials_url = _control(index, "account", "clientCredentials")
+
+    resp = requests.post(
+        credentials_url,
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": f"CSS-Account-Token {account_token}",
+        },
+        json={"name": label, "webId": web_id},
+    )
+    if not (200 <= resp.status_code < 300):
+        raise RegistrationError(
+            f"Failed to mint client credentials (HTTP {resp.status_code}):\n{resp.text}"
+        )
+    body = resp.json()
+    client_id, client_secret = body.get("id"), body.get("secret")
+    if not client_id or not client_secret:
+        raise RegistrationError(
+            f"Unexpected client-credentials response: {body}")
+    return client_id, client_secret
+
+
+# ── OAuth2 client_credentials + DPoP token, resource creation ──────────────
+
+
+def get_access_token(server: str, client_id: str, client_secret: str, dpop: DPoPKey) -> str:
+    discovery = requests.get(
+        urljoin(server.rstrip("/") + "/", ".well-known/openid-configuration"),
+        headers={"Accept": "application/json"},
+    )
+    if discovery.status_code != 200:
+        raise RegistrationError(
+            f"Could not fetch OIDC discovery document "
+            f"(HTTP {discovery.status_code}):\n{discovery.text}"
+        )
+    token_endpoint = discovery.json().get("token_endpoint")
+    if not token_endpoint:
+        raise RegistrationError(
+            "OIDC discovery document has no token_endpoint.")
+
+    resp = requests.post(
+        token_endpoint,
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "DPoP": dpop.proof("POST", token_endpoint),
+        },
+        data={
+            "grant_type": "client_credentials",
+            "client_id": client_id,
+            "client_secret": client_secret,
+        },
+    )
+    if resp.status_code != 200:
+        raise RegistrationError(
+            f"Client-credentials token request failed "
+            f"(HTTP {resp.status_code}):\n{resp.text}"
+        )
+    access_token = resp.json().get("access_token")
+    if not access_token:
+        raise RegistrationError(
+            f"Token response had no access_token: {resp.json()}")
+    return access_token
+
+
+def _authed(method: str, url: str, dpop: DPoPKey, access_token: str, **kwargs) -> requests.Response:
+    headers = kwargs.pop("headers", {})
+    headers["Authorization"] = f"DPoP {access_token}"
+    headers["DPoP"] = dpop.proof(method, url, access_token)
+    return requests.request(method, url, headers=headers, **kwargs)
+
+
+def resource_exists(url: str, dpop: DPoPKey, access_token: str) -> bool:
+    resp = _authed("GET", url, dpop, access_token, headers={"Accept": "*/*"})
+    return resp.status_code == 200
+
+
+def ensure_container(parent_url: str, name: str, dpop: DPoPKey, access_token: str) -> str:
+    """Creates `name/` under `parent_url` via LDP POST+Slug (idempotent — a
+    409/400 "already exists" is treated as success, matching how `solidpod`
+    treats its own container-creation calls when re-run)."""
+    child_url = urljoin(parent_url, name + "/")
+    if resource_exists(child_url, dpop, access_token):
+        print(f"  container already exists: {child_url}")
+        return child_url
+
+    resp = _authed(
+        "POST",
+        parent_url,
+        dpop,
+        access_token,
+        headers={
+            "Accept": "*/*",
+            "Content-Type": "application/octet-stream",
+            "Link": '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"',
+            "Slug": name,
+        },
+        data=b"",
+    )
+    if resp.status_code not in (200, 201, 205):
+        raise RegistrationError(
+            f"Failed to create container '{name}/' under {parent_url} "
+            f"(HTTP {resp.status_code}):\n{resp.text}"
+        )
+    print(f"  created container: {child_url}")
+    return child_url
+
+
+def put_resource(
+    url: str,
+    content: str,
+    content_type: str,
+    dpop: DPoPKey,
+    access_token: str,
+    skip_if_exists: bool = True,
+) -> None:
+    """PUT is a replace operation in LDP, so by default this refuses to touch
+    a resource that's already there — re-running this script must never
+    clobber real accumulated data (e.g. index entries already written by the
+    app, or a hand-edited ACL)."""
+    if skip_if_exists and resource_exists(url, dpop, access_token):
+        print(f"  already exists, not overwriting: {url}")
+        return
+
+    body = content.encode("utf-8")
+    resp = _authed(
+        "PUT",
+        url,
+        dpop,
+        access_token,
+        headers={
+            "Accept": "*/*",
+            "Content-Type": content_type,
+            "Content-Length": str(len(body)),
+        },
+        data=body,
+    )
+    if resp.status_code not in (200, 201, 205):
+        raise RegistrationError(
+            f"Failed to write {url} (HTTP {resp.status_code}):\n{resp.text}"
+        )
+    print(f"  wrote: {url}")
+
+
+def build_acl_turtle(web_id: str) -> str:
+    return f"""@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+
+<#owner>
+    a acl:Authorization;
+    acl:accessTo <{FILE_NAME}>;
+    acl:agent <{web_id}>;
+    acl:mode acl:Read, acl:Write, acl:Control.
+
+<#authUsers>
+    a acl:Authorization;
+    acl:accessTo <{FILE_NAME}>;
+    acl:agentClass acl:AuthenticatedAgent;
+    acl:mode acl:Read, acl:Append.
+"""
+
+
+# ── CLI ──────────────────────────────────────────────────────────────────
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--server", required=True,
+                        help="Base URL of the Solid server, e.g. https://privateinsights.au")
+    parser.add_argument("--email", required=True,
+                        help="Email for the new service account")
+    parser.add_argument(
+        "--password", help="Password for the new account (prompted securely if omitted)")
+    parser.add_argument("--pod-name", required=True,
+                        help="Pod name (URL path segment), e.g. exper-index")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Where to save the minted client_id/client_secret "
+        "(default: %(default)s, next to this script regardless of the "
+        "current working directory). Contains secrets — do not commit it.",
+    )
+    args = parser.parse_args()
+
+    password = args.password or getpass.getpass(
+        "Password for the new account: ")
+
+    try:
+        print(f"Creating account + Pod '{args.pod_name}' on {args.server} ...")
+        account_token, pod_url, web_id = create_account(
+            args.server, args.email, password, args.pod_name)
+        print(f"  Pod URL: {pod_url}")
+        print(f"  WebID:   {web_id}")
+
+        print("Minting client credentials for future authenticated writes ...")
+        client_id, client_secret = mint_client_credentials(
+            args.server, account_token, web_id, label=f"{args.pod_name}-service-account"
+        )
+
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "server": args.server,
+                    "web_id": web_id,
+                    "pod_url": pod_url,
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                },
+                f,
+                indent=2,
+            )
+        print(
+            f"  saved credentials to {args.output} — keep this file secret, do not commit it")
+
+        print("Obtaining an access token ...")
+        dpop = DPoPKey()
+        access_token = get_access_token(
+            args.server, client_id, client_secret, dpop)
+
+        print(f"Creating {CONTAINER_PATH} ...")
+        exper_url = ensure_container(pod_url, "exper", dpop, access_token)
+        data_url = ensure_container(exper_url, "data", dpop, access_token)
+
+        file_url = urljoin(data_url, FILE_NAME)
+        acl_url = file_url + ".acl"
+
+        print(f"Creating {FILE_NAME} (empty) ...")
+        put_resource(file_url, "", "text/turtle", dpop, access_token)
+
+        print(
+            f"Creating {FILE_NAME}.acl (read+append for authenticated users) ...")
+        put_resource(acl_url, build_acl_turtle(web_id),
+                     "text/turtle", dpop, access_token)
+
+        print("\nDone.")
+        print(f"  Index file: {file_url}")
+        print(f"  ACL file:   {acl_url}")
+    except RegistrationError as e:
+        print(f"\nERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

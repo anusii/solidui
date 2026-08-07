@@ -91,7 +91,6 @@ class SolidLoginPanel {
           const SizedBox(height: 20.0),
 
           // Column of buttons — dynamic rows of up to 2, skipping hidden ones.
-
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -119,10 +118,7 @@ class SolidLoginPanel {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 8.0,
                 runSpacing: 4.0,
-                children: [
-                  staySignedInCheckbox,
-                  tryAnotherAccountButton,
-                ],
+                children: [staySignedInCheckbox, tryAnotherAccountButton],
               )
             else
               staySignedInCheckbox,
@@ -132,7 +128,6 @@ class SolidLoginPanel {
           const SizedBox(height: 20.0),
 
           // Version text at the bottom of the panel.
-
           SizedBox(
             height: boxTextHeight,
             child: Center(

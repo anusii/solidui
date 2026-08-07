@@ -228,7 +228,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header section.
-
               SecurityKeyHeader(
                 title: widget.title,
                 webId: widget.webId,
@@ -236,21 +235,15 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
               ),
 
               // Separator.
-
               Container(
                 height: SecurityLayout.separatorHeight,
                 color: SecurityThemeColors.separator(context),
               ),
 
               // Form with input fields.
-
-              Padding(
-                padding: SecurityLayout.formPadding,
-                child: _buildForm(),
-              ),
+              Padding(padding: SecurityLayout.formPadding, child: _buildForm()),
 
               // Buttons.
-
               Padding(
                 padding: SecurityLayout.buttonsPadding,
                 child: SecurityKeyButtons(
@@ -271,7 +264,6 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
         ),
 
         // Theme toggle button in the top-right corner.
-
         Positioned(
           top: 8,
           right: 8,
@@ -325,9 +317,7 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
         // Save input and validate.
 
         widget.formKey.currentState!.save();
-        widget.formKey.currentState!.validate(
-          focusOnInvalid: false,
-        );
+        widget.formKey.currentState!.validate(focusOnInvalid: false);
 
         // Update state.
 
