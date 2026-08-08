@@ -35,6 +35,7 @@ export 'src/constants/ui.dart';
 
 export 'src/handlers/solid_auth_handler.dart';
 
+export 'src/widgets/solid_write_failure_listener.dart';
 export 'src/widgets/solid_nav_bar.dart';
 export 'src/widgets/solid_nav_drawer.dart';
 export 'src/widgets/solid_nav_models.dart';
@@ -134,6 +135,7 @@ export 'src/utils/is_phone.dart';
 export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_notifications.dart';
 export 'src/utils/solid_pending_writes.dart';
+export 'src/utils/solid_write_failures.dart';
 export 'src/utils/solid_window_close_guard.dart';
 export 'src/utils/unsaved_changes_dialog.dart';
 export 'src/utils/unsaved_changes_mixin.dart';
