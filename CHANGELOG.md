@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Keep the window open when a save fails on close [1.0.30 20260808 gjw]
 + Report failures from background Pod writes [1.0.29 20260808 gjw]
 + Wait for in-flight Pod writes before closing [1.0.28 20260808 gjw]
 + Prompt to save unsaved edits on window close [1.0.27 20260808 gjw]

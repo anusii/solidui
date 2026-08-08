@@ -27,6 +27,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:solidui/src/utils/solid_window_close_guard.dart';
+import 'package:solidui/src/utils/solid_write_failures.dart';
 import 'package:solidui/src/utils/unsaved_changes_dialog.dart';
 
 /// Adds the desktop window-close save prompt to an editor [State].
@@ -40,7 +41,7 @@ import 'package:solidui/src/utils/unsaved_changes_dialog.dart';
 ///   bool get hasUnsavedChanges => _hasChanges;
 ///
 ///   @override
-///   Future<void> saveUnsavedChanges() => _save();
+///   Future<bool> saveUnsavedChanges() => _save();
 /// }
 /// ```
 ///
@@ -55,6 +56,11 @@ mixin UnsavedChangesMixin<T extends StatefulWidget> on State<T> {
 
   /// Persists the current edits.
   ///
+  /// Returns whether the edits actually reached storage. Returning false, or
+  /// throwing, aborts the close and leaves the editor open — otherwise a
+  /// failed write loses the work exactly as it would have without any prompt,
+  /// and the error dialog never gets a frame to appear in.
+  ///
   /// MUST NOT complete until the write is done — the window is destroyed as
   /// soon as [resolveUnsavedOnWindowClose] returns true, so an unawaited write
   /// would be killed mid-flight.
@@ -62,7 +68,7 @@ mixin UnsavedChangesMixin<T extends StatefulWidget> on State<T> {
   /// MUST NOT pop the Navigator: on the window-close path the whole window is
   /// going away, not just this route.
 
-  Future<void> saveUnsavedChanges();
+  Future<bool> saveUnsavedChanges();
 
   /// Whether the edits are complete enough to save, e.g. a required title is
   /// filled in.
@@ -100,9 +106,16 @@ mixin UnsavedChangesMixin<T extends StatefulWidget> on State<T> {
         // abort the close and leave the editor open rather than closing and
         // losing it. Discard is still there for closing regardless.
         if (!canSaveUnsavedChanges) return false;
-        // Awaited: the window is destroyed the moment this returns true.
-        await saveUnsavedChanges();
-        return true;
+        // Awaited, and its answer respected: the window is destroyed the
+        // moment this returns true, so a write that failed must keep the
+        // editor open rather than close over the top of the work.
+        try {
+          return await saveUnsavedChanges();
+        } catch (e) {
+          SolidWriteFailures.report('Failed saving.\n\n$e');
+
+          return false;
+        }
       case UnsavedChangesAction.discard:
         return true;
       case UnsavedChangesAction.keepEditing:

@@ -19,11 +19,19 @@ class FakeEditor extends StatefulWidget {
     this.dirty = true,
     this.gate,
     this.canSave = true,
+    this.succeeds = true,
+    this.throws = false,
   });
 
   final bool dirty;
   final Future<void>? gate;
   final bool canSave;
+
+  /// Whether the simulated write reaches storage.
+  final bool succeeds;
+
+  /// Whether the simulated write throws instead of returning.
+  final bool throws;
 
   @override
   State<FakeEditor> createState() => FakeEditorState();
@@ -41,9 +49,12 @@ class FakeEditorState extends State<FakeEditor> with UnsavedChangesMixin {
   bool get canSaveUnsavedChanges => widget.canSave;
 
   @override
-  Future<void> saveUnsavedChanges() async {
+  Future<bool> saveUnsavedChanges() async {
     if (widget.gate != null) await widget.gate;
+    if (widget.throws) throw Exception('no network');
     saved = true;
+
+    return widget.succeeds;
   }
 
   @override
@@ -153,5 +164,36 @@ void main() {
     // Nothing registered, so no prompt and the close proceeds.
     expect(await SolidWindowCloseGuard.resolveAll(), isTrue);
     expect(find.text('Unsaved changes'), findsNothing);
+  });
+
+  testWidgets('a failed write aborts the close instead of losing the work', (
+    tester,
+  ) async {
+    await pumpEditor(tester, const FakeEditor(succeeds: false));
+
+    final pending = SolidWindowCloseGuard.resolveAll();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    // The save ran but did not land, so the window must stay open.
+    expect(await pending, isFalse);
+    expect(FakeEditorState.saved, isTrue);
+  });
+
+  testWidgets('a throwing write aborts the close and is reported', (
+    tester,
+  ) async {
+    SolidWriteFailures.clear();
+    await pumpEditor(tester, const FakeEditor(throws: true));
+
+    final pending = SolidWindowCloseGuard.resolveAll();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(await pending, isFalse);
+    expect(SolidWriteFailures.latest.value, contains('no network'));
+    SolidWriteFailures.clear();
   });
 }
