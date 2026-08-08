@@ -27,6 +27,7 @@ library;
 import 'package:window_manager/window_manager.dart';
 
 import 'package:solidui/src/utils/is_desktop.dart';
+import 'package:solidui/src/utils/solid_pending_writes.dart';
 
 /// Resolves whether it is safe to proceed with closing the window: `true` once
 /// any unsaved changes have been saved or discarded, `false` if the user chose
@@ -116,6 +117,11 @@ class SolidWindowCloseGuard with WindowListener {
 
   @override
   void onWindowClose() async {
-    if (await resolveAll()) await windowManager.destroy();
+    if (!await resolveAll()) return;
+    // Editors have saved or discarded, but a write started earlier from a
+    // synchronous callback (a star toggle, a reorder) may still be running
+    // and nobody is holding it. Let those finish before the process goes.
+    await SolidPendingWrites.settle();
+    await windowManager.destroy();
   }
 }

@@ -133,6 +133,7 @@ export 'src/utils/solid_file_operations_print.dart';
 export 'src/utils/is_phone.dart';
 export 'src/utils/solid_alert.dart';
 export 'src/utils/solid_notifications.dart';
+export 'src/utils/solid_pending_writes.dart';
 export 'src/utils/solid_window_close_guard.dart';
 export 'src/utils/unsaved_changes_dialog.dart';
 export 'src/utils/unsaved_changes_mixin.dart';

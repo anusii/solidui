@@ -105,4 +105,22 @@ void main() {
     expect(await SolidWindowCloseGuard.resolveAll(), isTrue);
     expect(await SolidWindowCloseGuard.resolveAll(), isTrue);
   });
+
+  test('resolveAll ignores pending writes; the guard is what waits', () async {
+    // resolveAll only consults editors. Waiting for unawaited writes is
+    // onWindowClose's job, via SolidPendingWrites.settle().
+    final write = Completer<void>();
+    SolidPendingWrites.track(write.future).ignore();
+
+    expect(await SolidWindowCloseGuard.resolveAll(), isTrue);
+    expect(SolidPendingWrites.hasPending, isTrue);
+
+    var settled = false;
+    final pending = SolidPendingWrites.settle()..then((_) => settled = true);
+    await Future<void>.delayed(Duration.zero);
+    expect(settled, isFalse);
+
+    write.complete();
+    expect(await pending, isTrue);
+  });
 }
