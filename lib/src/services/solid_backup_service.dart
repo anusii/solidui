@@ -41,7 +41,10 @@ import 'package:encrypter_plus/encrypter_plus.dart'
     show AES, AESMode, Encrypted, Encrypter, IV, Key;
 import 'package:solidpod/solidpod.dart'
     show
+        ResourceStatus,
         SecurityKeyVerificationException,
+        checkResourceStatus,
+        createDir,
         deleteFile,
         deleteLargeFile,
         getDataDirPath,
@@ -587,11 +590,25 @@ class SolidBackupService {
     // (Overwrite) Remove pre-existing data files that are not part of the
     // backup so the folder ends up mirroring the backup exactly.
 
+    // Walk the destination once. The removal pass below needs the listing,
+    // and the restore needs to know which large files are already there so it
+    // only asks solidpod to delete the ones that exist. A destination with no
+    // data folder yet simply has nothing to list.
+
+    final dataDirUrl = await getDirUrl(await getDataDirPath());
+    final existing = <_PodFile>[];
+    try {
+      await _collectFiles(dataDirUrl, '', existing);
+    } on Object catch (e) {
+      debugPrint('[SolidBackupService] nothing to list at "$dataDirUrl": $e');
+    }
+    final existingLarge = {
+      for (final podFile in existing)
+        if (podFile.large) podFile.path,
+    };
+
     var removedCount = 0;
     if (clearExisting) {
-      final dataDirUrl = await getDirUrl(await getDataDirPath());
-      final existing = <_PodFile>[];
-      await _collectFiles(dataDirUrl, '', existing);
       for (final podFile in existing) {
         if (restorePaths.contains(podFile.path)) continue;
         try {
@@ -623,7 +640,10 @@ class SolidBackupService {
     for (final entry in entries) {
       try {
         if (entry.large) {
-          await _restoreLargeFile(entry);
+          await _restoreLargeFile(
+            entry,
+            replacing: existingLarge.contains(entry.path),
+          );
         } else {
           await writePod(
             entry.path,
@@ -667,14 +687,25 @@ class SolidBackupService {
   // and refuses to overwrite, so the backup's bytes go to a temporary file and
   // any existing copy on the POD is removed first. The upload re-encrypts with
   // the destination POD's own key, as for every other restored file.
+  //
+  // [replacing] says whether this file is actually on the destination POD.
+  // Deleting unconditionally still works -- solidpod treats a missing file as
+  // a no-op -- but it spends two requests per file and reports every absent
+  // one, which on a fresh POD is one "does not exist" line per attachment.
 
-  Future<void> _restoreLargeFile(_BackupEntry entry) async {
+  Future<void> _restoreLargeFile(
+    _BackupEntry entry, {
+    required bool replacing,
+  }) async {
     final tempDir = await Directory.systemTemp.createTemp('solidui_backup_');
     try {
       final localFile = File('${tempDir.path}/${entry.path.split('/').last}');
       await localFile.writeAsBytes(base64.decode(entry.content));
 
-      await deleteLargeFile(remoteFilePath: entry.path);
+      if (replacing) {
+        await deleteLargeFile(remoteFilePath: entry.path);
+      }
+      await _ensureParentContainers(entry.path);
       await writeLargeFile(
         localFilePath: localFile.path,
         remoteFilePath: entry.path,
@@ -682,6 +713,30 @@ class SolidBackupService {
       );
     } finally {
       await tempDir.delete(recursive: true);
+    }
+  }
+
+  // Create the containers holding [relativePath], innermost last.
+  //
+  // writeLargeFile() creates its chunk directory by POSTing to the parent
+  // container, so that parent must already exist -- unlike writePod(), which
+  // creates missing containers on the way down. Restoring onto a POD that has
+  // never held one of these files (a different POD, or one whose data folder
+  // was cleared) therefore fails the POST with a 404, which is why an import
+  // could restore every ordinary file and no large one.
+
+  Future<void> _ensureParentContainers(String relativePath) async {
+    final segments = relativePath.split('/')..removeLast();
+    var path = await getDataDirPath();
+    for (final segment in segments) {
+      path = '$path/$segment';
+      var url = await getDirUrl(path);
+      if (!url.endsWith('/')) url = '$url/';
+      if (await checkResourceStatus(url, isFile: false) ==
+          ResourceStatus.exist) {
+        continue;
+      }
+      await createDir(url);
     }
   }
 
