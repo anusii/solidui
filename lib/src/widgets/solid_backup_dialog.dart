@@ -426,6 +426,20 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
     return showDialog<Map<String, String>>(
       context: context,
       builder: (dialogContext) {
+        // Accept the entered keys. Shared by the Continue button and by ENTER
+        // pressed in the last field, so the keyboard and the mouse do the same
+        // thing.
+
+        void submit() {
+          if (formKey.currentState?.saveAndValidate() ?? false) {
+            final values = formKey.currentState!.value;
+            Navigator.of(dialogContext).pop({
+              for (final field in fields)
+                field.key: values[field.key].toString(),
+            });
+          }
+        }
+
         return AlertDialog(
           title: Text(title),
 
@@ -443,13 +457,24 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
                   children: [
                     Text(message),
                     const Gap(16),
-                    for (final field in fields) ...[
+                    for (final (index, field) in fields.indexed) ...[
                       SecretTextField(
                         fieldKey: field.key,
                         fieldLabel: field.label,
                         validateFunc: (value) => value.isEmpty
                             ? 'Please enter ${field.label}.'
                             : null,
+
+                        // The dialog opens ready to type into the first field.
+
+                        autofocus: index == 0,
+
+                        // ENTER on the last field is Continue; on an earlier
+                        // field it moves to the next field.
+
+                        onSubmitted: index == fields.length - 1
+                            ? submit
+                            : () => FocusScope.of(dialogContext).nextFocus(),
                       ),
                       const Gap(8),
                     ],
@@ -464,15 +489,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
-                if (formKey.currentState?.saveAndValidate() ?? false) {
-                  final values = formKey.currentState!.value;
-                  Navigator.of(dialogContext).pop({
-                    for (final field in fields)
-                      field.key: values[field.key].toString(),
-                  });
-                }
-              },
+              onPressed: submit,
               child: const Text('Continue'),
             ),
           ],

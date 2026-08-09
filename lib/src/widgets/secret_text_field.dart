@@ -45,6 +45,8 @@ class SecretTextField extends StatefulWidget {
     required this.fieldLabel,
     required this.validateFunc,
     this.obscure = true,
+    this.autofocus = false,
+    this.onSubmitted,
     super.key,
   });
 
@@ -65,6 +67,20 @@ class SecretTextField extends StatefulWidget {
   /// Defaults to `true` so the field behaves as a secret/password input.
 
   final bool obscure;
+
+  /// Whether the field takes the keyboard focus as soon as it appears.
+  ///
+  /// Set this on the first field of a dialog so the user can type straight
+  /// away.
+
+  final bool autofocus;
+
+  /// Called when the user presses ENTER in the field.
+  ///
+  /// Lets a dialog treat ENTER as the same action as tapping its confirm
+  /// button, or as a move to the next field.
+
+  final VoidCallback? onSubmitted;
 
   @override
   State<SecretTextField> createState() => _SecretTextFieldState();
@@ -116,6 +132,7 @@ class _SecretTextFieldState extends State<SecretTextField> {
     return FormBuilderTextField(
       name: widget.fieldKey,
       obscureText: widget.obscure && !_showSecret,
+      autofocus: widget.autofocus,
 
       // For secret fields, suppress the brief character-reveal that macOS/iOS
       // shows while typing: TextInputType.visiblePassword disables the input
@@ -134,6 +151,13 @@ class _SecretTextFieldState extends State<SecretTextField> {
       style: TextStyle(color: SecurityThemeColors.text(context)),
       cursorColor: SecurityThemeColors.primary(context),
       validator: secretValidator,
+
+      // ENTER submits the field rather than being ignored, so a keyboard user
+      // need not reach for the dialog's button.
+
+      textInputAction: widget.onSubmitted == null ? null : TextInputAction.done,
+      onSubmitted:
+          widget.onSubmitted == null ? null : (_) => widget.onSubmitted!(),
     );
   }
 }

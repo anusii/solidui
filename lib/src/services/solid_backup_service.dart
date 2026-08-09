@@ -29,6 +29,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io' show Directory, File;
 import 'dart:math' show Random;
 import 'dart:typed_data';
 
@@ -42,13 +43,16 @@ import 'package:solidpod/solidpod.dart'
     show
         SecurityKeyVerificationException,
         deleteFile,
+        deleteLargeFile,
         getDataDirPath,
         getDirUrl,
         getResourcesInContainer,
         isFileEncrypted,
         isUserLoggedIn,
+        readLargeFileAsBytes,
         readPod,
         verifyAppSecurityKey,
+        writeLargeFile,
         writePod;
 
 // Format constants.
@@ -243,29 +247,53 @@ class InvalidBackupFileException implements Exception {
 // A single backed-up file: its path relative to the app's data folder, the
 // decrypted content, and whether it was encrypted at rest on the source POD
 // (so it can be written back with the same protection).
+//
+// A "large" entry is one of solidpod's chunked large files (see _PodFile).
+// Its bytes are arbitrary binary, so the content is base64 rather than the
+// file's text.
 
 class _BackupEntry {
   _BackupEntry({
     required this.path,
     required this.content,
     required this.encrypted,
+    this.large = false,
   });
 
   factory _BackupEntry.fromJson(Map<String, dynamic> json) => _BackupEntry(
         path: json['path'] as String,
         content: json['content'] as String,
         encrypted: json['encrypted'] as bool? ?? true,
+        large: json['large'] as bool? ?? false,
       );
 
   final String path;
   final String content;
   final bool encrypted;
+  final bool large;
 
   Map<String, dynamic> toJson() => {
         'path': path,
         'content': content,
         'encrypted': encrypted,
+        if (large) 'large': true,
       };
+}
+
+// A file discovered in the data folder.
+//
+// solidpod stores a large file (written with writeLargeFile()) as a hidden
+// "<name>.chunks" directory of encrypted binary chunks plus a "<name>.ttl"
+// metadata file. Those parts cannot be read or restored individually — the
+// chunks are not text, and their key is bound to the source POD — so the walk
+// reports the large file itself and the backup goes through solidpod's
+// large-file API instead.
+
+class _PodFile {
+  _PodFile(this.path, {required this.large});
+
+  final String path;
+  final bool large;
 }
 
 // Service.
@@ -326,19 +354,30 @@ class SolidBackupService {
 
     // Collect every data file (recursively) and read its decrypted content.
 
-    final relativePaths = <String>[];
-    await _collectFiles(dataDirUrl, '', relativePaths);
+    final podFiles = <_PodFile>[];
+    await _collectFiles(dataDirUrl, '', podFiles);
 
     final entries = <_BackupEntry>[];
-    for (final relativePath in relativePaths) {
+    for (final podFile in podFiles) {
+      final relativePath = podFile.path;
       try {
-        final content = await readPod(relativePath);
-        final encrypted = await isFileEncrypted(relativePath);
+        // A large file comes back as raw bytes, already decrypted by
+        // solidpod, and travels through the backup as base64. It is always
+        // re-encrypted on restore, matching how writeLargeFile() stores it.
+
+        final content = podFile.large
+            ? base64.encode(
+                await readLargeFileAsBytes(remoteFilePath: relativePath),
+              )
+            : await readPod(relativePath);
+        final encrypted =
+            podFile.large ? true : await isFileEncrypted(relativePath);
         entries.add(
           _BackupEntry(
             path: relativePath,
             content: content,
             encrypted: encrypted,
+            large: podFile.large,
           ),
         );
       } on Object catch (e) {
@@ -551,20 +590,26 @@ class SolidBackupService {
     var removedCount = 0;
     if (clearExisting) {
       final dataDirUrl = await getDirUrl(await getDataDirPath());
-      final existing = <String>[];
+      final existing = <_PodFile>[];
       await _collectFiles(dataDirUrl, '', existing);
-      for (final relativePath in existing) {
-        if (restorePaths.contains(relativePath)) continue;
+      for (final podFile in existing) {
+        if (restorePaths.contains(podFile.path)) continue;
         try {
-          // getDirUrl() returns the data folder URL with a trailing slash, so
-          // appending the data-relative path yields the file's absolute URL
-          // (getFileUrl() would instead resolve against the POD root).
+          // A large file is a chunk directory plus a metadata file, so it
+          // takes solidpod's own delete. Otherwise: getDirUrl() returns the
+          // data folder URL with a trailing slash, so appending the
+          // data-relative path yields the file's absolute URL (getFileUrl()
+          // would instead resolve against the POD root).
 
-          await deleteFile(fileUrl: '$dataDirUrl$relativePath');
+          if (podFile.large) {
+            await deleteLargeFile(remoteFilePath: podFile.path);
+          } else {
+            await deleteFile(fileUrl: '$dataDirUrl${podFile.path}');
+          }
           removedCount++;
         } on Object catch (e) {
           debugPrint(
-            '[SolidBackupService] could not remove "$relativePath": $e',
+            '[SolidBackupService] could not remove "${podFile.path}": $e',
           );
         }
       }
@@ -577,12 +622,16 @@ class SolidBackupService {
     var restoredCount = 0;
     for (final entry in entries) {
       try {
-        await writePod(
-          entry.path,
-          entry.content,
-          encrypted: entry.encrypted,
-          overwrite: true,
-        );
+        if (entry.large) {
+          await _restoreLargeFile(entry);
+        } else {
+          await writePod(
+            entry.path,
+            entry.content,
+            encrypted: entry.encrypted,
+            overwrite: true,
+          );
+        }
         restoredCount++;
       } on Object catch (e) {
         skipped[entry.path] = e.toString();
@@ -614,6 +663,28 @@ class SolidBackupService {
     return appId;
   }
 
+  // Restore a chunked large file. writeLargeFile() streams from a local file
+  // and refuses to overwrite, so the backup's bytes go to a temporary file and
+  // any existing copy on the POD is removed first. The upload re-encrypts with
+  // the destination POD's own key, as for every other restored file.
+
+  Future<void> _restoreLargeFile(_BackupEntry entry) async {
+    final tempDir = await Directory.systemTemp.createTemp('solidui_backup_');
+    try {
+      final localFile = File('${tempDir.path}/${entry.path.split('/').last}');
+      await localFile.writeAsBytes(base64.decode(entry.content));
+
+      await deleteLargeFile(remoteFilePath: entry.path);
+      await writeLargeFile(
+        localFilePath: localFile.path,
+        remoteFilePath: entry.path,
+        encrypted: entry.encrypted,
+      );
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  }
+
   // Walk a container recursively, appending the data-relative path of every
   // file found. ACL and metadata sidecars are skipped: solidpod recreates them
   // when writePod restores each file.
@@ -621,17 +692,37 @@ class SolidBackupService {
   Future<void> _collectFiles(
     String dirUrl,
     String relativePrefix,
-    List<String> out,
+    List<_PodFile> out,
   ) async {
     final normalisedDirUrl = dirUrl.endsWith('/') ? dirUrl : '$dirUrl/';
     final listing = await getResourcesInContainer(normalisedDirUrl);
 
+    // The names of the large files stored in this container, recovered from
+    // their chunk directories.
+
+    final large = {
+      for (final subDir in listing.subDirs)
+        if (_largeFileName(subDir) != null) _largeFileName(subDir)!,
+    };
+
+    for (final name in large) {
+      out.add(_PodFile('$relativePrefix$name', large: true));
+    }
+
     for (final file in listing.files) {
       if (file.endsWith('.acl') || file.endsWith('.meta')) continue;
-      out.add('$relativePrefix$file');
+
+      // Skip a large file's metadata sidecar: writeLargeFile() rewrites it.
+
+      if (file.endsWith('.ttl') &&
+          large.contains(file.substring(0, file.length - 4))) {
+        continue;
+      }
+      out.add(_PodFile('$relativePrefix$file', large: false));
     }
 
     for (final subDir in listing.subDirs) {
+      if (_largeFileName(subDir) != null) continue;
       await _collectFiles(
         '$normalisedDirUrl$subDir/',
         '$relativePrefix$subDir/',
@@ -639,6 +730,14 @@ class SolidBackupService {
       );
     }
   }
+
+  // The name of the large file a ".<name>.chunks" directory belongs to, or
+  // null if this is an ordinary sub-container.
+
+  String? _largeFileName(String subDir) =>
+      subDir.startsWith('.') && subDir.endsWith('.chunks')
+          ? subDir.substring(1, subDir.length - '.chunks'.length)
+          : null;
 
   // Cryptographically secure random bytes.
 
