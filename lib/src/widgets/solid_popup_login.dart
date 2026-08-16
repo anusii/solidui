@@ -1,4 +1,4 @@
-/// pop up login button
+/// Pop up login button
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -185,7 +185,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
 
       if (!context.mounted) return false;
 
-      return _checkAndSetupPod(context);
+      return await _checkAndSetupPod(context);
     } on Object catch (e) {
       debugPrint('solidAuthenticate() failed: $e');
 
