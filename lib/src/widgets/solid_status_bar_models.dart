@@ -30,6 +30,7 @@
 
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/utils/web_id_parser.dart';
@@ -313,10 +314,18 @@ class SolidSecurityKeyStatus {
   });
 
   /// Get the display text based on key status.
+  ///
+  /// On the web the security key is cached in `sessionStorage` (per-tab, cleared
+  /// when the tab/window is closed), so the "saved" wording reflects that it is
+  /// session-scoped rather than persisted on the device. Native platforms keep
+  /// the "Cached Locally" wording.
 
   String get displayText {
     if (isKeySaved == true) {
-      return keySavedText ?? 'Security Key Cached Locally';
+      if (keySavedText != null) return keySavedText!;
+      return kIsWeb
+          ? 'Security Key Cached for Session'
+          : 'Security Key Cached Locally';
     } else {
       return keyNotSavedText ?? 'Security Key Not Cached';
     }

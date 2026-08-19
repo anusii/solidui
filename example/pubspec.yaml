@@ -14,7 +14,7 @@ dependencies:
   intl: ^0.20.2
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  solidpod: ^1.0.13
+  solidpod: ^1.0.15
   solidui:
     path: ..
   universal_io: ^2.3.1

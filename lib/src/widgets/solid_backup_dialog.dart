@@ -378,7 +378,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
                 icon: const Icon(kIsWeb ? Icons.refresh : Icons.exit_to_app),
                 label: const Text(kIsWeb ? 'OK' : 'Close App'),
                 onPressed: () {
-                  // Close the dialogs first. If the platform declines to close
+                  // Close the dialogs first. If the platform declines to cse
                   // the app, the user is at least left with it usable and the
                   // banner still explaining that a restart is needed.
 
