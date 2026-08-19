@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Session storage for web security key [1.0.33 20260819 gjw]
 + Fix restoring large files such as attachments [1.0.32 20260809 gjw]
 + Back up large files and accept ENTER for the key [1.0.31 20260809 gjw]
 + Keep the window open when a save fails on close [1.0.30 20260808 gjw]
