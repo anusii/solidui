@@ -31,6 +31,8 @@ library;
 
 // ignore_for_file: public_member_api_docs
 
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -41,6 +43,7 @@ import 'package:solidpod/solidpod.dart'
         generateDefaultFolders,
         generateDefaultFiles,
         generateCustomFolders,
+        prewarmSolidAuthenticate,
         setAppDirName,
         tryRestoreSession;
 
@@ -274,6 +277,23 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // dc 20251022: please explain why calling an async without await.
 
     _initPackageInfo();
+
+    // Resolve the default WebID's issuer and initialise the OIDC manager now,
+    // ahead of any login click. Safari's popup blocker requires window.open()
+    // to fire within the same user-gesture handling as the click; without
+    // this, solidAuthenticate() would still be awaiting the WebID/issuer
+    // lookup and discovery-document fetch by the time it tries to open the
+    // auth popup, and Safari silently blocks it. Only helps when the WebID
+    // field is left at its prefilled default — a custom WebID typed in and
+    // submitted immediately still hits the un-prewarmed path.
+    unawaited(
+      prewarmSolidAuthenticate(
+        widget.webID,
+        clientId: widget.clientId,
+        redirectUris: widget.redirectUris,
+        postLogoutRedirectUris: widget.postLogoutRedirectUris,
+      ),
+    );
 
     // Auto-configure SolidAuthHandler with this login's settings.
     // This ensures re-login from within the app uses the same configuration,
