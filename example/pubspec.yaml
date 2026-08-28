@@ -14,7 +14,11 @@ dependencies:
   intl: ^0.20.2
   markdown_tooltip: ^0.0.10
   rdflib: ^0.2.12
-  solidpod: ^1.0.15
+  # solidpod: ^1.0.15
+  solidpod:
+    git:
+      url: https://github.com/anusii/solidpod.git
+      ref: av/693_streamline_login_logout
   solidui:
     path: ..
   universal_io: ^2.3.1
