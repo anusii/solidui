@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Updated list of known solid servers [1.0.35 20260902 gjw]
 + Streamline login logout [1.0.34 20260828 anushkavidanage]
 + Session storage for web security key [1.0.33 20260819 gjw]
 + Fix restoring large files such as attachments [1.0.32 20260809 gjw]
