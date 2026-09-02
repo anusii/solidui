@@ -51,8 +51,7 @@ dependencies:
       ref: dc/61_petitparser_v7
   share_plus: ^13.3.0
   shared_preferences: ^2.5.5
-  solidpod:
-    path: ../solidpod
+  solidpod: ^1.0.18
   universal_io: ^2.3.1
   url_launcher: ^6.3.2
   version_widget: ^1.0.10
