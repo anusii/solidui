@@ -138,18 +138,6 @@ class SolidFileOperations {
         downloadDone: false,
       );
 
-      // Let user choose where to save the file.
-
-      String? outputFile = await FilePicker.saveFile(
-        dialogTitle: 'Save file as:',
-        fileName: fileState.cleanFileName ??
-            fileState.remoteFileName?.replaceAll('.enc.ttl', ''),
-      );
-
-      if (outputFile == null) {
-        return fileState.copyWith(downloadInProgress: false);
-      }
-
       // Use PathUtils for consistent path handling without leading slashes.
 
       final normalisedBasePath = PathUtils.normalise(basePath);
@@ -171,9 +159,20 @@ class SolidFileOperations {
       }
 
       // Save the decrypted content to file
+      // Let user choose where to save the file.
+      final defaultFileName = 'download';
 
-      final outputFileHandle = File(outputFile);
-      await outputFileHandle.writeAsString(fileContent);
+      final outputFileUri = await FilePicker.saveFile(
+        dialogTitle: 'Save file as:',
+        fileName: (fileState.cleanFileName ??
+                fileState.remoteFileName?.replaceAll('.enc.ttl', '')) ??
+            defaultFileName,
+        bytes: utf8.encode(fileContent),
+      );
+
+      if (outputFileUri == null) {
+        return fileState.copyWith(downloadInProgress: false);
+      }
 
       return newState.copyWith(downloadDone: true, downloadInProgress: false);
     } catch (e) {

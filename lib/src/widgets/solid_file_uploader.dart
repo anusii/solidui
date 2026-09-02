@@ -106,15 +106,12 @@ class _SolidFileUploaderState extends State<SolidFileUploader> {
   }
 
   Future<void> _handleJsonPreview() async {
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    if (result != null && result.files.isNotEmpty) {
-      final file = result.files.first;
-      if (file.path != null) {
-        await handlePreview(file.path!);
-      }
+    if (file != null && file.path != null) {
+      await handlePreview(file.path!);
     }
   }
 

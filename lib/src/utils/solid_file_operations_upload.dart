@@ -29,7 +29,6 @@
 library;
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -84,14 +83,15 @@ class SolidFileUploadOperations {
       // one is provided.
 
       final result = hasRestriction
-          ? await FilePicker.pickFiles(
+          ? await FilePicker.pickFile(
               type: FileType.custom,
               allowedExtensions: sanitisedExtensions,
             )
           : await FilePicker.pickFiles();
-      if (result == null || result.files.isEmpty) return;
+      if (result == null) return;
+      if (result is List && result.isEmpty) return;
 
-      final file = result.files.first;
+      PlatformFile file = result is List ? result.first : result;
       if (file.path == null) return;
 
       // Defensive client-side check in case the underlying picker on a given
@@ -129,15 +129,14 @@ class SolidFileUploadOperations {
       );
 
       try {
-        final localFile = File(file.path!);
         String fileContent;
 
         // Read file content.
+        final bytes = await file.readAsBytes();
 
         if (isTextFile(file.path!)) {
-          fileContent = await localFile.readAsString();
+          fileContent = utf8.decode(bytes);
         } else {
-          final bytes = await localFile.readAsBytes();
           fileContent = base64Encode(bytes);
         }
 
