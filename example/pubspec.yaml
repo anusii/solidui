@@ -14,12 +14,8 @@ dependencies:
   intl: ^0.20.3
   markdown_tooltip: ^0.0.10
   path: ^1.9.1
-  rdflib:
-    git:
-      url: https://github.com/anusii/rdflib.git
-      ref: dc/61_petitparser_v7
-  solidpod:
-    path: ../../solidpod
+  rdflib: ^0.2.13
+  solidpod: ^1.0.19
   solidui:
     path: ..
   universal_io: ^2.3.1
