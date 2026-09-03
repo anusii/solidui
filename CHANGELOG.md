@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Update dependency and use file_picker v12.x [1.0.37]
 + Updated list of known solid servers [1.0.35 20260902 gjw]
 + Streamline login logout [1.0.34 20260828 anushkavidanage]
 + Session storage for web security key [1.0.33 20260819 gjw]

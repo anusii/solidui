@@ -26,6 +26,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:solidpod/solidpod.dart';
 import 'package:solidui/solidui.dart' show SolidScaffold;
 
@@ -167,10 +168,10 @@ class _FileServiceState extends State<FileService> {
   Widget build(BuildContext context) {
     final browseButton = ElevatedButton(
       onPressed: () async {
-        final result = await FilePicker.pickFiles();
-        if (result != null) {
+        final file = await FilePicker.pickFile();
+        if (file != null) {
           setState(() {
-            uploadFile = result.files.single.path!;
+            uploadFile = file.path;
             uploadDone = false;
             uploadPercent = 0.0;
           });
@@ -234,10 +235,10 @@ class _FileServiceState extends State<FileService> {
 
     final browseSharedButton = ElevatedButton(
       onPressed: () async {
-        final result = await FilePicker.pickFiles();
-        if (result != null) {
+        final file = await FilePicker.pickFile();
+        if (file != null) {
           setState(() {
-            uploadSharedFile = result.files.single.path!;
+            uploadSharedFile = file.path;
             uploadSharedDone = false;
             uploadSharedPercent = 0.0;
           });
@@ -315,17 +316,17 @@ class _FileServiceState extends State<FileService> {
               deleteInProgress)
           ? null
           : () async {
-              String? outputFile = await FilePicker.saveFile(
-                dialogTitle: 'Please set the output file:',
-                // fileName: 'download.bin',
+              final dirPath = await FilePicker.getDirectoryPath(
+                dialogTitle: 'Choose a directory to save file',
               );
 
-              if (outputFile == null) {
+              if (dirPath == null) {
                 // User canceled the picker
                 debugPrint('Download is cancelled');
               } else {
+                final localFilePath = path.join(dirPath, getRemoteFileName());
                 setState(() {
-                  downloadFile = outputFile;
+                  downloadFile = localFilePath;
                 });
                 try {
                   // remoteFileUrl ??= await getRemoteFileUrl();
@@ -335,7 +336,7 @@ class _FileServiceState extends State<FileService> {
 
                   await readLargeFile(
                     remoteFilePath: getRemoteFileName(),
-                    localFilePath: outputFile,
+                    localFilePath: localFilePath,
                     onProgress: (received, total) {
                       setState(() {
                         downloadDone = received == total;
@@ -375,21 +376,17 @@ class _FileServiceState extends State<FileService> {
               deleteInProgress)
           ? null
           : () async {
-              String? outputFile = await FilePicker.saveFile(
-                dialogTitle: 'Please set the output file:',
+              final dirPath = await FilePicker.getDirectoryPath(
+                dialogTitle: 'Choose a directory to save file',
               );
-              if (outputFile == null) {
+              if (dirPath == null) {
                 // User canceled the picker
                 debugPrint('Download is cancelled');
               } else {
                 setState(() {
-                  downloadSharedFile = outputFile;
+                  downloadSharedInProgress = true;
                 });
                 try {
-                  setState(() {
-                    downloadSharedInProgress = true;
-                  });
-
                   final sharedFileUrl = sharedUrlController.text.trim();
                   if (sharedFileUrl.isEmpty) {
                     final msg = 'Shared file URL is empty';
@@ -411,10 +408,16 @@ class _FileServiceState extends State<FileService> {
                       .getRange(3, uri.pathSegments.length)
                       .join('/');
 
+                  final localFilePath = path.join(dirPath, fileName);
+
+                  setState(() {
+                    downloadSharedFile = localFilePath;
+                  });
+
                   if (context.mounted) {
                     await readLargeFile(
                       remoteFilePath: fileName,
-                      localFilePath: outputFile,
+                      localFilePath: localFilePath,
                       ownerWebId: ownerWebId,
                       onProgress: (received, total) {
                         setState(() {

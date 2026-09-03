@@ -40,7 +40,7 @@ import 'package:gap/gap.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show SecurityKeyVerificationException, isUserLoggedIn;
-import 'package:universal_io/io.dart' show File, Platform, exit;
+import 'package:universal_io/io.dart' show Platform, exit;
 
 import 'package:solidui/src/services/solid_backup_service.dart';
 import 'package:solidui/src/widgets/secret_text_field.dart';
@@ -167,18 +167,16 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
     required Uint8List bytes,
     required String fileName,
   }) async {
-    final path = await FilePicker.saveFile(
+    final fileUri = await FilePicker.saveFile(
       dialogTitle: 'Save backup',
       fileName: fileName,
       type: FileType.custom,
       allowedExtensions: const [kBackupFileExtension],
       bytes: bytes,
     );
-    if (path == null) return null;
-    if (!kIsWeb) {
-      await File(path).writeAsBytes(bytes);
-    }
-    return path;
+    if (fileUri == null) return null;
+
+    return fileUri.path;
   }
 
   // Import.
@@ -210,22 +208,17 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
     try {
       // Pick and read the backup file.
 
-      final picked = await FilePicker.pickFiles(
+      final file = await FilePicker.pickFile(
         dialogTitle: 'Select a backup file',
         type: FileType.custom,
         allowedExtensions: const [kBackupFileExtension],
-        withData: true,
       );
-      if (picked == null || picked.files.isEmpty) {
+      if (file == null) {
         _setImportMessage('Import cancelled.');
         return;
       }
 
-      final bytes = picked.files.first.bytes;
-      if (bytes == null) {
-        _setImportMessage('Could not read the selected file.', error: true);
-        return;
-      }
+      final bytes = await file.readAsBytes();
 
       // Read the header and confirm the backup belongs to this application
       // before asking the user for any keys.

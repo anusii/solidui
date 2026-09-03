@@ -29,7 +29,6 @@
 library;
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -159,18 +158,6 @@ class SolidFileDownloadOperations {
 
       if (!context.mounted) return;
 
-      // Let user choose where to save the file.
-
-      final cleanFileName = fileName.replaceAll('.enc.ttl', '');
-      String? outputFile = await FilePicker.saveFile(
-        dialogTitle: 'Save file as:',
-        fileName: cleanFileName,
-      );
-
-      if (outputFile == null) return;
-
-      if (!context.mounted) return;
-
       // Show loading dialog via a controller, so it can always be torn
       // down in the `finally` block — even if the originating context
       // becomes unmounted while the download is in flight.
@@ -209,8 +196,16 @@ class SolidFileDownloadOperations {
         }
 
         // Save decrypted content to file.
+        // Let user choose where to save the file.
 
-        await _saveDecryptedContent(fileContent, outputFile);
+        final cleanFileName = fileName.replaceAll('.enc.ttl', '');
+        final outputFileUri = await FilePicker.saveFile(
+          dialogTitle: 'Save file as:',
+          fileName: cleanFileName,
+          bytes: utf8.encode(fileContent),
+        );
+
+        if (outputFileUri == null) return;
 
         if (!context.mounted) return;
 
@@ -218,7 +213,8 @@ class SolidFileDownloadOperations {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('File downloaded successfully to $outputFile'),
+            content:
+                Text('File downloaded successfully to ${outputFileUri.path}'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
           ),
@@ -254,23 +250,23 @@ class SolidFileDownloadOperations {
 
   /// Save decrypted content to a file.
 
-  static Future<void> _saveDecryptedContent(
-    String content,
-    String outputPath,
-  ) async {
-    final file = File(outputPath);
+  // static Future<void> _saveDecryptedContent(
+  //   String content,
+  //   String outputPath,
+  // ) async {
+  //   final file = File(outputPath);
 
-    try {
-      // Try to decode as base64 (for binary files).
+  //   try {
+  //     // Try to decode as base64 (for binary files).
 
-      final bytes = base64Decode(content);
-      await file.writeAsBytes(bytes);
-    } catch (e) {
-      // If base64 decode fails, treat as text content.
+  //     final bytes = base64Decode(content);
+  //     await file.writeAsBytes(bytes);
+  //   } catch (e) {
+  //     // If base64 decode fails, treat as text content.
 
-      await file.writeAsString(content);
-    }
-  }
+  //     await file.writeAsString(content);
+  //   }
+  // }
 
   /// Download a mixed batch of files and/or directories from the POD as a
   /// single zip archive.
@@ -310,17 +306,6 @@ class SolidFileDownloadOperations {
 
         if (!shouldProceed) return;
       }
-
-      if (!context.mounted) return;
-
-      // Let the user choose where to save the zip file.
-
-      final outputFile = await FilePicker.saveFile(
-        dialogTitle: 'Save zip as:',
-        fileName: zipFileName,
-      );
-
-      if (outputFile == null) return;
 
       if (!context.mounted) return;
 
@@ -392,8 +377,15 @@ class SolidFileDownloadOperations {
         }
 
         // Write zip to the selected output path.
+        // Let the user choose where to save the zip file.
 
-        await File(outputFile).writeAsBytes(result.zipBytes);
+        final outputFileUri = await FilePicker.saveFile(
+          dialogTitle: 'Save zip as:',
+          fileName: zipFileName,
+          bytes: result.zipBytes,
+        );
+
+        if (outputFileUri == null) return;
 
         if (!context.mounted) return;
 
@@ -409,8 +401,8 @@ class SolidFileDownloadOperations {
         final summary = parts.join(', ');
 
         final successMsg = result.failed.isEmpty
-            ? 'Downloaded $summary to $outputFile'
-            : 'Downloaded $summary to $outputFile '
+            ? 'Downloaded $summary to ${outputFileUri.path}'
+            : 'Downloaded $summary to ${outputFileUri.path} '
                 '(${result.failed.length} could not be read)';
 
         ScaffoldMessenger.of(context).showSnackBar(

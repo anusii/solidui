@@ -94,16 +94,13 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
   // Image picking.
 
   Future<void> _pickImage() async {
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['png', 'jpg', 'jpeg'],
-      withData: true,
     );
-    if (result == null || result.files.isEmpty) return;
+    if (file == null) return;
 
-    final file = result.files.first;
-    final bytes = file.bytes;
-    if (bytes == null) return;
+    final bytes = await file.readAsBytes();
 
     if (bytes.length > maxProfilePictureBytes) {
       if (mounted) {
