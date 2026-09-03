@@ -45,7 +45,7 @@ dependencies:
   path: ^1.9.1
   pdf: ^3.13.0
   printing: ^5.15.0
-  rdflib: ^0.2.13
+  rdf: ^1.0.0
   share_plus: ^13.3.0
   shared_preferences: ^2.5.5
   solidpod: ^1.0.19

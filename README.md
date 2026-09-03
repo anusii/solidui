@@ -169,7 +169,7 @@ SolidUI requires the following dependencies:
 - `package_info_plus`: Application metadata access
 - `url_launcher`: URL launching capabilities
 - `markdown_tooltip`: Markdown-enabled tooltips
-- `rdflib`: RDF data handling
+- `rdf`: RDF data handling
 - `gap`: Spacing utilities
 - `path`: Path manipulation
 - `version_widget`: Version display widget

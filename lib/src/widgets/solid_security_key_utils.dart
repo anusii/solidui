@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:rdflib/rdflib.dart';
+import 'package:rdf/rdf.dart';
 import 'package:solidpod/solidpod.dart' show KeyManager;
 
 /// Parses enc-key file information and extracts content into a map.

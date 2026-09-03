@@ -24,7 +24,7 @@
 /// Authors: Dawei Chen
 library;
 
-import 'package:rdflib/rdflib.dart';
+import 'package:rdf/rdf.dart';
 import 'package:solidpod/solidpod.dart' show getWebId;
 
 // Namespace for keys

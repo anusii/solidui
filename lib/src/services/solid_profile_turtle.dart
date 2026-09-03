@@ -38,7 +38,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show debugPrint;
 
-import 'package:rdflib/rdflib.dart' show Literal, Namespace, URIRef;
+import 'package:rdf/rdf.dart' show Literal, Namespace, URIRef;
 import 'package:solidpod/solidpod.dart';
 
 /// Build the linked-data turtle for the display name. The user's [webId] is
@@ -56,7 +56,7 @@ String buildDisplayNameTtl(String webId, String name) {
     },
   };
 
-  // rdflib auto-binds the FOAF prefix (it lives in its standardPrefixes
+  // The `rdf` package auto-binds the FOAF prefix (it lives in its standardPrefixes
   // table) so passing it again throws "foaf: already exists in prefixed
   // namespaces". We only need to register prefixes outside that set.
 
