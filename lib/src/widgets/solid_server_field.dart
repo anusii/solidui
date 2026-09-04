@@ -20,7 +20,8 @@ import 'package:solidui/src/widgets/solid_login_helper.dart';
 
 const List<String> kKnownSolidServers = [
   'https://pods.solidcommunity.au',
-  'https://privatedatapod.com',
+  'https://pods.privateinsights.au', // 20260904 gjw
+  'https://privatedatapod.com', // 20260902 gjw
   'https://solidcommunity.net',
   'https://solidweb.me',
   'https://solidweb.org',

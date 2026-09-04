@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Migrate oidc from 0->4 [1.0.39 20260904 gjw]
 + Fix security key popup failing to display [1.0.38 20260903 gjw]
 + Update dependency (rdf from rdflib) [1.0.37 20260903 gjw]
 + file_picker v12.x [1.0.36 20260903 dc]
