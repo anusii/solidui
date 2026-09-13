@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Date-stamp comments at the start rather than the end [1.0.42 20260914 gjw]
 + One Settings, in the profile menu beside Profile [1.0.41 20260913 gjw]
 + Settings dialogue with a Window Size section [1.0.40 20260913 gjw]
 + Migrate oidc from 0->4 [1.0.39 20260904 gjw]

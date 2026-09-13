@@ -112,11 +112,10 @@ class SolidAboutConfig {
   final bool scaffoldMenuInBottomBar;
 
   /// Whether the app has a profile menu on its AppBar, which is where the
-  /// Settings dialogue is reached from.
-  ///
-  /// Set by SolidScaffold from its own `enableProfile`. An app without a
-  /// profile menu has nowhere else to reach its settings, so the About
-  /// dialogue keeps a Settings button for that case alone. 20260913 gjw
+  /// Settings dialogue is reached from. Set by SolidScaffold from its own
+  /// `enableProfile`. An app without a profile menu has nowhere else to reach
+  /// its settings, so the About dialogue keeps a Settings button for that case
+  /// alone.
 
   final bool profileEnabled;
 

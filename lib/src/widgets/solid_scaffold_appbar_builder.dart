@@ -448,9 +448,9 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                           'here changes it everywhere, so you will need the '
                           'new password to sign in to every POD application '
                           'in future.',
-                      // Flexible so the longest label in the menu wraps
-                      // rather than overflowing the popup, which is only as
-                      // wide as the window allows. 20260913 gjw
+                      // 20260913 gjw Flexible so the longest label in the menu
+                      // wraps rather than overflowing the popup, which is only
+                      // as wide as the window allows.
                       child: Row(
                         children: [
                           Icon(Icons.lock_reset, size: 20),

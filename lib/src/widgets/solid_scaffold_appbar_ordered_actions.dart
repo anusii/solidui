@@ -122,8 +122,8 @@ class SolidAppBarOrderedActionsBuilder {
     }
     _addAboutButton(
       orderedActions,
-      // The About dialogue hosts a Settings button only where there is no
-      // profile menu to reach Settings from. 20260913 gjw
+      // 20260913 gjw The About dialogue hosts a Settings button only where
+      // there is no profile menu to reach Settings from.
       aboutConfig.copyWith(profileEnabled: profileEnabled),
       config,
       layoutWidth,

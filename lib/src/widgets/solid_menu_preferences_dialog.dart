@@ -94,8 +94,8 @@ class _SolidMenuPreferencesDialogState
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Menu Preferences'),
-      // The same section the settings dialogue shows, so the one setting is
-      // described in one place however it is reached. 20260913 gjw
+      // 20260913 gjw The same section the settings dialogue shows, so the one
+      // setting is described in one place however it is reached.
       content: SolidSettingsMenuSection(
         menuInBottomBar: _menuInBottomBar,
         onChanged: (value) => setState(() => _menuInBottomBar = value),
