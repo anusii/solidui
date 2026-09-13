@@ -16,6 +16,8 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ One Settings, in the profile menu beside Profile [1.0.41 20260913 gjw]
++ Settings dialogue with a Window Size section [1.0.40 20260913 gjw]
 + Migrate oidc from 0->4 [1.0.39 20260904 gjw]
 + Fix security key popup failing to display [1.0.38 20260903 gjw]
 + Update dependency (rdf from rdflib) [1.0.37 20260903 gjw]

@@ -37,12 +37,14 @@ import 'package:solidpod/solidpod.dart'
 
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
+import 'package:solidui/src/utils/is_desktop.dart';
 import 'package:solidui/src/utils/snack_bar.dart';
 import 'package:solidui/src/widgets/change_password_dialog.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_backup_dialog.dart';
 import 'package:solidui/src/widgets/solid_invite_others_models.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
+import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
 import 'package:solidui/src/widgets/solid_profile_avatar.dart';
 import 'package:solidui/src/widgets/solid_profile_editor.dart';
 import 'package:solidui/src/widgets/solid_scaffold_appbar_actions.dart';
@@ -165,6 +167,7 @@ class SolidScaffoldAppBarBuilder {
             showLogin: showLogin,
             onLogout: onLogout,
             onLogin: onLogin,
+            aboutConfig: aboutConfig,
           ),
         ),
       );
@@ -202,8 +205,8 @@ class SolidScaffoldAppBarBuilder {
 
 /// Avatar chip surfaced on the right of the AppBar when user profiles
 /// are enabled. Tapping the avatar opens a small popup menu that hosts
-/// the Settings entry (which opens the existing profile editor with
-/// display name, avatar, and privacy controls) and an auth entry
+/// the Profile entry (display name, avatar, and privacy controls), the
+/// Settings entry (the app's own preferences) and an auth entry
 /// (Logout when signed in, Login when signed out).
 
 class _ProfileMenuChip extends StatefulWidget {
@@ -212,11 +215,17 @@ class _ProfileMenuChip extends StatefulWidget {
   final void Function(BuildContext)? onLogout;
   final void Function(BuildContext)? onLogin;
 
+  /// The About configuration, read for which settings sections this app
+  /// offers. Settings is left out of the menu when it offers none.
+
+  final SolidAboutConfig? aboutConfig;
+
   const _ProfileMenuChip({
     required this.showLogout,
     required this.showLogin,
     required this.onLogout,
     required this.onLogin,
+    required this.aboutConfig,
   });
 
   @override
@@ -268,10 +277,32 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
     }
   }
 
+  /// Whether this app offers any settings section of its own. The window
+  /// size section is desktop-only, so on the web an app that has turned off
+  /// both preference flags has nothing to show and no Settings entry.
+
+  bool get _hasSettings {
+    final config = widget.aboutConfig;
+
+    return isDesktop ||
+        (config?.showLayoutPreferences ?? true) ||
+        (config?.showMenuLayoutPreferences ?? true);
+  }
+
   void _handleSelection(String value) {
     switch (value) {
-      case 'settings':
+      case 'profile':
         SolidProfileEditor.show(context);
+        break;
+      case 'settings':
+        SolidPreferencesDialog.show(
+          context,
+          showAppBarSection: widget.aboutConfig?.showLayoutPreferences ?? true,
+          showMenuSection:
+              widget.aboutConfig?.showMenuLayoutPreferences ?? true,
+          scaffoldMenuInBottomBar:
+              widget.aboutConfig?.scaffoldMenuInBottomBar ?? true,
+        );
         break;
       case 'change_password':
         _handleChangePassword();
@@ -349,26 +380,55 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
             itemBuilder: (menuContext) {
               final items = <PopupMenuEntry<String>>[];
 
-              // Settings — always available; opens the profile editor
+              // Profile — always available; opens the profile editor
               // dialog hosting display name, avatar and privacy.
+              //
+              // 20260913 gjw Called Settings until the app's own settings
+              // moved here from the About dialogue, which left the one word
+              // naming two unrelated dialogues. This one edits the profile,
+              // so that is what it is now called.
 
               items.add(
                 const PopupMenuItem<String>(
-                  value: 'settings',
+                  value: 'profile',
                   child: MarkdownTooltip(
-                    message: '**Settings**\n\n'
+                    message: '**Profile**\n\n'
                         'Manage your profile — display name, avatar, and '
                         'privacy controls.',
                     child: Row(
                       children: [
-                        Icon(Icons.settings_outlined, size: 20),
+                        Icon(Icons.person_outline, size: 20),
                         SizedBox(width: 12),
-                        Text('Settings'),
+                        Text('Profile'),
                       ],
                     ),
                   ),
                 ),
               );
+
+              // Settings — this app's own preferences, in whichever
+              // sections it offers.
+
+              if (_hasSettings) {
+                items.add(
+                  const PopupMenuItem<String>(
+                    value: 'settings',
+                    child: MarkdownTooltip(
+                      message: '**Settings**\n\n'
+                          'Customise which buttons appear in the AppBar, '
+                          'where the menu sits on a narrow screen, and the '
+                          'size of the app window on the desktop.',
+                      child: Row(
+                        children: [
+                          Icon(Icons.settings_outlined, size: 20),
+                          SizedBox(width: 12),
+                          Text('Settings'),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
 
               // Change POD Password — only meaningful while signed in. The
               // tooltip warns that the password is shared across every
@@ -388,11 +448,14 @@ class _ProfileMenuChipState extends State<_ProfileMenuChip> {
                           'here changes it everywhere, so you will need the '
                           'new password to sign in to every POD application '
                           'in future.',
+                      // Flexible so the longest label in the menu wraps
+                      // rather than overflowing the popup, which is only as
+                      // wide as the window allows. 20260913 gjw
                       child: Row(
                         children: [
                           Icon(Icons.lock_reset, size: 20),
                           SizedBox(width: 12),
-                          Text('Change POD Password'),
+                          Flexible(child: Text('Change POD Password')),
                         ],
                       ),
                     ),

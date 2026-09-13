@@ -69,6 +69,8 @@ export 'src/widgets/solid_theme.dart';
 export 'src/widgets/solid_preferences_models.dart';
 export 'src/widgets/solid_preferences_notifier.dart';
 export 'src/widgets/solid_preferences_dialog.dart';
+export 'src/widgets/solid_settings_menu_section.dart';
+export 'src/widgets/solid_settings_window_size_section.dart';
 export 'src/widgets/solid_menu_preferences_dialog.dart';
 export 'src/widgets/solid_nav_bottom_bar.dart';
 
@@ -137,6 +139,7 @@ export 'src/utils/solid_notifications.dart';
 export 'src/utils/solid_pending_writes.dart';
 export 'src/utils/solid_write_failures.dart';
 export 'src/utils/solid_window_close_guard.dart';
+export 'src/utils/solid_window_size.dart';
 export 'src/utils/unsaved_changes_dialog.dart';
 export 'src/utils/unsaved_changes_mixin.dart';
 export 'src/utils/solid_pod_helpers.dart'

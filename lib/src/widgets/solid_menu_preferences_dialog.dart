@@ -31,6 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
+import 'package:solidui/src/widgets/solid_settings_menu_section.dart';
 
 /// Dialogue for choosing whether navigation items appear in the bottom bar
 /// or the hamburger drawer on narrow screens.
@@ -93,27 +94,11 @@ class _SolidMenuPreferencesDialogState
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Menu Preferences'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'On narrow screens, choose where the main navigation items '
-            'appear.',
-          ),
-          const SizedBox(height: 16),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Show menu in bottom bar'),
-            subtitle: const Text(
-              'When on, page buttons sit along the bottom edge. '
-              'When off, page buttons sit in the menu drawer. '
-              'The login and security key remain in the menu drawer.',
-            ),
-            value: _menuInBottomBar,
-            onChanged: (value) => setState(() => _menuInBottomBar = value),
-          ),
-        ],
+      // The same section the settings dialogue shows, so the one setting is
+      // described in one place however it is reached. 20260913 gjw
+      content: SolidSettingsMenuSection(
+        menuInBottomBar: _menuInBottomBar,
+        onChanged: (value) => setState(() => _menuInBottomBar = value),
       ),
       actions: [
         TextButton(

@@ -1,4 +1,4 @@
-/// Preferences dialogue for configuring appearance and AppBar button settings.
+/// Settings dialogue, a section for each group of preferences.
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -24,18 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Tony Chen
+/// Authors: Tony Chen, Graham Williams
 
 library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/utils/is_desktop.dart';
+import 'package:solidui/src/widgets/solid_preferences_appbar_defaults.dart';
 import 'package:solidui/src/widgets/solid_preferences_button_order.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
+import 'package:solidui/src/widgets/solid_settings_menu_section.dart';
+import 'package:solidui/src/widgets/solid_settings_window_size_section.dart';
 
-/// A dialogue widget for configuring user preferences including
-/// AppBar button ordering.
+/// A dialogue of user settings, one section for each group of them: the
+/// AppBar button order, where the menu sits on a narrow screen, and the size
+/// of the desktop window.
+///
+/// A section appears only where it applies, so an app that has turned off the
+/// menu preferences, or one running on the web where there is no window to
+/// size, simply shows fewer sections. Adding a section here adds it to every
+/// solidui app.
 
 class SolidPreferencesDialog extends StatefulWidget {
   /// Optional callback when preferences are saved.
@@ -46,18 +56,45 @@ class SolidPreferencesDialog extends StatefulWidget {
 
   final String title;
 
+  /// Whether to offer the AppBar button order section.
+
+  final bool showAppBarSection;
+
+  /// Whether to offer the menu layout section.
+
+  final bool showMenuSection;
+
+  /// Scaffold default for the menu layout, used until the user has saved a
+  /// preference of their own.
+
+  final bool scaffoldMenuInBottomBar;
+
   const SolidPreferencesDialog({
     super.key,
     this.onSave,
-    this.title = 'AppBar Preferences',
+    this.title = 'Settings',
+    this.showAppBarSection = true,
+    this.showMenuSection = true,
+    this.scaffoldMenuInBottomBar = true,
   });
 
-  /// Shows the preferences dialogue.
+  /// Shows the settings dialogue.
 
-  static Future<void> show(BuildContext context, {VoidCallback? onSave}) {
+  static Future<void> show(
+    BuildContext context, {
+    VoidCallback? onSave,
+    bool showAppBarSection = true,
+    bool showMenuSection = true,
+    bool scaffoldMenuInBottomBar = true,
+  }) {
     return showDialog<void>(
       context: context,
-      builder: (context) => SolidPreferencesDialog(onSave: onSave),
+      builder: (context) => SolidPreferencesDialog(
+        onSave: onSave,
+        showAppBarSection: showAppBarSection,
+        showMenuSection: showMenuSection,
+        scaffoldMenuInBottomBar: scaffoldMenuInBottomBar,
+      ),
     );
   }
 
@@ -67,6 +104,17 @@ class SolidPreferencesDialog extends StatefulWidget {
 
 class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   late List<SolidAppBarActionItem> _appBarActions;
+  late bool _menuInBottomBar;
+
+  // The window size section loads and applies its own values, so the dialogue
+  // reaches it through its state rather than holding them here.
+
+  final GlobalKey<SolidSettingsWindowSizeSectionState> _windowSize =
+      GlobalKey<SolidSettingsWindowSizeSectionState>();
+
+  /// There is no window to size on the web or a phone.
+
+  bool get _showWindowSection => isDesktop;
 
   @override
   void initState() {
@@ -77,6 +125,9 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   void _loadCurrentPreferences() {
     final config = solidPreferencesNotifier.config;
     _appBarActions = List.from(config.appBarActions);
+    _menuInBottomBar = solidPreferencesNotifier.menuInBottomBarForScaffold(
+      widget.scaffoldMenuInBottomBar,
+    );
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -111,70 +162,35 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     });
   }
 
-  void _savePreferences() {
+  /// Save every section, and close — unless a section reports that what the
+  /// user typed cannot be used, in which case it has marked the field and the
+  /// dialogue stays open on it.
+
+  Future<void> _savePreferences() async {
+    if (_showWindowSection) {
+      final saved = await _windowSize.currentState?.save() ?? true;
+      if (!saved) return;
+    }
+
     final newConfig = SolidPreferencesConfig(appBarActions: _appBarActions);
 
     solidPreferencesNotifier.setConfig(newConfig);
+    solidPreferencesNotifier.setMenuInBottomBar(_menuInBottomBar);
     widget.onSave?.call();
-    Navigator.of(context).pop();
+
+    if (mounted) Navigator.of(context).pop();
   }
+
+  /// Put every section back to its default, leaving the dialogue open so the
+  /// user can see what that means before saving it.
 
   void _resetToDefault() {
     setState(() {
-      // Reset all actions to default values: visible, not in overflow,
-      // and sorted by their default order based on button type.
-
-      final resetActions = <SolidAppBarActionItem>[];
-      for (final action in _appBarActions) {
-        resetActions.add(
-          action.copyWith(
-            showInOverflow: false,
-            isVisible: true,
-            order: _getDefaultOrderForAction(action.id),
-          ),
-        );
-      }
-
-      // Sort by the default order.
-
-      resetActions.sort((a, b) => a.order.compareTo(b.order));
-
-      // Reassign sequential order values after sorting.
-
-      for (int i = 0; i < resetActions.length; i++) {
-        resetActions[i] = resetActions[i].copyWith(order: i);
-      }
-
-      _appBarActions = resetActions;
+      _appBarActions = solidDefaultAppBarActions(_appBarActions);
+      _menuInBottomBar = widget.scaffoldMenuInBottomBar;
     });
-  }
 
-  /// Returns the default order index for an action based on its ID.
-  /// This mirrors the initialIndex values in SolidAppBarActionsManager.
-
-  int _getDefaultOrderForAction(String actionId) {
-    // Theme toggle: 0.
-
-    if (actionId == SolidAppBarActionIds.themeToggle) return 0;
-
-    // Custom actions: 100+.
-
-    if (actionId.startsWith('action_')) {
-      final index = int.tryParse(actionId.replaceFirst('action_', '')) ?? 0;
-      return 100 + index;
-    }
-
-    // Logout: 800 — second-to-last, just left of About.
-
-    if (actionId == SolidAppBarActionIds.logout) return 800;
-
-    // About: 900.
-
-    if (actionId == SolidAppBarActionIds.about) return 900;
-
-    // Other items (overflow items): 200+.
-
-    return 200;
+    _windowSize.currentState?.restoreDefault();
   }
 
   @override
@@ -196,15 +212,34 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Button Order Section.
-              _buildSectionHeader(theme, 'Button Order'),
-              const SizedBox(height: 8),
-              SolidPreferencesButtonOrderSection(
-                appBarActions: _appBarActions,
-                onReorder: _onReorder,
-                onVisibilityChanged: _onVisibilityChanged,
-                onOverflowChanged: _onOverflowChanged,
-              ),
+              if (widget.showAppBarSection) ...[
+                _sectionHeader(theme, 'Button Order'),
+                const SizedBox(height: 8),
+                SolidPreferencesButtonOrderSection(
+                  appBarActions: _appBarActions,
+                  onReorder: _onReorder,
+                  onVisibilityChanged: _onVisibilityChanged,
+                  onOverflowChanged: _onOverflowChanged,
+                ),
+              ],
+              if (widget.showMenuSection) ...[
+                _sectionDivider(widget.showAppBarSection),
+                _sectionHeader(theme, 'Menu Layout'),
+                const SizedBox(height: 8),
+                SolidSettingsMenuSection(
+                  menuInBottomBar: _menuInBottomBar,
+                  onChanged: (value) =>
+                      setState(() => _menuInBottomBar = value),
+                ),
+              ],
+              if (_showWindowSection) ...[
+                _sectionDivider(
+                  widget.showAppBarSection || widget.showMenuSection,
+                ),
+                _sectionHeader(theme, 'Window Size'),
+                const SizedBox(height: 8),
+                SolidSettingsWindowSizeSection(key: _windowSize),
+              ],
             ],
           ),
         ),
@@ -240,10 +275,15 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     );
   }
 
-  Widget _buildSectionHeader(ThemeData theme, String title) {
+  Widget _sectionHeader(ThemeData theme, String title) {
     return Text(
       title,
       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     );
   }
+
+  /// A rule between sections, but not above the first one shown.
+
+  Widget _sectionDivider(bool afterAnotherSection) =>
+      afterAnotherSection ? const Divider(height: 32) : const SizedBox.shrink();
 }

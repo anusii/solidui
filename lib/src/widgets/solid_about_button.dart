@@ -42,7 +42,6 @@ import 'package:solidui/src/constants/about.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
 import 'package:solidui/src/widgets/solid_feedback_models.dart';
 import 'package:solidui/src/widgets/solid_invite_others.dart';
-import 'package:solidui/src/widgets/solid_menu_preferences_dialog.dart';
 import 'package:solidui/src/widgets/solid_preferences_dialog.dart';
 
 /// A button that shows an About dialogue when pressed.
@@ -326,66 +325,52 @@ class SolidAbout {
 
     // Build the action row shown at the bottom of the About dialog.
     //
-    // When [showLayoutPreferences] is enabled, the row contains the
-    // AppBar (AppBar Preferences), Share (Invite Others)
-    // and Feedback buttons. Share is rendered only when an invite
-    // configuration is supplied. Feedback is always rendered: if a
-    // feedback configuration is missing or disabled, the button is
-    // greyed out as a placeholder so the visual layout stays
-    // consistent and the integration point is preserved for future
-    // releases.
+    // The row contains the Share (Invite Others) and Feedback buttons.
+    // Share is rendered only when an invite configuration is supplied.
+    // Feedback is always rendered: if a feedback configuration is missing
+    // or disabled, the button is greyed out as a placeholder so the visual
+    // layout stays consistent and the integration point is preserved for
+    // future releases.
 
     final actionButtons = <Widget>[];
 
-    if (config.showLayoutPreferences) {
+    // 20260913 gjw The AppBar and Menu buttons that used to open a dialogue
+    // each are now sections of the one Settings dialogue, reached from the
+    // profile menu so that the word Settings names one thing in one place.
+    // About is left to be about the app.
+    //
+    // An app with [enableProfile] turned off has no profile menu to reach
+    // Settings through, so it keeps the button here rather than losing its
+    // settings altogether. Each app's existing flags still decide which
+    // sections it offers.
+
+    if (!config.profileEnabled &&
+        (config.showLayoutPreferences || config.showMenuLayoutPreferences)) {
       actionButtons.add(
         Builder(
           builder: (dialogContext) => MarkdownTooltip(
             message: '''
 
-            **AppBar**
+            **Settings**
 
-            Customise which buttons appear in the AppBar, hide the
-            ones you do not need, and reorder them to taste.
+            Customise which buttons appear in the AppBar, hide the ones you do
+            not need, and reorder them to taste. For narrow screens choose
+            whether the menu navigation items sit along the bottom or inside
+            the menu drawer (hamburger menu); the webid, login and security key
+            status always remain with the menu drawer. On the desktop set the
+            size of the app window, and whether the size you leave it at is
+            remembered for next time.
 
             ''',
             child: TextButton.icon(
               icon: const Icon(Icons.tune),
-              label: const Text('AppBar'),
+              label: const Text('Settings'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                SolidPreferencesDialog.show(context);
-              },
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (config.showMenuLayoutPreferences) {
-      actionButtons.add(
-        Builder(
-          builder: (dialogContext) => MarkdownTooltip(
-            message: '''
-
-            **Menu**
-
-            For narrow screens customise the location of the menu navigation
-            items.  The default bottom bar with webid, login, and security key
-            status is replaced with a row of menu buttons migrated from the side
-            of the screen. The buttons can either appear along the bottom or
-            inside the menu drawer (hamburger menu), as a user choice.  The
-            webid, login and security key status always remain with the menu
-            drawer.
-
-            ''',
-            child: TextButton.icon(
-              icon: const Icon(Icons.tab),
-              label: const Text('Menu'),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                SolidMenuPreferencesDialog.show(
+                SolidPreferencesDialog.show(
                   context,
+                  showAppBarSection: config.showLayoutPreferences,
+                  showMenuSection: config.showMenuLayoutPreferences,
                   scaffoldMenuInBottomBar: config.scaffoldMenuInBottomBar,
                 );
               },

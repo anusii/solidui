@@ -623,14 +623,21 @@ class SolidThemeToggleConfig {
 
 SolidUI stores user appearance preferences via `SolidPreferencesNotifier`
 and `SolidPreferencesConfig`. These preferences persist across sessions
-using `shared_preferences`. The `SolidPreferencesDialog` provides a UI
-for configuring AppBar layout.
+using `shared_preferences`. The `SolidPreferencesDialog` is the Settings
+dialogue, with one section per group of settings: AppBar layout, menu
+layout and window size. It is opened from the Settings entry of the
+profile menu, under the avatar on the AppBar, beside Profile — which
+edits the person (display name, avatar, privacy) rather than the app. A
+section appears only where it applies, so an app that turns off
+`showMenuLayoutPreferences`, or one running on the web where there is no
+window to size, simply shows fewer sections.
+
+An app with `enableProfile: false` has no profile menu to reach Settings
+through, and keeps a Settings button in the About dialogue instead.
 
 #### AppBar Layout Preferences
 
-AppBar action buttons can be customised via the AppBar Layout Preferences
-dialogue (typically opened from the AppBar Layout Preferences button in the
-About Dialogue):
+AppBar action buttons can be customised in the Button Order section:
 
 - **Button order**: Drag to reorder buttons. Order is saved and used
   across screen sizes.
@@ -641,6 +648,31 @@ About Dialogue):
   Buttons in the overflow menu are accessible via the "more" (⋮) icon.
 
 Preferences are stored per application and persist across restarts.
+
+#### Window Size
+
+On the desktop the app opens at the size it was last left at. Call
+`SolidWindowSize.show()` from `main()` in place of
+`windowManager.waitUntilReadyToShow`, passing the app's own window
+options:
+
+```dart
+await windowManager.ensureInitialized();
+
+await SolidWindowSize.show(
+  const WindowOptions(title: appTitle, minimumSize: Size(500, 800)),
+);
+```
+
+That one call is all an app needs. The size is saved a second after the
+user stops dragging the window edge, rather than on close, because the
+app-lifecycle callbacks are not reliably delivered on a window close on
+the Linux desktop. The Window Size section of the Settings dialogue then
+lets the user type a size, turn off remembering (so the app always opens
+at the size they set), or press Default to forget the remembered size and
+go back to the size in the platform runner (`linux/my_application.cc`,
+`windows/runner/main.cpp`). On the web and on mobile every part of this
+does nothing.
 
 #### Theme Mode Configuration
 

@@ -11,7 +11,9 @@
 ///
 /// Copyright (C) 2026, Togaware Pty Ltd
 ///
-/// Licensed under the GNU General Public License, Version 3
+/// Licensed under the MIT License (the "License").
+///
+/// License: https://choosealicense.com/licenses/mit/.
 
 library;
 

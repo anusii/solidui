@@ -111,6 +111,15 @@ class SolidAboutConfig {
 
   final bool scaffoldMenuInBottomBar;
 
+  /// Whether the app has a profile menu on its AppBar, which is where the
+  /// Settings dialogue is reached from.
+  ///
+  /// Set by SolidScaffold from its own `enableProfile`. An app without a
+  /// profile menu has nowhere else to reach its settings, so the About
+  /// dialogue keeps a Settings button for that case alone. 20260913 gjw
+
+  final bool profileEnabled;
+
   /// Optional Invite Others configuration. When supplied, a Share
   /// button is added to the About dialogue so users can invite people
   /// directly from the App Info page.
@@ -152,6 +161,7 @@ class SolidAboutConfig {
     this.showLayoutPreferences = true,
     this.showMenuLayoutPreferences = true,
     this.scaffoldMenuInBottomBar = true,
+    this.profileEnabled = true,
     this.inviteConfig,
     this.feedbackConfig,
     this.readmeUrl,
@@ -214,6 +224,7 @@ class SolidAboutConfig {
     bool? showLayoutPreferences,
     bool? showMenuLayoutPreferences,
     bool? scaffoldMenuInBottomBar,
+    bool? profileEnabled,
     SolidInviteOthersConfig? inviteConfig,
     SolidFeedbackConfig? feedbackConfig,
     String? readmeUrl,
@@ -240,6 +251,7 @@ class SolidAboutConfig {
           showMenuLayoutPreferences ?? this.showMenuLayoutPreferences,
       scaffoldMenuInBottomBar:
           scaffoldMenuInBottomBar ?? this.scaffoldMenuInBottomBar,
+      profileEnabled: profileEnabled ?? this.profileEnabled,
       inviteConfig: inviteConfig ?? this.inviteConfig,
       feedbackConfig: feedbackConfig ?? this.feedbackConfig,
       readmeUrl: readmeUrl ?? this.readmeUrl,
