@@ -39,7 +39,7 @@ dependencies:
   # distinct classes from those in package:flutter/material.dart. In a Flutter
   # material app its text fields assert "No Material widget found". Revisit
   # when solidui itself migrates to material_ui.
-  flutter_form_builder: ^11.0.0
+  flutter_form_builder: '>=10.3.0 <11.0.0'
   flutter_markdown_plus: ^1.0.12
   form_builder_validators: ^11.3.0
   gap: ^3.0.1
