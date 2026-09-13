@@ -317,7 +317,7 @@ class SolidLoginActions {
     // Ensure the security key has been fetched once logged in.
 
     if (isLoggedIn) {
-      await getKeyFromUserIfRequired(context, childWidget);
+      if (!await getKeyFromUserIfRequired(context, childWidget)) return;
       if (!context.mounted) return;
     }
 

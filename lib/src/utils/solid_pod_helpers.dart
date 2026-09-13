@@ -131,12 +131,12 @@ Future<bool> loginIfRequired({
 /// Ask for the security key from the user if the security key is not available
 /// or cannot be verfied using the verification key stored in PODs.
 
-Future<void> getKeyFromUserIfRequired(
+Future<bool> getKeyFromUserIfRequired(
   BuildContext context,
   Widget child,
 ) async {
   if (await KeyManager.hasSecurityKey()) {
-    return;
+    return true;
   } else {
     // 20260728 gjw Before prompting, confirm the POD actually holds a
     // keyset to verify against. If the app's encryption key file is
@@ -221,13 +221,13 @@ Future<void> getKeyFromUserIfRequired(
           return;
         }
         debugPrint('Security key saved');
-        if (context.mounted) Navigator.pop(context);
+        if (context.mounted) Navigator.pop(context, true);
       },
       child: child,
     );
 
     if (context.mounted) {
-      await Navigator.push(
+      final result = await Navigator.push<bool>(
         context,
         MaterialPageRoute(builder: (context) => securityKeyInput),
       );
@@ -236,6 +236,9 @@ Future<void> getKeyFromUserIfRequired(
       // changed after the user submitted (or dismissed) the key prompt.
 
       await securityKeyNotifier.refreshStatus();
+
+      return result ?? false;
     }
+    return false;
   }
 }
