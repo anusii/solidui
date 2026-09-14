@@ -52,6 +52,8 @@ import 'package:solidui/src/constants/initial_setup.dart'
     show initialStructureSnackbarMsg, initialUpdateSnackbarMsg;
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/utils/network_diagnosis.dart'
+    show connectionFailureMessage, diagnoseConnection;
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
     show getKeyFromUserIfRequired, isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -163,6 +165,18 @@ class SolidLoginAuthHandler {
     );
     return isUpdate;
   }
+
+  /// Builds the message shown when authentication with [podServer] failed.
+  /// The network is probed first so the user is told whether the device is
+  /// offline, the server name cannot be looked up, or the server itself is
+  /// not responding, rather than the one generic "may be down" wording.
+
+  static Future<String> _authFailureMessage(String podServer) async =>
+      connectionFailureMessage(
+        'Unable to authenticate with $podServer.',
+        podServer,
+        await diagnoseConnection(podServer),
+      );
 
   /// Notifies the user that their POD is not initialised, verifies the remote
   /// directory structure, and navigates to the appropriate screen (setup wizard
@@ -378,11 +392,11 @@ class SolidLoginAuthHandler {
           staySignedIn: staySignedIn,
         );
       } else {
-        showSnackbar(
-          'Unable to authenticate with $podServer. '
-          'The server may be inaccessible or down.',
-          duration: const Duration(seconds: 5),
-        );
+        final message = await _authFailureMessage(podServer);
+
+        if (!context.mounted) return false;
+
+        showSnackbar(message, duration: const Duration(seconds: 5));
 
         await pushReplacement(context, originalLoginWidget);
 
@@ -557,11 +571,11 @@ class SolidLoginAuthHandler {
         // Authentication truly failed – server may be down or the user
         // cancelled the browser login.
 
-        showSnackbar(
-          'Unable to authenticate with $podServer. '
-          'The server may be inaccessible or down.',
-          duration: const Duration(seconds: 5),
-        );
+        final message = await _authFailureMessage(podServer);
+
+        if (!context.mounted) return false;
+
+        showSnackbar(message, duration: const Duration(seconds: 5));
 
         await pushReplacement(context, originalLoginWidget);
 

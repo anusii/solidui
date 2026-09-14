@@ -45,6 +45,8 @@ import 'package:solidpod/solidpod.dart'
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/utils/network_diagnosis.dart'
+    show connectionFailureMessage, diagnoseConnection;
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
     show getKeyFromUserIfRequired;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -302,11 +304,20 @@ class SolidLoginActions {
 
         Navigator.of(context, rootNavigator: true).pop();
 
-        showSnackbar(
-          'Unable to verify POD structure. '
-          'The server may be inaccessible.',
-          duration: const Duration(seconds: 5),
+        // 20260915 gjw Probe the network so the message says whether the
+        // device is offline, the server name cannot be looked up, or the
+        // server itself is not responding.
+
+        final target = await getWebId() ?? '';
+        final message = connectionFailureMessage(
+          'Unable to verify POD structure.',
+          target,
+          await diagnoseConnection(target),
         );
+
+        if (!context.mounted) return;
+
+        showSnackbar(message, duration: const Duration(seconds: 5));
 
         return;
       }
