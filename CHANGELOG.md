@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Updated version widget dependency [1.0.43 20260914 gjw]
 + Date-stamp comments at the start rather than the end [1.0.42 20260914 gjw]
 + One Settings, in the profile menu beside Profile [1.0.41 20260913 gjw]
 + Settings dialogue with a Window Size section [1.0.40 20260913 gjw]
