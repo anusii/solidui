@@ -310,7 +310,7 @@ class SolidLoginActions {
 
         final target = await getWebId() ?? '';
         final message = connectionFailureMessage(
-          'Unable to verify POD structure.',
+          'Unable to check your POD.',
           target,
           await diagnoseConnection(target),
         );

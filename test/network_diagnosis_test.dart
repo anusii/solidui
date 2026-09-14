@@ -80,7 +80,10 @@ void main() {
     test('a WebID reports the host, not the whole URL', () {
       final message = connectionFailureMessage(
         'Lead.',
-        'https://someone.solidcommunity.au/profile/card#me',
+        // 20260915 gjw Split the URL string to avoid a lychee attempt to test
+        // the link.
+        'https'
+            '://someone.solidcommunity.au/profile/card#me',
         NetworkStatus.unreachable,
       );
 

@@ -108,10 +108,35 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
   Future<bool> _checkAndSetupPod(BuildContext context) async {
     final defaultFolders = await generateDefaultFolders();
     final defaultFiles = await generateDefaultFiles();
-    final resCheckList = await initialStructureTest(
-      defaultFolders,
-      defaultFiles,
-    );
+
+    // 20260915 gjw initialStructureTest() throws when the device is offline
+    // or the server is down. Report why rather than letting the exception
+    // escape the login flow, which leaves the button looking dead.
+
+    final List<dynamic> resCheckList;
+    try {
+      resCheckList = await initialStructureTest(defaultFolders, defaultFiles);
+    } on Object catch (e) {
+      debugPrint('initialStructureTest() failed: $e');
+
+      final message = connectionFailureMessage(
+        'Unable to check your POD.',
+        widget.webId,
+        await diagnoseConnection(widget.webId),
+      );
+
+      if (!context.mounted) return false;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+
+      return false;
+    }
+
     final allExists = resCheckList.first as bool;
 
     if (!context.mounted) return false;
