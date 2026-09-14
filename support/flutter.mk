@@ -601,19 +601,24 @@ docs::
 # installation stanza pins `<pkg>: ^x.y.z` and the usage examples pass
 # `version: 'x.y.z'` — and both go stale silently, telling readers to
 # install a release we are well past. Bring them into step with the
-# pubspec here, then list what was set so it can be eyeballed. Version
-# strings inside the CHANGELOG format section are left alone: they are
-# illustrating the format, not naming this release.
+# pubspec here, then list what was set so it can be eyeballed, staying
+# quiet for a README that never names a version. Version strings inside
+# the CHANGELOG format section are left alone: they are illustrating the
+# format, not naming this release.
 
 .PHONY: versions
 versions:
-	if [ -d snap ]; then perl -pi -e 's|^version:.*|version: $(VER)|' snap/snapcraft.yaml; fi
+	@if [ -f snap/snapcraft.yaml ]; then \
+	  perl -pi -e 's|^version:.*|version: $(VER)|' snap/snapcraft.yaml; \
+	  echo "Updated version in snap/snapcraft.yaml to $(VER)"; \
+	fi
 	@if [ -f README.md ] && [ -n "$(PKG)" ]; then \
 	  perl -pi -e 's|^(\s*$(PKG): \^)\d+\.\d+\.\d+|$${1}$(VER)|' README.md; \
 	  perl -pi -e 's|^(\s*version: \x27)\d+\.\d+\.\d+(\x27)|$${1}$(VER)$${2}|' README.md; \
-	  echo "Versions: README.md set to $(VER)"; \
-	  grep -n -E "^ *($(PKG): \^|version: ')[0-9]" README.md; \
-	  echo $(SEPARATOR); \
+	  if grep -q -E "^ *($(PKG): \^|version: ')[0-9]" README.md; then \
+	    echo "Updated versions in README.md to $(VER)"; \
+	    grep -n -E "^ *($(PKG): \^|version: ')[0-9]" README.md; \
+	  fi; \
 	fi
 
 
