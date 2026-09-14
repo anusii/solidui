@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:solidui/src/utils/network_diagnosis.dart';
 
 void main() {
-  const server = 'https://pods.test.solidcommunity.au';
+  const server = 'https://pods.solidcommunity.au';
 
   group('connectionFailureMessage', () {
     test('keeps the caller lead sentence', () {
@@ -27,7 +27,7 @@ void main() {
       );
 
       expect(message, contains('not connected to the internet'));
-      expect(message, isNot(contains('pods.test.solidcommunity.au is')));
+      expect(message, isNot(contains('pods.solidcommunity.au is')));
     });
 
     test('an unknown host blames the name, not the connection', () {
@@ -40,7 +40,7 @@ void main() {
       expect(message, contains('internet is reachable'));
       expect(
         message,
-        contains('server name pods.test.solidcommunity.au cannot be found'),
+        contains('server name pods.solidcommunity.au cannot be found'),
       );
     });
 
@@ -53,7 +53,7 @@ void main() {
 
       expect(
         message,
-        contains('pods.test.solidcommunity.au is not responding'),
+        contains('pods.solidcommunity.au is not responding'),
       );
     });
 
@@ -80,24 +80,24 @@ void main() {
     test('a WebID reports the host, not the whole URL', () {
       final message = connectionFailureMessage(
         'Lead.',
-        'https://gjw.solidcommunity.au/profile/card#me',
+        'https://someone.solidcommunity.au/profile/card#me',
         NetworkStatus.unreachable,
       );
 
-      expect(message, contains('gjw.solidcommunity.au is not responding'));
+      expect(message, contains('someone.solidcommunity.au is not responding'));
       expect(message, isNot(contains('profile/card')));
     });
 
     test('a bare host name is handled', () {
       final message = connectionFailureMessage(
         'Lead.',
-        'pods.test.solidcommunity.au',
+        'pods.solidcommunity.au',
         NetworkStatus.unreachable,
       );
 
       expect(
         message,
-        contains('pods.test.solidcommunity.au is not responding'),
+        contains('pods.solidcommunity.au is not responding'),
       );
     });
   });
