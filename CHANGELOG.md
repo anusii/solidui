@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Add internet connection retries [1.0.46 20260916 jesscmoore]
 + Report offline rather than doing nothing on Login [1.0.45 20260915 gjw]
 + Name login errors: internet, address or server [1.0.44 20260915 gjw]
 + Updated version widget dependency [1.0.43 20260914 gjw]
