@@ -52,6 +52,8 @@ import 'package:solidui/src/constants/initial_setup.dart'
     show initialStructureSnackbarMsg, initialUpdateSnackbarMsg;
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/utils/network_diagnosis.dart'
+    show connectionFailureMessage, diagnoseConnection;
 import 'package:solidui/src/utils/solid_login_browser_focus.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
     show getKeyFromUserIfRequired, isPodUpdateMode;
@@ -165,12 +167,47 @@ class SolidLoginAuthHandler {
     return isUpdate;
   }
 
+  /// Builds the message shown when talking to [podServer] failed, combining
+  /// the caller's [lead] sentence with a probe of the network. That tells the
+  /// user whether the device is offline, the server name cannot be looked up,
+  /// or the server itself is not responding, rather than the one generic
+  /// "may be down" wording.
+
+  static Future<String> _failureMessage(String lead, String podServer) async =>
+      connectionFailureMessage(
+        lead,
+        podServer,
+        await diagnoseConnection(podServer),
+      );
+
+  /// Checks the remote POD directory structure, returning null when the check
+  /// could not be made at all.
+  ///
+  /// initialStructureTest() issues HTTP requests that throw when the device is
+  /// offline or the server is down. Left unguarded the exception escapes the
+  /// login flow entirely, so the button appears to do nothing. Returning null
+  /// lets each caller report why instead.
+
+  static Future<List<dynamic>?> _tryStructureTest(
+    List<String> defaultFolders,
+    Map<dynamic, dynamic> defaultFiles,
+  ) async {
+    try {
+      return await initialStructureTest(defaultFolders, defaultFiles);
+    } on Object catch (e) {
+      debugPrint('initialStructureTest() failed: $e');
+
+      return null;
+    }
+  }
+
   /// Notifies the user that their POD is not initialised, verifies the remote
   /// directory structure, and navigates to the appropriate screen (setup wizard
   /// or child widget).
 
   static Future<bool> _proceedWithPodSetup({
     required BuildContext context,
+    required String podServer,
     required List<String> defaultFolders,
     required Map<dynamic, dynamic> defaultFiles,
     required dynamic originalLoginWidget,
@@ -179,10 +216,21 @@ class SolidLoginAuthHandler {
         showSnackbar,
     bool staySignedIn = true,
   }) async {
-    final resCheckList = await initialStructureTest(
-      defaultFolders,
-      defaultFiles,
-    );
+    final resCheckList = await _tryStructureTest(defaultFolders, defaultFiles);
+
+    if (resCheckList == null) {
+      final message = await _failureMessage(
+        'Unable to check your POD.',
+        podServer,
+      );
+
+      if (!context.mounted) return false;
+
+      showSnackbar(message, duration: const Duration(seconds: 5));
+
+      return false;
+    }
+
     final allExists = resCheckList.first as bool;
 
     if (!context.mounted) return false;
@@ -376,6 +424,7 @@ class SolidLoginAuthHandler {
       if (isNowLoggedIn) {
         return _proceedWithPodSetup(
           context: context,
+          podServer: podServer,
           defaultFolders: defaultFolders,
           defaultFiles: defaultFiles,
           originalLoginWidget: originalLoginWidget,
@@ -384,11 +433,14 @@ class SolidLoginAuthHandler {
           staySignedIn: staySignedIn,
         );
       } else {
-        showSnackbar(
-          'Unable to authenticate with $podServer. '
-          'The server may be inaccessible or down.',
-          duration: const Duration(seconds: 5),
+        final message = await _failureMessage(
+          'Unable to authenticate with $podServer.',
+          podServer,
         );
+
+        if (!context.mounted) return false;
+
+        showSnackbar(message, duration: const Duration(seconds: 5));
 
         await pushReplacement(context, originalLoginWidget);
 
@@ -466,10 +518,22 @@ class SolidLoginAuthHandler {
       // independently (e.g. via the server admin UI), so relying solely on
       // the cached flag would let the user enter a broken environment.
 
-      final resCheckList = await initialStructureTest(
-        defaultFolders,
-        defaultFiles,
-      );
+      final resCheckList =
+          await _tryStructureTest(defaultFolders, defaultFiles);
+
+      if (resCheckList == null) {
+        final message = await _failureMessage(
+          'Unable to check your POD.',
+          podServer,
+        );
+
+        if (!context.mounted) return false;
+
+        showSnackbar(message, duration: const Duration(seconds: 5));
+
+        return false;
+      }
+
       final allExists = resCheckList.first as bool;
 
       if (!context.mounted) return false;
@@ -554,6 +618,7 @@ class SolidLoginAuthHandler {
       if (isNowLoggedIn) {
         return _proceedWithPodSetup(
           context: context,
+          podServer: podServer,
           defaultFolders: defaultFolders,
           defaultFiles: defaultFiles,
           originalLoginWidget: originalLoginWidget,
@@ -565,11 +630,14 @@ class SolidLoginAuthHandler {
         // Authentication truly failed – server may be down or the user
         // cancelled the browser login.
 
-        showSnackbar(
-          'Unable to authenticate with $podServer. '
-          'The server may be inaccessible or down.',
-          duration: const Duration(seconds: 5),
+        final message = await _failureMessage(
+          'Unable to authenticate with $podServer.',
+          podServer,
         );
+
+        if (!context.mounted) return false;
+
+        showSnackbar(message, duration: const Duration(seconds: 5));
 
         await pushReplacement(context, originalLoginWidget);
 

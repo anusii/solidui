@@ -46,6 +46,8 @@ import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/utils/network_diagnosis.dart'
+    show connectionFailureMessage, diagnoseConnection;
 import 'package:solidui/src/utils/solid_login_browser_focus.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart' show isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_loading_screen.dart';
@@ -107,10 +109,35 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
   Future<bool> _checkAndSetupPod(BuildContext context) async {
     final defaultFolders = await generateDefaultFolders();
     final defaultFiles = await generateDefaultFiles();
-    final resCheckList = await initialStructureTest(
-      defaultFolders,
-      defaultFiles,
-    );
+
+    // 20260915 gjw initialStructureTest() throws when the device is offline
+    // or the server is down. Report why rather than letting the exception
+    // escape the login flow, which leaves the button looking dead.
+
+    final List<dynamic> resCheckList;
+    try {
+      resCheckList = await initialStructureTest(defaultFolders, defaultFiles);
+    } on Object catch (e) {
+      debugPrint('initialStructureTest() failed: $e');
+
+      final message = connectionFailureMessage(
+        'Unable to check your POD.',
+        widget.webId,
+        await diagnoseConnection(widget.webId),
+      );
+
+      if (!context.mounted) return false;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+
+      return false;
+    }
+
     final allExists = resCheckList.first as bool;
 
     if (!context.mounted) return false;
@@ -208,12 +235,21 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
 
         return _checkAndSetupPod(context);
       } else {
+        // 20260915 gjw Probe the network so the message says whether the
+        // device is offline, the server name cannot be looked up, or the
+        // server itself is not responding.
+
+        final message = connectionFailureMessage(
+          'Unable to authenticate with $webId.',
+          webId,
+          await diagnoseConnection(webId),
+        );
+
+        if (!context.mounted) return false;
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Unable to authenticate with $webId. '
-              'The server may be inaccessible or down.',
-            ),
+            content: Text(message),
             duration: const Duration(seconds: 5),
           ),
         );
