@@ -46,6 +46,7 @@ import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/constants/ui.dart';
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/utils/solid_login_browser_focus.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart' show isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_loading_screen.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
@@ -159,6 +160,11 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     List<String>? postLogoutRedirectUris,
   ) async {
     try {
+      // Step the app window aside and bring the browser that runs the OIDC
+      // handshake to the front.
+
+      SolidLoginBrowserFocus.start();
+
       await solidAuthenticate(
         webId,
         context,
@@ -214,6 +220,8 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
       }
 
       return false;
+    } finally {
+      SolidLoginBrowserFocus.stop();
     }
   }
 

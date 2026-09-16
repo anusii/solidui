@@ -52,6 +52,7 @@ import 'package:solidui/src/constants/initial_setup.dart'
     show initialStructureSnackbarMsg, initialUpdateSnackbarMsg;
 import 'package:solidui/src/screens/initial_setup_screen.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
+import 'package:solidui/src/utils/solid_login_browser_focus.dart';
 import 'package:solidui/src/utils/solid_pod_helpers.dart'
     show getKeyFromUserIfRequired, isPodUpdateMode;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
@@ -303,6 +304,11 @@ class SolidLoginAuthHandler {
 
     Timer? browserMessageTimer;
     if (!wasAlreadyLoggedIn) {
+      // A browser window is about to open for the OIDC handshake, so step the
+      // app window aside and bring that browser to the front.
+
+      SolidLoginBrowserFocus.start();
+
       browserMessageTimer = Timer(const Duration(milliseconds: 200), () {
         if (context.mounted) {
           showSnackbar(
@@ -388,6 +394,8 @@ class SolidLoginAuthHandler {
 
         return false;
       }
+    } finally {
+      SolidLoginBrowserFocus.stop();
     }
 
     browserMessageTimer?.cancel();
