@@ -36,48 +36,12 @@ import 'package:solidpod/solidpod.dart'
     show RecipientNotReadyException, RecipientType, sendNotification;
 
 import 'package:solidui/src/constants/ui_colors.dart' show ActionColors;
+import 'package:solidui/src/utils/resilient_snack_bar.dart';
 
-/// Signature for the snack-bar reporter used to surface notification
-/// delivery outcomes back to the caller's UI.
-
-typedef NotifySnackBar = void Function(
-  String message,
-  Color backgroundColor, {
-  Duration duration,
-});
-
-/// Build a resilient [NotifySnackBar] bound to [messenger].
-///
-/// Showing a SnackBar requires a Scaffold registered with the messenger.
-/// Depending on how the host embeds the form, and on the exact moment the
-/// dialog is dismissed, the messenger can momentarily have no Scaffold,
-/// which throws the "_scaffolds.isNotEmpty" assertion. A confirmation toast
-/// is non-critical (the grant has already succeeded), so the call is guarded
-/// and retried once on the next frame rather than ever letting it crash the
-/// app.
-
-NotifySnackBar makeResilientSnackBar(ScaffoldMessengerState messenger) => (
-      String message,
-      Color backgroundColor, {
-      Duration duration = const Duration(seconds: 4),
-    }) {
-      SnackBar build() => SnackBar(
-            content: Text(message),
-            backgroundColor: backgroundColor,
-            duration: duration,
-          );
-      try {
-        messenger.showSnackBar(build());
-      } on Object catch (_) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          try {
-            messenger.showSnackBar(build());
-          } on Object catch (e) {
-            debugPrint('Could not show snackbar "$message": $e');
-          }
-        });
-      }
-    };
+// Re-exported so existing importers of this file (e.g.
+// grant_permission_form.dart) keep resolving `makeResilientSnackBar`/
+// `NotifySnackBar` without changes now that they live in their own file.
+export 'package:solidui/src/utils/resilient_snack_bar.dart';
 
 /// Send a "resource shared" notification to each recipient WebID and
 /// report delivery problems through [showSnack].

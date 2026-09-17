@@ -67,6 +67,7 @@ class SolidScaffoldHelpers {
             message: item.message,
             dialogTitle: item.dialogTitle,
             action: item.onTap,
+            showInOverflow: item.showInOverflow,
           ),
         )
         .toList();

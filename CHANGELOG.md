@@ -16,6 +16,8 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Export resilient snackbar [1.0.47 20260917 jesscmoore]
++ Overflow menu in More button on mobile nav bar [1.0.46 20260915 jesscmoore]
 + Report offline rather than doing nothing on Login [1.0.45 20260915 gjw]
 + Name login errors: internet, address or server [1.0.44 20260915 gjw]
 + Updated version widget dependency [1.0.43 20260914 gjw]
