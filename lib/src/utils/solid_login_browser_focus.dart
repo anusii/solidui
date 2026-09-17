@@ -53,7 +53,9 @@ import 'package:solidui/src/utils/is_desktop.dart';
 /// * the default browser is activated with `open -b <bundle id>`, which lifts
 ///   its windows above every other application and follows the browser to the
 ///   space it is on — the macOS case where the login page landed in a window
-///   that stayed hidden behind everything else.
+///   that stayed hidden behind everything else. We only ever activate a
+///   browser LaunchServices names as the https handler and that is already
+///   running, so no second browser is started on top of the login page.
 ///
 /// Both of those are macOS specific. Windows and Linux already foreground the
 /// browser as they launch it, so there we only make sure the app window is not
@@ -169,13 +171,19 @@ class SolidLoginBrowserFocus {
   }
 
   // Activates the application registered as the handler for https, which is
-  // the browser url_launcher has just opened the login page in. Nothing is
-  // launched when the lookup fails, so we never risk activating — or worse,
-  // starting — a browser the user does not use.
+  // the browser url_launcher has just opened the login page in.
 
   static Future<void> _activateMacosBrowser() async {
     final bundleId = await _macosDefaultBrowser();
+
+    // We could not say which browser holds the login page.
+
     if (bundleId == null) return;
+
+    // It is not running, so it cannot be holding the login page either, and
+    // activating it would start a browser the user never asked for.
+
+    if (!await _isRunning(bundleId)) return;
 
     try {
       await Process.run('/usr/bin/open', ['-b', bundleId]);
@@ -184,37 +192,87 @@ class SolidLoginBrowserFocus {
     }
   }
 
-  // The https handler recorded by LaunchServices, e.g. com.google.chrome.
-  // The preferences dump lists one block per scheme, with the role key
-  // immediately ahead of the scheme key, so a single pattern picks out the
-  // browser without parsing the whole plist. No entry at all means the user
-  // has never changed the default, which is Safari.
+  // Strips the nested LSHandlerPreferredVersions dictionary, which repeats
+  // the role key with a placeholder value, out of an LSHandlers entry.
 
-  static final _httpsHandler = RegExp(
-    r'LSHandlerRole(?:All|Viewer)\s*=\s*"?([\w.-]+)"?;\s*'
-    r'LSHandlerURLScheme\s*=\s*https;',
+  static final _nestedVersions = RegExp(
+    r'LSHandlerPreferredVersions\s*=\s*\{[^}]*\};',
   );
 
-  static const _safari = 'com.apple.safari';
+  static final _httpsScheme = RegExp(r'LSHandlerURLScheme\s*=\s*"?https"?;');
 
-  static String? _cachedBundleId;
+  static final _handlerRole = RegExp(
+    r'LSHandlerRole(?:All|Viewer)\s*=\s*"?([\w.-]+)"?;',
+  );
+
+  static final _modified = RegExp(r'LSHandlerModificationDate\s*=\s*(\d+);');
+
+  // The https handler recorded by LaunchServices, e.g. com.brave.browser, or
+  // null when it cannot be established — which is the answer whenever the
+  // preferences are unreadable (a sandboxed build cannot read another
+  // application's domain) or the user has never picked a browser. Deliberately
+  // no fallback: an unidentified browser is one we leave alone.
+  //
+  // The dump holds one entry per scheme or content type. The keys within an
+  // entry are not in a guaranteed order, so we look for the entry carrying the
+  // https scheme and read the role key out of that same entry. The list can
+  // also hold more than one https entry — a stale one left by a browser the
+  // user has since moved away from — so the most recently modified entry wins
+  // rather than the first one encountered.
 
   static Future<String?> _macosDefaultBrowser() async {
-    if (_cachedBundleId != null) return _cachedBundleId;
-
     try {
       final result = await Process.run('/usr/bin/defaults', [
         'read',
         'com.apple.LaunchServices/com.apple.launchservices.secure',
         'LSHandlers',
       ]);
-      if (result.exitCode != 0) return _cachedBundleId = _safari;
+      if (result.exitCode != 0) return null;
 
-      final match = _httpsHandler.firstMatch('${result.stdout}');
-      return _cachedBundleId = match?.group(1) ?? _safari;
+      final entries =
+          '${result.stdout}'.replaceAll(_nestedVersions, '').split('},');
+
+      String? browser;
+      var newest = -1;
+
+      for (final entry in entries) {
+        if (!_httpsScheme.hasMatch(entry)) continue;
+
+        final role = _handlerRole.firstMatch(entry);
+        if (role == null) continue;
+
+        final modified =
+            int.tryParse(_modified.firstMatch(entry)?.group(1) ?? '') ?? 0;
+        if (modified < newest) continue;
+
+        browser = role.group(1);
+        newest = modified;
+      }
+
+      return browser;
     } on Object catch (e) {
       debugPrint('SolidLoginBrowserFocus: no default browser found: $e');
       return null;
+    }
+  }
+
+  // Whether an application with this bundle id is already running. The ids
+  // LaunchServices records in its preferences are lower-cased, while the ones
+  // the running applications report keep their original spelling, so the
+  // comparison has to ignore case.
+
+  static Future<bool> _isRunning(String bundleId) async {
+    try {
+      final result = await Process.run('/usr/bin/lsappinfo', ['list']);
+      if (result.exitCode != 0) return false;
+
+      return RegExp(
+        'bundleID\\s*=\\s*"${RegExp.escape(bundleId)}"',
+        caseSensitive: false,
+      ).hasMatch('${result.stdout}');
+    } on Object catch (e) {
+      debugPrint('SolidLoginBrowserFocus: could not list applications: $e');
+      return false;
     }
   }
 }
