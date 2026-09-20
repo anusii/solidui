@@ -50,6 +50,32 @@ class ActionColors {
   static const delete = Colors.red;
 }
 
+/// Colours for the SnackBars shown by `showPositiveSnackBar`.
+///
+/// Deliberately understated: a soft pastel BAR carrying near-black text,
+/// rather than a saturated theme colour. Tune these to restyle every
+/// SnackBar across the app suite. A negative/orange bar colour goes here
+/// when one is first needed.
+
+class SnackBarColors {
+  /// Soft green bar colour confirming a successful action.
+
+  static const positive = Color(0xFFC8E6C9); // green.shade100.
+
+  /// Near-black text, icon and action colour on a pastel bar.
+
+  static const ink = Color(0xFF1B1B1B);
+
+  /// Surface for a SnackBar with no positive or negative sense, e.g. one
+  /// built directly rather than through `showPositiveSnackBar`.
+
+  static const surface = Color(0xFF212121); // grey.shade900.
+
+  /// Text colour on that neutral surface.
+
+  static const neutral = Color(0xFFE0E0E0); // grey.shade300.
+}
+
 /// Colours used across security dialogs and prompts.
 
 class SecurityColors {

@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Shared understated SnackBar with auto-dismiss [1.0.47 20260921 gjw]
 + Plainer wording when a sign-in does not complete [1.0.46 20260918 gjw]
 + Report offline rather than doing nothing on Login [1.0.45 20260915 gjw]
 + Name login errors: internet, address or server [1.0.44 20260915 gjw]
