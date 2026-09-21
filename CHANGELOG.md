@@ -16,6 +16,8 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Export resilient snackbar [1.0.47 20260917 jesscmoore]
++ Overflow menu in More button on mobile nav bar [1.0.46 20260915 jesscmoore]
 + Add internet connection retries [1.0.48 20260916 jesscmoore]
 + Overflow menu in More button on mobile nav bar [1.0.47 20260915 jesscmoore]
 + Plainer wording when a sign-in does not complete [1.0.46 20260918 gjw]

@@ -111,6 +111,8 @@ export 'src/services/solid_backup_service.dart';
 export 'src/widgets/solid_backup_dialog.dart';
 
 export 'src/utils/snack_bar.dart';
+export 'src/utils/resilient_snack_bar.dart';
+export 'src/constants/ui_colors.dart';
 
 export 'src/widgets/solid_file.dart';
 export 'src/widgets/solid_file_browser.dart';
