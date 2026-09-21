@@ -186,6 +186,13 @@ class SolidAppBarAction {
 
   final bool showOnVeryNarrowScreen;
 
+  /// Whether this action is shown at all, in the AppBar or the overflow
+  /// menu. Hiding an action this way, rather than leaving it out of
+  /// [SolidAppBarConfig.actions], keeps its id registered in preferences, so
+  /// it returns to its place in the order when shown again.
+
+  final bool visible;
+
   /// Initial order index for this action. Lower values appear first (leftmost).
   /// If not specified, the order will be based on the position in the actions
   /// list. This can be overridden by user preferences.
@@ -200,6 +207,7 @@ class SolidAppBarAction {
     this.color,
     this.showOnNarrowScreen = true,
     this.showOnVeryNarrowScreen = true,
+    this.visible = true,
     this.initialIndex,
   });
 }
@@ -381,6 +389,15 @@ class SolidAppBarConfig {
 
   final Set<String> defaultOverflowActionIds;
 
+  /// Whether to show the overflow (More) menu at every width, rather than
+  /// only below [veryNarrowScreenThreshold]. Actions marked to go in the
+  /// overflow menu then always sit in it, keeping the AppBar to its most
+  /// important buttons. Other width-based behaviour, such as the version
+  /// widget and each action's `showOnVeryNarrowScreen`, still follows
+  /// [veryNarrowScreenThreshold].
+
+  final bool alwaysShowOverflowMenu;
+
   /// Whether to show the POD-backed profile avatar in the app bar.
 
   final bool enableProfile;
@@ -396,8 +413,15 @@ class SolidAppBarConfig {
     this.veryNarrowScreenThreshold =
         NavigationConstants.veryNarrowScreenThreshold,
     this.defaultOverflowActionIds = const {},
+    this.alwaysShowOverflowMenu = false,
     this.enableProfile = false,
   });
+
+  /// Whether actions marked for the overflow menu go into it, rather than
+  /// the AppBar, at the given [layoutWidth].
+
+  bool usesOverflowMenu(double layoutWidth) =>
+      alwaysShowOverflowMenu || layoutWidth < veryNarrowScreenThreshold;
 }
 
 /// Configuration for navigation drawer user information.
