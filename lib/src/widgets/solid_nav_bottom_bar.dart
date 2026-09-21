@@ -33,15 +33,14 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
-import 'package:solidui/src/utils/is_phone.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 
 /// Bottom navigation bar showing main menu tabs on narrow screens.
 ///
 /// Tabs marked [SolidNavTab.showInOverflow] are collapsed into a "More"
 /// destination that opens the remaining tabs in a menu when pressed. This
-/// only happens on mobile platforms (iOS/Android); on web and desktop every
-/// tab is shown directly, regardless of the flag.
+/// applies on every platform: the bottom bar is only used for narrow
+/// layouts, whether a phone or a narrow web or desktop window.
 
 class SolidNavBottomBar extends StatelessWidget {
   /// Navigation tabs (typically from [SolidScaffold] menu items).
@@ -143,10 +142,7 @@ class SolidNavBottomBar extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    // Only collapse tabs into the overflow "More" destination on mobile
-    // platforms; web/desktop narrow layouts always show every tab directly.
-
-    final hasOverflow = isPhone() && tabs.any((tab) => tab.showInOverflow);
+    final hasOverflow = tabs.any((tab) => tab.showInOverflow);
 
     final visibleIndices = [
       for (int i = 0; i < tabs.length; i++)

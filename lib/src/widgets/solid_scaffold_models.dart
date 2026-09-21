@@ -75,8 +75,8 @@ class SolidMenuItem {
   final void Function(BuildContext)? onTap;
 
   /// Whether this menu item should be moved into the overflow "More" menu
-  /// on the bottom navigation bar. Only takes effect on mobile platforms
-  /// (iOS/Android); on other platforms the item is always shown directly.
+  /// on the bottom navigation bar, which is used on narrow screens on
+  /// every platform.
 
   final bool showInOverflow;
 
