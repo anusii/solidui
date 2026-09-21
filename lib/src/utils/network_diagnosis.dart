@@ -218,9 +218,17 @@ String connectionFailureMessage(
     NetworkStatus.unreachable =>
       '$host is not responding — the server may be down, or blocked by a '
           'firewall.',
+    // 20260918 gjw The reason the server gave cannot be shown here. The
+    // oidc package discards it: Solid servers advertise RFC 9207 `iss`
+    // support and then omit `iss` from error responses, so oidc rejects
+    // the response as a possible mix-up attack and throws that in place
+    // of the original error code. Hence wording that names the likely
+    // causes rather than a reason we do not have.
+
     NetworkStatus.reachable =>
-      '$host is reachable, so this is not a connection problem — the server '
-          'refused the request or the login was not completed.',
+      '$host is reachable, so the connection is fine. The sign-in did not '
+          'complete — the login window may have been closed, or the server '
+          'refused the request. Please try again.',
     NetworkStatus.unknown => 'The server may be inaccessible or down.',
   };
 
