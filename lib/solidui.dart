@@ -111,6 +111,8 @@ export 'src/services/solid_backup_service.dart';
 export 'src/widgets/solid_backup_dialog.dart';
 
 export 'src/utils/snack_bar.dart';
+export 'src/utils/resilient_snack_bar.dart';
+export 'src/constants/ui_colors.dart';
 
 export 'src/widgets/solid_file.dart';
 export 'src/widgets/solid_file_browser.dart';
@@ -132,6 +134,7 @@ export 'src/utils/is_desktop.dart';
 export 'src/utils/is_text_file.dart';
 export 'src/utils/loading_dialog_controller.dart';
 export 'src/utils/solid_file_operations.dart';
+export 'src/utils/solid_login_browser_focus.dart';
 export 'src/utils/solid_file_operations_print.dart';
 export 'src/utils/is_phone.dart';
 export 'src/utils/solid_alert.dart';

@@ -69,6 +69,12 @@ class SolidNavTab {
 
   final void Function(BuildContext)? action;
 
+  /// Whether this tab should be moved into the overflow "More" menu on
+  /// the bottom navigation bar. Only takes effect on mobile platforms
+  /// (iOS/Android); on other platforms the tab is always shown directly.
+
+  final bool showInOverflow;
+
   const SolidNavTab({
     required this.title,
     required this.icon,
@@ -78,6 +84,7 @@ class SolidNavTab {
     this.message,
     this.dialogTitle,
     this.action,
+    this.showInOverflow = false,
   });
 }
 

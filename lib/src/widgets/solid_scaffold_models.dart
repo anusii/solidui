@@ -74,6 +74,12 @@ class SolidMenuItem {
 
   final void Function(BuildContext)? onTap;
 
+  /// Whether this menu item should be moved into the overflow "More" menu
+  /// on the bottom navigation bar. Only takes effect on mobile platforms
+  /// (iOS/Android); on other platforms the item is always shown directly.
+
+  final bool showInOverflow;
+
   const SolidMenuItem({
     required this.title,
     required this.icon,
@@ -83,6 +89,7 @@ class SolidMenuItem {
     this.message,
     this.dialogTitle,
     this.onTap,
+    this.showInOverflow = false,
   });
 }
 

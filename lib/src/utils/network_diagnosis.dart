@@ -70,7 +70,10 @@ const _controlTimeout = Duration(seconds: 3);
 /// Public DNS resolvers, as IP literals so that reaching them needs no name
 /// lookup of its own. They are contacted only to tell "the internet is down"
 /// apart from "that server name does not exist", and only after the login
-/// itself has already failed. Two are tried because a network may block one.
+/// itself has already failed. Two are tried because a network may block one
+/// — some networks (certain mobile carriers in particular) block direct
+/// connections to well-known public resolvers specifically, which would
+/// otherwise make a perfectly reachable target look "offline".
 
 const _controlHosts = ['1.1.1.1', '8.8.8.8'];
 
@@ -78,6 +81,17 @@ const _controlHosts = ['1.1.1.1', '8.8.8.8'];
 /// serve DNS-over-HTTPS here, so a plain TCP connect is enough.
 
 const _controlPort = 443;
+
+/// Number of times the actual target is probed before its failure is
+/// trusted. A single dropped DNS query or SYN packet on a slow or lossy
+/// link can look exactly like the server being down. Have a
+/// second try before anything is blamed on the network or the server.
+
+const _targetAttempts = 2;
+
+/// Gap between target probe attempts.
+
+const _targetRetryDelay = Duration(seconds: 1);
 
 /// Returns the URI for [target], which may be a server URL, a WebID, or a
 /// bare host name. Returns null when no host can be extracted.
@@ -133,16 +147,37 @@ Future<bool> _canConnect(String host, int port, Duration timeout) async {
   }
 }
 
-/// Reports whether [host] resolves to an address.
+/// Reports whether [host] resolves to an address. Retried [_targetAttempts]
+/// times, since a single dropped query is not enough to trust.
 
 Future<bool> _canResolve(String host) async {
-  try {
-    await InternetAddress.lookup(host).timeout(_probeTimeout);
+  for (var attempt = 1; attempt <= _targetAttempts; attempt++) {
+    try {
+      await InternetAddress.lookup(host).timeout(_probeTimeout);
 
-    return true;
-  } on Object {
-    return false;
+      return true;
+    } on Object {
+      if (attempt < _targetAttempts) await Future.delayed(_targetRetryDelay);
+    }
   }
+
+  return false;
+}
+
+/// Reports whether a TCP connection to [host] on [port] can be opened,
+/// retried [_targetAttempts] times for the same reason as [_canResolve].
+
+Future<bool> _canConnectRetrying(
+  String host,
+  int port,
+  Duration timeout,
+) async {
+  for (var attempt = 1; attempt <= _targetAttempts; attempt++) {
+    if (await _canConnect(host, port, timeout)) return true;
+    if (attempt < _targetAttempts) await Future.delayed(_targetRetryDelay);
+  }
+
+  return false;
 }
 
 /// Reports whether anything out on the internet can be reached. Uses the IP
@@ -186,7 +221,7 @@ Future<NetworkStatus> diagnoseConnection(String target) async {
 
   final port = uri.hasPort ? uri.port : (uri.scheme == 'http' ? 80 : 443);
 
-  if (await _canConnect(uri.host, port, _probeTimeout)) {
+  if (await _canConnectRetrying(uri.host, port, _probeTimeout)) {
     return NetworkStatus.reachable;
   }
 
