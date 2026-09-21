@@ -36,6 +36,7 @@ import 'package:solidpod/solidpod.dart'
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/services/solid_owner_profile_service.dart';
 import 'package:solidui/src/services/solid_profile_service.dart';
+import 'package:solidui/src/utils/solid_login_browser_focus.dart';
 import 'package:solidui/src/utils/web_id_parser.dart';
 
 /// A pop up widget for user to logout.
@@ -81,7 +82,15 @@ class _LogoutDialogState extends State<LogoutDialog> {
         ElevatedButton(
           child: const Text('OK'),
           onPressed: () async {
-            if (await logoutPod()) {
+            SolidLoginBrowserFocus.start();
+            final bool loggedOut;
+            try {
+              loggedOut = await logoutPod();
+            } finally {
+              SolidLoginBrowserFocus.stop();
+            }
+
+            if (loggedOut) {
               SolidProfileService.instance.clearCache();
               SolidOwnerProfileService.instance.clearCache();
               solidLoginStatusNotifier.markLoggedOut();
