@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///
-/// Authors: Tony Chen
+/// Authors: Tony Chen, Jess Moore
 
 library;
 
@@ -33,9 +33,15 @@ import 'package:flutter/material.dart';
 import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/constants/navigation.dart';
+import 'package:solidui/src/utils/is_phone.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 
 /// Bottom navigation bar showing main menu tabs on narrow screens.
+///
+/// Tabs marked [SolidNavTab.showInOverflow] are collapsed into a "More"
+/// destination that opens the remaining tabs in a menu when pressed. This
+/// only happens on mobile platforms (iOS/Android); on web and desktop every
+/// tab is shown directly, regardless of the flag.
 
 class SolidNavBottomBar extends StatelessWidget {
   /// Navigation tabs (typically from [SolidScaffold] menu items).
@@ -71,10 +77,95 @@ class SolidNavBottomBar extends StatelessWidget {
     }
   }
 
+  /// Shows the tabs collapsed into overflow, triggered by pressing the
+  /// "More" destination.
+
+  Future<void> _showOverflowMenu(
+    BuildContext context,
+    List<int> overflowIndices,
+  ) async {
+    final cs = Theme.of(context).colorScheme;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: overflowIndices.map((index) {
+              final tab = tabs[index];
+              final isSelected = index == selectedIndex;
+              final tileColor =
+                  isSelected ? cs.primary : (tab.color ?? cs.onSurfaceVariant);
+
+              return ListTile(
+                leading: Icon(tab.icon, color: tileColor),
+                title: Text(
+                  tab.title,
+                  style: TextStyle(
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                    color: tileColor,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _handleTabSelection(index, context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Builds the icon widget for a tab, including its optional tooltip.
+
+  Widget _buildTabIcon(SolidNavTab tab, bool isSelected, ColorScheme cs) {
+    Widget icon = Icon(
+      tab.icon,
+      size: NavigationConstants.navIconSize,
+      color: isSelected
+          ? cs.primary
+          : (tab.color ?? cs.onSurfaceVariant.withValues(alpha: 0.7)),
+    );
+
+    final tooltipMessage = tab.tooltip ?? tab.message;
+    if (tooltipMessage != null) {
+      icon = MarkdownTooltip(message: tooltipMessage, child: icon);
+    }
+    return icon;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+
+    // Only collapse tabs into the overflow "More" destination on mobile
+    // platforms; web/desktop narrow layouts always show every tab directly.
+
+    final hasOverflow = isPhone() && tabs.any((tab) => tab.showInOverflow);
+
+    final visibleIndices = [
+      for (int i = 0; i < tabs.length; i++)
+        if (!hasOverflow || !tabs[i].showInOverflow) i,
+    ];
+    final overflowIndices = [
+      for (int i = 0; i < tabs.length; i++)
+        if (hasOverflow && tabs[i].showInOverflow) i,
+    ];
+
+    final moreDestinationIndex = visibleIndices.length;
+    final isOverflowSelected = overflowIndices.contains(selectedIndex);
+
+    final navBarSelectedIndex = isOverflowSelected
+        ? moreDestinationIndex
+        : () {
+            final position = visibleIndices.indexOf(selectedIndex ?? -1);
+            return position == -1 ? 0 : position;
+          }();
 
     return NavigationBarTheme(
       data: NavigationBarThemeData(
@@ -91,31 +182,34 @@ class SolidNavBottomBar extends StatelessWidget {
         indicatorColor: cs.primaryContainer.withValues(alpha: 0.6),
       ),
       child: NavigationBar(
-        selectedIndex: selectedIndex ?? 0,
-        onDestinationSelected: (index) => _handleTabSelection(index, context),
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: tabs.map((tab) {
-          final index = tabs.indexOf(tab);
-          final isSelected = index == selectedIndex;
-          final tooltipMessage = tab.tooltip ?? tab.message;
-
-          Widget icon = Icon(
-            tab.icon,
-            size: NavigationConstants.navIconSize,
-            color: isSelected
-                ? cs.primary
-                : (tab.color ?? cs.onSurfaceVariant.withValues(alpha: 0.7)),
-          );
-
-          if (tooltipMessage != null) {
-            icon = MarkdownTooltip(message: tooltipMessage, child: icon);
+        selectedIndex: navBarSelectedIndex,
+        onDestinationSelected: (destinationIndex) {
+          if (overflowIndices.isNotEmpty &&
+              destinationIndex == moreDestinationIndex) {
+            _showOverflowMenu(context, overflowIndices);
+            return;
           }
-
-          return NavigationDestination(
-            icon: icon,
-            label: tab.title,
-          );
-        }).toList(),
+          _handleTabSelection(visibleIndices[destinationIndex], context);
+        },
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        destinations: [
+          for (final index in visibleIndices)
+            NavigationDestination(
+              icon: _buildTabIcon(tabs[index], index == selectedIndex, cs),
+              label: tabs[index].title,
+            ),
+          if (overflowIndices.isNotEmpty)
+            NavigationDestination(
+              icon: Icon(
+                Icons.more_horiz,
+                size: NavigationConstants.navIconSize,
+                color: isOverflowSelected
+                    ? cs.primary
+                    : cs.onSurfaceVariant.withValues(alpha: 0.7),
+              ),
+              label: 'More',
+            ),
+        ],
       ),
     );
   }

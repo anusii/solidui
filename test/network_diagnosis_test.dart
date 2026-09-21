@@ -64,7 +64,8 @@ void main() {
         NetworkStatus.reachable,
       );
 
-      expect(message, contains('not a connection problem'));
+      expect(message, contains('connection is fine'));
+      expect(message, contains('sign-in did not complete'));
     });
 
     test('unknown falls back to the generic wording', () {
