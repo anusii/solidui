@@ -124,5 +124,15 @@ void main() {
         anyOf(NetworkStatus.unknownHost, NetworkStatus.offline),
       );
     });
+
+    test('a genuinely reachable host is reported reachable', () async {
+      // 20260915 gjw Guards against a control-host-only reachability check:
+      // this must come back reachable on its own, not merely because
+      // 1.1.1.1/8.8.8.8 answered — those are not even consulted on this path.
+
+      final status = await diagnoseConnection(server);
+
+      expect(status, NetworkStatus.reachable);
+    });
   });
 }

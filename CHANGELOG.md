@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Add internet connection retries [1.0.46 20260916 jesscmoore]
 + Overflow menu in More button on mobile nav bar [1.0.46 20260915 jesscmoore]
 + Plainer wording when a sign-in does not complete [1.0.46 20260918 gjw]
 + Report offline rather than doing nothing on Login [1.0.45 20260915 gjw]
