@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Always show AppBar overflow menu option [1.0.51 20260921 jesscmoore]
 + Shared understated SnackBar with auto-dismiss [1.0.50 20260921 gjw]
 + Export resilient snackbar [1.0.49 20260917 jesscmoore]
 + Add internet connection retries [1.0.48 20260916 jesscmoore]
