@@ -16,8 +16,8 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
-+ Add internet connection retries [1.0.46 20260916 jesscmoore]
-+ Overflow menu in More button on mobile nav bar [1.0.46 20260915 jesscmoore]
++ Add internet connection retries [1.0.48 20260916 jesscmoore]
++ Overflow menu in More button on mobile nav bar [1.0.47 20260915 jesscmoore]
 + Plainer wording when a sign-in does not complete [1.0.46 20260918 gjw]
 + Report offline rather than doing nothing on Login [1.0.45 20260915 gjw]
 + Name login errors: internet, address or server [1.0.44 20260915 gjw]
@@ -54,8 +54,7 @@ The package is available from
 + Fix unhandled keyring lock exceptions #350 [1.0.13 20260626 amogh]
 + Show animation while obtaining key [1.0.12 20260626 anushkavidanage]
 + REGISTER popup. Change PASSWD from profile [1.0.11 20260623 tonypioneer]
-+ Add account and change password dialogs (CSS v7+)
-[1.0.10 20260617 anushkavidanage]
++ Add account and change password dialogs (CSS v7+) [1.0.10 20260617 anushkavidanage]
 + Support writing large files to external pod [1.0.9 20260618 tonypioneer]
 + Allow different version string colours appbar/menu [1.0.8 20260614 gjw]
 + Bump solid_auth token refresh fix [1.0.7 20260612 gjw]
