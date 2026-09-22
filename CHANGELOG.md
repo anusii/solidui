@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Consolidate Android Login
 
++ Rename readmeUrl to docsUrl, update tooltip [1.0.53 20260923 jesscmoore]
 + Nav bar More menu on all narrow screens [1.0.52 20260921 jesscmoore]
 + Always show AppBar overflow menu option [1.0.51 20260921 jesscmoore]
 + Shared understated SnackBar with auto-dismiss [1.0.50 20260921 gjw]
