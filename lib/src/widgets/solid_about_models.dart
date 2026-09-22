@@ -133,14 +133,14 @@ class SolidAboutConfig {
 
   final SolidFeedbackConfig? feedbackConfig;
 
-  /// Optional URL for the application README. When provided, a README
-  /// button is added to the About dialogue action row. The URL is opened
-  /// in the system browser. Typically the raw GitHub README URL or a
+  /// Optional URL for the application's documentation. When provided, a
+  /// More Info button is added to the About dialogue action row. The URL is
+  /// opened in the system browser. Typically the raw GitHub README URL or a
   /// documentation page, e.g.:
   ///
   ///   'https://github.com/gjwgit/myapp/blob/main/README.md'
 
-  final String? readmeUrl;
+  final String? moreInfoUrl;
 
   const SolidAboutConfig({
     this.enabled = true,
@@ -163,7 +163,7 @@ class SolidAboutConfig {
     this.profileEnabled = true,
     this.inviteConfig,
     this.feedbackConfig,
-    this.readmeUrl,
+    this.moreInfoUrl,
   });
 
   /// Returns the icon to display for the About button.
@@ -226,7 +226,7 @@ class SolidAboutConfig {
     bool? profileEnabled,
     SolidInviteOthersConfig? inviteConfig,
     SolidFeedbackConfig? feedbackConfig,
-    String? readmeUrl,
+    String? moreInfoUrl,
   }) {
     return SolidAboutConfig(
       enabled: enabled ?? this.enabled,
@@ -253,7 +253,7 @@ class SolidAboutConfig {
       profileEnabled: profileEnabled ?? this.profileEnabled,
       inviteConfig: inviteConfig ?? this.inviteConfig,
       feedbackConfig: feedbackConfig ?? this.feedbackConfig,
-      readmeUrl: readmeUrl ?? this.readmeUrl,
+      moreInfoUrl: moreInfoUrl ?? this.moreInfoUrl,
     );
   }
 }
