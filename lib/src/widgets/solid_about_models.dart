@@ -140,7 +140,7 @@ class SolidAboutConfig {
   ///
   ///   'https://github.com/gjwgit/myapp/blob/main/README.md'
 
-  final String? moreInfoUrl;
+  final String? docsUrl;
 
   const SolidAboutConfig({
     this.enabled = true,
@@ -163,7 +163,7 @@ class SolidAboutConfig {
     this.profileEnabled = true,
     this.inviteConfig,
     this.feedbackConfig,
-    this.moreInfoUrl,
+    this.docsUrl,
   });
 
   /// Returns the icon to display for the About button.
@@ -226,7 +226,7 @@ class SolidAboutConfig {
     bool? profileEnabled,
     SolidInviteOthersConfig? inviteConfig,
     SolidFeedbackConfig? feedbackConfig,
-    String? moreInfoUrl,
+    String? docsUrl,
   }) {
     return SolidAboutConfig(
       enabled: enabled ?? this.enabled,
@@ -253,7 +253,7 @@ class SolidAboutConfig {
       profileEnabled: profileEnabled ?? this.profileEnabled,
       inviteConfig: inviteConfig ?? this.inviteConfig,
       feedbackConfig: feedbackConfig ?? this.feedbackConfig,
-      moreInfoUrl: moreInfoUrl ?? this.moreInfoUrl,
+      docsUrl: docsUrl ?? this.docsUrl,
     );
   }
 }

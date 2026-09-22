@@ -401,9 +401,9 @@ class SolidAbout {
       );
     }
 
-    // More Info button — shown when a moreInfoUrl is provided.
+    // More Info button — shown when a docsUrl is provided.
 
-    if (config.moreInfoUrl != null && config.moreInfoUrl!.isNotEmpty) {
+    if (config.docsUrl != null && config.docsUrl!.isNotEmpty) {
       actionButtons.add(
         MarkdownTooltip(
           message: '''
@@ -418,7 +418,7 @@ class SolidAbout {
             icon: const Icon(Icons.menu_book_outlined),
             label: const Text('More Info'),
             onPressed: () => launchUrl(
-              Uri.parse(config.moreInfoUrl!),
+              Uri.parse(config.docsUrl!),
               mode: LaunchMode.externalApplication,
             ),
           ),
