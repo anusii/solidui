@@ -165,6 +165,9 @@ unlinked_spec.ds
 # If you're building an application, you may want to check-in the
 # pubspec.lock. Libraries should not include pubspec.lock, per
 # https://dart.dev/guides/libraries/private-files#pubspeclock.
+#
+# Our generic .gitignore ignores the file and an app will override it
+# with a `git add -f`. This seems the simplest approach.
 
 /pubspec.lock
 
@@ -257,7 +260,16 @@ ios/project-*.yml
 # ios/macos generated project files
 macos/Runner.xcodeproj/
 macos/Runner.xcworkspace/
-macos/Runner/Info.plist
+
+# 20260923 gjw macos/Runner/Info.plist is NOT ignored for RadioPod, unlike
+# the other apps in the suite. It carries NSAppTransportSecurity, without
+# which macOS blocks the plain http:// streams that a large share of radio
+# stations still use, and playback fails with AVFoundation error -11800.
+#
+# The build regenerates the macOS project with `flutter create`, which
+# CREATES a missing Info.plist but leaves an existing one alone (verified).
+# So the file has to be in the repository: while it was ignored, every CI
+# clone started without it and got Apple's default, with ATS enforced.
 
 # Backups of ios/macos project config yml and Podfile
 macos/Podfile-*
@@ -270,7 +282,6 @@ macos/project-*.yml
 /macos/Runner.xcworkspace/
 /macos/RunnerTests/
 /macos/Runner/AppDelegate.swift
-/macos/Runner/Info.plist
 /macos/Runner/MainFlutterWindow.swift
 /macos/Runner/Assets.xcassets/
 /macos/Runner/Base.lproj/
