@@ -401,24 +401,24 @@ class SolidAbout {
       );
     }
 
-    // README button — shown when a readmeUrl is provided.
+    // More Info button — shown when a docsUrl is provided.
 
-    if (config.readmeUrl != null && config.readmeUrl!.isNotEmpty) {
+    if (config.docsUrl != null && config.docsUrl!.isNotEmpty) {
       actionButtons.add(
         MarkdownTooltip(
           message: '''
 
-          **README**
+          **More Information**
 
-          Open the application README in your browser for full
-          documentation and setup instructions.
+          Open webpage in your browser for documentation and setup
+          instructions.
 
           ''',
           child: TextButton.icon(
             icon: const Icon(Icons.menu_book_outlined),
-            label: const Text('README'),
+            label: const Text('More Info'),
             onPressed: () => launchUrl(
-              Uri.parse(config.readmeUrl!),
+              Uri.parse(config.docsUrl!),
               mode: LaunchMode.externalApplication,
             ),
           ),
