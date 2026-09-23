@@ -121,7 +121,7 @@ void main() {
   );
 
   testWidgets(
-    'does not collapse tabs into overflow on non-mobile platforms',
+    'collapses tabs into overflow on narrow desktop layouts too',
     (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       try {
@@ -139,8 +139,8 @@ void main() {
         );
 
         expect(find.text('Home'), findsOneWidget);
-        expect(find.text('Settings'), findsOneWidget);
-        expect(find.text('More'), findsNothing);
+        expect(find.text('Settings'), findsNothing);
+        expect(find.text('More'), findsOneWidget);
       } finally {
         debugDefaultTargetPlatformOverride = null;
       }
