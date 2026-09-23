@@ -14,9 +14,12 @@ The package is available from
 
 [//]: # (au]&#40;https://solidcommunity.au/docs/solidui&#41;)
 
-## 1.1 Consolidate Android Login
+## 1.1 Generalise and Tune
 
-+ Rename readmeUrl to docsUrl, update tooltip [1.0.53 20260923 jesscmoore]
++ Rename readmeUrl to docsUrl, update tooltip [1.1.0 20260923 jesscmoore]
+
+## 1.0 Consolidate Android Login
+
 + Nav bar More menu on all narrow screens [1.0.52 20260921 jesscmoore]
 + Always show AppBar overflow menu option [1.0.51 20260921 jesscmoore]
 + Shared understated SnackBar with auto-dismiss [1.0.50 20260921 gjw]
