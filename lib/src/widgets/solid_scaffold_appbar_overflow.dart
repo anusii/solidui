@@ -72,12 +72,11 @@ class SolidAppBarOverflowHandler {
 
     if (!enableOverflowMenu) return;
 
-    final isVeryNarrowScreen = layoutWidth < config.veryNarrowScreenThreshold;
+    // Only show overflow menu on very narrow screens, unless the app asked
+    // for it at every width. Otherwise, on wider screens, all buttons are
+    // displayed directly in AppBar.
 
-    // Only show overflow menu on very narrow screens.
-    // On wider screens, all buttons are displayed directly in AppBar.
-
-    if (!isVeryNarrowScreen) return;
+    if (!config.usesOverflowMenu(layoutWidth)) return;
 
     // When profiles are enabled, the avatar popup hosts Logout/Login
     // and the About dialog hosts Share, so the overflow menu must

@@ -230,7 +230,7 @@ class SolidOverflowMenuHelpers {
       }
     }
 
-    if (action != null) {
+    if (action != null && action.visible) {
       items.add(
         PopupMenuItem<String>(
           value: actionItem.id,

@@ -42,7 +42,9 @@ class SolidAppBarVisibilityHelper {
     SolidAppBarConfig config,
     double layoutWidth,
   ) {
-    if (!action.showOnVeryNarrowScreen &&
+    if (!action.visible) {
+      return false;
+    } else if (!action.showOnVeryNarrowScreen &&
         layoutWidth < config.veryNarrowScreenThreshold) {
       return false;
     } else if (!action.showOnNarrowScreen &&
