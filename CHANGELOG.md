@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Generalise and Tune
 
++ Auto-login no longer blocks CONTINUE when the keyring is unreadable [1.1.1 20260924 gjw]
 + Rename readmeUrl to docsUrl, update tooltip [1.1.0 20260923 jesscmoore]
 
 ## 1.0 Consolidate Android Login

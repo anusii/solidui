@@ -34,7 +34,6 @@ library;
 import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:solidpod/solidpod.dart'
     show
@@ -361,22 +360,33 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     if (mounted) setState(() => _checkingAutoLogin = true);
 
     // tryRestoreSession() reads from secure storage (libsecret / GNOME keyring
-    // on Linux). If the keyring is locked it throws a PlatformException. Catch
-    // it here so the user sees a clear explanation instead of a blank loading
-    // screen or a silent crash.
+    // on Linux). If that is unreadable it throws a PlatformException.
+    //
+    // 20260924 gjw THIS PATH MUST NOT INTERRUPT THE USER. It runs at startup,
+    // unprompted, and "Stay signed in" defaults to true, so it runs even for
+    // someone who has never logged in. A modal here stood between that person
+    // and the CONTINUE button, announcing that "login cannot continue" about
+    // a login they were not attempting — and, where secure storage is refused
+    // rather than merely locked, showing them a wall of raw D-Bus text. A
+    // strictly confined snap without password-manager-service connected does
+    // exactly that.
+    //
+    // Failing to READ a stored session means there is no session to restore,
+    // which is the ordinary state of a first run, so fall through to the
+    // login page exactly as a genuinely absent session does below.
+    //
+    // The explanation is not lost. Every user-initiated path in
+    // [SolidLoginActions] — login, continue, try-another-account — still
+    // raises showSecureStorageError, so anyone actually trying to sign in is
+    // told why it failed, at the moment they asked for it.
+
     final List<dynamic>? session;
     try {
       session = await tryRestoreSession();
     } catch (e) {
       debugPrint('_checkAutoLogin: tryRestoreSession failed: $e');
-      if (mounted) {
-        setState(() => _checkingAutoLogin = false);
-        // Only show the dialog for secure-storage errors; other exceptions
-        // (e.g. network issues during token refresh) fall through gracefully.
-        if (e is PlatformException) {
-          await SolidLoginActions.showSecureStorageError(context, e);
-        }
-      }
+      if (mounted) setState(() => _checkingAutoLogin = false);
+
       return;
     }
 
