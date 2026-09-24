@@ -32,6 +32,7 @@ library;
 // ignore_for_file: public_member_api_docs
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
 import 'package:solidpod/solidpod.dart'
     show
@@ -42,6 +43,7 @@ import 'package:solidpod/solidpod.dart'
         initialStructureTest,
         isUserLoggedIn,
         silentLogout;
+import 'package:universal_io/io.dart' show Platform;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
@@ -68,13 +70,50 @@ typedef LoginSnackbar = void Function(
 /// flows and are called from the [SolidLogin] build method.
 
 class SolidLoginActions {
+  /// The name of the snap this is running inside, or null when it is not a
+  /// snap.
+  ///
+  /// snapd sets SNAP_NAME in the environment of every snap it launches, so
+  /// its presence is the test, and its value gives the real name to put in
+  /// the command rather than a placeholder the user has to substitute.
+  ///
+  /// universal_io keeps this compiling for web, where the environment is
+  /// empty and the answer is null.
+
+  static String? get _snapName {
+    final name = Platform.environment['SNAP_NAME'];
+
+    return (name != null && name.isNotEmpty) ? name : null;
+  }
+
+  /// Whether [message] is snap confinement refusing the keyring, as opposed
+  /// to any other secure-storage failure.
+  ///
+  /// Pure, and taking [snapName] rather than reading the environment, so the
+  /// rule can be tested without actually being inside a snap.
+  ///
+  /// BOTH halves of the message matter. Being in a snap is not enough — a
+  /// snap's keyring can be merely locked, which has a different remedy — and
+  /// an AppArmor denial about something other than the secret service is not
+  /// this either. Only a denial naming org.freedesktop.Secret.Service is
+  /// fixed by connecting password-manager-service.
+
+  @visibleForTesting
+  static bool isSnapKeyringDenial(String message, String? snapName) =>
+      snapName != null &&
+      snapName.isNotEmpty &&
+      message.contains('AppArmor') &&
+      message.contains('org.freedesktop.Secret.Service');
+
   /// Show a dialog explaining that the system secure storage / keyring could
-  /// not be accessed. Detects the common Linux "KeyringLocked" case and
-  /// offers the fix; otherwise shows the raw error so the user isn't left
+  /// not be accessed, and where possible how to fix it.
+  ///
+  /// Three cases, most specific first: a snap refused the keyring by policy
+  /// and needs one `snap connect`; a Linux keyring that is merely locked; or
+  /// anything else, where the raw error is shown so the user is not left
   /// wondering why login silently failed.
   ///
-  /// Public so that [SolidLogin] can call this from the auto-login path when
-  /// [tryRestoreSession] throws a [PlatformException].
+  /// Public so that [SolidLogin] can call it from the login paths.
 
   static Future<void> showSecureStorageError(
     BuildContext context,
@@ -82,6 +121,30 @@ class SolidLoginActions {
   ) {
     final msg = error.toString();
     final isKeyringLocked = msg.contains('KeyringLocked');
+
+    // 20260924 gjw A snap refused the keyring by policy, which is a wholly
+    // different situation from a locked one and has a one-line fix.
+    //
+    // Under strict confinement the keyring is reachable only once the
+    // password-manager-service interface is connected, and that interface is
+    // NOT connected automatically — the Snap Store declines to auto-connect
+    // it, because it exposes every secret in the session rather than just
+    // this app's. So the user has to connect it by hand, once, and until
+    // they do the raw error is a wall of D-Bus text that names AppArmor but
+    // not the remedy.
+    //
+    // Recognised by the AppArmor denial naming the secret service, so a
+    // genuinely locked keyring inside a snap still gets the keyring advice
+    // below rather than this.
+
+    final snap = _snapName;
+    // The `snap != null` is repeated from inside the rule so the compiler
+    // promotes `snap` to non-null for the content builder below.
+
+    final isSnapDenial = snap != null && isSnapKeyringDenial(msg, snap);
+    final connectCommand = 'sudo snap connect '
+        '$snap:password-manager-service';
+
     return showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -93,24 +156,26 @@ class SolidLoginActions {
           ],
         ),
         content: SingleChildScrollView(
-          child: Text(
-            isKeyringLocked
-                ? 'Your system keyring is locked, so saved login '
-                    'credentials cannot be read.\n\n'
-                    'On Linux, unlock the GNOME keyring and try again:\n\n'
-                    '  • Install the keyring tools:\n'
-                    '      sudo apt install gnome-keyring seahorse\n\n'
-                    '  • Open Seahorse (Passwords and Keys), then\n'
-                    '    File → New → Password Keyring, name it "Login",\n'
-                    '    and set a blank password (or your login password).\n\n'
-                    'After that the keyring unlocks automatically when you '
-                    'log in, and the app can store and read your '
-                    'credentials.'
-                : 'The app could not read or write the system secure '
-                    'storage, so login cannot continue.\n\n'
-                    'Details:\n$msg',
-            style: const TextStyle(fontSize: 13, height: 1.5),
-          ),
+          child: isSnapDenial
+              ? _snapDenialContent(ctx, snap, connectCommand)
+              : Text(
+                  isKeyringLocked
+                      ? 'Your system keyring is locked, so saved login '
+                          'credentials cannot be read.\n\n'
+                          'On Linux, unlock the GNOME keyring and try again:\n\n'
+                          '  • Install the keyring tools:\n'
+                          '      sudo apt install gnome-keyring seahorse\n\n'
+                          '  • Open Seahorse (Passwords and Keys), then\n'
+                          '    File → New → Password Keyring, name it "Login",\n'
+                          '    and set a blank password (or your login password).\n\n'
+                          'After that the keyring unlocks automatically when you '
+                          'log in, and the app can store and read your '
+                          'credentials.'
+                      : 'The app could not read or write the system secure '
+                          'storage, so login cannot continue.\n\n'
+                          'Details:\n$msg',
+                  style: const TextStyle(fontSize: 13, height: 1.5),
+                ),
         ),
         actions: [
           TextButton(
@@ -119,6 +184,79 @@ class SolidLoginActions {
           ),
         ],
       ),
+    );
+  }
+
+  /// The body shown when a snap has been refused the keyring.
+  ///
+  /// The command is the whole point, so it is set apart in a monospaced box
+  /// rather than buried in a paragraph, carries the snap's REAL name, and can
+  /// be copied — it has to be retyped into a terminal, and
+  /// "password-manager-service" is not a word anyone wants to type twice.
+
+  static Widget _snapDenialContent(
+    BuildContext ctx,
+    String snap,
+    String command,
+  ) {
+    final cs = Theme.of(ctx).colorScheme;
+    const body = TextStyle(fontSize: 13, height: 1.5);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'This app is installed as a snap, and snap confinement is '
+          'blocking access to your keyring, where the login credentials '
+          'are kept.\n\n'
+          'Allow it once, from a terminal:',
+          style: body,
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: SelectableText(
+                  command,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12.5,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.copy, size: 18),
+                tooltip: 'Copy the command',
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: command));
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      const SnackBar(content: Text('Command copied.')),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Then start $snap again.\n\n'
+          'This is needed because the snap store does not grant keyring '
+          'access automatically. Without a login you can still tap '
+          'CONTINUE and use the app with your data kept on this device.',
+          style: body,
+        ),
+      ],
     );
   }
 

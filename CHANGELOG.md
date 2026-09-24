@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.1 Generalise and Tune
 
++ Snap keyring refusal now shows the exact snap connect command [1.1.2 20260924 gjw]
 + Auto-login no longer blocks CONTINUE when the keyring is unreadable [1.1.1 20260924 gjw]
 + Rename readmeUrl to docsUrl, update tooltip [1.1.0 20260923 jesscmoore]
 
