@@ -384,14 +384,34 @@ class SolidLoginActions {
       solidLoginStatusNotifier.markLoggedOut();
     }
 
-    final bool isLoggedIn;
+    // 20260924 gjw CONTINUE MEANS "USE THE APP WITHOUT A POD", so an
+    // unreadable keyring must not stop it.
+    //
+    // isUserLoggedIn() reads secure storage. This used to show the
+    // secure-storage dialog and then RETURN, which left CONTINUE doing
+    // nothing whatever: the user tapped it, dismissed a dialog about a login
+    // they were not attempting, and stayed on the login page with no way in.
+    // Under strict snap confinement, where the keyring is refused until an
+    // interface is connected by hand, that made the app entirely unusable
+    // rather than merely Pod-less.
+    //
+    // Being unable to READ the session is not an error here, it is the
+    // answer: no readable session means not logged in. So carry on into the
+    // app with data kept on the device, which is exactly what the button
+    // offers. Both blocks below are guarded by isLoggedIn, so false lands
+    // the user straight in the app.
+    //
+    // The login paths keep the dialog: someone actually signing in does need
+    // to be told why it failed.
+
+    bool isLoggedIn;
     try {
       isLoggedIn = await isUserLoggedIn();
     } catch (e) {
-      if (context.mounted) {
-        await showSecureStorageError(context, e);
-      }
-      return;
+      debugPrint(
+        'performContinue: isUserLoggedIn failed, continuing logged out: $e',
+      );
+      isLoggedIn = false;
     }
 
     if (isLoggedIn && defaultFolders.isNotEmpty) {
