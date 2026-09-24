@@ -16,10 +16,10 @@ The package is available from
 
 ## 1.1 Generalise and Tune
 
-+ CONTINUE works when the keyring is unreadable, instead of doing nothing [1.1.3 20260924 gjw]
++ Continue works when the keyring is unreadable, instead of doing nothing [1.1.3 20260924 gjw]
 + Snap keyring refusal now shows the exact snap connect command [1.1.2 20260924 gjw]
-+ Auto-login no longer blocks CONTINUE when the keyring is unreadable [1.1.1 20260924 gjw]
-+ Rename readmeUrl to docsUrl, update tooltip [1.1.0 20260923 jesscmoore]
++ Auto-login no longer blocks Continue when the keyring is unreadable [1.1.1 20260924 gjw]
++ BREAKING: Rename readmeUrl to docsUrl, update tooltip [1.1.0 20260923 jesscmoore]
 
 ## 1.0 Consolidate Android Login
 
