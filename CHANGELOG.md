@@ -14,6 +14,10 @@ The package is available from
 
 [//]: # (au]&#40;https://solidcommunity.au/docs/solidui&#41;)
 
+## 1.2 Custom Navigation Icons
+
++ Menu entries can draw their own icon with iconBuilder [1.2.0 20260925 jesscmoore]
+
 ## 1.1 Generalise and Tune
 
 + Continue works when the keyring is unreadable, instead of doing nothing [1.1.3 20260924 gjw]
