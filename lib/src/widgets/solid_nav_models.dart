@@ -34,6 +34,38 @@ import 'package:flutter/material.dart';
 
 import 'package:solidui/solidui.dart';
 
+/// How a navigation surface (rail, bottom bar, More sheet, drawer) would
+/// draw an entry's [SolidNavTab.icon]: given to a [SolidNavIconBuilder] so a
+/// custom icon can match it.
+
+class SolidNavIconStyle {
+  /// The icon size this surface uses.
+
+  final double size;
+
+  /// The colour this surface gives the icon, which reflects [selected].
+
+  final Color color;
+
+  /// Whether the entry is the selected one.
+
+  final bool selected;
+
+  const SolidNavIconStyle({
+    required this.size,
+    required this.color,
+    required this.selected,
+  });
+}
+
+/// Draws a navigation entry's icon in place of its [IconData], e.g. an
+/// avatar or a badge.
+
+typedef SolidNavIconBuilder = Widget Function(
+  BuildContext context,
+  SolidNavIconStyle style,
+);
+
 /// Configuration for a navigation tab.
 
 class SolidNavTab {
@@ -44,6 +76,11 @@ class SolidNavTab {
   /// The icon to display for the tab.
 
   final IconData icon;
+
+  /// Optionally draws the icon instead of [icon], which is then only a
+  /// fallback. Use it for icons that aren't glyphs in an icon font.
+
+  final SolidNavIconBuilder? iconBuilder;
 
   /// Optional custom colour for the icon. If null, uses theme default.
 
@@ -78,6 +115,7 @@ class SolidNavTab {
   const SolidNavTab({
     required this.title,
     required this.icon,
+    this.iconBuilder,
     this.color,
     this.child,
     this.tooltip,
@@ -86,6 +124,28 @@ class SolidNavTab {
     this.action,
     this.showInOverflow = false,
   });
+
+  /// This tab's icon as a surface draws it: from [iconBuilder] if given,
+  /// else [icon] at [size] in [color].
+
+  Widget buildIcon(
+    BuildContext context, {
+    required double size,
+    required Color color,
+    required bool selected,
+  }) {
+    final builder = iconBuilder;
+    if (builder == null) {
+      return Icon(icon, size: size, color: color);
+    }
+    return SizedBox.square(
+      dimension: size,
+      child: builder(
+        context,
+        SolidNavIconStyle(size: size, color: color, selected: selected),
+      ),
+    );
+  }
 }
 
 /// User information configuration for the navigation drawer.

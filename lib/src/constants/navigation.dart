@@ -61,6 +61,10 @@ class NavigationConstants {
 
   static const double navIconSize = 24.0;
 
+  /// Icon size in the bottom bar's More sheet (a ListTile's own default).
+
+  static const double overflowIconSize = 24.0;
+
   /// Font size for navigation labels.
 
   static const double navLabelFontSize = 11.0;
