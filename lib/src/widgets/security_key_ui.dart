@@ -257,13 +257,7 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
                   canSubmit: _canSubmit,
                   isSubmitting: _isSubmitting,
                   onSubmit: () async => _submit(context),
-                  onCancel: () {
-                    if (widget.displayMode == SecurityKeyDisplayMode.dialog) {
-                      Navigator.pop(context);
-                    } else {
-                      pushReplacement(context, widget.child);
-                    }
-                  },
+                  onCancel: () => Navigator.pop(context, false),
                 ),
               ),
             ],
