@@ -21,7 +21,7 @@ The package is available from
 ## 1.1 Generalise and Tune
 
 + Continue works if keyring unreadable, instead of nothing [1.1.3 20260924 gjw]
-+ Snap keyring refusal now shows the exact snap connect command [1.1.2 20260924 gjw]
++ Snap keyring refusal shows exact snap connect command [1.1.2 20260924 gjw]
 + Auto-login no longer blocks Continue when keyring unreadable [1.1.1 20260924 gjw]
 + BREAKING: Rename readmeUrl to docsUrl, update tooltip [1.1.0 20260923 jesscmoore]
 
