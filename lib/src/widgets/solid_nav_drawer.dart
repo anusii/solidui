@@ -242,12 +242,13 @@ class _SolidNavDrawerState extends State<SolidNavDrawer> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                Icon(
-                  tab.icon,
+                tab.buildIcon(
+                  context,
                   size: 22,
                   color: selected
                       ? cs.primary
                       : cs.onSurfaceVariant.withValues(alpha: 0.7),
+                  selected: selected,
                 ),
                 const SizedBox(width: 16),
                 Expanded(

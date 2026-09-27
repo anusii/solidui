@@ -141,13 +141,14 @@ class SolidNavBar extends StatelessWidget {
                   final tooltipMessage = tab.tooltip ?? tab.message;
                   final isSelected = tabs.indexOf(tab) == selectedIndex;
 
-                  Widget iconWidget = Icon(
-                    tab.icon,
+                  Widget iconWidget = tab.buildIcon(
+                    context,
                     size: effectiveIconSize,
                     color: isSelected
                         ? cs.primary
                         : (tab.color ??
                             cs.onSurfaceVariant.withValues(alpha: 0.7)),
+                    selected: isSelected,
                   );
 
                   // Wrap with tooltip if available.

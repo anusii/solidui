@@ -50,6 +50,12 @@ class SolidMenuItem {
 
   final IconData icon;
 
+  /// Optionally draws the menu icon instead of [icon], which is then only a
+  /// fallback: an avatar, a badge, anything that isn't a glyph in an icon
+  /// font. Given the size and colour each menu surface would use.
+
+  final SolidNavIconBuilder? iconBuilder;
+
   /// Optional icon colour.
 
   final Color? color;
@@ -83,6 +89,7 @@ class SolidMenuItem {
   const SolidMenuItem({
     required this.title,
     required this.icon,
+    this.iconBuilder,
     this.color,
     this.child,
     this.tooltip,

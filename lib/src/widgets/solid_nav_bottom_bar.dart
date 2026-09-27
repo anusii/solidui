@@ -99,7 +99,12 @@ class SolidNavBottomBar extends StatelessWidget {
                   isSelected ? cs.primary : (tab.color ?? cs.onSurfaceVariant);
 
               return ListTile(
-                leading: Icon(tab.icon, color: tileColor),
+                leading: tab.buildIcon(
+                  context,
+                  size: NavigationConstants.overflowIconSize,
+                  color: tileColor,
+                  selected: isSelected,
+                ),
                 title: Text(
                   tab.title,
                   style: TextStyle(
@@ -121,13 +126,19 @@ class SolidNavBottomBar extends StatelessWidget {
 
   /// Builds the icon widget for a tab, including its optional tooltip.
 
-  Widget _buildTabIcon(SolidNavTab tab, bool isSelected, ColorScheme cs) {
-    Widget icon = Icon(
-      tab.icon,
+  Widget _buildTabIcon(
+    BuildContext context,
+    SolidNavTab tab,
+    bool isSelected,
+    ColorScheme cs,
+  ) {
+    Widget icon = tab.buildIcon(
+      context,
       size: NavigationConstants.navIconSize,
       color: isSelected
           ? cs.primary
           : (tab.color ?? cs.onSurfaceVariant.withValues(alpha: 0.7)),
+      selected: isSelected,
     );
 
     final tooltipMessage = tab.tooltip ?? tab.message;
@@ -191,7 +202,12 @@ class SolidNavBottomBar extends StatelessWidget {
         destinations: [
           for (final index in visibleIndices)
             NavigationDestination(
-              icon: _buildTabIcon(tabs[index], index == selectedIndex, cs),
+              icon: _buildTabIcon(
+                context,
+                tabs[index],
+                index == selectedIndex,
+                cs,
+              ),
               label: tabs[index].title,
             ),
           if (overflowIndices.isNotEmpty)

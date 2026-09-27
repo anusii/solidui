@@ -61,6 +61,7 @@ class SolidScaffoldHelpers {
           (item) => SolidNavTab(
             title: item.title,
             icon: item.icon,
+            iconBuilder: item.iconBuilder,
             color: item.color,
             child: item.child,
             tooltip: item.tooltip,
