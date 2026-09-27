@@ -360,6 +360,12 @@ app.*.map.json
 # Claude related files
 #-----------------------------------------------------------------------
 
+# Widget Preview related
+.widget_preview/
+
+# Generated files
+/macos/Podfile
+/macos/Podfile.lock
 CLAUDE.md
 Claude.md
 .claude/*
