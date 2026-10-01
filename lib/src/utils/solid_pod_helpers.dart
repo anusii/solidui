@@ -130,13 +130,24 @@ Future<bool> loginIfRequired({
 
 /// Ask for the security key from the user if the security key is not available
 /// or cannot be verfied using the verification key stored in PODs.
+///
+/// 20261002 gjw Returns whether a usable security key is in place when this
+/// finishes: true when one was already held or has just been entered, false
+/// when the prompt was dismissed or the POD holds no keyset to verify
+/// against.
+///
+/// Widening the return type from `void` is source compatible — an `await`
+/// that ignores the result still compiles — and it saves every caller a
+/// `KeyManager.hasSecurityKey()` round trip of its own to find out what
+/// happened. Callers that carry on regardless will read from a POD they
+/// cannot decrypt.
 
-Future<void> getKeyFromUserIfRequired(
+Future<bool> getKeyFromUserIfRequired(
   BuildContext context,
   Widget child,
 ) async {
   if (await KeyManager.hasSecurityKey()) {
-    return;
+    return true;
   } else {
     // 20260728 gjw Before prompting, confirm the POD actually holds a
     // keyset to verify against. If the app's encryption key file is
@@ -175,7 +186,8 @@ Future<void> getKeyFromUserIfRequired(
             ),
           );
         }
-        return;
+
+        return false;
       }
     } on Object catch (e) {
       debugPrint('getKeyFromUserIfRequired: keyset check failed: $e');
@@ -223,6 +235,12 @@ Future<void> getKeyFromUserIfRequired(
         debugPrint('Security key saved');
         if (context.mounted) Navigator.pop(context);
       },
+      // 20261002 gjw This page is PUSHED, so Cancel must POP. Replacing the
+      // route with `child` rebuilt the caller's own scaffold, which asked for
+      // the key again on initState, for ever. The submit path below already
+      // pops; this only makes Cancel agree with it.
+
+      popOnCancel: true,
       child: child,
     );
 
@@ -237,5 +255,7 @@ Future<void> getKeyFromUserIfRequired(
 
       await securityKeyNotifier.refreshStatus();
     }
+
+    return KeyManager.hasSecurityKey();
   }
 }

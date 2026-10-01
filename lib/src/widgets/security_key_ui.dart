@@ -68,6 +68,7 @@ class SecurityKeyUI extends StatefulWidget {
     required this.child,
     this.displayMode = SecurityKeyDisplayMode.fullscreen,
     this.plainTextFieldKeys = const {},
+    this.popOnCancel = false,
     super.key,
   });
 
@@ -109,6 +110,26 @@ class SecurityKeyUI extends StatefulWidget {
   /// Display mode (fullscreen prompt or embedded dialog component).
 
   final SecurityKeyDisplayMode displayMode;
+
+  /// 20261002 gjw Whether Cancel should POP the route rather than replace it
+  /// with [child].
+  ///
+  /// True when this page was PUSHED onto a navigator and so has something to
+  /// go back to — which is what [getKeyFromUserIfRequired] does. There,
+  /// replacing the route builds a fresh copy of [child]; when the child is
+  /// the caller's own scaffold, and that scaffold asks for the key on
+  /// initState, Cancel re-enters the app and the app immediately re-asks.
+  /// RadioPod could not be opened at all: the prompt returned for ever, and
+  /// a Pod session outlives a restart.
+  ///
+  /// Note that the SUBMIT path in [getKeyFromUserIfRequired] already pops, so
+  /// this only makes Cancel agree with it.
+  ///
+  /// Defaults to FALSE, keeping the old behaviour for anyone presenting this
+  /// widget as a root page, where [child] is the only way onward and there is
+  /// nothing to pop to.
+
+  final bool popOnCancel;
 
   /// Keys of the input fields whose text should be shown as plain text rather
   /// than masked. Fields not listed here default to a masked secret input.
@@ -258,7 +279,8 @@ class _SecurityKeyUIState extends State<SecurityKeyUI> {
                   isSubmitting: _isSubmitting,
                   onSubmit: () async => _submit(context),
                   onCancel: () {
-                    if (widget.displayMode == SecurityKeyDisplayMode.dialog) {
+                    if (widget.displayMode == SecurityKeyDisplayMode.dialog ||
+                        widget.popOnCancel) {
                       Navigator.pop(context);
                     } else {
                       pushReplacement(context, widget.child);

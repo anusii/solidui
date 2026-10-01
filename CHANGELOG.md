@@ -14,16 +14,20 @@ The package is available from
 
 [//]: # (au]&#40;https://solidcommunity.au/docs/solidui&#41;)
 
+## 1.3
+
++ Security key Cancel returns to the app, not a loop [1.3.0 20261002 gjw]
+
 ## 1.2 Custom Navigation Icons
 
-+ Menu entries can draw their own icon with iconBuilder [1.2.0 20260925 jesscmoore]
++ Menu entries can draw own icon with iconBuilder [1.2.0 20260925 jesscmoore]
 
 ## 1.1 Generalise and Tune
 
 + Continue works if keyring unreadable, instead of nothing [1.1.3 20260924 gjw]
 + Snap keyring refusal shows exact snap connect command [1.1.2 20260924 gjw]
-+ Auto-login no longer blocks Continue when keyring unreadable [1.1.1 20260924 gjw]
-+ BREAKING: Rename readmeUrl to docsUrl, update tooltip [1.1.0 20260923 jesscmoore]
++ Auto-login not block Continue if keyring unreadable [1.1.1 20260924 gjw]
++ BREAKING: Rename readmeUrl to docsUrl [1.1.0 20260923 jesscmoore]
 
 ## 1.0 Consolidate Android Login
 
