@@ -53,7 +53,7 @@ dependencies:
   rdf: ^1.0.0
   share_plus: ^13.3.0
   shared_preferences: ^2.5.5
-  solidpod: ^1.0.24
+  solidpod: ^1.1.0
   universal_io: ^2.3.1
   url_launcher: ^6.3.2
   version_widget: ^1.1.0
