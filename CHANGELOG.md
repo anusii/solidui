@@ -18,7 +18,7 @@ The package is available from
 
 + Apps can skip the login page when Continue is on [1.4.0 20261002 gjw]
 
-## 1.3
+## 1.3 Review and refine the security key popup at login
 
 + Login no longer asks for the security key twice [1.3.1 20261002 gjw]
 + Security key Cancel returns to the app, not a loop [1.3.0 20261002 gjw]
