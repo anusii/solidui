@@ -31,20 +31,22 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:solidui/src/utils/is_desktop.dart';
+import 'package:solidui/src/utils/solid_skip_login.dart';
 import 'package:solidui/src/widgets/solid_preferences_appbar_defaults.dart';
 import 'package:solidui/src/widgets/solid_preferences_button_order.dart';
 import 'package:solidui/src/widgets/solid_preferences_models.dart';
 import 'package:solidui/src/widgets/solid_preferences_notifier.dart';
+import 'package:solidui/src/widgets/solid_settings_login_section.dart';
 import 'package:solidui/src/widgets/solid_settings_menu_section.dart';
 import 'package:solidui/src/widgets/solid_settings_window_size_section.dart';
 
 /// A dialogue of user settings, one section for each group of them: the
-/// AppBar button order, where the menu sits on a narrow screen, and the size
-/// of the desktop window.
+/// AppBar button order, where the menu sits on a narrow screen, the size of
+/// the desktop window, and whether the login page is shown at start-up.
 ///
 /// A section appears only where it applies, so an app that has turned off the
-/// menu preferences, or one running on the web where there is no window to
-/// size, simply shows fewer sections. Adding a section here adds it to every
+/// menu preferences, one running on the web where there is no window to
+/// size, or one that requires a login, simply shows fewer sections. Adding a section here adds it to every
 /// solidui app.
 
 class SolidPreferencesDialog extends StatefulWidget {
@@ -105,6 +107,7 @@ class SolidPreferencesDialog extends StatefulWidget {
 class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   late List<SolidAppBarActionItem> _appBarActions;
   late bool _menuInBottomBar;
+  bool _showLoginPage = !SolidSkipLogin.skipping;
 
   // The window size section loads and applies its own values, so the dialogue
   // reaches it through its state rather than holding them here.
@@ -115,6 +118,10 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
   /// There is no window to size on the web or a phone.
 
   bool get _showWindowSection => isDesktop;
+
+  /// Only an app that offers CONTINUE has a login page to skip.
+
+  bool get _showLoginSection => SolidSkipLogin.offered;
 
   @override
   void initState() {
@@ -172,6 +179,8 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
       if (!saved) return;
     }
 
+    if (_showLoginSection) await SolidSkipLogin.setSkipping(!_showLoginPage);
+
     final newConfig = SolidPreferencesConfig(appBarActions: _appBarActions);
 
     solidPreferencesNotifier.setConfig(newConfig);
@@ -188,6 +197,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
     setState(() {
       _appBarActions = solidDefaultAppBarActions(_appBarActions);
       _menuInBottomBar = widget.scaffoldMenuInBottomBar;
+      _showLoginPage = !SolidSkipLogin.appDefault;
     });
 
     _windowSize.currentState?.restoreDefault();
@@ -239,6 +249,19 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
                 _sectionHeader(theme, 'Window Size'),
                 const SizedBox(height: 8),
                 SolidSettingsWindowSizeSection(key: _windowSize),
+              ],
+              if (_showLoginSection) ...[
+                _sectionDivider(
+                  widget.showAppBarSection ||
+                      widget.showMenuSection ||
+                      _showWindowSection,
+                ),
+                _sectionHeader(theme, 'Login Page'),
+                const SizedBox(height: 8),
+                SolidSettingsLoginSection(
+                  showLoginPage: _showLoginPage,
+                  onChanged: (value) => setState(() => _showLoginPage = value),
+                ),
               ],
             ],
           ),
