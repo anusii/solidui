@@ -47,11 +47,12 @@ import 'package:solidpod/solidpod.dart'
         tryRestoreSession;
 
 import 'package:solidui/src/constants/solid_config.dart';
-import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
+import 'package:solidui/src/utils/solid_skip_login.dart';
 import 'package:solidui/src/widgets/solid_login_actions.dart';
 import 'package:solidui/src/widgets/solid_login_asset_helper.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
+import 'package:solidui/src/widgets/solid_login_auto_config.dart';
 import 'package:solidui/src/widgets/solid_login_build_helper.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_login_panel.dart';
@@ -89,6 +90,7 @@ class SolidLogin extends StatefulWidget {
     required this.redirectUris,
     this.postLogoutRedirectUris = const [],
     this.autoLogin = true,
+    this.skipLogin = false,
     super.key,
   });
 
@@ -189,6 +191,15 @@ class SolidLogin extends StatefulWidget {
 
   final bool autoLogin;
 
+  /// When true, and CONTINUE is offered ([required] is false), the app starts
+  /// as though the user had tapped CONTINUE, without showing the login page.
+  ///
+  /// This is the app's default, off unless the app asks for it. Either way the
+  /// user can change it from the settings dialogue. Only the app's start-up is skipped: the login
+  /// page shown on logout, or to log in from within the app, always appears.
+
+  final bool skipLogin;
+
   @override
   State<SolidLogin> createState() => _SolidLoginState();
 }
@@ -233,6 +244,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _checkingAutoLogin = false;
 
+  /// Whether the login page is being skipped (shows a loading screen).
+
+  bool _skipping = false;
+
   /// Whether the user wishes to persist the login session across app restarts.
 
   bool _staySignedIn = true;
@@ -266,12 +281,11 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     SolidLoginAuthHandler.clearSessionIfRequired();
 
-    // If autoLogin is requested, attempt silent session restoration after the
-    // first frame so that context is available for navigation.
+    // If autoLogin is requested, attempt silent session restoration, and skip
+    // the login page if asked to, after the first frame so that context is
+    // available for navigation.
 
-    if (widget.autoLogin) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _checkAutoLogin());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startUp());
 
     // dc 20251022: please explain why calling an async without await.
 
@@ -299,26 +313,22 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // including button styles and theme so the login page appearance is
     // preserved across logout/re-login cycles.
 
-    SolidAuthHandler.instance.autoConfigureFromLogin(
-      title: widget.title,
-      appDirectory: widget.appDirectory,
-      webId: widget.webID,
-      image: widget.image,
-      logo: widget.logo,
-      link: widget.link,
-      child: widget.child,
-      loginButtonStyle: widget.loginButtonStyle,
-      continueButtonStyle: widget.continueButtonStyle,
-      registerButtonStyle: widget.registerButtonStyle,
-      infoButtonStyle: widget.infoButtonStyle,
-      changeKeyButtonStyle: widget.changeKeyButtonStyle,
-      themeConfig: widget.themeConfig,
-      snackbarConfig: widget.snackbarConfig,
+    autoConfigureAuthHandler(widget);
+  }
+
+  /// Restore a saved session if asked to, and otherwise, when the login page
+  /// is to be skipped, carry on into the app just as CONTINUE does.
+
+  Future<void> _startUp() async {
+    final skip = await SolidSkipLogin.atStartup(
       required: widget.required,
-      clientId: widget.clientId,
-      redirectUris: widget.redirectUris,
-      postLogoutRedirectUris: widget.postLogoutRedirectUris,
+      byDefault: widget.skipLogin,
     );
+    if (skip && mounted) setState(() => _skipping = true);
+
+    final restored = widget.autoLogin && await _checkAutoLogin();
+    if (skip && !restored && mounted) await _performContinue();
+    if (mounted) setState(() => _skipping = false);
   }
 
   /// Resolves the image and logo assets with fallback logic.
@@ -348,14 +358,15 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   }
 
   /// Attempts silent session restoration. On success navigates directly to
-  /// [widget.child]; on failure shows the login page as normal.
+  /// [widget.child]; on failure shows the login page as normal. Returns
+  /// whether a session was restored.
 
-  Future<void> _checkAutoLogin() async {
-    if (!mounted) return;
+  Future<bool> _checkAutoLogin() async {
+    if (!mounted) return false;
 
     // Honour the "Stay signed in" opt-out — if disabled, skip auto-login.
     final staySignedIn = await SolidLoginAuthHandler.getStaySignedIn();
-    if (!staySignedIn || !mounted) return;
+    if (!staySignedIn || !mounted) return false;
 
     if (mounted) setState(() => _checkingAutoLogin = true);
 
@@ -387,13 +398,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       debugPrint('_checkAutoLogin: tryRestoreSession failed: $e');
       if (mounted) setState(() => _checkingAutoLogin = false);
 
-      return;
+      return false;
     }
 
-    if (!mounted) return;
+    if (!mounted) return false;
     if (session == null) {
       setState(() => _checkingAutoLogin = false);
-      return;
+      return false;
     }
 
     // 20260728 gjw Session restored. Previously we navigated straight to
@@ -414,10 +425,19 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     if (defaultFolders.isEmpty) await _loadDefaultStructure();
 
-    if (!mounted) return;
+    if (!mounted) return false;
     setState(() => _checkingAutoLogin = false);
+    await _performContinue();
 
-    await SolidLoginActions.performContinue(
+    return true;
+  }
+
+  /// The CONTINUE action, shared by the button, a restored session, and a
+  /// skipped login page.
+
+  Future<void> _performContinue() {
+    _resetDialogCanceledState();
+    return SolidLoginActions.performContinue(
       context: context,
       childWidget: widget.child,
       defaultFolders: defaultFolders,
@@ -543,7 +563,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // Show a loading indicator whilst assets are being resolved or an
     // auto-login check is in progress.
 
-    if (!_assetsResolved || _checkingAutoLogin) {
+    if (!_assetsResolved || _checkingAutoLogin || _skipping) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -583,19 +603,6 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       );
     }
 
-    Future<void> performContinue() {
-      _resetDialogCanceledState();
-      return SolidLoginActions.performContinue(
-        context: context,
-        childWidget: widget.child,
-        defaultFolders: defaultFolders,
-        defaultFiles: defaultFiles,
-        updateDialogCanceledState: updateState,
-        showSnackbar: _showSnackbar,
-        staySignedIn: _staySignedIn,
-      );
-    }
-
     Future<void> performTryAnotherAccount() =>
         SolidLoginActions.performTryAnotherAccount(
           context: context,
@@ -620,7 +627,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     final continueButton = SolidLoginBuildHelper.buildContinueButton(
       context: context,
       style: widget.continueButtonStyle,
-      performContinue: performContinue,
+      performContinue: _performContinue,
       focusNode: _continueFocusNode,
     );
 
