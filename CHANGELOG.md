@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.3
 
++ Login no longer asks for the security key twice [1.3.1 20261002 gjw]
 + Security key Cancel returns to the app, not a loop [1.3.0 20261002 gjw]
 
 ## 1.2 Custom Navigation Icons

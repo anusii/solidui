@@ -49,8 +49,6 @@ import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/utils/network_diagnosis.dart'
     show connectionFailureMessage, diagnoseConnection;
-import 'package:solidui/src/utils/solid_pod_helpers.dart'
-    show getKeyFromUserIfRequired;
 import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
@@ -483,12 +481,24 @@ class SolidLoginActions {
 
     if (!context.mounted) return;
 
-    // Ensure the security key has been fetched once logged in.
-
-    if (isLoggedIn) {
-      await getKeyFromUserIfRequired(context, childWidget);
-      if (!context.mounted) return;
-    }
+    // 20261002 gjw The security key is NOT asked for here any more.
+    //
+    // It used to be, and nothing below needs it — this only pushes the app.
+    // Meanwhile every app that unlocks on startup asks for the key again
+    // from its own scaffold's initState, so a fresh login put the prompt up
+    // TWICE: dismiss it, get replaced into the app, and be asked a second
+    // time. A restored session asked once, which is why it went unnoticed.
+    //
+    // Asking from the app rather than here is the better of the two in any
+    // case: this call could not act on the answer, having only
+    // `pushReplacement` left to do, whereas the app can fall back to its
+    // local store when the prompt is dismissed.
+    //
+    // An app that does NOT unlock on startup is unaffected in practice: the
+    // key is fetched by whichever operation first needs it, each of which
+    // calls getKeyFromUserIfRequired itself. Take care if you add a Pod read
+    // that does not — readPod does not prompt, it throws "You must first set
+    // the security key!".
 
     await pushReplacement(context, childWidget);
   }
