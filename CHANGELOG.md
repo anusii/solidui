@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.4 Skip Login
 
++ Button Order now shows icons only, names in tooltips [1.4.1 20261003 gjw]
 + Apps can skip the login page when Continue is on [1.4.0 20261002 gjw]
 
 ## 1.3 Review and refine the security key popup at login

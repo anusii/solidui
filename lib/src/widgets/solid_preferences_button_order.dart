@@ -217,29 +217,26 @@ class _SolidPreferencesButtonItemState
           index: widget.index,
           child: const Icon(Icons.drag_handle),
         ),
-        title: Row(
-          children: [
-            Icon(
+        // 20261003 gjw The button is identified by its icon alone, as on the
+        // AppBar itself, with its name in a tooltip. Showing the name as text
+        // squeezed it to a few letters a line on a phone, where the drag
+        // handle and the two toggles leave little width, and an app's own
+        // action is named by its tooltip, so its Markdown appeared raw. The
+        // tooltip is on the icon, not the drag handle, so it is not the one
+        // under the pointer during a drag.
+
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: MarkdownTooltip(
+            message: displayLabel,
+            child: Icon(
               displayIcon,
               size: 20,
               color: action.isVisible
                   ? null
                   : theme.colorScheme.onSurface.withValues(alpha: 0.38),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                displayLabel,
-                style: action.isVisible
-                    ? null
-                    : TextStyle(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.38,
-                        ),
-                      ),
-              ),
-            ),
-          ],
+          ),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
