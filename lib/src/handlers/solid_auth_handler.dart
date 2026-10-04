@@ -30,7 +30,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import 'package:solidpod/solidpod.dart' show getWebId;
+import 'package:solidpod/solidpod.dart'
+    show getWebId, isUserLoggedIn, silentLogout;
 
 import 'package:solidui/src/constants/solid_config.dart';
 import 'package:solidui/src/models/snackbar_config.dart';
@@ -312,17 +313,52 @@ class SolidAuthHandler {
   }
 
   /// Handle authentication action based on current login status.
+  ///
+  /// 20261004 gjw A STORED WEBID IS NOT A SESSION, and this used to treat it
+  /// as one. `getWebId()` reports only that a WebID sits in secure storage;
+  /// `isUserLoggedIn()` also requires an access token that is valid or can be
+  /// refreshed. Once a session dies the two part company, and branching on
+  /// the WebID alone sent the user to a logout confirmation — "Logout kt from
+  /// pods.example.org?" — under a tile reading "Not Logged In", which they
+  /// had tapped in order to log IN.
+  ///
+  /// Three states now, not two. The middle one is the one that was missing:
+  /// a WebID with no session behind it. Logging out is the right remedy
+  /// there, since it clears the dead credentials, but asking the user to
+  /// confirm a logout they did not request is not. So it is done silently
+  /// and the login screen follows, which is what they asked for.
+  ///
+  /// Clearing credentials unprompted is safe HERE, where the user has
+  /// explicitly asked to sign in, and only after isUserLoggedIn() has already
+  /// tried and failed to refresh. Do not copy this to a startup path: a
+  /// refresh can fail for reasons that do not mean the session is gone, and
+  /// Solid servers issue single-use refresh tokens.
 
   Future<void> handleAuthAction(BuildContext context) async {
     try {
       final webId = await getWebId();
       if (!context.mounted) return;
 
-      if (webId != null && webId.isNotEmpty) {
-        await handleLogout(context);
-      } else {
+      if (webId == null || webId.isEmpty) {
         await handleLogin(context);
+
+        return;
       }
+
+      if (await isUserLoggedIn()) {
+        if (!context.mounted) return;
+        await handleLogout(context);
+
+        return;
+      }
+
+      // A WebID that has outlived its session.
+
+      await silentLogout();
+      securityKeyNotifier.reset();
+      if (!context.mounted) return;
+
+      await handleLogin(context);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
