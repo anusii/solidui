@@ -35,8 +35,8 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show NotLoggedInException, getWebId, isUserLoggedIn;
 
-import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/utils/is_desktop.dart';
 import 'package:solidui/src/utils/snack_bar.dart';
