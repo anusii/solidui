@@ -35,6 +35,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show NotLoggedInException, getWebId, isUserLoggedIn;
 
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/handlers/solid_auth_handler.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/utils/is_desktop.dart';
@@ -80,6 +81,21 @@ class SolidScaffoldAppBarBuilder {
     bool enableOverflowMenu = true,
   }) {
     final profileEnabled = enableProfileOverride ?? config.enableProfile;
+
+    // 20261004 gjw Tint the drawer button while a session is live.
+    //
+    // On a narrow screen the status bar's "Logged In" is not visible and the
+    // navigation collapses to the hamburger, leaving nothing at all to say
+    // whether the app is connected to a Pod. This is that missing signal.
+    //
+    // Read from solidLoginStatusNotifier, NOT from a stored WebID. The
+    // notifier requires getWebId() AND isUserLoggedIn(), so it goes false the
+    // moment a session dies; a WebID alone would leave the icon claiming a
+    // connection that no longer works — the very confusion this release is
+    // fixing elsewhere. SolidScaffold listens to the notifier, so the bar is
+    // rebuilt when it changes.
+
+    final isLoggedIn = solidLoginStatusNotifier.isLoggedIn;
 
     // Publish the overflow setting so that downstream UI such as the
     // preferences dialogue (opened from the About dialogue) can read the
@@ -198,6 +214,17 @@ class SolidScaffoldAppBarBuilder {
       elevation: 0,
       scrolledUnderElevation: 0.5,
       automaticallyImplyLeading: isNarrowScreen,
+
+      // The drawer button only. actionsIconTheme is pinned to the ordinary
+      // foreground so the tint says "logged in" rather than colouring every
+      // icon in the bar, which would say nothing at all.
+
+      iconTheme: isLoggedIn
+          ? IconThemeData(color: Theme.of(context).colorScheme.primary)
+          : null,
+      actionsIconTheme: isLoggedIn
+          ? IconThemeData(color: Theme.of(context).appBarTheme.foregroundColor)
+          : null,
       actions: actions.isEmpty ? null : actions,
     );
   }

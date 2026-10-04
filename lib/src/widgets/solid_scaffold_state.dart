@@ -66,6 +66,19 @@ class SolidScaffoldState extends State<SolidScaffold> {
       if (widget.statusBar?.securityKeyStatus != null) {
         securityKeyNotifier.refreshStatus();
       }
+
+      // 20261004 gjw Resolve the login status here rather than relying on
+      // something else to do it.
+      //
+      // solidLoginStatusNotifier starts out false and is only refreshed by
+      // the status bar's SolidDynamicLoginStatus and by the login flows. An
+      // app that configures no status bar — or a narrow layout that does not
+      // render one — therefore left it false for the whole session, so the
+      // app bar's logged-in tint never appeared. Unconditional here, because
+      // the scaffold now reads that notifier whether or not a status bar
+      // exists.
+
+      solidLoginStatusNotifier.refreshStatus();
     });
     _loadCurrentWebId();
     if (widget.enableProfile) {
@@ -95,6 +108,17 @@ class SolidScaffoldState extends State<SolidScaffold> {
     }
     solidPreferencesNotifier.addListener(_onPreferencesChanged);
     widget.controller?.addListener(_onControllerChanged);
+
+    // 20261004 gjw The app bar tints its drawer button while a session is
+    // live, so the bar must rebuild when that changes. Without this the tint
+    // is whatever it happened to be when the scaffold was first built, and
+    // logging out would leave it still claiming a connection.
+
+    solidLoginStatusNotifier.addListener(_onLoginStatusChanged);
+  }
+
+  void _onLoginStatusChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _initializeNotifiers() async {
@@ -117,6 +141,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   @override
   void dispose() {
+    solidLoginStatusNotifier.removeListener(_onLoginStatusChanged);
     _securityKeyService?.removeListener(_onSecurityKeyChanged);
     if (_getUsesInternalManagement()) {
       solidThemeNotifier.removeListener(_onThemeChanged);
