@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.4 Skip Login
 
++ Avoid login page flash amd Pod check on start-up [1.4.5 20261007 gjw]
 + Menu icon lines turn wavy while logged in to a Pod [1.4.4 20261005 gjw]
 + Menu icon is tinted while logged in to a Pod [1.4.3 20261004 gjw]
 + Tapping login with a dead session now logs in [1.4.2 20261004 gjw]

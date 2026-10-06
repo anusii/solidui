@@ -248,6 +248,21 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
   bool _skipping = false;
 
+  /// Whether [SolidSkipLogin.atStartup] has answered yet.
+  ///
+  /// 20261007 gjw THE LOGIN PAGE MUST NOT BE BUILT BEFORE THIS IS TRUE. The
+  /// skip decision reads SharedPreferences, so it is not known for the first
+  /// few frames, while _resolveImageAssets races it. Whichever finishes
+  /// first, there was a window where _assetsResolved was true and _skipping
+  /// was still false — and build() took that to mean "show the login page".
+  /// An app with skipLogin: true therefore flashed the whole login screen,
+  /// and its spinner, before skipping it.
+  ///
+  /// Kept apart from _skipping because the two say different things: this is
+  /// "we know", that is "the answer was yes".
+
+  bool _skipDecided = false;
+
   /// Whether the user wishes to persist the login session across app restarts.
 
   bool _staySignedIn = true;
@@ -320,15 +335,53 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   /// is to be skipped, carry on into the app just as CONTINUE does.
 
   Future<void> _startUp() async {
-    final skip = await SolidSkipLogin.atStartup(
-      required: widget.required,
-      byDefault: widget.skipLogin,
-    );
-    if (skip && mounted) setState(() => _skipping = true);
+    // A failure here must still OPEN the gate. The decision reads
+    // SharedPreferences, which can throw, and build() holds a bare spinner
+    // until _skipDecided — so letting this escape would hang the app on a
+    // loading screen with no way forward. Not skipping is the safe answer:
+    // it shows the login page, which still offers CONTINUE.
 
-    final restored = widget.autoLogin && await _checkAutoLogin();
-    if (skip && !restored && mounted) await _performContinue();
-    if (mounted) setState(() => _skipping = false);
+    var skip = false;
+    try {
+      skip = await SolidSkipLogin.atStartup(
+        required: widget.required,
+        byDefault: widget.skipLogin,
+      );
+    } on Object catch (e) {
+      debugPrint('[SolidLogin] could not read the skip preference: $e');
+    }
+
+    // Set together, and whatever the answer: an app that is NOT skipping
+    // needs _skipDecided true just as much, or its login page would never
+    // be built at all.
+
+    if (mounted) {
+      setState(() {
+        _skipping = skip;
+        _skipDecided = true;
+      });
+    }
+
+    // 20261007 gjw _skipping IS CLEARED ONLY IF WE ARE STAYING HERE.
+    //
+    // _performContinue pushes the app over this page, but this widget is
+    // still mounted while that route transition runs. Clearing _skipping
+    // unconditionally therefore let build() draw the WHOLE LOGIN PAGE for
+    // those few frames, right at the end of start-up — the Continue and
+    // Info buttons visibly appearing and vanishing just before the app.
+    // That was the flash, and it is at the END of start-up, not the
+    // beginning.
+    //
+    // It cannot simply never be cleared. performContinue returns without
+    // pushing when the Pod structure check fails, and that user is being
+    // sent back to log in again — they need this page, not a spinner for
+    // ever. So the decision follows whether it actually pushed.
+
+    var pushed = widget.autoLogin && await _checkAutoLogin();
+    if (skip && !pushed && mounted) {
+      pushed = await _performContinue(silent: true);
+    }
+    if (!pushed && mounted) setState(() => _skipping = false);
   }
 
   /// Resolves the image and logo assets with fallback logic.
@@ -358,8 +411,12 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   }
 
   /// Attempts silent session restoration. On success navigates directly to
-  /// [widget.child]; on failure shows the login page as normal. Returns
-  /// whether a session was restored.
+  /// [widget.child]; on failure shows the login page as normal.
+  ///
+  /// Returns whether the app was PUSHED, which is not quite the same as
+  /// whether a session was restored: a restored session whose Pod fails the
+  /// structure check sends the user back to log in, and the caller has to
+  /// know that so it stops showing the loading screen.
 
   Future<bool> _checkAutoLogin() async {
     if (!mounted) return false;
@@ -427,15 +484,21 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
 
     if (!mounted) return false;
     setState(() => _checkingAutoLogin = false);
-    await _performContinue();
+    // Also silent: a session restored by itself is start-up too, and the
+    // user pressed nothing here either.
 
-    return true;
+    return _performContinue(silent: true);
   }
 
   /// The CONTINUE action, shared by the button, a restored session, and a
   /// skipped login page.
+  ///
+  /// [silent] for the two START-UP paths, where the user pressed nothing:
+  /// the Pod structure check then runs without putting a modal dialog over
+  /// the app. The button passes it false, because someone who taps CONTINUE
+  /// has asked for something and should see it happening.
 
-  Future<void> _performContinue() {
+  Future<bool> _performContinue({bool silent = false}) {
     _resetDialogCanceledState();
     return SolidLoginActions.performContinue(
       context: context,
@@ -445,6 +508,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       updateDialogCanceledState: updateState,
       showSnackbar: _showSnackbar,
       staySignedIn: _staySignedIn,
+      silent: silent,
     );
   }
 
@@ -563,7 +627,12 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // Show a loading indicator whilst assets are being resolved or an
     // auto-login check is in progress.
 
-    if (!_assetsResolved || _checkingAutoLogin || _skipping) {
+    if (solidLoginIsLoading(
+      skipDecided: _skipDecided,
+      assetsResolved: _assetsResolved,
+      checkingAutoLogin: _checkingAutoLogin,
+      skipping: _skipping,
+    )) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -705,3 +774,30 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     );
   }
 }
+
+/// Whether [SolidLogin] shows its loading screen rather than the login page.
+///
+/// 20261007 gjw A pure function, and tested as one, because the bug it now
+/// prevents was invisible to a widget test. The login page is only reachable
+/// once its assets have resolved, which does not happen in a bare test
+/// environment, so a test pumping SolidLogin passed just as happily WITH the
+/// defect as without it.
+///
+/// The defect: [skipDecided] did not exist, and the decision to skip reads
+/// SharedPreferences, so it arrives several frames late while asset
+/// resolution races it. Whenever the assets won that race there was a window
+/// with everything false, which this read as "show the login page" — and an
+/// app with skipLogin: true flashed the entire login screen, spinner and
+/// all, before skipping it.
+///
+/// [skipDecided] must therefore gate the page, and must be set whatever the
+/// answer: an app that is NOT skipping needs it just as much, or its login
+/// page would never be shown at all.
+
+bool solidLoginIsLoading({
+  required bool skipDecided,
+  required bool assetsResolved,
+  required bool checkingAutoLogin,
+  required bool skipping,
+}) =>
+    !skipDecided || !assetsResolved || checkingAutoLogin || skipping;

@@ -365,7 +365,11 @@ class SolidLoginActions {
   /// directories are missing, clear stale credentials and ask the user to
   /// re-login so the setup wizard can re-initialise the POD.
 
-  static Future<void> performContinue({
+  /// Returns whether the app was actually pushed over this page. False when
+  /// the Pod structure check sent the user back to log in again, which is
+  /// the caller's cue that the login page must be shown after all.
+
+  static Future<bool> performContinue({
     required BuildContext context,
     required Widget childWidget,
     required List<String> defaultFolders,
@@ -373,6 +377,7 @@ class SolidLoginActions {
     required VoidCallback updateDialogCanceledState,
     required LoginSnackbar showSnackbar,
     required bool staySignedIn,
+    bool silent = false,
   }) async {
     // When the user has opted out of staying signed in, discard any existing
     // cached session immediately so the user proceeds in a logged-out state.
@@ -413,19 +418,34 @@ class SolidLoginActions {
     }
 
     if (isLoggedIn && defaultFolders.isNotEmpty) {
-      if (!context.mounted) return;
+      if (!context.mounted) return false;
 
-      showAnimationDialog(
-        context,
-        7,
-        '',
-        // 20260410 gjw Replaced the original 'Verifying POD structure...'
-        // message with nothing. It suddenly started appearing when entering
-        // the app via CONTINUE while already logged in. Users probably do not
-        // need to know about this.
-        false,
-        updateDialogCanceledState,
-      );
+      // 20261007 gjw NOTHING MODAL WHEN NOBODY ASKED. [silent] is set on the
+      // start-up paths — a skipped login page, or a session restored by
+      // itself — where the user has pressed nothing and is simply opening
+      // the app. The structure check is a network round trip to the Pod, so
+      // this dialog, dots and a Cancel button and all, appeared over a grey
+      // scrim for as long as that took and then vanished. It read as a
+      // glitch, and the Cancel offered to abandon something the user had
+      // not started.
+      //
+      // The CHECK still runs, and still logs out and warns on an incomplete
+      // Pod. Only the dialog goes, so pressing CONTINUE yourself — where
+      // waiting is the expected answer to a button — is unchanged.
+
+      if (!silent) {
+        showAnimationDialog(
+          context,
+          7,
+          '',
+          // 20260410 gjw Replaced the original 'Verifying POD structure...'
+          // message with nothing. It suddenly started appearing when entering
+          // the app via CONTINUE while already logged in. Users probably do
+          // not need to know about this.
+          false,
+          updateDialogCanceledState,
+        );
+      }
 
       try {
         final resCheckList = await initialStructureTest(
@@ -434,16 +454,16 @@ class SolidLoginActions {
         );
         final allExists = resCheckList.first as bool;
 
-        if (!context.mounted) return;
+        if (!context.mounted) return false;
 
-        Navigator.of(context, rootNavigator: true).pop();
+        if (!silent) Navigator.of(context, rootNavigator: true).pop();
 
         if (!allExists) {
           await clearPodStructureInitialised();
           await silentLogout();
           solidLoginStatusNotifier.markLoggedOut();
 
-          if (!context.mounted) return;
+          if (!context.mounted) return false;
 
           showSnackbar(
             'Your POD directory structure is not initialised or is incomplete. '
@@ -451,14 +471,14 @@ class SolidLoginActions {
             duration: const Duration(seconds: 5),
           );
 
-          return;
+          return false;
         }
       } on Object catch (e) {
         debugPrint('Continue: POD structure check failed: $e');
 
-        if (!context.mounted) return;
+        if (!context.mounted) return false;
 
-        Navigator.of(context, rootNavigator: true).pop();
+        if (!silent) Navigator.of(context, rootNavigator: true).pop();
 
         // 20260915 gjw Probe the network so the message says whether the
         // device is offline, the server name cannot be looked up, or the
@@ -471,15 +491,15 @@ class SolidLoginActions {
           await diagnoseConnection(target),
         );
 
-        if (!context.mounted) return;
+        if (!context.mounted) return false;
 
         showSnackbar(message, duration: const Duration(seconds: 5));
 
-        return;
+        return false;
       }
     }
 
-    if (!context.mounted) return;
+    if (!context.mounted) return false;
 
     // 20261002 gjw The security key is NOT asked for here any more.
     //
@@ -501,6 +521,8 @@ class SolidLoginActions {
     // the security key!".
 
     await pushReplacement(context, childWidget);
+
+    return true;
   }
 
   /// Signs out silently, clears the POD structure flag, then starts a fresh
