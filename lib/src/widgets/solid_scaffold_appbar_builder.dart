@@ -189,7 +189,7 @@ class SolidScaffoldAppBarBuilder {
       );
     }
 
-    return AppBar(
+    final appBar = AppBar(
       title: Text(
         config.title,
         style: TextStyle(
@@ -226,6 +226,24 @@ class SolidScaffoldAppBarBuilder {
           ? IconThemeData(color: Theme.of(context).appBarTheme.foregroundColor)
           : null,
       actions: actions.isEmpty ? null : actions,
+    );
+
+    // 20261005 gjw The tint alone was too subtle a sign of being logged in, so
+    // the drawer button's three lines turn wavy while a session is live and
+    // are the ordinary straight lines otherwise. ActionIconTheme swaps only
+    // the glyph, so the button keeps its tooltip, semantics and tint. The
+    // wrapping is the same whether or not the user is logged in, so a change
+    // of state rebuilds rather than replaces the bar.
+
+    return PreferredSize(
+      preferredSize: appBar.preferredSize,
+      child: ActionIconTheme(
+        data: ActionIconThemeData(
+          drawerButtonIconBuilder:
+              isLoggedIn ? (_) => const Icon(Icons.water) : null,
+        ),
+        child: appBar,
+      ),
     );
   }
 }
