@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:solidui/src/widgets/solid_login.dart';
+import 'package:solidui/src/widgets/solid_login_loading.dart';
 
 /// The gate, with every flag at its "ready to show the login page" value.
 /// Each test then moves ONE of them.

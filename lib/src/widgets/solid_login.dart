@@ -55,6 +55,7 @@ import 'package:solidui/src/widgets/solid_login_auth_handler.dart';
 import 'package:solidui/src/widgets/solid_login_auto_config.dart';
 import 'package:solidui/src/widgets/solid_login_build_helper.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
+import 'package:solidui/src/widgets/solid_login_loading.dart';
 import 'package:solidui/src/widgets/solid_login_panel.dart';
 import 'package:solidui/src/widgets/solid_login_snackbar_helper.dart';
 import 'package:solidui/src/widgets/solid_login_theme_helper.dart';
@@ -483,11 +484,21 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     if (defaultFolders.isEmpty) await _loadDefaultStructure();
 
     if (!mounted) return false;
-    setState(() => _checkingAutoLogin = false);
+
     // Also silent: a session restored by itself is start-up too, and the
     // user pressed nothing here either.
+    //
+    // 20261008 gjw _checkingAutoLogin IS CLEARED ONLY IF WE ARE STAYING HERE,
+    // for the same reason as _skipping in _startUp. It used to be cleared
+    // before this call, so the whole login page was built for as long as the
+    // Pod structure check took, and then the app was pushed over it. An app
+    // without skipLogin (photopod) flashed its login page on every start-up
+    // with a cached session.
 
-    return _performContinue(silent: true);
+    final pushed = await _performContinue(silent: true);
+    if (!pushed && mounted) setState(() => _checkingAutoLogin = false);
+
+    return pushed;
   }
 
   /// The CONTINUE action, shared by the button, a restored session, and a
@@ -774,30 +785,3 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     );
   }
 }
-
-/// Whether [SolidLogin] shows its loading screen rather than the login page.
-///
-/// 20261007 gjw A pure function, and tested as one, because the bug it now
-/// prevents was invisible to a widget test. The login page is only reachable
-/// once its assets have resolved, which does not happen in a bare test
-/// environment, so a test pumping SolidLogin passed just as happily WITH the
-/// defect as without it.
-///
-/// The defect: [skipDecided] did not exist, and the decision to skip reads
-/// SharedPreferences, so it arrives several frames late while asset
-/// resolution races it. Whenever the assets won that race there was a window
-/// with everything false, which this read as "show the login page" — and an
-/// app with skipLogin: true flashed the entire login screen, spinner and
-/// all, before skipping it.
-///
-/// [skipDecided] must therefore gate the page, and must be set whatever the
-/// answer: an app that is NOT skipping needs it just as much, or its login
-/// page would never be shown at all.
-
-bool solidLoginIsLoading({
-  required bool skipDecided,
-  required bool assetsResolved,
-  required bool checkingAutoLogin,
-  required bool skipping,
-}) =>
-    !skipDecided || !assetsResolved || checkingAutoLogin || skipping;
