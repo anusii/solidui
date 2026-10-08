@@ -66,7 +66,7 @@ import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 class SolidLogin extends StatefulWidget {
   const SolidLogin({
     required this.child,
-    this.required = false,
+    @Deprecated(_requiredDeprecation) this.required,
     this.appDirectory = '',
     this.image = const AssetImage(
       'assets/images/default_image.jpg',
@@ -131,13 +131,20 @@ class SolidLogin extends StatefulWidget {
 
   final Widget child;
 
-  /// The default is to require a Solid Pod authentication.
-  ///
-  /// If the app provides functionality that does not or does not immediately
-  /// require access to Pod data then set this to false and a CONTINUE button
-  /// is available on the Login page.
+  /// Superseded by [continueButtonStyle], whose `visible` now decides whether
+  /// CONTINUE is offered. An explicit false still offers it, so apps written
+  /// for the old default keep their CONTINUE button until they migrate.
 
-  final bool required;
+  @Deprecated(_requiredDeprecation)
+  final bool? required;
+
+  /// Whether the login page offers CONTINUE, into the app without logging in.
+  ///
+  /// 20261008 gjw Off by default: the login page shows LOGIN and REGISTER
+  /// unless the app turns CONTINUE on. Being offered CONTINUE is also what
+  /// lets [skipLogin] skip the login page.
+
+  bool get offersContinue => continueButtonStyle.visible || required == false;
 
   /// Directory name to consider when storing app data.
 
@@ -192,7 +199,7 @@ class SolidLogin extends StatefulWidget {
 
   final bool autoLogin;
 
-  /// When true, and CONTINUE is offered ([required] is false), the app starts
+  /// When true, and CONTINUE is offered ([offersContinue]), the app starts
   /// as though the user had tapped CONTINUE, without showing the login page.
   ///
   /// This is the app's default, off unless the app asks for it. Either way the
@@ -345,7 +352,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     var skip = false;
     try {
       skip = await SolidSkipLogin.atStartup(
-        required: widget.required,
+        offersContinue: widget.offersContinue,
         byDefault: widget.skipLogin,
       );
     } on Object catch (e) {
@@ -749,16 +756,10 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       webIdController: webIdController,
       buttons: [
         if (widget.loginButtonStyle.visible) loginButton,
-        // When required=false, Continue is always shown — it is the primary
-        // path for non-mandatory login. When required=true, Register appears
-        // here and respects its own visible flag.
-        if (widget.required ? widget.registerButtonStyle.visible : true)
-          widget.required ? registerButton : continueButton,
-        if (!widget.required && widget.registerButtonStyle.visible)
-          registerButton,
+        if (widget.offersContinue) continueButton,
+        if (widget.registerButtonStyle.visible) registerButton,
         if (widget.infoButtonStyle.visible) infoButton,
       ],
-      isRequired: widget.required,
       currentTheme: _currentTheme,
       serverInputFocusNode: _serverInputFocusNode,
       onServerSubmitted: performLogin,
@@ -785,3 +786,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     );
   }
 }
+
+const _requiredDeprecation =
+    'Use continueButtonStyle: ContinueButtonStyle(visible: true) to offer '
+    'CONTINUE. It is hidden by default.';

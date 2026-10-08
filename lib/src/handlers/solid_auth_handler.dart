@@ -151,7 +151,7 @@ class SolidAuthHandler {
   ChangeKeyButtonStyle? _cachedChangeKeyButtonStyle;
   SolidLoginTheme? _cachedThemeConfig;
   SnackbarConfig? _cachedSnackbarConfig;
-  bool _cachedRequired = false;
+  bool? _cachedRequired;
 
   SolidAuthHandler._internal();
 
@@ -189,7 +189,7 @@ class SolidAuthHandler {
     ChangeKeyButtonStyle? changeKeyButtonStyle,
     SolidLoginTheme? themeConfig,
     SnackbarConfig? snackbarConfig,
-    bool required = false,
+    bool? required,
   }) {
     _cachedTitle = title;
     _cachedAppDirectory = appDirectory;

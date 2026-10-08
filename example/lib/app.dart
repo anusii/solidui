@@ -58,8 +58,9 @@ class App extends StatelessWidget {
         image: AssetImage('assets/images/demopod_image.png'),
         logo: AssetImage('assets/images/demopod_logo.png'),
         link: 'https://github.com/anusii/solidpod/blob/main/demopod/README.md',
-        required: false,
+        continueButtonStyle: ContinueButtonStyle(visible: true),
         infoButtonStyle: InfoButtonStyle(
+          visible: true,
           tooltip: 'Visit the DemoPod documentation.',
         ),
         clientId: clientIdVal,

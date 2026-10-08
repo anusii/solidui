@@ -199,9 +199,12 @@ class PodButton extends StatelessWidget {
   }
 }
 
+/// The CONTINUE button, into the app without logging in. Hidden unless the
+/// app asks for it with `visible: true`.
+
 class ContinueButtonStyle {
   const ContinueButtonStyle({
-    this.visible = true,
+    this.visible = false,
     this.text = defaultContinueButtonText,
     this.background = defaultButtonBackground,
     this.foreground = defaultButtonForeground,
@@ -255,9 +258,12 @@ class RegisterButtonStyle {
   final String tooltip;
 }
 
+/// The INFO button, linking to the app's documentation. Hidden unless the app
+/// asks for it with `visible: true`.
+
 class InfoButtonStyle {
   const InfoButtonStyle({
-    this.visible = true,
+    this.visible = false,
     this.text = defaultInfoButtonText,
     this.background = defaultButtonBackground,
     this.foreground = defaultButtonForeground,

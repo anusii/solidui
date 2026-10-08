@@ -72,7 +72,7 @@ void main() {
   group('SolidSkipLogin.atStartup', () {
     test('skips by the app default when CONTINUE is offered', () async {
       expect(
-        await SolidSkipLogin.atStartup(required: false, byDefault: true),
+        await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true),
         isTrue,
       );
       expect(SolidSkipLogin.offered, isTrue);
@@ -80,7 +80,7 @@ void main() {
 
     test('shows the login page when the app default says so', () async {
       expect(
-        await SolidSkipLogin.atStartup(required: false, byDefault: false),
+        await SolidSkipLogin.atStartup(offersContinue: true, byDefault: false),
         isFalse,
       );
       expect(SolidSkipLogin.offered, isTrue);
@@ -88,7 +88,7 @@ void main() {
 
     test('never skips, nor offers to, when a login is required', () async {
       expect(
-        await SolidSkipLogin.atStartup(required: true, byDefault: true),
+        await SolidSkipLogin.atStartup(offersContinue: false, byDefault: true),
         isFalse,
       );
       expect(SolidSkipLogin.offered, isFalse);
@@ -98,16 +98,16 @@ void main() {
       SharedPreferences.setMockInitialValues({SolidSkipLogin.skipPref: false});
 
       expect(
-        await SolidSkipLogin.atStartup(required: false, byDefault: true),
+        await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true),
         isFalse,
       );
     });
 
     test('decides only once, so a re-login page is never skipped', () async {
-      await SolidSkipLogin.atStartup(required: false, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true);
 
       expect(
-        await SolidSkipLogin.atStartup(required: false, byDefault: true),
+        await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true),
         isFalse,
       );
     });
@@ -115,7 +115,7 @@ void main() {
 
   group('SolidSkipLogin.setSkipping', () {
     test('keeps a choice that differs from the app default', () async {
-      await SolidSkipLogin.atStartup(required: false, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true);
       await SolidSkipLogin.setSkipping(false);
 
       final prefs = await SharedPreferences.getInstance();
@@ -125,7 +125,7 @@ void main() {
 
     test('forgets a choice that matches the app default', () async {
       SharedPreferences.setMockInitialValues({SolidSkipLogin.skipPref: false});
-      await SolidSkipLogin.atStartup(required: false, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true);
       await SolidSkipLogin.setSkipping(true);
 
       final prefs = await SharedPreferences.getInstance();
@@ -135,7 +135,7 @@ void main() {
 
   group('Login Page settings section', () {
     testWidgets('is left out when the app requires a login', (tester) async {
-      await SolidSkipLogin.atStartup(required: true, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: false, byDefault: true);
       await _pump(tester);
 
       expect(find.text('Login Page'), findsNothing);
@@ -143,7 +143,7 @@ void main() {
     });
 
     testWidgets('appears, off, when the app skips by default', (tester) async {
-      await SolidSkipLogin.atStartup(required: false, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true);
       await _pump(tester);
 
       expect(find.text('Login Page'), findsOneWidget);
@@ -151,7 +151,7 @@ void main() {
     });
 
     testWidgets('Save keeps the choice to show the login page', (tester) async {
-      await SolidSkipLogin.atStartup(required: false, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true);
       await _pump(tester);
 
       await tester.ensureVisible(find.byType(SolidSettingsLoginSection));
@@ -165,7 +165,7 @@ void main() {
 
     testWidgets('Default restores the app default', (tester) async {
       SharedPreferences.setMockInitialValues({SolidSkipLogin.skipPref: false});
-      await SolidSkipLogin.atStartup(required: false, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: true, byDefault: true);
       await _pump(tester);
 
       expect(_shown(tester), isTrue);

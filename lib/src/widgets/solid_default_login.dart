@@ -109,9 +109,10 @@ class SolidDefaultLogin extends StatelessWidget {
 
   final SnackbarConfig? snackbarConfig;
 
-  /// Whether Solid POD authentication is mandatory.
+  /// Superseded by [continueButtonStyle]; passed on to [SolidLogin.required].
 
-  final bool required;
+  @Deprecated(_requiredDeprecation)
+  final bool? required;
 
   /// URL of the app's client profile JSON-LD document. Required parameter.
 
@@ -144,7 +145,7 @@ class SolidDefaultLogin extends StatelessWidget {
     this.changeKeyButtonStyle,
     this.themeConfig,
     this.snackbarConfig,
-    this.required = false,
+    @Deprecated(_requiredDeprecation) this.required,
     required this.clientId,
     required this.redirectUris,
     this.postLogoutRedirectUris = const [],
@@ -272,3 +273,7 @@ class _RootNavigatorState extends State<_RootNavigator> {
     );
   }
 }
+
+const _requiredDeprecation =
+    'Use continueButtonStyle: ContinueButtonStyle(visible: true) to offer '
+    'CONTINUE. It is hidden by default.';

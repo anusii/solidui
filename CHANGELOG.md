@@ -14,6 +14,10 @@ The package is available from
 
 [//]: # (au]&#40;https://solidcommunity.au/docs/solidui&#41;)
 
+## 1.5 Login and Register
+
++ Login page shows only LOGIN and REGISTER by default [1.5.0 20261008 gjw]
+
 ## 1.4 Skip Login
 
 + No login page flash when a cached session is restored [1.4.6 20261008 gjw]

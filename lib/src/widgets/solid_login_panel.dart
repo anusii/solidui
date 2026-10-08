@@ -48,7 +48,6 @@ class SolidLoginPanel {
     required String appVersion,
     required TextEditingController webIdController,
     required List<Widget> buttons,
-    required bool isRequired,
     required SolidLoginThemeMode currentTheme,
     FocusNode? serverInputFocusNode,
     VoidCallback? onServerSubmitted,

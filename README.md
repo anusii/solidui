@@ -1040,7 +1040,7 @@ SolidLogin({
   // Authentication
   List<String> postLogoutRedirectUris = const [], // Redirect URIs after logout (optional)
   bool autoLogin = false,           // Silently restore saved session on startup
-  bool required = false,            // false adds a CONTINUE button (no-auth path)
+  bool skipLogin = false,           // Start as though CONTINUE was tapped
 
   // Appearance
   AssetImage image,                 // Left-panel / background image
@@ -1049,7 +1049,7 @@ SolidLogin({
   String webID,                     // Pre-filled server/WebID field value
   String link = 'https://solidproject.org', // URL opened by the info button
 
-  // Button styles
+  // Button styles (CONTINUE and INFO are hidden unless visible: true)
   LoginButtonStyle loginButtonStyle,
   RegisterButtonStyle registerButtonStyle,
   ContinueButtonStyle continueButtonStyle,
@@ -1070,6 +1070,19 @@ SolidLogin({
 `tryRestoreSession()` on startup and navigates directly to `child` if a
 valid persisted session is found. Falls back to the login page if no
 session exists or the user has opted out of "Stay signed in".
+
+**Buttons** - the login page shows LOGIN and REGISTER by default. An app
+that can be used without logging in turns CONTINUE on, and INFO opens
+`link`:
+
+```dart
+continueButtonStyle: ContinueButtonStyle(visible: true),
+infoButtonStyle: InfoButtonStyle(visible: true),
+```
+
+**`skipLogin`** - when `true`, and CONTINUE is on, the app starts as
+though CONTINUE had been tapped. `required: false`, which used to turn
+CONTINUE on, is deprecated but still does so.
 
 ### SolidPopupLogin
 

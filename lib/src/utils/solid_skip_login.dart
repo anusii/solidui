@@ -35,8 +35,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Skip the login page at start-up, going straight into the app exactly as
 /// though the user had tapped CONTINUE.
 ///
-/// Only an app that offers CONTINUE (a `SolidLogin` with `required: false`)
-/// can skip. The app chooses the default through `SolidLogin.skipLogin`, and
+/// Only an app that offers CONTINUE (`SolidLogin.offersContinue`) can skip. The app chooses the default through `SolidLogin.skipLogin`, and
 /// the user can override it from the Login Page section of the settings
 /// dialogue. The choice is a device preference, kept in SharedPreferences.
 ///
@@ -75,16 +74,16 @@ class SolidSkipLogin {
   /// Decide, once per run, whether to skip the login page.
   ///
   /// Returns true only on the first call, and only when the app offers
-  /// CONTINUE ([required] is false) and skipping is the user's choice or,
+  /// CONTINUE ([offersContinue]) and skipping is the user's choice or,
   /// failing that, the app's default [byDefault].
 
   static Future<bool> atStartup({
-    required bool required,
+    required bool offersContinue,
     required bool byDefault,
   }) async {
     if (_decided) return false;
     _decided = true;
-    if (required) return false;
+    if (!offersContinue) return false;
 
     _appDefault = byDefault;
     final prefs = await SharedPreferences.getInstance();
