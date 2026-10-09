@@ -35,9 +35,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Skip the login page at start-up, going straight into the app exactly as
 /// though the user had tapped CONTINUE.
 ///
-/// Only an app that offers CONTINUE (`SolidLogin.offersContinue`) can skip. The app chooses the default through `SolidLogin.skipLogin`, and
-/// the user can override it from the Login Page section of the settings
+/// Only an app that can be used without a Pod can skip: one that asks to
+/// through `SolidLogin.skipLogin`, or that offers CONTINUE
+/// (`SolidLogin.offersContinue`). `skipLogin` is the app's default, and the
+/// user can override it from the Login Page section of the settings
 /// dialogue. The choice is a device preference, kept in SharedPreferences.
+///
+/// 20261009 gjw Skipping no longer needs CONTINUE. It used to, so an app
+/// with skipLogin: true but CONTINUE hidden (solidui 1.5.0's default) showed
+/// its login page anyway. CONTINUE is on its way out, and `skipLogin` is
+/// already the app saying it runs without a Pod.
 ///
 /// The decision is made once, by the first `SolidLogin` of the run. The login
 /// page an app returns to on logout, or opens to log in from within the app,
@@ -58,8 +65,9 @@ class SolidSkipLogin {
 
   static bool _skipping = false;
 
-  /// Whether the app offers CONTINUE, and so whether there is anything for
-  /// the settings dialogue to offer.
+  /// Whether the app can be used without a Pod, and so whether there is
+  /// anything for the settings dialogue to offer, and a way out of the login
+  /// page for its close button.
 
   static bool get offered => _appDefault != null;
 
@@ -73,9 +81,9 @@ class SolidSkipLogin {
 
   /// Decide, once per run, whether to skip the login page.
   ///
-  /// Returns true only on the first call, and only when the app offers
-  /// CONTINUE ([offersContinue]) and skipping is the user's choice or,
-  /// failing that, the app's default [byDefault].
+  /// Returns true only on the first call, and only when the app can be used
+  /// without a Pod ([byDefault] or [offersContinue]) and skipping is the
+  /// user's choice or, failing that, the app's default [byDefault].
 
   static Future<bool> atStartup({
     required bool offersContinue,
@@ -83,7 +91,7 @@ class SolidSkipLogin {
   }) async {
     if (_decided) return false;
     _decided = true;
-    if (!offersContinue) return false;
+    if (!offersContinue && !byDefault) return false;
 
     _appDefault = byDefault;
     final prefs = await SharedPreferences.getInstance();

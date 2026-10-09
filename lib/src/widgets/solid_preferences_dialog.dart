@@ -119,7 +119,7 @@ class _SolidPreferencesDialogState extends State<SolidPreferencesDialog> {
 
   bool get _showWindowSection => isDesktop;
 
-  /// Only an app that offers CONTINUE has a login page to skip.
+  /// Only an app that can be used without a Pod has a login page to skip.
 
   bool get _showLoginSection => SolidSkipLogin.offered;
 

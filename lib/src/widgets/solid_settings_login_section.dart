@@ -37,7 +37,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 ///
 /// The value is held by the enclosing dialogue, which saves it through
 /// `SolidSkipLogin`. The dialogue shows this section only for an app that
-/// offers CONTINUE.
+/// can be used without a Pod.
 
 class SolidSettingsLoginSection extends StatelessWidget {
   /// Whether the login page is shown at start-up.
@@ -70,7 +70,7 @@ class SolidSettingsLoginSection extends StatelessWidget {
             **Show the login page**
 
             When on, the app opens on its login page, from where you can log
-            in to your Solid Pod or continue without one. When off, the app
+            in to your Solid Pod or carry on without one. When off, the app
             opens straight into its own pages, as though you had chosen to
             continue. You are still logged in automatically if you chose to
             stay signed in.

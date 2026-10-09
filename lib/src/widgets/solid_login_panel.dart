@@ -33,6 +33,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:solidui/src/widgets/solid_login_close_button.dart';
 import 'package:solidui/src/widgets/solid_login_helper.dart';
 import 'package:solidui/src/widgets/solid_server_field.dart';
 
@@ -146,16 +147,24 @@ class SolidLoginPanel {
     );
   }
 
-  /// Builds the login panel with theme toggle.
+  /// Builds the login panel with theme toggle, and a close button at the
+  /// top left when [onClose] is given.
 
   static Widget buildPanelWithThemeToggle({
     required Widget panelContent,
     required ThemeMode currentThemeMode,
     required VoidCallback onThemeToggle,
+    VoidCallback? onClose,
   }) {
     return Stack(
       children: [
         panelContent,
+        if (onClose != null)
+          Positioned(
+            top: 10,
+            left: 10,
+            child: SolidLoginCloseButton(onPressed: onClose),
+          ),
         Positioned(
           top: 10,
           right: 10,

@@ -86,9 +86,17 @@ void main() {
       expect(SolidSkipLogin.offered, isTrue);
     });
 
-    test('never skips, nor offers to, when a login is required', () async {
+    test('skips by the app default without CONTINUE', () async {
       expect(
         await SolidSkipLogin.atStartup(offersContinue: false, byDefault: true),
+        isTrue,
+      );
+      expect(SolidSkipLogin.offered, isTrue);
+    });
+
+    test('never skips, nor offers to, when a login is required', () async {
+      expect(
+        await SolidSkipLogin.atStartup(offersContinue: false, byDefault: false),
         isFalse,
       );
       expect(SolidSkipLogin.offered, isFalse);
@@ -135,7 +143,7 @@ void main() {
 
   group('Login Page settings section', () {
     testWidgets('is left out when the app requires a login', (tester) async {
-      await SolidSkipLogin.atStartup(offersContinue: false, byDefault: true);
+      await SolidSkipLogin.atStartup(offersContinue: false, byDefault: false);
       await _pump(tester);
 
       expect(find.text('Login Page'), findsNothing);

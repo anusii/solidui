@@ -141,8 +141,9 @@ class SolidLogin extends StatefulWidget {
   /// Whether the login page offers CONTINUE, into the app without logging in.
   ///
   /// 20261008 gjw Off by default: the login page shows LOGIN and REGISTER
-  /// unless the app turns CONTINUE on. Being offered CONTINUE is also what
-  /// lets [skipLogin] skip the login page.
+  /// unless the app turns CONTINUE on. Being offered CONTINUE also lets the
+  /// user choose to skip the login page from the settings dialogue, even
+  /// when [skipLogin] is false.
 
   bool get offersContinue => continueButtonStyle.visible || required == false;
 
@@ -199,12 +200,15 @@ class SolidLogin extends StatefulWidget {
 
   final bool autoLogin;
 
-  /// When true, and CONTINUE is offered ([offersContinue]), the app starts
-  /// as though the user had tapped CONTINUE, without showing the login page.
+  /// When true the app starts as though the user had tapped CONTINUE,
+  /// without showing the login page, whether or not CONTINUE is offered
+  /// ([offersContinue]).
   ///
-  /// This is the app's default, off unless the app asks for it. Either way the
-  /// user can change it from the settings dialogue. Only the app's start-up is skipped: the login
-  /// page shown on logout, or to log in from within the app, always appears.
+  /// This is the app's default, off unless the app asks for it. Either way
+  /// the user can change it from the settings dialogue. Only the app's
+  /// start-up is skipped: the login page shown on logout, or to log in from
+  /// within the app, always appears, with a close button back into the app
+  /// when CONTINUE is not shown.
 
   final bool skipLogin;
 
@@ -347,7 +351,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // SharedPreferences, which can throw, and build() holds a bare spinner
     // until _skipDecided — so letting this escape would hang the app on a
     // loading screen with no way forward. Not skipping is the safe answer:
-    // it shows the login page, which still offers CONTINUE.
+    // it shows the login page, which still offers CONTINUE or close.
 
     var skip = false;
     try {
@@ -767,10 +771,18 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       tryAnotherAccountButton: tryAnotherAccountButton,
     );
 
+    // 20261009 gjw The close button is the way back into an app that runs
+    // without a Pod when there is no CONTINUE button to tap. It tests the
+    // button's visibility rather than offersContinue, since the deprecated
+    // required: false offers CONTINUE without the button being drawn.
+
     final loginPanelDecor = SolidLoginPanel.buildPanelWithThemeToggle(
       panelContent: loginPanelContent,
       currentThemeMode: solidThemeNotifier.themeMode,
       onThemeToggle: _toggleTheme,
+      onClose: SolidSkipLogin.offered && !widget.continueButtonStyle.visible
+          ? _performContinue
+          : null,
     );
 
     final loginPanel = SolidLoginPanel.buildCompletePanel(
