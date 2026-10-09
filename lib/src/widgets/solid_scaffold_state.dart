@@ -119,6 +119,13 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   void _onLoginStatusChanged() {
     if (mounted) setState(() {});
+
+    // 20261009 gjw Logging in or out swaps the Pod's profile for the one kept
+    // on this device, so the avatar shows which of the two is in force.
+
+    if (widget.enableProfile) {
+      SolidProfileService.instance.loadProfile(ifOwnerChanged: true);
+    }
   }
 
   Future<void> _initializeNotifiers() async {

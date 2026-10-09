@@ -48,6 +48,12 @@ import 'package:solidui/src/services/solid_profile_notifier.dart';
 
 /// Persists the last-seen avatar and display name locally, keyed by WebID,
 /// so they can be displayed immediately at startup before the Pod responds.
+///
+/// 20261009 gjw A null WebID is the profile kept on this device for when
+/// nobody is logged in. It is the only copy of that profile, not a cache of
+/// one on a Pod, so [clear] on logout leaves it in place. Keeping the two
+/// apart gives the logged-in and logged-out states different pictures, a
+/// visual cue to which one is in force.
 
 class SolidProfileCache {
   SolidProfileCache._();
@@ -61,32 +67,37 @@ class SolidProfileCache {
   static const String _avatarKeyPrefix = 'solidui_profile_avatar_';
   static const String _nameKeyPrefix = 'solidui_profile_name_';
 
+  // The key suffix for the profile kept on this device. A WebID is a URL, so
+  // it can never be this.
+
+  static const String _localKey = 'local';
+
   // Remember the WebID we last cached for so that [clear] can remove the
   // entries after logout, when getWebId() no longer returns a value.
 
   String? _lastWebId;
 
-  /// Populates [notifier] from the local cache for the logged-in WebID.
-  /// Only fills fields the notifier does not already have, so a fresher
-  /// in-memory value is never overwritten by a stale cached one.
+  /// Populates [notifier] from the local cache for [webId], or from the
+  /// profile kept on this device when [webId] is null. Only fills fields the
+  /// notifier does not already have, so a fresher in-memory value is never
+  /// overwritten by a stale cached one.
 
-  Future<void> prime(SolidProfileNotifier notifier) async {
+  Future<void> prime(SolidProfileNotifier notifier, String? webId) async {
     try {
-      final webId = await getWebId();
-      if (webId == null) return;
-      _lastWebId = webId;
+      if (webId != null) _lastWebId = webId;
+      final id = webId ?? _localKey;
 
       final prefs = await SharedPreferences.getInstance();
 
       if (!notifier.hasAvatar) {
-        final b64 = prefs.getString('$_avatarKeyPrefix$webId');
+        final b64 = prefs.getString('$_avatarKeyPrefix$id');
         if (b64 != null && b64.isNotEmpty) {
           notifier.setAvatar(base64Decode(b64));
         }
       }
 
       if (!notifier.hasDisplayName) {
-        final name = prefs.getString('$_nameKeyPrefix$webId');
+        final name = prefs.getString('$_nameKeyPrefix$id');
         if (name != null && name.trim().isNotEmpty) {
           notifier.setDisplayName(name);
         }
@@ -96,17 +107,15 @@ class SolidProfileCache {
     }
   }
 
-  /// Stores [bytes] as the cached avatar for the logged-in WebID, or
-  /// removes the cached avatar when [bytes] is null or empty.
+  /// Stores [bytes] as the avatar for [webId] (null for this device), or
+  /// removes it when [bytes] is null or empty.
 
-  Future<void> writeAvatar(Uint8List? bytes) async {
+  Future<void> writeAvatar(Uint8List? bytes, String? webId) async {
     try {
-      final webId = await getWebId();
-      if (webId == null) return;
-      _lastWebId = webId;
+      if (webId != null) _lastWebId = webId;
 
       final prefs = await SharedPreferences.getInstance();
-      final key = '$_avatarKeyPrefix$webId';
+      final key = '$_avatarKeyPrefix${webId ?? _localKey}';
       if (bytes == null || bytes.isEmpty) {
         await prefs.remove(key);
       } else {
@@ -117,17 +126,15 @@ class SolidProfileCache {
     }
   }
 
-  /// Stores [name] as the cached display name for the logged-in WebID, or
-  /// removes it when [name] is null or blank.
+  /// Stores [name] as the display name for [webId] (null for this device),
+  /// or removes it when [name] is null or blank.
 
-  Future<void> writeDisplayName(String? name) async {
+  Future<void> writeDisplayName(String? name, String? webId) async {
     try {
-      final webId = await getWebId();
-      if (webId == null) return;
-      _lastWebId = webId;
+      if (webId != null) _lastWebId = webId;
 
       final prefs = await SharedPreferences.getInstance();
-      final key = '$_nameKeyPrefix$webId';
+      final key = '$_nameKeyPrefix${webId ?? _localKey}';
       if (name == null || name.trim().isEmpty) {
         await prefs.remove(key);
       } else {

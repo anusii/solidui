@@ -65,6 +65,17 @@ class SolidProfileService {
 
   bool _initialised = false;
 
+  /// Whose profile the notifier holds: a WebID, '' for the profile kept on
+  /// this device, or null before the first load.
+
+  String? _loadedFor;
+
+  /// The logged-in WebID, or null when nobody is logged in and the profile
+  /// is the one kept on this device.
+
+  Future<String?> _owner() async =>
+      await isUserLoggedIn() ? await getWebId() : null;
+
   // URL helpers.
 
   Future<String> _profileDirUrl() async {
@@ -131,8 +142,27 @@ class SolidProfileService {
 
   // Load.
 
-  Future<void> loadProfile() async {
-    if (!await isUserLoggedIn()) return;
+  /// Loads the profile for whoever is logged in, or the one kept on this
+  /// device when nobody is.
+  ///
+  /// 20261009 gjw [ifOwnerChanged] for a change of login state, which the
+  /// scaffold reports even when its own start-up load is already showing
+  /// the right profile; reloading then would repeat every Pod round trip.
+
+  Future<void> loadProfile({bool ifOwnerChanged = false}) async {
+    final webId = await _owner();
+    final owner = webId ?? '';
+    if (ifOwnerChanged && owner == _loadedFor) return;
+
+    // Another owner's picture must not linger while this one loads.
+
+    if (owner != _loadedFor) solidProfileNotifier.clear();
+    _loadedFor = owner;
+
+    if (webId == null) {
+      await SolidProfileCache.instance.prime(solidProfileNotifier, null);
+      return;
+    }
 
     solidProfileNotifier.isLoading = true;
 
@@ -142,7 +172,7 @@ class SolidProfileService {
     // Pod load below then refreshes the notifier (and the cache) with
     // the authoritative data.
 
-    await SolidProfileCache.instance.prime(solidProfileNotifier);
+    await SolidProfileCache.instance.prime(solidProfileNotifier, webId);
 
     try {
       await ensureProfileFolder();
@@ -155,8 +185,8 @@ class SolidProfileService {
 
       await Future.wait([
         _syncPrivacyFromPod(),
-        _loadAvatar(),
-        _loadDisplayName(),
+        _loadAvatar(webId),
+        _loadDisplayName(webId),
       ]);
     } catch (e) {
       debugPrint('SolidProfileService.loadProfile: $e');
@@ -176,14 +206,14 @@ class SolidProfileService {
     }
   }
 
-  Future<void> _loadAvatar() async {
+  Future<void> _loadAvatar(String webId) async {
     final url = await _avatarUrl();
     if (await checkResourceStatus(url) != ResourceStatus.exist) {
       // 20260718 gjw The avatar was removed on the Pod (e.g. from another
       // device), so drop any cached copy the prime step may have shown.
 
       solidProfileNotifier.setAvatar(null);
-      await SolidProfileCache.instance.writeAvatar(null);
+      await SolidProfileCache.instance.writeAvatar(null, webId);
       return;
     }
 
@@ -191,17 +221,17 @@ class SolidProfileService {
       final ttl = await readPod(url, pathType: PathType.absoluteUrl);
       final bytes = extractAvatarBytes(ttl);
       solidProfileNotifier.setAvatar(bytes);
-      await SolidProfileCache.instance.writeAvatar(bytes);
+      await SolidProfileCache.instance.writeAvatar(bytes, webId);
     } catch (e) {
       debugPrint('SolidProfileService._loadAvatar: $e');
     }
   }
 
-  Future<void> _loadDisplayName() async {
+  Future<void> _loadDisplayName(String webId) async {
     final url = await _displayNameUrl();
     if (await checkResourceStatus(url) != ResourceStatus.exist) {
       solidProfileNotifier.setDisplayName(null);
-      await SolidProfileCache.instance.writeDisplayName(null);
+      await SolidProfileCache.instance.writeDisplayName(null, webId);
       return;
     }
 
@@ -210,7 +240,7 @@ class SolidProfileService {
       final name = extractDisplayName(ttl);
       if (name != null) {
         solidProfileNotifier.setDisplayName(name);
-        await SolidProfileCache.instance.writeDisplayName(name);
+        await SolidProfileCache.instance.writeDisplayName(name, webId);
       }
     } catch (e) {
       debugPrint('SolidProfileService._loadDisplayName: $e');
@@ -219,10 +249,19 @@ class SolidProfileService {
 
   // Save avatar.
 
-  /// Writes [pngBytes] as the profile picture on the POD and updates the
-  /// notifier. The bytes must be valid PNG data.
+  /// Writes [pngBytes] as the profile picture on the POD, or on this device
+  /// when nobody is logged in, and updates the notifier. The bytes must be
+  /// valid PNG data.
 
   Future<void> saveAvatar(Uint8List pngBytes) async {
+    final webId = await _owner();
+    if (webId != null) await _writeAvatarToPod(pngBytes);
+
+    solidProfileNotifier.setAvatar(pngBytes);
+    await SolidProfileCache.instance.writeAvatar(pngBytes, webId);
+  }
+
+  Future<void> _writeAvatarToPod(Uint8List pngBytes) async {
     await ensureProfileFolder();
     final url = await _avatarUrl();
     final ttl = buildAvatarTtl(await getWebId() ?? '', pngBytes);
@@ -236,18 +275,17 @@ class SolidProfileService {
       createAcl: false,
       overwrite: exists,
     );
-
-    solidProfileNotifier.setAvatar(pngBytes);
-    await SolidProfileCache.instance.writeAvatar(pngBytes);
   }
 
   // Delete avatar.
 
-  /// Removes the profile picture from the POD.
+  /// Removes the profile picture from the POD, or from this device when
+  /// nobody is logged in.
 
   Future<void> deleteAvatar() async {
-    final url = await _avatarUrl();
-    if (await checkResourceStatus(url) == ResourceStatus.exist) {
+    final webId = await _owner();
+    final url = webId == null ? null : await _avatarUrl();
+    if (url != null && await checkResourceStatus(url) == ResourceStatus.exist) {
       await deleteResource(url, ResourceContentType.turtleText);
 
       final aclUrl = '$url.acl';
@@ -256,14 +294,23 @@ class SolidProfileService {
       }
     }
     solidProfileNotifier.setAvatar(null);
-    await SolidProfileCache.instance.writeAvatar(null);
+    await SolidProfileCache.instance.writeAvatar(null, webId);
   }
 
   // Save display name.
 
-  /// Persists [name] as the user's display name on the POD as linked data.
+  /// Persists [name] as the user's display name on the POD as linked data,
+  /// or on this device when nobody is logged in.
 
   Future<void> saveDisplayName(String name) async {
+    final webId = await _owner();
+    if (webId != null) await _writeDisplayNameToPod(name);
+
+    solidProfileNotifier.setDisplayName(name);
+    await SolidProfileCache.instance.writeDisplayName(name, webId);
+  }
+
+  Future<void> _writeDisplayNameToPod(String name) async {
     await ensureProfileFolder();
     final url = await _displayNameUrl();
     final ttl = buildDisplayNameTtl(await getWebId() ?? '', name);
@@ -277,9 +324,6 @@ class SolidProfileService {
       createAcl: false,
       overwrite: exists,
     );
-
-    solidProfileNotifier.setDisplayName(name);
-    await SolidProfileCache.instance.writeDisplayName(name);
   }
 
   // Privacy preference.
@@ -323,6 +367,7 @@ class SolidProfileService {
 
   void clearCache() {
     _initialised = false;
+    _loadedFor = null;
     solidProfileNotifier.clear();
 
     // 20260718 gjw Fire-and-forget: the local wipe needs no ordering

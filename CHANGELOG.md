@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Separate profile pictures when logged in and logged out [1.5.2 20261009 gjw]
 + Skip login without CONTINUE, close button on login page [1.5.1 20261009 gjw]
 + Login page shows only LOGIN and REGISTER by default [1.5.0 20261008 gjw]
 

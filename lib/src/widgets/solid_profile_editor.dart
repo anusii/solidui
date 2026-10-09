@@ -34,13 +34,15 @@ import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
 
+import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/services/solid_profile_notifier.dart';
 import 'package:solidui/src/services/solid_profile_service.dart';
 import 'package:solidui/src/widgets/solid_profile_avatar.dart';
 import 'package:solidui/src/widgets/solid_profile_crop_dialog.dart';
 
 /// A dialog that lets the user upload/change/delete a profile picture and
-/// set a display name. Changes are persisted to the user's Solid POD.
+/// set a display name. Changes are persisted to the user's Solid POD, or to
+/// this device when nobody is logged in.
 
 class SolidProfileEditor extends StatefulWidget {
   const SolidProfileEditor({super.key});
@@ -331,7 +333,20 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
               // private as well. Users may opt in to a public profile if
               // they want their display name and avatar to be discoverable.
 
-              _buildPrivacySelector(theme),
+              //
+              // 20261009 gjw Logged out, the profile is kept on this device and
+              // there is no Pod for the choice to apply to.
+
+              if (solidLoginStatusNotifier.isLoggedIn)
+                _buildPrivacySelector(theme)
+              else
+                Text(
+                  'Saved on this device. Log in to keep a profile on your POD.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
 
               const SizedBox(height: 24),
 
