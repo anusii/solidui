@@ -132,8 +132,9 @@ class SolidLogin extends StatefulWidget {
   final Widget child;
 
   /// Superseded by [continueButtonStyle], whose `visible` now decides whether
-  /// CONTINUE is offered. An explicit false still offers it, so apps written
-  /// for the old default keep their CONTINUE button until they migrate.
+  /// CONTINUE is shown. An explicit false still counts towards
+  /// [offersContinue], so the user can choose to skip the login page from the
+  /// settings dialogue.
 
   @Deprecated(_requiredDeprecation)
   final bool? required;
@@ -760,7 +761,13 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
       webIdController: webIdController,
       buttons: [
         if (widget.loginButtonStyle.visible) loginButton,
-        if (widget.offersContinue) continueButton,
+        // 20261009 gjw The style's own flag, not offersContinue: the builder
+        // returns an empty box when it is off, and an empty box here still
+        // takes a place in the two-per-row grid, pushing REGISTER onto a row
+        // of its own. The deprecated required: false offers CONTINUE only in
+        // the sense of the close button and the settings dialogue.
+
+        if (widget.continueButtonStyle.visible) continueButton,
         if (widget.registerButtonStyle.visible) registerButton,
         if (widget.infoButtonStyle.visible) infoButton,
       ],
