@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Skip login without CONTINUE, close button on login page [1.5.1 20261009 gjw]
 + Login page shows only LOGIN and REGISTER by default [1.5.0 20261008 gjw]
 
 ## 1.4 Skip Login
