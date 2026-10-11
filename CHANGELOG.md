@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Bump solidpod 1.1.1 [1.5.4 20261011 gjw]
 + Login and Register share a row when CONTINUE is hidden [1.5.3 20261009 gjw]
 + Separate profile pictures when logged in and logged out [1.5.2 20261009 gjw]
 + Skip login without CONTINUE, close button on login page [1.5.1 20261009 gjw]
