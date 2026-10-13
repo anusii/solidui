@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Keep the security key after a Session Expired login [1.5.6 20261013 gjw]
 + Bump file_picker 13.1.0 [1.5.5 20261011 gjw]
 + Bump solidpod 1.1.1 [1.5.4 20261011 gjw]
 + Login and Register share a row when CONTINUE is hidden [1.5.3 20261009 gjw]

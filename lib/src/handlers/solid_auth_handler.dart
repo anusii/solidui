@@ -328,6 +328,8 @@ class SolidAuthHandler {
   /// confirm a logout they did not request is not. So it is done silently
   /// and the login screen follows, which is what they asked for.
   ///
+  /// The security key is NOT cleared with them: see the note at the call.
+  ///
   /// Clearing credentials unprompted is safe HERE, where the user has
   /// explicitly asked to sign in, and only after isUserLoggedIn() has already
   /// tried and failed to refresh. Do not copy this to a startup path: a
@@ -353,8 +355,14 @@ class SolidAuthHandler {
       }
 
       // A WebID that has outlived its session.
+      //
+      // 20261013 gjw Keep the cached security key. The user is renewing a
+      // session, almost always for the same account, and having to type
+      // the key again after every Session Expired was the complaint. A
+      // different account is still safe: the key is checked against its
+      // POD and forgotten if it does not match.
 
-      await silentLogout();
+      await silentLogout(keepSecurityKey: true);
       securityKeyNotifier.reset();
       if (!context.mounted) return;
 
