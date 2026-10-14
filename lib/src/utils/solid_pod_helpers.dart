@@ -147,6 +147,13 @@ Future<bool> getKeyFromUserIfRequired(
   Widget child,
 ) async {
   if (await KeyManager.hasSecurityKey()) {
+    // 20261014 gjw Tell the status bar too. It only otherwise learns of a key
+    // from its one check as the scaffold is first drawn, which can run before
+    // the session is ready, so a key already saved went on showing as not
+    // saved until something else happened to check again.
+
+    securityKeyNotifier.updateStatus(true);
+
     return true;
   } else {
     // 20260728 gjw Before prompting, confirm the POD actually holds a

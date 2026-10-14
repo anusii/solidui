@@ -34,6 +34,8 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart';
 
+import 'package:solidui/src/services/solid_security_key_notifier.dart'
+    show securityKeyNotifier;
 import 'package:solidui/src/utils/solid_pod_helpers.dart';
 
 /// Central manager for security key operations to prevent duplicate prompts.
@@ -102,6 +104,11 @@ class SolidSecurityKeyCentralManager {
 
       if (hasKey) {
         //debugPrint('⚠️ Security key found, no prompt needed');
+
+        // 20261014 gjw Update the status bar the moment the key is known, as
+        // getKeyFromUserIfRequired does. This path never reaches it.
+
+        securityKeyNotifier.updateStatus(true);
         _keyVerified = true;
         _verificationCompleter!.complete(true);
         return true;

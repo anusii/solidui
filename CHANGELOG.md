@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Show a saved security key in the status bar at once [1.5.7 20261014 gjw]
 + Keep the security key after a Session Expired login [1.5.6 20261013 gjw]
 + Bump file_picker 13.1.0 [1.5.5 20261011 gjw]
 + Bump solidpod 1.1.1 [1.5.4 20261011 gjw]
