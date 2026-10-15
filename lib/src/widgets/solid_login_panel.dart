@@ -100,7 +100,7 @@ class SolidLoginPanel {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(child: buttons[i]),
-                    // Make button sizes similar for 1, 2, 3, and 4 
+                    // Make button sizes similar for 1, 2, 3, and 4
                     // button layouts.
                     const SizedBox(width: 15.0),
                     if (i + 1 < buttons.length)
