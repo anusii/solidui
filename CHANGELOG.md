@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Login page buttons are all the same width [1.5.8 20261015 av]
 + Show a saved security key in the status bar at once [1.5.7 20261014 gjw]
 + Keep the security key after a Session Expired login [1.5.6 20261013 gjw]
 + Bump file_picker 13.1.0 [1.5.5 20261011 gjw]
