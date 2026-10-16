@@ -51,7 +51,7 @@ class IndWebIdInputScreen extends StatefulWidget {
     super.key,
   });
 
-  /// Map of data files on a user's POD used to extract the
+  /// Map of data files on a user's Pod used to extract the
   /// user's recipient list by the WebIdTextInputScreen.
   /// If not provided, the file list must be read to obtain
   /// the user's recipient list used in the WebIdTextInputScreen.

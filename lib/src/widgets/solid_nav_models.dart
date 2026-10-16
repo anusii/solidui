@@ -180,9 +180,9 @@ class SolidNavUserInfo {
 
   final SolidVersionConfig? versionConfig;
 
-  /// Whether to enable the POD-backed profile feature (avatar + display name).
+  /// Whether to enable the Pod-backed profile feature (avatar + display name).
   /// When true, the nav drawer header and app bar will show the profile
-  /// avatar from the POD and allow editing via the profile editor.
+  /// avatar from the Pod and allow editing via the profile editor.
 
   final bool enableProfile;
 
@@ -458,9 +458,17 @@ class SolidAppBarConfig {
 
   final bool alwaysShowOverflowMenu;
 
-  /// Whether to show the POD-backed profile avatar in the app bar.
+  /// Whether to show the Pod-backed profile avatar in the app bar.
 
   final bool enableProfile;
+
+  /// Reloads the app's data from the Pod, returning true when it changed.
+  ///
+  /// When given, the profile menu offers Refresh from Pod, above Change Pod
+  /// Password and only while logged in, and reports the outcome in a dialog.
+  /// See [handleSolidPodRefresh].
+
+  final Future<bool> Function()? onRefreshFromPod;
 
   const SolidAppBarConfig({
     required this.title,
@@ -475,6 +483,7 @@ class SolidAppBarConfig {
     this.defaultOverflowActionIds = const {},
     this.alwaysShowOverflowMenu = false,
     this.enableProfile = false,
+    this.onRefreshFromPod,
   });
 
   /// Whether actions marked for the overflow menu go into it, rather than

@@ -361,9 +361,9 @@ class SolidLoginActions {
   /// Performs the continue flow.
   ///
   /// When the user taps Continue with an existing cached session, verify the
-  /// remote POD directory structure before proceeding. If the remote
+  /// remote Pod directory structure before proceeding. If the remote
   /// directories are missing, clear stale credentials and ask the user to
-  /// re-login so the setup wizard can re-initialise the POD.
+  /// re-login so the setup wizard can re-initialise the Pod.
 
   /// Returns whether the app was actually pushed over this page. False when
   /// the Pod structure check sent the user back to log in again, which is
@@ -387,7 +387,7 @@ class SolidLoginActions {
       solidLoginStatusNotifier.markLoggedOut();
     }
 
-    // 20260924 gjw CONTINUE MEANS "USE THE APP WITHOUT A POD", so an
+    // 20260924 gjw CONTINUE MEANS "USE THE APP WITHOUT A Pod", so an
     // unreadable keyring must not stop it.
     //
     // isUserLoggedIn() reads secure storage. This used to show the
@@ -438,7 +438,7 @@ class SolidLoginActions {
           context,
           7,
           '',
-          // 20260410 gjw Replaced the original 'Verifying POD structure...'
+          // 20260410 gjw Replaced the original 'Verifying Pod structure...'
           // message with nothing. It suddenly started appearing when entering
           // the app via CONTINUE while already logged in. Users probably do
           // not need to know about this.
@@ -466,15 +466,15 @@ class SolidLoginActions {
           if (!context.mounted) return false;
 
           showSnackbar(
-            'Your POD directory structure is not initialised or is incomplete. '
-            'Please log in to initialise your POD.',
+            'Your Pod directory structure is not initialised or is incomplete. '
+            'Please log in to initialise your Pod.',
             duration: const Duration(seconds: 5),
           );
 
           return false;
         }
       } on Object catch (e) {
-        debugPrint('Continue: POD structure check failed: $e');
+        debugPrint('Continue: Pod structure check failed: $e');
 
         if (!context.mounted) return false;
 
@@ -486,7 +486,7 @@ class SolidLoginActions {
 
         final target = await getWebId() ?? '';
         final message = connectionFailureMessage(
-          'Unable to check your POD.',
+          'Unable to check your Pod.',
           target,
           await diagnoseConnection(target),
         );
@@ -525,7 +525,7 @@ class SolidLoginActions {
     return true;
   }
 
-  /// Signs out silently, clears the POD structure flag, then starts a fresh
+  /// Signs out silently, clears the Pod structure flag, then starts a fresh
   /// login flow so the user can sign in with a different WebID.
 
   static Future<void> performTryAnotherAccount({

@@ -78,7 +78,7 @@ Future<void> showGrantPermissionErrorDialog(
 }
 
 /// Handles the case where granting failed because one or more
-/// recipients have not yet set up their POD. When an
+/// recipients have not yet set up their Pod. When an
 /// [SolidInviteOthersConfig] is provided, the user is offered a
 /// follow-up option to send the application's invitation directly.
 /// Otherwise the original snackbar behaviour is kept so existing call
@@ -91,7 +91,7 @@ Future<void> handleNotInitialisedRecipients(
   if (inviteConfig == null) {
     await showGrantPermissionErrorDialog(
       context,
-      'Recipient POD not initialised',
+      'Recipient Pod not initialised',
       podNotInitMsg,
     );
     return;
@@ -101,7 +101,7 @@ Future<void> handleNotInitialisedRecipients(
   final shouldInvite = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: const Text('Recipient has not set up a POD'),
+      title: const Text('Recipient has not set up a Pod'),
       // Cap the message column at ~90 characters (within the 80–100
       // character convention used by the shared [alert] helper) so the
       // dialog reads comfortably on wide desktop windows rather than
@@ -112,7 +112,7 @@ Future<void> handleNotInitialisedRecipients(
         ),
         child: const Text(
           'One or more of the WebIDs you entered have not yet '
-          'initialised their POD. Ask them to log in once to set up '
+          'initialised their Pod. Ask them to log in once to set up '
           'their data vault — then you can grant access. Would you '
           'like to send them an invitation now?',
         ),
@@ -125,7 +125,7 @@ Future<void> handleNotInitialisedRecipients(
 
           Dismiss this dialog without sending an invitation. You
           can grant access again once the recipient has logged
-          into the app and set up their POD.
+          into the app and set up their Pod.
 
           ''',
           child: TextButton(
@@ -199,7 +199,7 @@ Future<bool> confirmPublicSharingDecryption(
             const SizedBox(height: 12),
             const Text(
               'If this file is currently encrypted, it will be decrypted in '
-              'your POD so that the new recipients can read its contents. '
+              'your Pod so that the new recipients can read its contents. '
               'The plaintext will be written back to the same URL, replacing '
               'the encrypted copy at rest.',
             ),
@@ -233,7 +233,7 @@ Future<bool> confirmPublicSharingDecryption(
 
           **Share Publicly**
 
-          Decrypt this file in your POD and grant the Public class the
+          Decrypt this file in your Pod and grant the Public class the
           selected permissions. After this, anyone with the file URL can
           read its contents.
 
@@ -242,7 +242,7 @@ Future<bool> confirmPublicSharingDecryption(
 
           **Share with Signed-In Users**
 
-          Decrypt this file in your POD and grant the Authenticated User
+          Decrypt this file in your Pod and grant the Authenticated User
           class the selected permissions. After this, any signed-in Data
           Vault user can read its contents.
 

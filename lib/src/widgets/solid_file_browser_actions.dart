@@ -202,7 +202,7 @@ extension _BrowserActions on SolidFileBrowserState {
   /// points to [currentPath].
   ///
   /// This prevents the Back / Forward buttons from navigating into
-  /// directories that no longer exist on the POD.
+  /// directories that no longer exist on the Pod.
 
   void _purgeDeletedPathsFromHistory(List<String> deletedPaths) {
     if (deletedPaths.isEmpty) return;
@@ -233,7 +233,7 @@ extension _BrowserActions on SolidFileBrowserState {
   ///
   /// If the user provides [widget.onCreateFolder], it is invoked as a
   /// custom override. Otherwise the built-in flow is used: a dialog prompts
-  /// for the folder name, the container is created on the POD via
+  /// for the folder name, the container is created on the Pod via
   /// [createContainer] from solidpod, and the directory listing is refreshed.
 
   Future<void> handleCreateFolder() async {
@@ -262,7 +262,7 @@ extension _BrowserActions on SolidFileBrowserState {
       return;
     }
 
-    // Create the container on the POD.
+    // Create the container on the Pod.
 
     if (!mounted) return;
     updateState(() => isLoading = true);

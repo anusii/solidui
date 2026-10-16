@@ -1,4 +1,4 @@
-// A screen to demonstrate the data sharing capabilities of PODs.
+// A screen to demonstrate the data sharing capabilities of Pods.
 ///
 // Time-stamp: <Friday 2026-02-06 08:48:15 +1100 Graham Williams>
 ///
@@ -125,7 +125,7 @@ class GrantPermissionUi extends StatefulWidget {
 
   final bool showAppBar;
 
-  /// The boolean to decide whether the resources is from an external POD or not
+  /// The boolean to decide whether the resources is from an external Pod or not
 
   final bool isExternalRes;
 
@@ -170,7 +170,7 @@ class GrantPermissionUi extends StatefulWidget {
 
   final bool isFile;
 
-  /// Map of data files on a user's POD used to extract the
+  /// Map of data files on a user's Pod used to extract the
   /// user's recipient list by the WebIdTextInputScreen.
   /// If not provided, the WebIdTextInputScreen will read the
   /// user's files in their app data folder on their Pod to
@@ -209,7 +209,7 @@ class GrantPermissionUi extends StatefulWidget {
 
   /// Optional Invite Others configuration. When provided, the share
   /// permission flow offers an "Invite this user" follow-up if the
-  /// recipient has not yet initialised their POD.
+  /// recipient has not yet initialised their Pod.
 
   final SolidInviteOthersConfig? inviteConfig;
 

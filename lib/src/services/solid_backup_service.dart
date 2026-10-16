@@ -1,4 +1,4 @@
-/// Backup and restore of an app's POD data folder as a single portable file.
+/// Backup and restore of an app's Pod data folder as a single portable file.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -100,8 +100,8 @@ const String _kdfInfoFingerprint = 'solidui-backup/v1/fingerprint';
 
 // Service.
 
-/// Exports and imports the current application's POD data folder as a single
-/// compressed, encrypted backup file that can be restored onto the same POD or
+/// Exports and imports the current application's Pod data folder as a single
+/// compressed, encrypted backup file that can be restored onto the same Pod or
 /// a different one.
 ///
 /// The design follows five rules drawn from the feature specification:
@@ -111,7 +111,7 @@ const String _kdfInfoFingerprint = 'solidui-backup/v1/fingerprint';
 ///   3. The header stores a one-way fingerprint of the export security key so
 ///      a user-supplied key can be verified without ever revealing the key.
 ///   4. The payload stays encrypted and the whole file is compressed.
-///   5. Import re-encrypts the data with the destination POD's own security
+///   5. Import re-encrypts the data with the destination Pod's own security
 ///      key before uploading, overwriting the data folder's contents.
 
 class SolidBackupService {
@@ -293,7 +293,7 @@ class SolidBackupService {
   }
 
   /// Whether a backup with [header] was created by the application currently
-  /// running, comparing the POD-independent [SolidBackupHeader.appId].
+  /// running, comparing the Pod-independent [SolidBackupHeader.appId].
 
   Future<bool> isSameApplication(SolidBackupHeader header) async {
     final currentAppId = await _currentAppId();
@@ -313,12 +313,12 @@ class SolidBackupService {
 
   // Import.
 
-  /// Restore a backup onto the current POD.
+  /// Restore a backup onto the current Pod.
   ///
   /// Steps, mirroring the specification's import workflow:
   ///   1. The file is already decompressed by [inspect] to obtain [header].
   ///   2. Decrypt the payload with [originalKey] (the key used at export time).
-  ///   3. Re-encrypt each file with [currentKey] (the destination POD's key).
+  ///   3. Re-encrypt each file with [currentKey] (the destination Pod's key).
   ///   4. Upload the re-encrypted files, overwriting the data folder.
   ///
   /// [currentKey] is verified against the destination app's own encryption
@@ -415,7 +415,7 @@ class SolidBackupService {
           // takes solidpod's own delete. Otherwise: getDirUrl() returns the
           // data folder URL with a trailing slash, so appending the
           // data-relative path yields the file's absolute URL (getFileUrl()
-          // would instead resolve against the POD root).
+          // would instead resolve against the Pod root).
 
           if (podFile.large) {
             await deleteLargeFile(remoteFilePath: podFile.path);
@@ -470,7 +470,7 @@ class SolidBackupService {
   // Internal helpers.
 
   // The canonical app identifier is the first segment of the data directory
-  // path. It is the same on every POD, which is what lets an import tell
+  // path. It is the same on every Pod, which is what lets an import tell
   // whether two backups came from the same app.
 
   Future<String> _currentAppId() async {
@@ -484,13 +484,13 @@ class SolidBackupService {
 
   // Restore a chunked large file. writeLargeFile() streams from a local file
   // and refuses to overwrite, so the backup's bytes go to a temporary file and
-  // any existing copy on the POD is removed first. The upload re-encrypts with
-  // the destination POD's own key, as for every other restored file.
+  // any existing copy on the Pod is removed first. The upload re-encrypts with
+  // the destination Pod's own key, as for every other restored file.
   //
-  // [replacing] says whether this file is actually on the destination POD.
+  // [replacing] says whether this file is actually on the destination Pod.
   // Deleting unconditionally still works -- solidpod treats a missing file as
   // a no-op -- but it spends two requests per file and reports every absent
-  // one, which on a fresh POD is one "does not exist" line per attachment.
+  // one, which on a fresh Pod is one "does not exist" line per attachment.
 
   Future<void> _restoreLargeFile(
     _BackupEntry entry, {
@@ -519,8 +519,8 @@ class SolidBackupService {
   //
   // writeLargeFile() creates its chunk directory by POSTing to the parent
   // container, so that parent must already exist -- unlike writePod(), which
-  // creates missing containers on the way down. Restoring onto a POD that has
-  // never held one of these files (a different POD, or one whose data folder
+  // creates missing containers on the way down. Restoring onto a Pod that has
+  // never held one of these files (a different Pod, or one whose data folder
   // was cleared) therefore fails the POST with a 404, which is why an import
   // could restore every ordinary file and no large one.
 

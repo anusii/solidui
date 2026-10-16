@@ -1,4 +1,4 @@
-/// Avatar widget that visually distinguishes between POD owners by showing
+/// Avatar widget that visually distinguishes between Pod owners by showing
 /// (in priority order) their profile picture, name initials, WebID initials,
 /// or a placeholder icon.
 ///

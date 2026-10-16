@@ -360,7 +360,7 @@ class SolidAuthHandler {
       // session, almost always for the same account, and having to type
       // the key again after every Session Expired was the complaint. A
       // different account is still safe: the key is checked against its
-      // POD and forgotten if it does not match.
+      // Pod and forgotten if it does not match.
 
       await silentLogout(keepSecurityKey: true);
       securityKeyNotifier.reset();

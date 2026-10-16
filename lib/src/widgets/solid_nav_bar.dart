@@ -37,7 +37,7 @@ import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidui/src/constants/navigation.dart';
 import 'package:solidui/src/widgets/solid_nav_models.dart';
 
-/// A reusable navigation rail component designed for Solid POD applications.
+/// A reusable navigation rail component designed for Solid Pod applications.
 ///
 /// This widget provides a left-side navigation rail that can be easily
 /// integrated into different applications built for Solid Pods.

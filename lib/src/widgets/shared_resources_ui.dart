@@ -1,4 +1,4 @@
-/// A screen to demonstrate the data sharing capabilities of PODs.
+/// A screen to demonstrate the data sharing capabilities of Pods.
 ///
 // Time-stamp: <Sunday 2024-06-24 11:26:00 +1000 Anushka Vidange>
 ///

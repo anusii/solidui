@@ -77,7 +77,7 @@ String? webIdCheckMessage(WebIdCheckResult result, {String webId = ''}) {
       final urlPart = webId.isEmpty ? 'The URL' : 'The URL "$webId"';
       return '$urlPart is reachable but does not point to a Solid WebID '
           'profile document. Make sure you are entering a WebID from a '
-          'Solid POD (e.g. https://<their-pod>/profile/card#me), not the '
+          'Solid Pod (e.g. https://<their-pod>/profile/card#me), not the '
           'address of an ordinary website.';
 
     case WebIdCheckStatus.notExist:

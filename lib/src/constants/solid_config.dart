@@ -1,4 +1,4 @@
-/// Solid POD configuration constants.
+/// Solid Pod configuration constants.
 ///
 /// Copyright (C) 2025, Software Innovation Institute, ANU.
 ///
@@ -30,10 +30,10 @@ library;
 
 import 'package:flutter/material.dart';
 
-/// Configuration constants for Solid POD servers.
+/// Configuration constants for Solid Pod servers.
 
 class SolidConfig {
-  /// Default production Solid POD server URL.
+  /// Default production Solid Pod server URL.
 
   static const String defaultServerUrl = 'https://pods.solidcommunity.au';
 

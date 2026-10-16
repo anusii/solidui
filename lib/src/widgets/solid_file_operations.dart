@@ -117,7 +117,7 @@ class SolidFileOperations {
     }
   }
 
-  /// Handles the download and decryption of files from the POD.
+  /// Handles the download and decryption of files from the Pod.
 
   @Deprecated(
     'Use SolidFileDownloadOperations.downloadFile with PathType.relativeToPod',
@@ -181,7 +181,7 @@ class SolidFileOperations {
     }
   }
 
-  /// Handles file deletion from the POD.
+  /// Handles file deletion from the Pod.
 
   @Deprecated(
     'Use SolidFileDeleteOperations.deletePodFile with PathType.relativeToPod',

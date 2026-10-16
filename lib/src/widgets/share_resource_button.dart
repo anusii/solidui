@@ -92,7 +92,7 @@ class ShareResourceButton extends StatefulWidget {
 
   final List<String> recipientTypeList;
 
-  /// Map of data files on a user's POD used to extract the
+  /// Map of data files on a user's Pod used to extract the
   /// user's recipient list by the WebIdTextInputScreen.
   /// If not provided, the WebIdTextInputScreen will read the
   /// user's files in their app data folder on their Pod to
@@ -119,7 +119,7 @@ class ShareResourceButton extends StatefulWidget {
   final Color? buttonColor;
 
   /// Optional Invite Others configuration. When provided, the
-  /// "POD not initialised" error path inside the Grant Permission
+  /// "Pod not initialised" error path inside the Grant Permission
   /// form offers a follow-up option to invite the recipient to the
   /// application.
 

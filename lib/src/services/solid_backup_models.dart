@@ -56,15 +56,15 @@ class SolidBackupHeader {
 
   final int formatVersion;
 
-  /// The canonical application identifier (the app's POD folder name), used to
+  /// The canonical application identifier (the app's Pod folder name), used to
   /// verify that a backup was created by the same application even when it
-  /// originated on a different POD (which changes [appUrl]).
+  /// originated on a different Pod (which changes [appUrl]).
 
   final String appId;
 
   /// The full URL of the source app's data folder at export time. Kept for
-  /// display and provenance; cross-POD verification relies on [appId], which is
-  /// derived from this URL and is POD-independent.
+  /// display and provenance; cross-Pod verification relies on [appId], which is
+  /// derived from this URL and is Pod-independent.
 
   final String appUrl;
 
@@ -130,7 +130,7 @@ class SolidBackupImport {
     required this.skipped,
   });
 
-  /// The number of files written (re-encrypted) to the destination POD.
+  /// The number of files written (re-encrypted) to the destination Pod.
 
   final int restoredCount;
 
@@ -180,7 +180,7 @@ class InvalidBackupFileException implements Exception {
 }
 
 // A single backed-up file: its path relative to the app's data folder, the
-// decrypted content, and whether it was encrypted at rest on the source POD
+// decrypted content, and whether it was encrypted at rest on the source Pod
 // (so it can be written back with the same protection).
 //
 // A "large" entry is one of solidpod's chunked large files (see _PodFile).
@@ -220,7 +220,7 @@ class _BackupEntry {
 // solidpod stores a large file (written with writeLargeFile()) as a hidden
 // "<name>.chunks" directory of encrypted binary chunks plus a "<name>.ttl"
 // metadata file. Those parts cannot be read or restored individually — the
-// chunks are not text, and their key is bound to the source POD — so the walk
+// chunks are not text, and their key is bound to the source Pod — so the walk
 // reports the large file itself and the backup goes through solidpod's
 // large-file API instead.
 

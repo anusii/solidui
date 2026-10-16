@@ -42,7 +42,7 @@ class SolidDefaultLogin extends StatelessWidget {
 
   final String appTitle;
 
-  /// The application directory for POD storage.
+  /// The application directory for Pod storage.
 
   final String appDirectory;
 

@@ -115,7 +115,7 @@ class InviteOthersDialog {
         prefixMessage == null ? message : '$prefixMessage\n\n$message';
 
     final subject =
-        config.subject ?? 'Try the ${resolved.appName} app on your Solid POD';
+        config.subject ?? 'Try the ${resolved.appName} app on your Solid Pod';
 
     await showDialog<void>(
       context: context,

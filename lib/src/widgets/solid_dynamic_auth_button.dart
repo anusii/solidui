@@ -76,7 +76,7 @@ class SolidDynamicAuthButton extends StatefulWidget {
     this.showLogin = true,
     this.onLogout,
     this.onLogin,
-    this.loginTooltip = 'Log in to your Solid POD',
+    this.loginTooltip = 'Log in to your Solid Pod',
     this.logoutTooltip = 'Log out of the current session',
   });
 

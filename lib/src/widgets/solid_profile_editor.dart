@@ -41,7 +41,7 @@ import 'package:solidui/src/widgets/solid_profile_avatar.dart';
 import 'package:solidui/src/widgets/solid_profile_crop_dialog.dart';
 
 /// A dialog that lets the user upload/change/delete a profile picture and
-/// set a display name. Changes are persisted to the user's Solid POD, or to
+/// set a display name. Changes are persisted to the user's Solid Pod, or to
 /// this device when nobody is logged in.
 
 class SolidProfileEditor extends StatefulWidget {
@@ -179,7 +179,7 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
   Widget _buildPrivacySelector(ThemeData theme) {
     final isPrivate = _pendingPrivacy == SolidProfilePrivacy.private;
     final summary = isPrivate
-        ? 'Encrypted on your POD; only you can read it.'
+        ? 'Encrypted on your Pod; only you can read it.'
         : 'Stored as plaintext linked data; readable by anyone with the URL.';
 
     return Container(
@@ -341,7 +341,7 @@ class _SolidProfileEditorState extends State<SolidProfileEditor> {
                 _buildPrivacySelector(theme)
               else
                 Text(
-                  'Saved on this device. Log in to keep a profile on your POD.',
+                  'Saved on this device. Log in to keep a profile on your Pod.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,

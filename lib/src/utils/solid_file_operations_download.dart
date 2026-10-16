@@ -76,7 +76,7 @@ class SolidFileDownloadOperations {
             SizedBox(height: 12),
             Text(
               'The file browser can browse files across all app folders in '
-              'your POD, but can only decrypt files within the current app\'s '
+              'your Pod, but can only decrypt files within the current app\'s '
               'data folder.',
             ),
             SizedBox(height: 12),
@@ -179,7 +179,7 @@ class SolidFileDownloadOperations {
 
         if (!context.mounted) return;
 
-        // Read file content from POD using the requested path type.
+        // Read file content from Pod using the requested path type.
 
         final fileContent = await readPod(
           targetPath,
@@ -268,14 +268,14 @@ class SolidFileDownloadOperations {
   //   }
   // }
 
-  /// Download a mixed batch of files and/or directories from the POD as a
+  /// Download a mixed batch of files and/or directories from the Pod as a
   /// single zip archive.
   ///
   /// When any selected item resides outside the current app's folder the
   /// user is warned that decryption may not be possible and given the
   /// option to cancel.
   ///
-  /// [currentPath] is the POD-relative directory path containing the items.
+  /// [currentPath] is the Pod-relative directory path containing the items.
   ///
   /// [fileNames] is the list of file names to include.
   ///

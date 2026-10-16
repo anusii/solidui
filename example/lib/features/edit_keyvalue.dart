@@ -1,4 +1,4 @@
-/// A widget to edit key/value pairs and save them in a POD.
+/// A widget to edit key/value pairs and save them in a Pod.
 ///
 // Time-stamp: <Friday 2024-06-28 13:35:54 +1000 Graham Williams>
 ///
@@ -53,7 +53,7 @@ class KeyValueEdit extends StatefulWidget {
   });
 
   final String title;
-  final String fileName; // file to be saved in PODs
+  final String fileName; // file to be saved in Pods
   final Widget child;
   final bool encrypted;
   final List<({String key, dynamic value})>?
@@ -151,7 +151,7 @@ class _KeyValueEditState extends State<KeyValueEdit> {
     return pairs;
   }
 
-  // Save data to PODs
+  // Save data to Pods
   Future<bool> _saveToPod(BuildContext context) async {
     _saveEditedRows();
 
@@ -168,10 +168,10 @@ class _KeyValueEditState extends State<KeyValueEdit> {
     });
 
     try {
-      // Write to POD
+      // Write to Pod
       if (context.mounted) {
         if (!await isUserLoggedIn()) {
-          await _alert('Please login to write data to your POD');
+          await _alert('Please login to write data to your Pod');
           return false;
         }
 
@@ -192,7 +192,7 @@ class _KeyValueEditState extends State<KeyValueEdit> {
           );
 
           await _alert('Successfully saved ${dataMap.length} key-value pairs'
-              ' to "${widget.fileName}" in PODs');
+              ' to "${widget.fileName}" in Pods');
           return true;
         } on Object catch (e, trace) {
           debugPrint(e.toString());

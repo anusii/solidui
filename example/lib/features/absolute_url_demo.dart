@@ -1,4 +1,4 @@
-/// A page to test read/write/delete on the POD using an absolute URL path.
+/// A page to test read/write/delete on the Pod using an absolute URL path.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -44,7 +44,7 @@ import 'package:solidpod/solidpod.dart'
 ///
 /// The URL field is pre-populated with a sensible default pointing at a plain
 /// text file in the current app's data directory, but any writable absolute
-/// URL on the logged-in user's own POD may be used.
+/// URL on the logged-in user's own Pod may be used.
 
 class AbsoluteUrlDemo extends StatefulWidget {
   const AbsoluteUrlDemo({super.key});
@@ -163,7 +163,7 @@ class _AbsoluteUrlDemoState extends State<AbsoluteUrlDemo> {
                 'This page calls writePod / readPod with '
                 'PathType.absoluteUrl, and deleteFile with the same absolute '
                 'URL, to verify that all three operations work against a '
-                'full resource URL on your own POD.',
+                'full resource URL on your own Pod.',
                 style: TextStyle(fontSize: 16.0, height: 1.5),
               ),
               const SizedBox(height: 24),

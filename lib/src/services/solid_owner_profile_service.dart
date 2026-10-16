@@ -1,5 +1,5 @@
 /// Service for fetching public profile data (avatar + display name) for any
-/// POD owner identified by their WebID.
+/// Pod owner identified by their WebID.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -39,7 +39,7 @@ import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/web_id_parser.dart';
 
-/// Snapshot of a remote POD owner's profile derived from publicly readable
+/// Snapshot of a remote Pod owner's profile derived from publicly readable
 /// resources in their app profile folder.
 ///
 /// `null` fields indicate the corresponding data could not be fetched (either
@@ -83,7 +83,7 @@ class SolidOwnerProfile {
 }
 
 /// Singleton that fetches and caches public profile data (avatar bytes +
-/// display name) for arbitrary POD owners, keyed by WebID.
+/// display name) for arbitrary Pod owners, keyed by WebID.
 ///
 /// The data is read from the owner's `<appDir>/profile/avatar.ttl` and
 /// `<appDir>/profile/display-name.ttl` resources, written by
@@ -144,7 +144,7 @@ class SolidOwnerProfileService {
       }
 
       // The profile resources are written by [SolidProfileService] under the
-      // current app's directory. Resolve them on the owner's POD using the
+      // current app's directory. Resolve them on the owner's Pod using the
       // same convention.
 
       final appDir = SolidConstants.directories.app;
@@ -287,7 +287,7 @@ class SolidOwnerColourPair {
   });
 }
 
-/// Accessible colour palette used to distinguish between different POD owners
+/// Accessible colour palette used to distinguish between different Pod owners
 /// who happen to share the same initials (or first WebID letters).
 ///
 /// Each background is dark enough that white foreground text/icons satisfy
@@ -378,7 +378,7 @@ SolidOwnerColourPair? ownerColourPairFor(String? webId) {
 }
 
 /// Computes a short text label (the "initials") to display when no avatar
-/// image is available for a POD owner.
+/// image is available for a Pod owner.
 ///
 /// Rules, applied in order:
 ///   1. If [displayName] contains multiple whitespace-separated words, use

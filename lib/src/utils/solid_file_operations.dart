@@ -41,7 +41,7 @@ import 'package:solidui/src/utils/solid_file_operations_upload.dart';
 class SolidFileOperations {
   const SolidFileOperations._();
 
-  /// Download a file from the POD to local storage.
+  /// Download a file from the Pod to local storage.
   ///
   /// [pathType] defaults to [PathType.relativeToPod]; pass
   /// [PathType.absoluteUrl] to read straight from an absolute resource URL.
@@ -59,7 +59,7 @@ class SolidFileOperations {
         pathType: pathType,
       );
 
-  /// Delete a file from the POD.
+  /// Delete a file from the Pod.
   ///
   /// [pathType] defaults to [PathType.relativeToPod]; pass
   /// [PathType.absoluteUrl] to delete by an absolute resource URL.
@@ -79,7 +79,7 @@ class SolidFileOperations {
         pathType: pathType,
       );
 
-  /// Delete a mixed batch of files and/or directories from the POD.
+  /// Delete a mixed batch of files and/or directories from the Pod.
 
   static Future<void> deleteMultipleItems(
     BuildContext context, {
@@ -113,7 +113,7 @@ class SolidFileOperations {
         zipFileName: zipFileName,
       );
 
-  /// Upload a file to the POD.
+  /// Upload a file to the Pod.
   ///
   /// When [allowedExtensions] is non-null and non-empty, only files with the
   /// listed extensions (case-insensitive, leading dots optional) may be

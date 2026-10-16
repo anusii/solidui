@@ -75,7 +75,7 @@ class SecurityKeyCacheDialogs {
                 children: [
                   Text(
                     'Enter your security key to cache it locally. The key will '
-                    'be verified against your POD before caching.',
+                    'be verified against your Pod before caching.',
                     style: TextStyle(
                       fontSize: 14,
                       color: theme.colorScheme.onSurfaceVariant,

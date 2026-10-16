@@ -43,7 +43,7 @@ import 'package:solidui/src/widgets/solid_animation_dialog.dart';
 /// A button to submit form widget
 ///
 /// This function takes all the input data from the form and create all
-/// required resources inside a user's POD. This includes creating several
+/// required resources inside a user's Pod. This includes creating several
 /// directories and multiple ttl files.
 ///
 /// At the end of the creation of resources the function will store the
@@ -65,7 +65,7 @@ ElevatedButton resCreateFormSubmission(
   final isSmallDevice =
       screenWidth < 360; // A threshold for small devices, can be adjusted.
 
-  // The (updated) original version of POD initialization function
+  // The (updated) original version of Pod initialization function
   // Keep it here as a backup.
 
   // Future<void> initPodOriginalFunc(String securityKey) async {
@@ -191,7 +191,7 @@ ElevatedButton resCreateFormSubmission(
             fileUrls: resFilesLink,
           );
         } on Exception catch (e) {
-          debugPrint('Error initialising POD: $e');
+          debugPrint('Error initialising Pod: $e');
           initError = e;
         }
 

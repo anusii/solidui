@@ -59,7 +59,7 @@ String? indWebIdFormatError(String text) {
   }
   // Check WebID contains host followed by '/'
   if (!uri.path.contains('/')) {
-    return 'Must have form https://[POD server host]/[their username]/profile/card#me';
+    return 'Must have form https://[Pod server host]/[their username]/profile/card#me';
   }
   // Check for WebID path with profile suffix
   if (!uri.path.toLowerCase().contains('/profile/card')) {

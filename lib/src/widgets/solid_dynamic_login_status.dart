@@ -38,7 +38,7 @@ import 'package:solidui/src/widgets/solid_status_bar.dart';
 import 'package:solidui/src/widgets/solid_status_bar_models.dart';
 
 /// A dynamic login status widget that automatically checks and updates
-/// the login status based on the actual Solid POD authentication state.
+/// the login status based on the actual Solid Pod authentication state.
 
 class SolidDynamicLoginStatus extends StatefulWidget {
   /// The base status bar configuration.
@@ -119,7 +119,7 @@ class _SolidDynamicLoginStatusState extends State<SolidDynamicLoginStatus> {
   }
 
   /// Checks the current login status by fetching the WebID and verifying
-  /// the login state with the Solid POD.
+  /// the login state with the Solid Pod.
 
   Future<void> _checkLoginStatus() async {
     try {

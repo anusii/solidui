@@ -33,7 +33,7 @@ import 'package:flutter/material.dart';
 
 import 'package:solidpod/solidpod.dart' show KeyManager;
 
-/// Service for managing security keys used for POD encryption in Solid
+/// Service for managing security keys used for Pod encryption in Solid
 /// applications.
 ///
 /// This service provides a centralised way to check and manage security key status

@@ -166,7 +166,7 @@ class SolidFileDeleteOperations {
     }
   }
 
-  /// Delete a mixed batch of files and/or directories from the POD.
+  /// Delete a mixed batch of files and/or directories from the Pod.
   ///
   /// Shows a unified confirmation dialog listing every item, a progress
   /// indicator during the operation, and a result summary afterwards.

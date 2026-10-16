@@ -64,14 +64,14 @@ class InitialSetupScreenBody extends StatefulWidget {
     super.key,
   });
 
-  /// Resources that need to be created inside user's POD.
+  /// Resources that need to be created inside user's Pod.
 
   final Map<dynamic, dynamic> resNeedToCreate;
 
   // Authentication data coming from the Solid server.
   // final Map<dynamic, dynamic> authData;
 
-  // A URI that is uniquely assigned to the POD.
+  // A URI that is uniquely assigned to the Pod.
   // final String webId;
 
   // Name of the app.
@@ -113,7 +113,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
   String? _webId;
   String _serverName = '';
 
-  // True when the POD already holds the encryption key for this app, so the
+  // True when the Pod already holds the encryption key for this app, so the
   // wizard is only topping up missing folders/files for a newer version of
   // the app rather than doing a first-time setup. When true the user is
   // only asked for their existing security key once (no retype) and the
@@ -194,7 +194,7 @@ class _InitialSetupScreenBodyState extends State<InitialSetupScreenBody> {
 
   /// Determines whether the wizard is running in "update" mode by checking
   /// whether the encryption key file already exists on the server. If it
-  /// does, the user has previously initialised their POD for this app and
+  /// does, the user has previously initialised their Pod for this app and
   /// we must reuse the existing key rather than asking them to invent a
   /// new one.
 

@@ -89,10 +89,10 @@ class SecurityKeyNotifier extends ChangeNotifier {
         return false;
       }
 
-      // Key exists, verify it against POD.
+      // Key exists, verify it against Pod.
 
       debugPrint(
-        'SecurityKeyNotifier: Found cached key, verifying against POD...',
+        'SecurityKeyNotifier: Found cached key, verifying against Pod...',
       );
 
       final isValid = await KeyManager.hasSecurityKey();

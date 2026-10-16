@@ -63,14 +63,14 @@ class SolidLoginRequiredDialog {
   /// action that triggered the prompt.
 
   static const String defaultMessage =
-      'Please log in to your POD first to continue.';
+      'Please log in to your Pod first to continue.';
 
   /// Standard message used by the security key cache flow. Exposed as
   /// a constant so the status bar, nav drawer and security key manager
   /// can share identical wording without duplicating the string.
 
   static const String securityKeyMessage =
-      'Please log in to your POD first before caching the security key.';
+      'Please log in to your Pod first before caching the security key.';
 
   /// Renders the dialogue and returns whether the user chose to log in.
   ///

@@ -59,6 +59,11 @@ endif
 INC_BASE=$(HOME)/.local/share/make
 INC_BASE=support
 
+# 20261016 gjw Obfuscate release builds, so the scrambled Podcast Index
+# secret is harder to find in the binary. Read by support/flutter.mk.
+
+OBFUSCATE = --obfuscate --split-debug-info=build/symbols
+
 # Specific Makefiles will be loaded if they are found in
 # INC_BASE. Sometimes the INC_BASE is shared by multiple local
 # Makefiles and we want to skip specific makes. Simply define the

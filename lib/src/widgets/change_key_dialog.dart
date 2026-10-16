@@ -65,7 +65,7 @@ Future<bool> changeKeyPopup(BuildContext context, Widget child) async {
     final formKey = GlobalKey<FormBuilderState>();
 
     // The current key can only be verified by deriving it (Argon2id for
-    // version 2 PODs), which is asynchronous and cannot run in a synchronous
+    // version 2 Pods), which is asynchronous and cannot run in a synchronous
     // form validator. So the validator only checks the field is non-empty;
     // correctness is verified on submit by `KeyManager.changeSecurityKey`,
     // which throws [SecurityKeyVerificationException] when the current key is

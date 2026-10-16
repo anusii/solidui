@@ -71,11 +71,11 @@ class SolidFileDefaultCallbacks {
         );
       },
       onVisualiseJson: () {
-        // Show a placeholder message for POD JSON preview.
+        // Show a placeholder message for Pod JSON preview.
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('POD JSON preview feature coming soon'),
+            content: const Text('Pod JSON preview feature coming soon'),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             duration: const Duration(seconds: 2),
           ),

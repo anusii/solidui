@@ -144,7 +144,7 @@ class SolidLoginAuthHandler {
   }
 
   /// Displays the setup-wizard or update-wizard snackbar depending on the
-  /// state of the POD represented by [resCheckList]. Kept as a helper so
+  /// state of the Pod represented by [resCheckList]. Kept as a helper so
   /// every code path that navigates to [InitialSetupScreen] shows a
   /// snackbar with the correct wording.
 
@@ -180,7 +180,7 @@ class SolidLoginAuthHandler {
         await diagnoseConnection(podServer),
       );
 
-  /// Checks the remote POD directory structure, returning null when the check
+  /// Checks the remote Pod directory structure, returning null when the check
   /// could not be made at all.
   ///
   /// initialStructureTest() issues HTTP requests that throw when the device is
@@ -201,7 +201,7 @@ class SolidLoginAuthHandler {
     }
   }
 
-  /// Notifies the user that their POD is not initialised, verifies the remote
+  /// Notifies the user that their Pod is not initialised, verifies the remote
   /// directory structure, and navigates to the appropriate screen (setup wizard
   /// or child widget).
 
@@ -220,7 +220,7 @@ class SolidLoginAuthHandler {
 
     if (resCheckList == null) {
       final message = await _failureMessage(
-        'Unable to check your POD.',
+        'Unable to check your Pod.',
         podServer,
       );
 
@@ -396,7 +396,7 @@ class SolidLoginAuthHandler {
 
       return false;
     } on Object catch (e) {
-      // Check whether auth data was persisted before the failure (i.e. POD
+      // Check whether auth data was persisted before the failure (i.e. Pod
       // not initialised) vs a genuine server/network error.
 
       browserMessageTimer?.cancel();
@@ -513,7 +513,7 @@ class SolidLoginAuthHandler {
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      // Always verify the remote POD directory structure regardless of the
+      // Always verify the remote Pod directory structure regardless of the
       // local initialisation flag. The remote folders may have been deleted
       // independently (e.g. via the server admin UI), so relying solely on
       // the cached flag would let the user enter a broken environment.
@@ -523,7 +523,7 @@ class SolidLoginAuthHandler {
 
       if (resCheckList == null) {
         final message = await _failureMessage(
-          'Unable to check your POD.',
+          'Unable to check your Pod.',
           podServer,
         );
 
@@ -597,7 +597,7 @@ class SolidLoginAuthHandler {
     } else {
       // solidAuthenticate() returned null. This can happen when:
       //   (a) Auth succeeded but the subsequent profile fetch failed because
-      //       the POD is not yet initialised.
+      //       the Pod is not yet initialised.
       //   (b) The server is genuinely unreachable (HTTP 502, DNS failure, etc.)
       //   (c) The user cancelled the browser login.
       //

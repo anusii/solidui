@@ -83,7 +83,7 @@ class GrantPermissionUiState extends State<GrantPermissionUi>
         titleData: widget.titleData,
       );
 
-  /// Loads permission details data from the ACL on the POD server.
+  /// Loads permission details data from the ACL on the Pod server.
   ///
   /// When [silent] is true the informational alert dialogs are suppressed.
   /// This is used by the post-revoke table refresh: once a recipient (or the

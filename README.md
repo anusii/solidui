@@ -117,8 +117,8 @@ Fine tune to suit the theme of the app:
 </div>
 
 - `SolidFile` widget provides a complete file management solution for
-  browsing, uploading, downloading, and deleting files in a POD.
-  Underlying POD reads and writes are handled by
+  browsing, uploading, downloading, and deleting files in a Pod.
+  Underlying Pod reads and writes are handled by
   [`solidpod`](https://pub.dev/packages/solidpod)'s `readPod()` and
   `writePod()` functions, which are also available directly if you need
   lower-level access.
@@ -160,7 +160,7 @@ Revoking permission:
 
 SolidUI requires the following dependencies:
 
-- `solidpod`: Solid POD integration
+- `solidpod`: Solid Pod integration
 - `flutter_markdown_plus`: Markdown rendering support
 - `flutter_form_builder`: Form building and validation
 - `form_builder_validators`: Form field validators
@@ -266,7 +266,7 @@ options:
 | `--no-pub-get`        | Skip the final `flutter pub get`.                    |
 
 The generated app starts at a `SolidLogin` screen and, once signed in, shows a
-`SolidScaffold` with a home page, an app-files browser and a whole-POD browser.
+`SolidScaffold` with a home page, an app-files browser and a whole-Pod browser.
 
 ### Enabling login (Solid-OIDC client registration)
 
@@ -283,14 +283,14 @@ served from:
 
 Two points are worth understanding:
 
-- `client-profile.jsonld` is **not** a file the app creates on your POD, and it
+- `client-profile.jsonld` is **not** a file the app creates on your Pod, and it
   cannot be — the app is not yet authenticated at login time. It must already be
   hosted, and be publicly readable, at the URL given as the `clientId`. During
   login the identity provider fetches that URL to learn which `redirect_uris`
   are permitted; if it is missing (HTTP 404) the provider refuses to hand
   control back to the app after the consent screen, and login fails with an
   `ASWebAuthenticationSession Code=1` (cancelled) error.
-- The POD data folders (for example `<appDir>/data` and `<appDir>/sharing`) are
+- The Pod data folders (for example `<appDir>/data` and `<appDir>/sharing`) are
   created by solidpod's `generateDefaultFolders()` **after** a successful login.
   If they have not appeared, it is because login has not completed — that is a
   symptom of the missing client profile, not the cause.
@@ -815,7 +815,7 @@ class MyApp extends StatelessWidget {
 
 ## SolidFile
 
-Comprehensive file management widget for Solid POD integration with
+Comprehensive file management widget for Solid Pod integration with
 upload, download, and browser functionality. SolidFile provides a
 complete file management solution with responsive layout and automatic
 configuration based on file paths.
@@ -995,7 +995,7 @@ SolidFile(
 ## Login Example
 
 `SolidLogin` is the full-page login widget. Wrap your home widget in
-it and it handles session restore, OIDC login, and POD initialisation
+it and it handles session restore, OIDC login, and Pod initialisation
 automatically. Here we illustrate the configuration with the clientId
 hosted on github but could also be on your own server.
 
@@ -1060,8 +1060,8 @@ SolidLogin({
   SolidLoginTheme themeConfig,      // Light/dark colour scheme for the panel
   SnackbarConfig snackbarConfig,    // Snackbar style for login notifications
 
-  // POD setup
-  String appDirectory = '',         // App-specific subdirectory name in the POD
+  // Pod setup
+  String appDirectory = '',         // App-specific subdirectory name in the Pod
   List customFolderPathList = [],   // Extra folders to create under data/
 })
 ```
@@ -1127,7 +1127,7 @@ ElevatedButton(
 
 The `GrantPermissionUi` widget provides a full-featured page for
 granting, editing, and revoking access permissions on resources stored
-in a Solid POD. Wrap it inside a navigation action to reach the
+in a Solid Pod. Wrap it inside a navigation action to reach the
 permission management page.  The titleData parameter, if provides,
 adds support for switch between file url, filename and file title.
 
@@ -1232,7 +1232,7 @@ ElevatedButton(
 ## View Permission UI Example
 
 The `SharedResourcesUi` widget displays the resources that have been
-shared with the current user's POD by others.
+shared with the current user's Pod by others.
 
 ### View all shared resources
 
@@ -1277,7 +1277,7 @@ integration with the SolidPOD library.
 ### SolidDynamicLoginStatus
 
 Automatically detects and updates login status based on actual Solid
-POD authentication state.
+Pod authentication state.
 
 ```dart
 class SolidDynamicLoginStatus extends StatefulWidget {
@@ -1320,13 +1320,13 @@ The following methods are available for checking authentication
 status:
 
 - `getWebId()`: Returns the current WebID if logged in, null otherwise
-- `checkLoggedIn()`: Verifies the current login status with the POD
+- `checkLoggedIn()`: Verifies the current login status with the Pod
   server
 
 ## Security Key Management
 
 SolidUI provides comprehensive security key management for encryption
-in Solid POD applications.
+in Solid Pod applications.
 
 ### SolidSecurityKeyService
 
@@ -1433,7 +1433,7 @@ SolidUI provides widgets for displaying and editing a user's Solid profile
 
 ### SolidProfileAvatar
 
-Displays a circular avatar sourced from the user's POD profile. Listens
+Displays a circular avatar sourced from the user's Pod profile. Listens
 to `solidProfileNotifier` and rebuilds automatically when the avatar
 changes.
 
@@ -1461,7 +1461,7 @@ SolidProfileAvatar({
 ### SolidProfileEditor
 
 A full-page editor for the user's avatar and display name. Opens as a
-modal page and saves changes back to the POD.
+modal page and saves changes back to the Pod.
 
 ```dart
 // Navigate to the profile editor page
@@ -1477,12 +1477,12 @@ Navigator.push(
 ### SolidProfileService & SolidProfileNotifier
 
 `SolidProfileService` handles loading and saving avatar/display-name
-data from the POD. `solidProfileNotifier` (a global `ChangeNotifier`) is
+data from the Pod. `solidProfileNotifier` (a global `ChangeNotifier`) is
 updated whenever the profile changes and is listened to by
 `SolidProfileAvatar` and `SolidNavUserInfo`.
 
 ```dart
-// Load the current user's profile from their POD
+// Load the current user's profile from their Pod
 await SolidProfileService.loadProfile();
 
 // Listen for profile changes
@@ -1578,7 +1578,7 @@ class NavigationConstants {
 
 SolidUI includes comprehensive file operation utilities:
 
-- `SolidFileOperations`: General file operations for Solid PODs
+- `SolidFileOperations`: General file operations for Solid Pods
 - `SolidFileUploadOperations`: Specialised upload operations
 - `SolidFileDownloadOperations`: Download operation helpers
 - `SolidFileDeleteOperations`: Delete operation helpers
@@ -1745,7 +1745,7 @@ Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 - Graham Williams
 - Tony Chen
 
-For more information about Solid and PODs, visit
+For more information about Solid and Pods, visit
 [solidproject.org](https://solidproject.org).
 
 ## Additional information

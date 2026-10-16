@@ -195,7 +195,7 @@ class SolidFile extends StatefulWidget {
         uploadState = state.uploadState,
         autoConfig = false; // Legacy mode does not use auto-config.
 
-  /// Default path constant representing the POD root.
+  /// Default path constant representing the Pod root.
 
   static const String podRoot = '';
 
@@ -225,9 +225,9 @@ class _SolidFileState extends State<SolidFile> {
   /// Resolves the base path asynchronously.
   ///
   /// If [widget.currentPath] is explicitly provided, it is used as the base
-  /// path. This allows the widget to start from any location on the POD,
+  /// path. This allows the widget to start from any location on the Pod,
   /// including the root. Otherwise, defaults to the app data directory path
-  /// via [getDataDirPath]. Falls back to POD root if the app data directory
+  /// via [getDataDirPath]. Falls back to Pod root if the app data directory
   /// cannot be determined.
 
   Future<void> _resolveBasePath() async {
@@ -240,10 +240,10 @@ class _SolidFileState extends State<SolidFile> {
         final appDataPath = await getDataDirPath();
         _resolvedBasePath = PathUtils.normalise(appDataPath);
       } catch (e) {
-        // Fall back to POD root if getDataDirPath fails.
+        // Fall back to Pod root if getDataDirPath fails.
 
         debugPrint(
-          'Failed to get app data path, falling back to POD root: $e',
+          'Failed to get app data path, falling back to Pod root: $e',
         );
         _resolvedBasePath = SolidFile.podRoot;
       }
@@ -400,7 +400,7 @@ class _SolidFileState extends State<SolidFile> {
   /// Builds the file browser widget.
   ///
   /// Passes the resolved [_currentPath] as the initial path so the browser
-  /// starts from the correct location (e.g., POD root for "All POD Files").
+  /// starts from the correct location (e.g., Pod root for "All Pod Files").
   /// The [uploadCallbacks] are forwarded so the toolbar Upload button reuses
   /// the same `onUpload` handler as the side upload panel.
 

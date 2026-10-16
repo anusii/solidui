@@ -72,7 +72,7 @@ access the file.
 const updatePermissionMsg =
     'Please login first to update file access permission';
 const podNotInitMsg =
-    'The owner of one or more WebIds you entered have not initialised their PODs yet! They need to login and setup their POD first.';
+    'The owner of one or more WebIds you entered have not initialised their Pods yet! They need to login and setup their Pod first.';
 const noAclMsg = 'Resource does not have a corresponding ACL file.\n'
     'If the ACL is inherited, provide parent directory as the resource name!';
 const successMsg = 'File access permissions granted successfully!';
@@ -135,7 +135,7 @@ String makeSharingTitleStr({
   } else if (resourceNames != null) {
     return isFile ? 'Sharing file' : 'Sharing folder';
   }
-  return 'Share your data with other user\'s PODs';
+  return 'Share your data with other user\'s Pods';
 }
 
 // Widget builders

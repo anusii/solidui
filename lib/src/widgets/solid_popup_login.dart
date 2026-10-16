@@ -88,7 +88,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
 
   // Returns the capitalised current app name from the platform package
   // info, or the generic fallback when unavailable. Used to produce the
-  // POD setup snackbar message. Also replaces a trailing pod with
+  // Pod setup snackbar message. Also replaces a trailing pod with
   // Pod.
 
   Future<String> _currentAppName() async {
@@ -103,7 +103,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     }
   }
 
-  // Verify the remote POD directory structure and navigate to the setup
+  // Verify the remote Pod directory structure and navigate to the setup
   // screen when resources are missing.
 
   Future<bool> _checkAndSetupPod(BuildContext context) async {
@@ -121,7 +121,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
       debugPrint('initialStructureTest() failed: $e');
 
       final message = connectionFailureMessage(
-        'Unable to check your POD.',
+        'Unable to check your Pod.',
         widget.webId,
         await diagnoseConnection(widget.webId),
       );
@@ -143,7 +143,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     if (!context.mounted) return false;
 
     if (!allExists) {
-      // Determine whether the POD needs a first-time setup or an update,
+      // Determine whether the Pod needs a first-time setup or an update,
       // then surface the corresponding snackbar so the user has the
       // right context before the wizard opens.
 
@@ -176,8 +176,8 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     return true;
   }
 
-  // Login and check POD initialisation status.
-  // If POD structure is incomplete, navigate to InitialSetupScreen.
+  // Login and check Pod initialisation status.
+  // If Pod structure is incomplete, navigate to InitialSetupScreen.
 
   Future<bool> _loginAndInitPods(
     String webId,
@@ -223,7 +223,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
       debugPrint('solidAuthenticate() failed: $e');
 
       // Check whether auth data was persisted before the failure – if so,
-      // the POD is not initialised rather than the server being down.
+      // the Pod is not initialised rather than the server being down.
 
       final isNowLoggedIn = await isUserLoggedIn();
 
@@ -231,7 +231,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
 
       if (isNowLoggedIn) {
         // Snackbar is emitted by _checkAndSetupPod() once it knows
-        // whether the POD needs a first-time setup or an update.
+        // whether the Pod needs a first-time setup or an update.
 
         return _checkAndSetupPod(context);
       } else {
@@ -267,7 +267,7 @@ class _SolidPopupLoginState extends State<SolidPopupLogin> {
     return AlertDialog(
       title: const Text('Success'),
       content: const Text(
-        'You have successfully logged in and/or initialised your PODs',
+        'You have successfully logged in and/or initialised your Pods',
       ),
       actions: <Widget>[
         ElevatedButton(

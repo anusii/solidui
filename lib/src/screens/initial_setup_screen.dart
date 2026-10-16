@@ -65,7 +65,7 @@ class InitialSetupScreen extends StatefulWidget {
   // Name of the app that the user is authenticating into
   // final String appName;
 
-  /// A dynamic list of missing resources from the user's POD
+  /// A dynamic list of missing resources from the user's Pod
 
   final List<dynamic> resCheckList;
 

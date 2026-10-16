@@ -63,7 +63,7 @@ class EncKeyInputForm extends StatefulWidget {
   /// Whether the user must retype their security key in a second field.
   ///
   /// Retype protection is necessary when the user is choosing a new key
-  /// (first-time POD setup) so a typo does not lock them out of their
+  /// (first-time Pod setup) so a typo does not lock them out of their
   /// data. It is redundant when the user is simply supplying an
   /// existing key to authorise an update, so set this to `false` in
   /// that case.

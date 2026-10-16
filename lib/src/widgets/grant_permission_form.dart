@@ -114,7 +114,7 @@ class GrantPermissionForm extends StatefulWidget {
 
   final List<String> recipientTypeList;
 
-  /// Map of data files on a user's POD used to extract the
+  /// Map of data files on a user's Pod used to extract the
   /// user's recipient list by the WebIdTextInputScreen.
   /// If not provided, the WebIdTextInputScreen will read the
   /// user's files in their app data folder on their Pod to
@@ -140,8 +140,8 @@ class GrantPermissionForm extends StatefulWidget {
   final String? resourceDisplayName;
 
   /// Optional Invite Others configuration. When provided, the
-  /// "POD not initialised" error path offers the user a follow-up
-  /// option to invite the recipient(s) to set up their own POD and
+  /// "Pod not initialised" error path offers the user a follow-up
+  /// option to invite the recipient(s) to set up their own Pod and
   /// try the application.
 
   final SolidInviteOthersConfig? inviteConfig;
@@ -252,7 +252,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     }
   }
 
-  /// Fetch the previously used groups from the POD and refresh the list.
+  /// Fetch the previously used groups from the Pod and refresh the list.
 
   Future<void> _loadSavedGroups() async {
     final groups = await getSharedGroups();
@@ -262,7 +262,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
     });
   }
 
-  /// Remove a previously used [group] from the POD and refresh the list.
+  /// Remove a previously used [group] from the Pod and refresh the list.
 
   Future<void> _deleteSavedGroup(SharedGroup group) async {
     await deleteSharedGroup(group.name);
@@ -536,7 +536,7 @@ class _GrantPermissionFormState extends State<GrantPermissionForm> {
             }
 
             // For Public or Authenticated User sharing we need to warn
-            // the user that the file will be decrypted in their POD as
+            // the user that the file will be decrypted in their Pod as
             // part of granting access (see `decryptFileInPlace` in
             // solidpod). The helper is a no-op and returns true for
             // other recipient types so we can always await it here.

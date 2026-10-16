@@ -59,12 +59,12 @@ class SecurityKeyOperations {
         return false;
       }
 
-      // Key exists in local storage, now verify it against POD's verification
+      // Key exists in local storage, now verify it against Pod's verification
       // key using KeyManager.hasSecurityKey().
 
       debugPrint(
         'Security key status: Found cached key in local secure storage, '
-        'verifying against POD...',
+        'verifying against Pod...',
       );
 
       final isValid = await KeyManager.hasSecurityKey();
@@ -134,7 +134,7 @@ class SecurityKeyOperations {
             'Network error. Please check your connection and try again.';
       } else if (errorStr.contains('permission')) {
         errorMessage =
-            'Permission denied. Please check your POD access rights.';
+            'Permission denied. Please check your Pod access rights.';
       } else {
         // Include part of the actual error for debugging.
 

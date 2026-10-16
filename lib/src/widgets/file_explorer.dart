@@ -1,4 +1,4 @@
-/// A simple file explorer for navigating through both own and external PODs
+/// A simple file explorer for navigating through both own and external Pods
 ///
 /// Copyright (C) 2024-2025, Software Innovation Institute, ANU.
 ///

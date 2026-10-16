@@ -161,7 +161,7 @@ class PodButton extends StatelessWidget {
 
   final bool autofocus;
 
-  // Define a common style for the text of the two buttons, GET POD and LOGIN.
+  // Define a common style for the text of the two buttons, GET Pod and LOGIN.
 
   final buttonTextStyle = const TextStyle(
     fontSize: 16.0,

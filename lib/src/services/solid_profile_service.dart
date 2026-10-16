@@ -1,4 +1,4 @@
-/// Service for managing user profile data (avatar and display name) on POD.
+/// Service for managing user profile data (avatar and display name) on Pod.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -52,7 +52,7 @@ const Set<String> allowedProfileExtensions = {'.png', '.jpg', '.jpeg'};
 
 const String _privacyPrefKey = 'solidui_profile_privacy_';
 
-/// Manages reading, writing, and deleting profile data on the user's POD.
+/// Manages reading, writing, and deleting profile data on the user's Pod.
 
 class SolidProfileService {
   SolidProfileService._();
@@ -101,7 +101,7 @@ class SolidProfileService {
 
   // Initialisation.
 
-  /// Ensures the profile directory (and its `.acl`) exist on the POD and
+  /// Ensures the profile directory (and its `.acl`) exist on the Pod and
   /// loads the user's privacy preference from local storage. Safe to call
   /// multiple times — it only marks itself as initialised once both the
   /// directory and its ACL have been confirmed to exist.
@@ -127,7 +127,7 @@ class SolidProfileService {
       );
     }
 
-    // Always make sure the folder's ACL is in place. This recovers PODs
+    // Always make sure the folder's ACL is in place. This recovers Pods
     // whose profile directory was created without an ACL (e.g. by an older
     // version of the app, or via the server admin UI).
 
@@ -195,7 +195,7 @@ class SolidProfileService {
     }
   }
 
-  // Check the actual encryption status on the POD to sync multi-session
+  // Check the actual encryption status on the Pod to sync multi-session
   // state, updating the notifier and the persisted preference.
 
   Future<void> _syncPrivacyFromPod() async {
@@ -249,7 +249,7 @@ class SolidProfileService {
 
   // Save avatar.
 
-  /// Writes [pngBytes] as the profile picture on the POD, or on this device
+  /// Writes [pngBytes] as the profile picture on the Pod, or on this device
   /// when nobody is logged in, and updates the notifier. The bytes must be
   /// valid PNG data.
 
@@ -279,7 +279,7 @@ class SolidProfileService {
 
   // Delete avatar.
 
-  /// Removes the profile picture from the POD, or from this device when
+  /// Removes the profile picture from the Pod, or from this device when
   /// nobody is logged in.
 
   Future<void> deleteAvatar() async {
@@ -299,7 +299,7 @@ class SolidProfileService {
 
   // Save display name.
 
-  /// Persists [name] as the user's display name on the POD as linked data,
+  /// Persists [name] as the user's display name on the Pod as linked data,
   /// or on this device when nobody is logged in.
 
   Future<void> saveDisplayName(String name) async {

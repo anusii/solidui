@@ -348,7 +348,7 @@ class SolidFilePrintOperations {
     }
   }
 
-  /// Fetches and prints a single file from the POD.
+  /// Fetches and prints a single file from the Pod.
   ///
   /// Handles decryption for files within the current app's data folder and
   /// warns the user when attempting to print files from other app folders
@@ -564,7 +564,7 @@ class SolidFilePrintOperations {
             SizedBox(height: 12),
             Text(
               'The file browser can browse files across all app folders in '
-              'your POD, but can only decrypt files within the current app\'s '
+              'your Pod, but can only decrypt files within the current app\'s '
               'data folder.',
             ),
             SizedBox(height: 12),

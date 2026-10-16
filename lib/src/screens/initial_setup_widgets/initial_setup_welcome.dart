@@ -52,13 +52,13 @@ import 'package:solidui/src/widgets/build_message_container.dart';
 /// message instead of a generic reference.
 ///
 /// The [webId] parameter, when provided, is displayed beneath the welcome
-/// title so that the user can identify which POD is being set up.
+/// title so that the user can identify which Pod is being set up.
 ///
 /// The [serverName] parameter is the human-readable host of the Solid
 /// server (e.g. `pods.solidcommunity.au`) that is shown in the setup
 /// message so the user can see which server is being initialised.
 ///
-/// The [isUpdate] flag distinguishes between a first-time POD setup (the
+/// The [isUpdate] flag distinguishes between a first-time Pod setup (the
 /// app has never been initialised for this user) and an update to an
 /// existing app folder (e.g. a new version of the app requires a new
 /// folder). The wording of the title and body is adjusted accordingly.

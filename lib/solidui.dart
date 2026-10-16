@@ -105,6 +105,7 @@ export 'src/widgets/secret_text_field.dart';
 export 'src/widgets/security_key_ui.dart';
 export 'src/widgets/change_key_dialog.dart';
 export 'src/widgets/change_password_dialog.dart';
+export 'src/widgets/solid_pod_refresh.dart';
 export 'src/widgets/create_account_dialog.dart';
 
 export 'src/services/solid_backup_service.dart';

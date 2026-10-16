@@ -35,7 +35,7 @@ import 'package:solidpod/solidpod.dart';
 import 'package:solidui/src/models/file_item.dart';
 import 'package:solidui/src/utils/path_utils.dart';
 
-/// A utility class for performing file system operations in the POD.
+/// A utility class for performing file system operations in the Pod.
 
 class FileOperations {
   /// Extracts the resource name (file or directory) from a URL, path, or plain
@@ -118,13 +118,13 @@ class FileOperations {
       }
 
       // Construct full path using PathUtils.combine to avoid double slashes
-      // when currentPath is empty (POD root).
+      // when currentPath is empty (Pod root).
 
       final relativePath = PathUtils.combine(currentPath, fileName);
 
       if (!context.mounted) continue;
 
-      // Retrieve the actual last modified time from the POD server.
+      // Retrieve the actual last modified time from the Pod server.
       // Note: currentPath already contains the full path from pod root
       // (e.g., "healthpod/data/pathology"), so we use relativeToPod to avoid
       // path duplication.

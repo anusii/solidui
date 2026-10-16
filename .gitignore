@@ -421,3 +421,8 @@ Claude.md
 # file rather than in one project's android/.gitignore.
 
 android/build/
+
+# 20261016 gjw Build-time keys (Podcast Index), passed by support/flutter.mk
+# with --dart-define-from-file. Never commit.
+
+dart_defines.json

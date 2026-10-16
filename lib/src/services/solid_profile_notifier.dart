@@ -30,7 +30,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
-/// Visibility mode for a user's profile data on their POD.
+/// Visibility mode for a user's profile data on their Pod.
 ///
 /// In [private] mode (the default for an app using encryption) the avatar
 /// and display name are encrypted at rest and the profile folder grants

@@ -50,7 +50,7 @@ import 'package:solidui/src/widgets/solid_file_path_bar.dart';
 part 'solid_file_browser_actions.dart';
 part 'solid_file_browser_navigation.dart';
 
-/// A file browser widget to interact with files and directories in user's POD.
+/// A file browser widget to interact with files and directories in user's Pod.
 
 class SolidFileBrowser extends StatefulWidget {
   /// Callback when a file is selected.
@@ -85,7 +85,7 @@ class SolidFileBrowser extends StatefulWidget {
   ///
   /// If provided, the browser will start from this path instead of the
   /// default app data directory path. Use an empty string to start from
-  /// the POD root.
+  /// the Pod root.
 
   final String? initialPath;
 
@@ -206,7 +206,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
 
   int currentDirDirectoryCount = 0;
 
-  /// Whether the user is logged in to Solid POD.
+  /// Whether the user is logged in to Solid Pod.
 
   bool isLoggedIn = false;
 
@@ -261,7 +261,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   ///
   /// If [widget.initialPath] is provided, it is used as both the starting
   /// path and the home path for navigation. This allows browsing from any
-  /// location on the POD, including the root.
+  /// location on the Pod, including the root.
 
   Future<void> _resolveHomePath() async {
     if (widget.initialPath != null) {
@@ -276,7 +276,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
         _homePath = PathUtils.normalise(appDataPath);
       } catch (e) {
         debugPrint(
-          'Failed to get app data path, falling back to POD root: $e',
+          'Failed to get app data path, falling back to Pod root: $e',
         );
         _homePath = '';
       }
@@ -288,7 +288,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
     _checkLoginStatus();
   }
 
-  /// Checks if the user is logged in to the Solid POD.
+  /// Checks if the user is logged in to the Solid Pod.
 
   Future<void> _checkLoginStatus() async {
     try {
@@ -385,7 +385,7 @@ class SolidFileBrowserState extends State<SolidFileBrowser> {
   void changeSortOption(FileSortOption option) =>
       performChangeSortOption(option);
 
-  /// Refreshes the current directory's contents from the Solid POD.
+  /// Refreshes the current directory's contents from the Solid Pod.
 
   Future<void> refreshFiles() => performRefreshFiles();
 

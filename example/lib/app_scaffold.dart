@@ -63,7 +63,7 @@ class AppScaffold extends StatelessWidget {
 
             **Files**
 
-            Tap here to browse the files on your POD.
+            Tap here to browse the files on your Pod.
 
             ''',
           child: SolidFile(),
@@ -103,7 +103,7 @@ class AppScaffold extends StatelessWidget {
 
         It showcases various features including:
 
-        📂 Reading and writing data files on your Solid POD;
+        📂 Reading and writing data files on your Solid Pod;
 
         🔑 Security key management;
 

@@ -1,4 +1,4 @@
-/// Widget for logging in a POD.
+/// Widget for logging in a Pod.
 ///
 /// Copyright (C) 2025-2026, Software Innovation Institute, ANU.
 ///
@@ -61,7 +61,7 @@ import 'package:solidui/src/widgets/solid_login_snackbar_helper.dart';
 import 'package:solidui/src/widgets/solid_login_theme_helper.dart';
 import 'package:solidui/src/widgets/solid_theme_notifier.dart';
 
-/// A widget to login to a Solid server for a user's token to access their POD.
+/// A widget to login to a Solid server for a user's token to access their Pod.
 
 class SolidLogin extends StatefulWidget {
   const SolidLogin({
@@ -478,7 +478,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     }
 
     // 20260728 gjw Session restored. Previously we navigated straight to
-    // the child widget here, which skipped the remote POD structure
+    // the child widget here, which skipped the remote Pod structure
     // verification that both the LOGIN and CONTINUE paths perform. If the
     // app's folder had been removed on the server (e.g. moved aside as a
     // backup), the app would proceed into a broken environment and prompt
@@ -486,7 +486,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
     // (missing) keyset. Route through the same CONTINUE flow instead so
     // the structure is verified and, when incomplete, the user is signed
     // out with a message to log in again (which re-runs the setup wizard
-    // to re-initialise the POD).
+    // to re-initialise the Pod).
 
     // The default structure lists are populated asynchronously by
     // _initPackageInfo() and may not be ready yet in this post-frame
@@ -584,7 +584,7 @@ class _SolidLoginState extends State<SolidLogin> with WidgetsBindingObserver {
   /// Populate the default folder and file lists for the app's data folder.
   ///
   /// Shared by [_initPackageInfo] and the auto-login check, which needs the
-  /// lists in place before it can verify the POD structure.
+  /// lists in place before it can verify the Pod structure.
 
   Future<void> _loadDefaultStructure() async {
     await setAppDirName(widget.appDirectory);

@@ -1,4 +1,4 @@
-/// Notification Centre - Lists and manages POD notifications.
+/// Notification Centre - Lists and manages Pod notifications.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -48,7 +48,7 @@ const String solidReadNotificationsKey = 'solid_read_notification_ids';
 
 /// SharedPreferences key for tracking which notification ids the user
 /// has chosen to delete from the centre. The underlying file in the
-/// sender's POD is left untouched (the recipient holds no write
+/// sender's Pod is left untouched (the recipient holds no write
 /// permission on it) so "delete" is a purely local hide. The storage
 /// key string is kept as the legacy "dismissed" value so users who had
 /// already hidden notifications under the previous wording do not see

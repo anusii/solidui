@@ -113,7 +113,7 @@ class SolidFileUploadCallbacks {
 
   final VoidCallback? onExportProfile;
 
-  /// Callback for JSON visualisation from POD.
+  /// Callback for JSON visualisation from Pod.
 
   final VoidCallback? onVisualiseJson;
 

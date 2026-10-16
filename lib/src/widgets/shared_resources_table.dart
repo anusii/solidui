@@ -78,7 +78,7 @@ Widget buildSharedResourcesTable(
             columns: [
               buildDataColumn(
                 'Resource URL',
-                'WebID of the POD receiving permissions',
+                'WebID of the Pod receiving permissions',
               ),
               buildDataColumn('Shared on', 'Shared date and time'),
               buildDataColumn('Owner', 'Resource owner WebID'),

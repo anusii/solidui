@@ -1,4 +1,4 @@
-/// A dialog for backing up and restoring the current app's POD data folder.
+/// A dialog for backing up and restoring the current app's Pod data folder.
 ///
 /// Copyright (C) 2026, Software Innovation Institute, ANU.
 ///
@@ -49,8 +49,8 @@ import 'package:solidui/src/widgets/secret_text_field.dart';
 ///
 ///   * **Export** — read and decrypt every file in the data folder, then save
 ///     it as a single compressed, encrypted backup file on this device.
-///   * **Import** — restore a previously exported backup (from this POD or
-///     another), re-encrypting the data with this POD's current security key.
+///   * **Import** — restore a previously exported backup (from this Pod or
+///     another), re-encrypting the data with this Pod's current security key.
 ///     The user is warned beforehand, and afterwards the app is closed, so
 ///     that reopening it reloads the restored data in full.
 ///
@@ -234,8 +234,8 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
       }
 
       // Same application: ask for the original key (to decrypt the backup) and
-      // the current key (to re-encrypt for this POD). They may differ when the
-      // backup came from another POD or the key has since been changed.
+      // the current key (to re-encrypt for this Pod). They may differ when the
+      // backup came from another Pod or the key has since been changed.
 
       if (!mounted) return;
       final keys = await _promptForKeys(
@@ -243,7 +243,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
         message: 'This backup holds ${header.fileCount} '
             'file${header.fileCount == 1 ? '' : 's'}. Enter the original '
             'security key it was created with, and the current security key '
-            'for this POD. Restoring overwrites the contents of this app\'s '
+            'for this Pod. Restoring overwrites the contents of this app\'s '
             'data folder, after which the app closes and you open it again.',
         fields: const [
           (key: 'originalKey', label: 'Original Security Key'),
@@ -267,7 +267,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
           'file${result.restoredCount == 1 ? '' : 's'}$skippedNote.';
       _setImportMessage(summary, error: result.skipped.isNotEmpty);
 
-      // The POD now holds the restored data, but this app is still running
+      // The Pod now holds the restored data, but this app is still running
       // with whatever it loaded beforehand. Insist on a restart so that the
       // data is reloaded in full and nothing stale is written back.
 
@@ -312,7 +312,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
           width: 420,
           child: Text(
             'Restoring a backup replaces the contents of this app\'s data '
-            'folder on your POD.\n\n'
+            'folder on your Pod.\n\n'
             '${kIsWeb ? 'You will need to reload the page yourself' : 'The '
                 'app will close and you will need to open it again yourself'} '
             'once the restore is done.\n\n'
@@ -514,7 +514,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
             children: [
               Text(
                 'Save a complete, encrypted backup of this app\'s data folder, '
-                'or restore one previously created on this or another POD.',
+                'or restore one previously created on this or another Pod.',
                 style: TextStyle(color: cs.onSurfaceVariant),
               ),
               const Gap(20),
@@ -559,7 +559,7 @@ class _SolidBackupDialogState extends State<SolidBackupDialog> {
                 message: '**Import Backup**\n\n'
                     'Restore a backup created by this application. The backup '
                     'is decrypted with its original security key and '
-                    're-encrypted with this POD\'s current security key, '
+                    're-encrypted with this Pod\'s current security key, '
                     'overwriting the data folder\'s contents.\n\n'
                     'The app closes once the restore has finished, and you '
                     'then open it again manually.',

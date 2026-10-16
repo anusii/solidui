@@ -304,14 +304,14 @@ class _FileServiceState extends State<FileService> {
                 if (context.mounted) {
                   await alert(
                     context,
-                    'Failed to upload file to external POD. $e',
+                    'Failed to upload file to external Pod. $e',
                     'Error',
                   );
                 }
                 debugPrint('$e');
               }
             },
-      child: const Text('Upload to External POD'),
+      child: const Text('Upload to External Pod'),
     );
 
     final downloadButton = ElevatedButton(
@@ -499,7 +499,7 @@ class _FileServiceState extends State<FileService> {
 
     final uploadSection = [
       Text(
-        'Upload a local large file and save it as "$defaultRemoteFileName" in POD',
+        'Upload a local large file and save it as "$defaultRemoteFileName" in Pod',
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -541,7 +541,7 @@ class _FileServiceState extends State<FileService> {
                 decoration: const InputDecoration(
                   // labelText: 'Remote Folder',
                   // border: OutlineInputBorder(),
-                  hintText: '(Optional) save to folder in POD, e.g. dir1/dir2/',
+                  hintText: '(Optional) save to folder in Pod, e.g. dir1/dir2/',
                   hintStyle: TextStyle(
                     color: Colors.brown,
                     fontStyle: FontStyle.italic,
@@ -566,7 +566,7 @@ class _FileServiceState extends State<FileService> {
                 enabled: !(uploadInProgress || uploadDone),
                 decoration: const InputDecoration(
                   hintText:
-                      '(Optional) Inherit encryption key of folder in POD, e.g. dir1/',
+                      '(Optional) Inherit encryption key of folder in Pod, e.g. dir1/',
                   hintStyle: TextStyle(
                     color: Colors.brown,
                     fontStyle: FontStyle.italic,
@@ -589,11 +589,11 @@ class _FileServiceState extends State<FileService> {
       ),
     ];
 
-    // Widgets of the upload-to-external-POD section
+    // Widgets of the upload-to-external-Pod section
 
     final uploadSharedSection = [
       const Text(
-        'Upload a local large file to an external POD',
+        'Upload a local large file to an external Pod',
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -623,7 +623,7 @@ class _FileServiceState extends State<FileService> {
           controller: uploadSharedUrlController,
           enabled: !(uploadSharedInProgress || uploadSharedDone),
           decoration: const InputDecoration(
-            hintText: 'Destination URL of the large file in the external POD',
+            hintText: 'Destination URL of the large file in the external Pod',
             hintStyle: TextStyle(
               color: Colors.brown,
               fontStyle: FontStyle.italic,
@@ -664,7 +664,7 @@ class _FileServiceState extends State<FileService> {
 
     final downloadSection = [
       Text(
-        'Download the "$defaultRemoteFileName" from POD',
+        'Download the "$defaultRemoteFileName" from Pod',
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -694,7 +694,7 @@ class _FileServiceState extends State<FileService> {
 
     final downloadSharedSection = [
       const Text(
-        'Download a shared large file from an external POD',
+        'Download a shared large file from an external Pod',
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -707,7 +707,7 @@ class _FileServiceState extends State<FileService> {
           controller: sharedUrlController,
           enabled: !(downloadSharedInProgress || downloadSharedDone),
           decoration: const InputDecoration(
-            hintText: 'URL of shared large file in external POD',
+            hintText: 'URL of shared large file in external Pod',
             hintStyle: TextStyle(
               color: Colors.brown,
               fontStyle: FontStyle.italic,
@@ -739,7 +739,7 @@ class _FileServiceState extends State<FileService> {
 
     final deleteSection = [
       Text(
-        'Delete the "$defaultRemoteFileName" from POD',
+        'Delete the "$defaultRemoteFileName" from Pod',
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -797,7 +797,7 @@ class _FileServiceState extends State<FileService> {
 
                   largeGapV,
 
-                  // Upload to external POD
+                  // Upload to external Pod
 
                   ...uploadSharedSection,
 
@@ -834,7 +834,7 @@ class _FileServiceState extends State<FileService> {
                 child: getProgressBar('Uploading:', uploadDone, uploadPercent),
               ),
 
-            // Uploading to external POD progress bar
+            // Uploading to external Pod progress bar
 
             if (uploadSharedInProgress)
               Positioned(

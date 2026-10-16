@@ -179,7 +179,7 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
                       if (isPublicClass) ...[
                         const SizedBox(height: 12),
                         const Text(
-                          'If this file had been decrypted in your POD so '
+                          'If this file had been decrypted in your Pod so '
                           'that this audience could read it, it will be '
                           're-encrypted automatically using the same '
                           'encryption key it had before.',

@@ -265,7 +265,7 @@ class SolidFileUploadArea extends StatelessWidget {
   Widget _buildAdditionalButtons(BuildContext context) {
     final buttons = <Widget>[];
 
-    // Add Visualise POD JSON button.
+    // Add Visualise Pod JSON button.
 
     if (config.showJsonButtons && callbacks.onVisualiseJson != null) {
       buttons.add(
@@ -274,13 +274,13 @@ class SolidFileUploadArea extends StatelessWidget {
           state: state,
           onPressed: callbacks.onVisualiseJson,
           icon: Icons.add_chart,
-          label: 'Visualise JSON from POD',
+          label: 'Visualise JSON from Pod',
           tooltip: '''
 
-**Visualise JSON from POD**
+**Visualise JSON from Pod**
 
 Tap here to select and visualise a JSON file from 
-your Solid POD.
+your Solid Pod.
 
 ''',
         ),
@@ -349,7 +349,7 @@ Tap here to preview the recently uploaded file.
 **Convert to JSON**
 
 Tap here to convert the PDF file to JSON format and upload both files.
-This will extract text from the PDF, structure it as JSON data, and upload both files to your POD.
+This will extract text from the PDF, structure it as JSON data, and upload both files to your Pod.
 
 ''',
         ),

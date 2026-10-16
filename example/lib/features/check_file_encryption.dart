@@ -40,7 +40,7 @@ import 'package:solidpod/solidpod.dart'
 import 'package:solidui/solidui.dart' show SolidScaffold;
 
 /// A small demo that lets the user check whether an arbitrary file on the
-/// POD is encrypted by solidpod.
+/// Pod is encrypted by solidpod.
 ///
 /// The screen also offers helpers for seeding both an encrypted and a
 /// plaintext sample file so that the verification button can be tested
@@ -178,7 +178,7 @@ demo:sampleResource a demo:DemoResource ;
         return 'Plaintext (not encrypted by solidpod).\n'
             'isFileEncrypted() returned $encryptedFlag.';
       case EncryptionStatus.notExist:
-        return 'The resource does not exist on the POD.';
+        return 'The resource does not exist on the Pod.';
       case EncryptionStatus.forbidden:
         return 'Access to the resource is forbidden for the current WebID.';
       case EncryptionStatus.unknown:
@@ -212,7 +212,7 @@ demo:sampleResource a demo:DemoResource ;
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Use this screen to check whether a file on your POD has been '
+              'Use this screen to check whether a file on your Pod has been '
               'encrypted by solidpod. solidpod does not require the '
               '".enc.ttl" suffix for encrypted files, so the suffix alone is '
               'not a reliable indicator. The check inspects the actual '
@@ -249,7 +249,7 @@ demo:sampleResource a demo:DemoResource ;
                 ),
                 DropdownMenuItem(
                   value: PathType.relativeToPod,
-                  child: Text('Relative to POD root'),
+                  child: Text('Relative to Pod root'),
                 ),
                 DropdownMenuItem(
                   value: PathType.absoluteUrl,

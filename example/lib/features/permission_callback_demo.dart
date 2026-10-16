@@ -119,7 +119,7 @@ demo:exampleData$fileNumber
 
     if (_currentFileIndex == 0) {
       setState(() {
-        _statusMessage = 'Setting up demo files for fresh POD...';
+        _statusMessage = 'Setting up demo files for fresh Pod...';
       });
 
       try {
@@ -269,13 +269,13 @@ demo:exampleData$fileNumber
                       'This demo is fully self-contained!\n\n'
                       '• All demo files are created automatically\n'
                       '• No manual setup required\n'
-                      '• Works on fresh PODs out of the box\n'
+                      '• Works on fresh Pods out of the box\n'
                       '• Just enter a valid WebID and click "Start Auto-Demo"\n'
                       '• Try sharing with yourself first for testing\n'
                       '• Check console (F12) for detailed logs if needed\n\n'
                       'Common issues:\n'
                       '• Verify recipient WebID format ends with #me\n'
-                      '• Ensure recipient has logged into their POD at least once\n'
+                      '• Ensure recipient has logged into their Pod at least once\n'
                       '• Check browser console for detailed error logs',
                       style: TextStyle(fontSize: 14, height: 1.4),
                     ),

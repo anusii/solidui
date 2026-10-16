@@ -175,7 +175,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
   }
 
   /// Handles the cache security key action (when not cached).
-  /// Prompts user to enter the security key, verifies it against POD's
+  /// Prompts user to enter the security key, verifies it against Pod's
   /// verification key, and caches it locally if valid.
 
   Future<void> _handleCacheKey(BuildContext context) async {
@@ -195,7 +195,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     if (result == null || result.isEmpty || !mounted) return;
     setState(() => _isLoading = true);
     try {
-      // KeyManager.setSecurityKey() verifies the key against POD's verification
+      // KeyManager.setSecurityKey() verifies the key against Pod's verification
       // key and caches it locally if valid. Throws exception if invalid.
 
       await KeyManager.setSecurityKey(result);
@@ -245,7 +245,7 @@ class SolidSecurityKeyManagerState extends State<SolidSecurityKeyManager>
     await SecurityKeyUIHelpers.showErrorDialog(
         context,
         'Security Key File Not Found',
-        'The security key file could not be found on your POD. '
+        'The security key file could not be found on your Pod. '
             'Please contact your administrator.');
   }
 

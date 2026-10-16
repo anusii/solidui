@@ -61,7 +61,7 @@ class FileBrowserNotLoggedInView extends StatelessWidget {
               ),
             ),
             child: Text(
-              'Not connected to any POD',
+              'Not connected to any Pod',
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
                 fontSize: 16,

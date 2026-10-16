@@ -51,16 +51,16 @@ import 'package:solidui/src/widgets/security_key_ui.dart' show SecurityKeyUI;
 import 'package:solidui/src/widgets/solid_login_webid_input_dialog.dart';
 
 /// Inspects the missing-resources list returned by `initialStructureTest`
-/// and returns `true` when the POD already contains the encryption key
+/// and returns `true` when the Pod already contains the encryption key
 /// file for this app but is missing other resources.
 ///
 /// This distinguishes two very different wizard scenarios:
-///   * "Update" mode (true): the user has previously initialised their POD
+///   * "Update" mode (true): the user has previously initialised their Pod
 ///     for this app and simply needs to add newly required folders or
 ///     files (e.g. a notifications folder added in a later app version).
 ///     The wizard should reuse the existing security key, not create a
 ///     new one.
-///   * "First-time setup" mode (false): the POD has never been initialised
+///   * "First-time setup" mode (false): the Pod has never been initialised
 ///     for this app, so the encryption key file is also missing.
 ///
 /// Using the cached [resCheckList] avoids an extra network round-trip
@@ -83,7 +83,7 @@ Future<bool> isPodUpdateMode(List<dynamic> resCheckList) async {
         .map((e) => e.toString())
         .toSet();
 
-    // enc-keys.ttl is the on-POD marker that the app has been initialised
+    // enc-keys.ttl is the on-Pod marker that the app has been initialised
     // at least once. If it is present we are only topping up additional
     // resources — i.e. running the update wizard.
 
@@ -129,17 +129,17 @@ Future<bool> loginIfRequired({
 }
 
 /// Ask for the security key from the user if the security key is not available
-/// or cannot be verfied using the verification key stored in PODs.
+/// or cannot be verfied using the verification key stored in Pods.
 ///
 /// 20261002 gjw Returns whether a usable security key is in place when this
 /// finishes: true when one was already held or has just been entered, false
-/// when the prompt was dismissed or the POD holds no keyset to verify
+/// when the prompt was dismissed or the Pod holds no keyset to verify
 /// against.
 ///
 /// Widening the return type from `void` is source compatible — an `await`
 /// that ignores the result still compiles — and it saves every caller a
 /// `KeyManager.hasSecurityKey()` round trip of its own to find out what
-/// happened. Callers that carry on regardless will read from a POD they
+/// happened. Callers that carry on regardless will read from a Pod they
 /// cannot decrypt.
 
 Future<bool> getKeyFromUserIfRequired(
@@ -156,7 +156,7 @@ Future<bool> getKeyFromUserIfRequired(
 
     return true;
   } else {
-    // 20260728 gjw Before prompting, confirm the POD actually holds a
+    // 20260728 gjw Before prompting, confirm the Pod actually holds a
     // keyset to verify against. If the app's encryption key file is
     // missing on the server (e.g. the app folder was removed or moved
     // aside), no key the user enters can ever verify, so prompting would
@@ -177,12 +177,12 @@ Future<bool> getKeyFromUserIfRequired(
           await showDialog<void>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('POD Not Initialised'),
+              title: const Text('Pod Not Initialised'),
               content: const Text(
-                'Your POD does not appear to be initialised for this app '
+                'Your Pod does not appear to be initialised for this app '
                 '— its encryption keys were not found on the server.\n\n'
                 'Please log out and log in again to run the setup and '
-                're-initialise your POD.',
+                're-initialise your Pod.',
               ),
               actions: [
                 TextButton(
@@ -208,7 +208,7 @@ Future<bool> getKeyFromUserIfRequired(
     final formKey = GlobalKey<FormBuilderState>();
 
     // The security key can only be verified by deriving it (Argon2id for
-    // version 2 PODs), which is asynchronous and cannot run in a synchronous
+    // version 2 Pods), which is asynchronous and cannot run in a synchronous
     // form validator. So the validator only checks the field is non-empty;
     // correctness is verified on submit by `KeyManager.setSecurityKey`, which
     // throws [SecurityKeyVerificationException] when the key is wrong.

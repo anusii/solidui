@@ -67,7 +67,7 @@ class GroupWebIdTextInput extends StatefulWidget {
   final List<SharedGroup> savedGroups;
 
   /// Optional callback fired when the user removes a saved group from the
-  /// list. The parent form is responsible for deleting it from the POD and
+  /// list. The parent form is responsible for deleting it from the Pod and
   /// refreshing [savedGroups].
   final void Function(SharedGroup)? onDeleteGroup;
 

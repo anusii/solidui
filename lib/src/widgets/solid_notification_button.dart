@@ -102,7 +102,7 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton>
 
   /// Fetch the current unread-notification count via the new pair-based
   /// notification API and update the badge. Concurrent invocations are
-  /// skipped to avoid redundant cross-POD traffic.
+  /// skipped to avoid redundant cross-Pod traffic.
 
   Future<void> _refreshUnreadCount() async {
     if (_isRefreshing) return;

@@ -221,7 +221,7 @@ Future<bool> changePasswordPopup(BuildContext context, Widget child) async {
 
   final changePasswordForm = SecurityKeyUI(
     webId: webId,
-    title: 'Change POD Password',
+    title: 'Change Pod Password',
     message: message,
     inputFields: inputFields,
     formKey: formKey,
