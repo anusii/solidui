@@ -2,7 +2,7 @@
 #
 # Generic Makefile
 #
-# Time-stamp: <Sunday 2026-09-20 13:13:38 +1000 Graham Williams>
+# Time-stamp: <Saturday 2026-10-17 09:29:12 +1100 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -59,10 +59,13 @@ endif
 INC_BASE=$(HOME)/.local/share/make
 INC_BASE=support
 
-# 20261016 gjw Obfuscate release builds, so the scrambled Podcast Index
-# secret is harder to find in the binary. Read by support/flutter.mk.
+# 20261016 gjw Obfuscate release builds, so for example, the
+# scrambled Podcast Index secret in radiopod is harder to find in
+# the binary. Read by support/flutter.mk to optionally obfuscate.
 
-OBFUSCATE = --obfuscate --split-debug-info=build/symbols
+ifeq ($(APP),radiopod)
+  OBFUSCATE = --obfuscate --split-debug-info=build/symbols
+endif
 
 # Specific Makefiles will be loaded if they are found in
 # INC_BASE. Sometimes the INC_BASE is shared by multiple local
@@ -174,15 +177,27 @@ sinstall:
 # and archived by `make ginstall`, so run that first. Requires a prior
 # `snapcraft login`.
 
+#
+# 20261008 gjw Skip the upload when the stable channel already carries
+# this version, reporting the revision it is published as.
+
 SNAP_FILE = installers/ARCHIVE/$(APP)_$(VER)_amd64.snap
+SNAP_STABLE = snapcraft status $(APP) | awk '$$3 == "stable" { print $$4, $$5 }'
 
 .PHONY: snapstore
 snapstore:
-	@if [ ! -f $(SNAP_FILE) ]; then \
+	@set -- $$($(SNAP_STABLE)); \
+	if [ "$$1" = "$(VER)" ]; then \
+	  echo "Snap Store $(APP) stable already at version $$1, revision $$2."; \
+	  exit 0; \
+	fi; \
+	if [ ! -f $(SNAP_FILE) ]; then \
 	  echo "Error: $(SNAP_FILE) not found. Run 'make ginstall' first."; \
 	  exit 1; \
-	fi
-	snapcraft upload --release=stable $(SNAP_FILE)
+	fi; \
+	snapcraft upload --release=stable $(SNAP_FILE) || exit 1; \
+	set -- $$($(SNAP_STABLE)); \
+	echo "Snap Store $(APP) stable: version $$1, revision $$2"
 	@echo ''
 
 # 20250110 gjw A ginstall of the github built bundles, and the locally

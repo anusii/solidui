@@ -289,7 +289,8 @@ class SolidScaffoldInternalConfig {
     this.onLogout,
     this.showLogin = true,
     this.onShowAlert,
-    this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
+    this.narrowScreenThreshold =
+        NavigationConstants.scaffoldNarrowScreenThreshold,
     this.backgroundColor,
     this.floatingActionButton,
     this.floatingActionButtonLocation,

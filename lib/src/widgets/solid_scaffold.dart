@@ -336,7 +336,8 @@ class SolidScaffold extends StatefulWidget {
     this.showLogout = true,
     this.showLogin = true,
     this.onShowAlert,
-    this.narrowScreenThreshold = NavigationConstants.narrowScreenThreshold,
+    this.narrowScreenThreshold =
+        NavigationConstants.scaffoldNarrowScreenThreshold,
     this.backgroundColor,
     this.floatingActionButton,
     this.floatingActionButtonLocation,

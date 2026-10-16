@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Side menu from 600 wide, for a phone in landscape [1.5.10 20261017 gjw]
 + Refresh from Pod in the profile menu, Pod not POD [1.5.9 20261017 gjw]
 + Login page buttons are all the same width [1.5.8 20261015 av]
 + Show a saved security key in the status bar at once [1.5.7 20261014 gjw]

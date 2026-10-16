@@ -41,6 +41,13 @@ class NavigationConstants {
 
   static const double narrowScreenThreshold = 800.0;
 
+  /// The default width from which SolidScaffold shows its menu as a side
+  /// rail rather than a bottom bar. Below [narrowScreenThreshold] so that an
+  /// older phone in landscape (around 700 wide) gets the rail and keeps its
+  /// scarce height for the page.
+
+  static const double scaffoldNarrowScreenThreshold = 600.0;
+
   /// The width threshold for wide screen layout.
 
   static const double wideScreenThreshold = 900.0;
