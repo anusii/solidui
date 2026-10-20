@@ -31,6 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:solidui/src/widgets/solid_nav_models.dart';
@@ -83,5 +84,21 @@ void main() {
 
     expect(find.byIcon(Icons.menu), findsOneWidget);
     expect(find.byIcon(Icons.water), findsNothing);
+
+    // 20261021 gjw A MarkdownTooltip like every other control, not Flutter's
+    // plain "Open navigation menu", and it still opens the drawer.
+
+    expect(
+      find.ancestor(
+        of: find.byIcon(Icons.menu),
+        matching: find.byType(MarkdownTooltip),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('Open navigation menu'), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    expect(find.byType(Drawer), findsOneWidget);
   });
 }

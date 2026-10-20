@@ -31,6 +31,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 
 import 'package:solidui/src/services/solid_login_status_notifier.dart';
 import 'package:solidui/src/widgets/solid_about_models.dart';
@@ -204,6 +205,7 @@ class SolidScaffoldAppBarBuilder {
       elevation: 0,
       scrolledUnderElevation: 0.5,
       automaticallyImplyLeading: isNarrowScreen,
+      leading: isNarrowScreen ? _drawerButton(isLoggedIn) : null,
 
       // The drawer button only. actionsIconTheme is pinned to the ordinary
       // foreground so the tint says "logged in" rather than colouring every
@@ -218,22 +220,31 @@ class SolidScaffoldAppBarBuilder {
       actions: actions.isEmpty ? null : actions,
     );
 
-    // 20261005 gjw The tint alone was too subtle a sign of being logged in, so
-    // the drawer button's three lines turn wavy while a session is live and
-    // are the ordinary straight lines otherwise. ActionIconTheme swaps only
-    // the glyph, so the button keeps its tooltip, semantics and tint. The
-    // wrapping is the same whether or not the user is logged in, so a change
-    // of state rebuilds rather than replaces the bar.
-
-    return PreferredSize(
-      preferredSize: appBar.preferredSize,
-      child: ActionIconTheme(
-        data: ActionIconThemeData(
-          drawerButtonIconBuilder:
-              isLoggedIn ? (_) => const Icon(Icons.water) : null,
-        ),
-        child: appBar,
-      ),
-    );
+    return appBar;
   }
+
+  /// The button that opens the side menu on a narrow screen.
+  ///
+  /// 20261005 gjw The tint alone was too subtle a sign of being logged in, so
+  /// the three lines turn wavy while a session is live and are the ordinary
+  /// straight lines otherwise.
+  ///
+  /// 20261021 gjw Our own button rather than the AppBar's implied one, so it
+  /// carries a MarkdownTooltip like every other control, instead of
+  /// Flutter's plain "Open navigation menu", and the tooltip can say what
+  /// the wavy lines mean. The Builder finds the Scaffold the AppBar sits in.
+
+  static Widget _drawerButton(bool isLoggedIn) => Builder(
+        builder: (context) => MarkdownTooltip(
+          message: isLoggedIn
+              ? '**Menu**\n\nOpen the menu of pages. '
+                  'The wavy lines show you are logged in to your Pod.'
+              : '**Menu**\n\nOpen the menu of pages. '
+                  'The lines turn wavy once you log in to your Pod.',
+          child: IconButton(
+            icon: Icon(isLoggedIn ? Icons.water : Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      );
 }

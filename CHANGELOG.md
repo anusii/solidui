@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Menu button has a Markdown tooltip explaining wavy lines [1.5.11 20261021 gjw]
 + Side menu from 600 wide, for a phone in landscape [1.5.10 20261017 gjw]
 + Refresh from Pod in the profile menu, Pod not POD [1.5.9 20261017 gjw]
 + Login page buttons are all the same width [1.5.8 20261015 av]

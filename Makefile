@@ -98,6 +98,7 @@ $(APP):
     tgz	     Upload the installer to $(REPO)
   apk	     Upload the installer to $(REPO)
   snapstore  Publish the $(VER) snap to the Snap Store stable channel
+  upload_android  Build the $(VER) bundle and send it to Play internal testing
 
 endef
 export HELP
@@ -198,6 +199,23 @@ snapstore:
 	snapcraft upload --release=stable $(SNAP_FILE) || exit 1; \
 	set -- $$($(SNAP_STABLE)); \
 	echo "Snap Store $(APP) stable: version $$1, revision $$2"
+	@echo ''
+
+# 20261018 gjw The Play counterpart of upload_ios: send the bundle to
+# the internal testing track, Play's TestFlight. The bundle is built and
+# signed HERE, as signing is local by design, so this reuses `make
+# appbundle` (which also copies it to $(REPO) and moves it to ARCHIVE)
+# unless this version is already archived. support/play_upload.py needs
+# the service account key in $$PLAY_SERVICE_ACCOUNT or
+# ~/.config/radiopod/play-service-account.json, never in the repository,
+# and says so if Play already has this build number.
+
+AAB_FILE = installers/ARCHIVE/$(APP)-$(VER).aab
+
+.PHONY: upload_android
+upload_android:
+	@if [ ! -f $(AAB_FILE) ]; then $(MAKE) appbundle || exit 1; fi
+	python3 support/play_upload.py $(AAB_FILE)
 	@echo ''
 
 # 20250110 gjw A ginstall of the github built bundles, and the locally
