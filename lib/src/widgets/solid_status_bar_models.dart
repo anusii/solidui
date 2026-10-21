@@ -397,7 +397,9 @@ class SolidStatusBarConfig {
 
   final bool showOnNarrowScreens;
 
-  /// Custom narrow screen threshold (if null, uses NavigationConstants).
+  /// Width below which the status bar is hidden. If null, uses
+  /// NavigationConstants.scaffoldNarrowScreenThreshold, the width at which
+  /// SolidScaffold's side rail gives way to the drawer.
 
   final double? narrowScreenThreshold;
 

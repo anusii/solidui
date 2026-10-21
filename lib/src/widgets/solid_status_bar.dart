@@ -66,14 +66,21 @@ class SolidStatusBar extends StatelessWidget {
   }
 
   /// Determines if the status bar should be visible based on screen width.
+  ///
+  /// 20261022 gjw Hidden at the SAME width as SolidScaffold swaps its side
+  /// rail for the drawer, which carries the login in its place. The bar used
+  /// the 800 threshold after the rail moved down to 600 in 1.5.10, so from
+  /// 600 to 800 wide there was a rail, no drawer and no status bar, and
+  /// nothing on screen said Not Logged In or offered a login except the
+  /// profile menu. `>=` because the scaffold's narrow test is `<`.
 
   bool _shouldShowStatusBar(double screenWidth) {
     if (config.showOnNarrowScreens) return true;
 
     final threshold = config.narrowScreenThreshold ??
-        NavigationConstants.narrowScreenThreshold;
+        NavigationConstants.scaffoldNarrowScreenThreshold;
 
-    return screenWidth > threshold;
+    return screenWidth >= threshold;
   }
 
   /// Launches a URL in the default browser.

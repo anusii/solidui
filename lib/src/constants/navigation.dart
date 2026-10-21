@@ -45,6 +45,9 @@ class NavigationConstants {
   /// rail rather than a bottom bar. Below [narrowScreenThreshold] so that an
   /// older phone in landscape (around 700 wide) gets the rail and keeps its
   /// scarce height for the page.
+  ///
+  /// SolidStatusBar hides below this same width, so the status bar and its
+  /// login are on screen wherever the drawer is not.
 
   static const double scaffoldNarrowScreenThreshold = 600.0;
 
