@@ -221,7 +221,9 @@ class SolidProfileMenuChipState extends State<SolidProfileMenuChip> {
         // Bold title, then the tip, as every Markdown tooltip has.
         final tooltipMessage = '**Profile**\n\n'
             '${hasName ? 'Signed in as $displayName. ' : ''}'
-            'Tap to manage your profile, settings, and session.';
+            'Tap to manage your profile, the Pod user interface related '
+            'settings and activities, '
+            'and the Pod session.';
 
         return MarkdownTooltip(
           message: tooltipMessage,
@@ -250,7 +252,8 @@ class SolidProfileMenuChipState extends State<SolidProfileMenuChip> {
                   value: 'profile',
                   child: MarkdownTooltip(
                     message: '**Profile**\n\n'
-                        'Manage your profile — display name, avatar, and '
+                        'Manage your profile including your display name, '
+                        'avatar, and '
                         'privacy controls.',
                     child: Row(
                       children: [
