@@ -167,7 +167,7 @@ class _IndWebIdTextInputState extends State<IndWebIdTextInput> {
         smallGapV,
         // Explain webId with example
         MarkdownTooltip(
-          message: '$whatIsWebID Eg: $demoWebID',
+          message: '**WebID**\n\n$whatIsWebID Eg: $demoWebID',
           child: makeSubHeading('Enter or select recipient\'s WebId'),
         ),
         // Add padding to webid textformfield and suggestion drop down

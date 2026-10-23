@@ -228,7 +228,9 @@ class _SolidPreferencesButtonItemState
         title: Align(
           alignment: Alignment.centerLeft,
           child: MarkdownTooltip(
-            message: displayLabel,
+            message: displayLabel.startsWith('**')
+                ? displayLabel
+                : '**$displayLabel**',
             child: Icon(
               displayIcon,
               size: 20,
@@ -243,7 +245,9 @@ class _SolidPreferencesButtonItemState
           children: [
             // Visibility toggle.
             MarkdownTooltip(
-              message: action.isVisible ? 'Hide button' : 'Show button',
+              message: action.isVisible
+                  ? '**Hide button**\n\nTake this button off the AppBar.'
+                  : '**Show button**\n\nPut this button back on the AppBar.',
               child: IconButton(
                 icon: Icon(
                   action.isVisible ? Icons.visibility : Icons.visibility_off,
@@ -264,8 +268,11 @@ class _SolidPreferencesButtonItemState
             if (overflowEnabled)
               MarkdownTooltip(
                 message: action.showInOverflow
-                    ? 'Show in AppBar'
-                    : 'Move to overflow menu',
+                    ? '**Show in AppBar**\n\n'
+                        'Show this button on the AppBar itself.'
+                    : '**Move to overflow menu**\n\n'
+                        'Keep this button in the menu at the end of the '
+                        'AppBar instead.',
                 child: IconButton(
                   icon: Icon(
                     action.showInOverflow ? Icons.more_vert : Icons.push_pin,

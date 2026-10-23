@@ -275,7 +275,10 @@ class SolidAppBarOrderedActionsBuilder {
           constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
         );
 
-        iconButton = MarkdownTooltip(message: item.label, child: iconButton);
+        iconButton = MarkdownTooltip(
+          message: '**${item.label}**',
+          child: iconButton,
+        );
         orderedActions.add(_OrderedAction(order: order, widget: iconButton));
       }
     }

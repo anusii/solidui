@@ -253,7 +253,8 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
                               '${memberCount == 1 ? 'member' : 'members'}',
                             ),
                             trailing: MarkdownTooltip(
-                              message: 'Remove this group from the saved list.',
+                              message: '**Remove group**\n\n'
+                                  'Remove this group from the saved list.',
                               child: IconButton(
                                 icon: const Icon(Icons.delete_outline),
                                 onPressed: () =>
@@ -284,7 +285,7 @@ class _GroupWebIdTextInputState extends State<GroupWebIdTextInput> {
         smallGapV,
         // Explain webId with example
         MarkdownTooltip(
-          message: '$whatIsWebID Eg: $demoWebID',
+          message: '**WebID**\n\n$whatIsWebID Eg: $demoWebID',
           child: makeSubHeading('Enter recipient group WebIds'),
         ),
         // Add padding to webid textformfield and suggestion drop down

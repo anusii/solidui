@@ -34,6 +34,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart'
     show
         cancelSolidAuthenticate,
@@ -231,17 +232,20 @@ class SolidLoginActions {
                   ),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.copy, size: 18),
-                tooltip: 'Copy the command',
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: command));
-                  if (ctx.mounted) {
-                    ScaffoldMessenger.of(ctx).showSnackBar(
-                      const SnackBar(content: Text('Command copied.')),
-                    );
-                  }
-                },
+              MarkdownTooltip(
+                message:
+                    '**Copy**\n\nCopy the command to the clipboard, to paste into a terminal.',
+                child: IconButton(
+                  icon: const Icon(Icons.copy, size: 18),
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: command));
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        const SnackBar(content: Text('Command copied.')),
+                      );
+                    }
+                  },
+                ),
               ),
             ],
           ),

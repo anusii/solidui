@@ -82,8 +82,8 @@ class SolidScaffoldHelpers {
   ) {
     return MarkdownTooltip(
       message: config.versionConfig!.tooltip ??
-          'Version: $versionToDisplay\n\n'
-              'Tap to view changelog if available.',
+          '**Version $versionToDisplay**\n\n'
+              'Tap to view the changelog, if there is one.',
       child: VersionWidget(
         version: versionToDisplay,
         changelogUrl: config.versionConfig!.changelogUrl,

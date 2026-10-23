@@ -428,12 +428,12 @@ Widget getThemeToggleTooltip(
         case ThemeMode.light:
           icon = Icons.wb_sunny_outlined;
           iconColor = Colors.amber;
-          tooltipMessage = 'Switch to Light Mode';
+          tooltipMessage = '**Theme**\n\nSwitch to Light Mode.';
           break;
         case ThemeMode.dark:
           icon = Icons.dark_mode;
           iconColor = Colors.blueGrey;
-          tooltipMessage = 'Switch to Dark Mode';
+          tooltipMessage = '**Theme**\n\nSwitch to Dark Mode.';
           break;
         case ThemeMode.system:
           // Show icon based on current system theme.
@@ -446,7 +446,7 @@ Widget getThemeToggleTooltip(
             icon = Icons.dark_mode;
             iconColor = Colors.blueGrey;
           }
-          tooltipMessage = 'Switch to System Mode';
+          tooltipMessage = '**Theme**\n\nSwitch to System Mode.';
           break;
       }
 

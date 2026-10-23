@@ -94,7 +94,7 @@ class FileTypeConfig {
     this.showPreviewButtons = true,
     this.formatConfig,
     this.uploadButtonText = 'Upload',
-    this.uploadTooltip = 'Upload a file',
+    this.uploadTooltip = '**Upload**\n\nUpload a file.',
   });
 
   /// Gets the file type configuration based on the current path.

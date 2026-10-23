@@ -218,9 +218,10 @@ class SolidProfileMenuChipState extends State<SolidProfileMenuChip> {
       builder: (context, _) {
         final displayName = solidProfileNotifier.displayName?.trim();
         final hasName = displayName != null && displayName.isNotEmpty;
-        final tooltipMessage = hasName
-            ? '**$displayName**\n\nTap to manage your profile.'
-            : 'Tap to manage your profile, settings, and session.';
+        // Bold title, then the tip, as every Markdown tooltip has.
+        final tooltipMessage = '**Profile**\n\n'
+            '${hasName ? 'Signed in as $displayName. ' : ''}'
+            'Tap to manage your profile, settings, and session.';
 
         return MarkdownTooltip(
           message: tooltipMessage,

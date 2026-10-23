@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Every tooltip is Markdown, a bold title then the tip [1.5.13 20261024 gjw]
 + Status bar shown from 600 wide, same as side menu [1.5.12 20261022 gjw]
 + Menu button has Markdown tooltip explaining wavy lines [1.5.11 20261021 gjw]
 + Side menu from 600 wide, for a phone in landscape [1.5.10 20261017 gjw]

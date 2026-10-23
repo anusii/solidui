@@ -84,6 +84,6 @@ void main() {
         .widgetList<MarkdownTooltip>(find.byType(MarkdownTooltip))
         .map((t) => t.message);
 
-    expect(messages, containsAll(['Theme Toggle', _bellLabel]));
+    expect(messages, containsAll(['**Theme Toggle**', _bellLabel]));
   });
 }

@@ -238,8 +238,9 @@ class ViewPermission extends StatelessWidget {
               SizedBox(
                 width: 170.0,
                 child: MarkdownTooltip(
-                  message:
-                      'Switch between current people with access and permission history log',
+                  message: '**Current or history**\n\n'
+                      'Switch between the people with access now and the '
+                      'log of permission changes.',
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     spacing: 5.0,

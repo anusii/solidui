@@ -209,17 +209,36 @@ class SolidNavBottomBar extends StatelessWidget {
                 cs,
               ),
               label: tabs[index].title,
+
+              // An empty tooltip turns off the destination's own plain one,
+              // the label repeated, which otherwise showed alongside the
+              // Markdown tooltip on the icon. Kept where a tab has none.
+
+              tooltip: (tabs[index].tooltip ?? tabs[index].message) == null
+                  ? null
+                  : '',
             ),
           if (overflowIndices.isNotEmpty)
             NavigationDestination(
-              icon: Icon(
-                Icons.more_horiz,
-                size: NavigationConstants.navIconSize,
-                color: isOverflowSelected
-                    ? cs.primary
-                    : cs.onSurfaceVariant.withValues(alpha: 0.7),
+              icon: MarkdownTooltip(
+                message: '''
+
+                **More**
+
+                The rest of the app's pages, for which this bar has no room.
+                Tap to choose one.
+
+                ''',
+                child: Icon(
+                  Icons.more_horiz,
+                  size: NavigationConstants.navIconSize,
+                  color: isOverflowSelected
+                      ? cs.primary
+                      : cs.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
               ),
               label: 'More',
+              tooltip: '',
             ),
         ],
       ),

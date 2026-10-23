@@ -185,10 +185,13 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
                       ),
                     ),
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => confirmAndDelete(n),
-                    tooltip: 'Delete notification',
+                  trailing: MarkdownTooltip(
+                    message:
+                        '**Delete notification**\n\nRemove this notification from the list.',
+                    child: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => confirmAndDelete(n),
+                    ),
                   ),
                   onTap: () => showNotificationDetail(n),
                 ),
@@ -261,21 +264,27 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                icon: const Icon(Icons.first_page, size: 20),
-                onPressed: _currentPage > 0
-                    ? () => updateState(() => _currentPage = 0)
-                    : null,
-                tooltip: 'First page',
-                visualDensity: VisualDensity.compact,
+              MarkdownTooltip(
+                message:
+                    '**First page**\n\nGo to the first page of notifications.',
+                child: IconButton(
+                  icon: const Icon(Icons.first_page, size: 20),
+                  onPressed: _currentPage > 0
+                      ? () => updateState(() => _currentPage = 0)
+                      : null,
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.chevron_left, size: 20),
-                onPressed: _currentPage > 0
-                    ? () => updateState(() => _currentPage--)
-                    : null,
-                tooltip: 'Previous page',
-                visualDensity: VisualDensity.compact,
+              MarkdownTooltip(
+                message:
+                    '**Previous page**\n\nGo back one page of notifications.',
+                child: IconButton(
+                  icon: const Icon(Icons.chevron_left, size: 20),
+                  onPressed: _currentPage > 0
+                      ? () => updateState(() => _currentPage--)
+                      : null,
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -284,21 +293,26 @@ extension _NotificationCentreUI on _SolidNotificationCentreState {
                   style: theme.textTheme.bodySmall,
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right, size: 20),
-                onPressed: _currentPage < totalPages - 1
-                    ? () => updateState(() => _currentPage++)
-                    : null,
-                tooltip: 'Next page',
-                visualDensity: VisualDensity.compact,
+              MarkdownTooltip(
+                message: '**Next page**\n\nGo on one page of notifications.',
+                child: IconButton(
+                  icon: const Icon(Icons.chevron_right, size: 20),
+                  onPressed: _currentPage < totalPages - 1
+                      ? () => updateState(() => _currentPage++)
+                      : null,
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.last_page, size: 20),
-                onPressed: _currentPage < totalPages - 1
-                    ? () => updateState(() => _currentPage = totalPages - 1)
-                    : null,
-                tooltip: 'Last page',
-                visualDensity: VisualDensity.compact,
+              MarkdownTooltip(
+                message:
+                    '**Last page**\n\nGo to the last page of notifications.',
+                child: IconButton(
+                  icon: const Icon(Icons.last_page, size: 20),
+                  onPressed: _currentPage < totalPages - 1
+                      ? () => updateState(() => _currentPage = totalPages - 1)
+                      : null,
+                  visualDensity: VisualDensity.compact,
+                ),
               ),
             ],
           ),

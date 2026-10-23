@@ -32,6 +32,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
@@ -131,24 +132,26 @@ class _SolidNotificationButtonState extends State<SolidNotificationButton>
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Badge(
-        isLabelVisible: _unreadCount > 0,
-        backgroundColor: Colors.grey,
-        label: Text('$_unreadCount'),
-        child: const Icon(Icons.notifications_outlined),
+    return MarkdownTooltip(
+      message: '**Notifications**\n\nOpen your notifications.',
+      child: IconButton(
+        icon: Badge(
+          isLabelVisible: _unreadCount > 0,
+          backgroundColor: Colors.grey,
+          label: Text('$_unreadCount'),
+          child: const Icon(Icons.notifications_outlined),
+        ),
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const SolidNotificationCentre(),
+            ),
+          );
+          await _refreshUnreadCount();
+          _restartTimer();
+        },
       ),
-      onPressed: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const SolidNotificationCentre(),
-          ),
-        );
-        await _refreshUnreadCount();
-        _restartTimer();
-      },
-      tooltip: 'Notifications',
     );
   }
 }

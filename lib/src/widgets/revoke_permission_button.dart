@@ -132,7 +132,8 @@ class _RevokePermissionButtonState extends State<RevokePermissionButton> {
   @override
   Widget build(BuildContext context) {
     return MarkdownTooltip(
-      message: 'Revoke all access to this recipient',
+      message: '**Revoke access**\n\n'
+          'Revoke all access to this recipient.',
       child: IconButton(
         icon: const Icon(
           Icons.delete,

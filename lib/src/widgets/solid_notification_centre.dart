@@ -35,6 +35,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solidpod/solidpod.dart';
 
@@ -245,10 +246,12 @@ class _SolidNotificationCentreState extends State<SolidNotificationCentre> {
       appBar: AppBar(
         title: const Text('Notification Centre'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadNotifications,
-            tooltip: 'Refresh notifications',
+          MarkdownTooltip(
+            message: '**Refresh**\n\nCheck again for new notifications.',
+            child: IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadNotifications,
+            ),
           ),
         ],
       ),

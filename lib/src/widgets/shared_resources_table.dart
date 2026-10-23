@@ -32,6 +32,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:markdown_tooltip/markdown_tooltip.dart';
 import 'package:solidpod/solidpod.dart';
 
 import 'package:solidui/src/utils/solid_alert.dart';
@@ -51,9 +52,17 @@ Widget buildSharedResourcesTable(
 ) {
   final cWidth = MediaQuery.sizeOf(context).width * 0.18;
   DataColumn buildDataColumn(String title, String tooltip) {
+    // The tip goes in a Markdown tooltip on the label, not DataColumn's own
+    // plain one.
     return DataColumn(
-      label: Expanded(child: Center(child: Text(title))),
-      tooltip: tooltip,
+      label: Expanded(
+        child: Center(
+          child: MarkdownTooltip(
+            message: '**$title**\n\n$tooltip.',
+            child: Text(title),
+          ),
+        ),
+      ),
     );
   }
 

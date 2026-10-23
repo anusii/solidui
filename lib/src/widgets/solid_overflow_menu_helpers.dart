@@ -276,7 +276,7 @@ class SolidOverflowMenuHelpers {
   static List<Widget> buildOverflowIconButtons(SolidAppBarConfig config) {
     return config.overflowItems.map((item) {
       return MarkdownTooltip(
-        message: item.label,
+        message: '**${item.label}**',
         child: IconButton(icon: Icon(item.icon), onPressed: item.onSelected),
       );
     }).toList();

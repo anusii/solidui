@@ -128,11 +128,11 @@ const securityKeyStrReType = '__security_key';
 
 /// Markdown tooltip text for the security key input field.
 
-const securityKeyTooltip =
+const securityKeyTooltip = '**Security Key**\n\n'
     'A security key can be any string of characters that you can remember. '
     'The longer the better, with a mix of characters.';
 
-const securityKeyRetypeTooltip =
+const securityKeyRetypeTooltip = '**Retype Security Key**\n\n'
     'Please retype your security key to ensure it is correct. '
     'We ask this to protect against loss of your data.';
 
@@ -140,7 +140,7 @@ const securityKeyRetypeTooltip =
 ///
 /// The [appName] parameter allows the tooltip to display the actual app name.
 
-String submitButtonTooltip(String appName) =>
+String submitButtonTooltip(String appName) => '**Submit**\n\n'
     'Tap here once you have provided your security key. '
     'This will record the key and create the Pod folder for $appName.';
 
@@ -148,7 +148,7 @@ String submitButtonTooltip(String appName) =>
 ///
 /// The [appName] parameter allows the tooltip to display the actual app name.
 
-String resourcesButtonTooltip(String appName) =>
+String resourcesButtonTooltip(String appName) => '**Resources**\n\n'
     'Tap here to list all of the $appName resources '
     'that will be created to initialise your Pod.';
 
@@ -156,6 +156,6 @@ String resourcesButtonTooltip(String appName) =>
 ///
 /// The [appName] parameter allows the tooltip to display the actual app name.
 
-String logoutButtonTooltip(String appName) =>
+String logoutButtonTooltip(String appName) => '**Logout**\n\n'
     'Tap here to logout from your connection to your Pod on the Solid server. '
     'Next time you start $appName you will need to log into the server again.';
