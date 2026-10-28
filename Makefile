@@ -2,7 +2,7 @@
 #
 # Generic Makefile
 #
-# Time-stamp: <Saturday 2026-10-17 09:29:12 +1100 Graham Williams>
+# Time-stamp: <Wednesday 2026-10-21 08:00:04 +1100 Graham Williams>
 #
 # Copyright (c) Graham.Williams@togaware.com
 #
@@ -99,6 +99,7 @@ $(APP):
   apk	     Upload the installer to $(REPO)
   snapstore  Publish the $(VER) snap to the Snap Store stable channel
   upload_android  Build the $(VER) bundle and send it to Play internal testing
+  flatpak    Build installers/$(APP)-$(VER).flatpak and install it for this user
 
 endef
 export HELP
@@ -131,9 +132,10 @@ tgz::
 
 # Android: Upload to Solid Community installers for general access.
 
-# Make apk on this machine to deal with signing. Then a ginstall of
-# the built bundles from github, installed to solidcommunity.au and
-# moved into ARCHIVE.
+# 20261028 gjw The workflow now builds and signs the apk and aab, and
+# `make ginstall` fetches them (installers/update.sh). These targets
+# remain for uploading a build made on this machine with `make apk` or
+# `make appbundle`.
 
 apk::
 	rsync -avzh installers/$(APP).apk $(REPO):$(RLOC)
@@ -162,6 +164,33 @@ deb:
 	wajig install $(APP)_amd64.deb
 	rm -f $(APP)_amd64.deb
 	mv -f installers/$(APP)_*.deb installers/ARCHIVE/
+
+# 20261020 gjw A Flatpak, built locally for now. For radiopod the Flutter
+# bundle is built on the host with the scrambled Podcast Index pair, as
+# deb.sh does, and flatpak/com.togaware.radiopod.yml wraps it with a libmpv
+# built from source. Needs `flatpak install --user flathub
+# org.flatpak.Builder org.gnome.Sdk//49`.
+
+FLATPAK_ID = com.togaware.$(APP)
+FLATPAK_BUILDER = flatpak run org.flatpak.Builder
+
+# 20261021 gjw Built OUTSIDE the project. The build directory holds a whole
+# filesystem tree, with links the user cannot list, and `make prep` runs
+# dependency_validator over everything under the package root: it failed
+# with Permission denied on build/flatpak/var/run.
+
+FLATPAK_DIR = $(HOME)/.cache/$(APP)-flatpak
+
+.PHONY: flatpak
+flatpak:
+	flutter build linux --release --dart-define-from-file=dart_defines.json \
+	  $(OBFUSCATE)
+	$(FLATPAK_BUILDER) --user --install --force-clean --disable-rofiles-fuse \
+	  --state-dir=$(FLATPAK_DIR)/state --repo=$(FLATPAK_DIR)/repo \
+	  $(FLATPAK_DIR)/build flatpak/$(FLATPAK_ID).yml
+	flatpak build-bundle $(FLATPAK_DIR)/repo \
+	  installers/$(APP)-$(VER).flatpak $(FLATPAK_ID)
+	@echo "Run with: flatpak run $(FLATPAK_ID)"
 
 dinstall:
 	wget $(DWLD)$(APP)_amd64.deb -O $(APP)_amd64.deb
@@ -202,10 +231,10 @@ snapstore:
 	@echo ''
 
 # 20261018 gjw The Play counterpart of upload_ios: send the bundle to
-# the internal testing track, Play's TestFlight. The bundle is built and
-# signed HERE, as signing is local by design, so this reuses `make
-# appbundle` (which also copies it to $(REPO) and moves it to ARCHIVE)
-# unless this version is already archived. support/play_upload.py needs
+# the internal testing track, Play's TestFlight. The bundle is the one
+# the workflow signed and `make ginstall` archived (20261028); failing
+# that, `make appbundle` builds and signs one here (it also copies it to
+# $(REPO) and moves it to ARCHIVE). support/play_upload.py needs
 # the service account key in $$PLAY_SERVICE_ACCOUNT or
 # ~/.config/radiopod/play-service-account.json, never in the repository,
 # and says so if Play already has this build number.
@@ -218,8 +247,9 @@ upload_android:
 	python3 support/play_upload.py $(AAB_FILE)
 	@echo ''
 
-# 20250110 gjw A ginstall of the github built bundles, and the locally
-# built apk installed to the repository and moved into ARCHIVE.
+# 20250110 gjw A ginstall of the github built bundles, installed to the
+# repository and moved into ARCHIVE. From 20261028 these include the
+# signed apk and aab.
 #
 # 20250218 gjw Remove the deb build for now as it is placing the data
 # and lib folders into /ust/bin/ which when we try to add another
@@ -249,7 +279,7 @@ debin:
 ifeq ($(DIRBASE),rattle)
 GINSTALLS := upload
 else
-GINSTALLS := upload prod apk appbundle
+GINSTALLS := upload prod
 endif
 
 .PHONY: ginstall
