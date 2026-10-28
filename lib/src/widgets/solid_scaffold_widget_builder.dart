@@ -115,14 +115,15 @@ class SolidScaffoldWidgetBuilder {
   }
 
   /// Builds an effective security key status for the drawer with the current
-  /// [isKeySaved] value from scaffold state.
+  /// [isKeySaved] value from scaffold state, or null while that value is
+  /// not yet determined.
 
   static SolidSecurityKeyStatus? _buildDrawerSecurityKeyStatus(
     SolidScaffold widget,
-    bool isKeySaved,
+    bool? isKeySaved,
   ) {
     final original = widget.statusBar?.securityKeyStatus;
-    if (original == null) return null;
+    if (original == null || isKeySaved == null) return null;
 
     return SolidSecurityKeyStatus(
       isKeySaved: isKeySaved,
@@ -146,7 +147,7 @@ class SolidScaffoldWidgetBuilder {
     required bool isWideScreen,
     required bool isCompatibilityMode,
     required Widget? bodyContent,
-    required bool isKeySaved,
+    required bool? isKeySaved,
     required int? currentSelectedIndex,
     required void Function(int) onMenuSelected,
     required bool Function() getUsesInternalManagement,

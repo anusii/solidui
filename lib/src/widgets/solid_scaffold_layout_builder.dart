@@ -94,9 +94,13 @@ class SolidScaffoldLayoutBuilder {
     }
   }
 
-  /// Builds the status bar.
+  /// Builds the status bar. A null [isKeySaved] means the key status is not
+  /// yet determined, and the security key item is left out until it is.
 
-  static Widget? buildStatusBar(SolidStatusBarConfig? config, bool isKeySaved) {
+  static Widget? buildStatusBar(
+    SolidStatusBarConfig? config,
+    bool? isKeySaved,
+  ) {
     if (config == null) return null;
 
     // Create a modified config with updated security key status.
@@ -120,7 +124,10 @@ class SolidScaffoldLayoutBuilder {
         serverInfo: config.serverInfo,
         loginStatus: config.loginStatus,
         onLogin: config.onLogin,
-        securityKeyStatus: updatedStatus,
+        // 20261028 gjw Show no key status at all while it is still being
+        // determined, rather than briefly claiming it is Not Cached.
+
+        securityKeyStatus: isKeySaved == null ? null : updatedStatus,
         customItems: config.customItems,
         showOnNarrowScreens: config.showOnNarrowScreens,
         narrowScreenThreshold: config.narrowScreenThreshold,
@@ -174,7 +181,7 @@ class SolidScaffoldLayoutBuilder {
     required void Function(int) onTabSelected,
     required void Function(BuildContext, String, String?)? onShowAlert,
     required SolidStatusBarConfig? statusBar,
-    required bool isKeySaved,
+    required bool? isKeySaved,
   }) {
     final statusBarWidget = buildStatusBar(statusBar, isKeySaved);
     final menuBar = useMenuInBottomBar

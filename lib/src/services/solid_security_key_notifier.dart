@@ -37,6 +37,7 @@ import 'package:solidpod/solidpod.dart' show KeyManager;
 class SecurityKeyNotifier extends ChangeNotifier {
   bool _isKeySaved = false;
   bool _isChecking = false;
+  bool _isDetermined = false;
 
   /// Current security key status.
 
@@ -46,10 +47,16 @@ class SecurityKeyNotifier extends ChangeNotifier {
 
   bool get isChecking => _isChecking;
 
+  /// Whether the status has been determined, by a completed check or an
+  /// explicit update. Until then [isKeySaved] is only the initial default.
+
+  bool get isDetermined => _isDetermined;
+
   /// Updates the security key status and notifies listeners.
 
   void updateStatus(bool isKeySaved) {
-    if (_isKeySaved != isKeySaved) {
+    if (_isKeySaved != isKeySaved || !_isDetermined) {
+      _isDetermined = true;
       _isKeySaved = isKeySaved;
       notifyListeners();
     }
@@ -69,6 +76,7 @@ class SecurityKeyNotifier extends ChangeNotifier {
       // First check if there's a key in local secure storage.
 
       final hadCachedKey = await KeyManager.hasSecurityKey();
+      _isDetermined = true;
 
       if (!hadCachedKey) {
         // No key in local storage.
@@ -134,6 +142,11 @@ class SecurityKeyNotifier extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('SecurityKeyNotifier: Error refreshing status: $e');
+
+      // 20261028 gjw Fall back to showing the current status rather than
+      // hiding it for the rest of the session.
+
+      _isDetermined = true;
       _isChecking = false;
       notifyListeners();
       return _isKeySaved;

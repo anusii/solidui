@@ -35,7 +35,11 @@ class SolidScaffoldState extends State<SolidScaffold> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   SolidSecurityKeyService? _securityKeyService;
   SolidScaffoldSecurityKeyHelper? _securityKeyHelper;
-  bool _isKeySaved = false;
+
+  // 20261028 gjw Null until the key status is actually determined, so that
+  // nothing is shown at startup rather than a premature Not Cached.
+
+  bool? _isKeySaved;
   String? _appVersion, _currentWebId;
   bool _isVersionLoaded = false;
   bool? _cachedUsesInternalManagement;
@@ -104,7 +108,9 @@ class SolidScaffoldState extends State<SolidScaffold> {
   void _setupListeners() {
     if (widget.statusBar?.securityKeyStatus != null) {
       securityKeyNotifier.addListener(_onSecurityKeyNotifierChanged);
-      _isKeySaved = securityKeyNotifier.isKeySaved;
+      if (securityKeyNotifier.isDetermined) {
+        _isKeySaved = securityKeyNotifier.isKeySaved;
+      }
     }
     solidPreferencesNotifier.addListener(_onPreferencesChanged);
     widget.controller?.addListener(_onControllerChanged);
@@ -175,7 +181,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
   void _onThemeChanged() => mounted ? setState(() {}) : null;
 
   void _onSecurityKeyNotifierChanged() {
-    if (!mounted) return;
+    if (!mounted || !securityKeyNotifier.isDetermined) return;
     final newStatus = securityKeyNotifier.isKeySaved;
     if (_isKeySaved != newStatus) {
       setState(() => _isKeySaved = newStatus);
@@ -189,7 +195,7 @@ class SolidScaffoldState extends State<SolidScaffold> {
 
   Future<void> refreshSecurityKeyStatus() async =>
       await _securityKeyHelper?.refresh(
-        _isKeySaved,
+        _isKeySaved ?? false,
         widget.statusBar?.securityKeyStatus?.onKeyStatusChanged,
       );
 
