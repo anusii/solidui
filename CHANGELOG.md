@@ -16,6 +16,7 @@ The package is available from
 
 ## 1.5 Login and Register
 
++ Login stays put, key status now shown before it [1.5.15 20261028 gjw]
 + Key status shows nothing until it is determined [1.5.14 20261028 gjw]
 + Every tooltip is Markdown, a bold title then the tip [1.5.13 20261024 gjw]
 + Status bar shown from 600 wide, same as side menu [1.5.12 20261022 gjw]

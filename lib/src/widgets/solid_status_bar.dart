@@ -329,11 +329,11 @@ class SolidStatusBar extends StatelessWidget {
     final serverInfo = _buildServerInfo(context);
     if (serverInfo != null) items.add(serverInfo);
 
-    final loginStatus = _buildLoginStatus(context);
-    if (loginStatus != null) items.add(loginStatus);
-
     final securityKeyStatus = _buildSecurityKeyStatus(context);
     if (securityKeyStatus != null) items.add(securityKeyStatus);
+
+    final loginStatus = _buildLoginStatus(context);
+    if (loginStatus != null) items.add(loginStatus);
 
     items.addAll(_buildCustomItems());
 
@@ -363,8 +363,8 @@ class SolidStatusBar extends StatelessWidget {
     final customItems = _buildCustomItems();
 
     final bottomItems = <Widget>[];
-    if (loginStatus != null) bottomItems.add(loginStatus);
     if (securityKeyStatus != null) bottomItems.add(securityKeyStatus);
+    if (loginStatus != null) bottomItems.add(loginStatus);
     bottomItems.addAll(customItems);
 
     return _statusContainer(
@@ -398,8 +398,12 @@ class SolidStatusBar extends StatelessWidget {
     final customItems = _buildCustomItems();
 
     final rightItems = <Widget>[];
-    if (loginStatus != null) rightItems.add(loginStatus);
+    // 20261028 gjw The security key status appears only once the key cache
+    // status is determined, so it goes before the login. The login then
+    // stays in the one place rather than shifting left when the key shows.
+
     if (securityKeyStatus != null) rightItems.add(securityKeyStatus);
+    if (loginStatus != null) rightItems.add(loginStatus);
     rightItems.addAll(customItems);
 
     return _statusContainer(
